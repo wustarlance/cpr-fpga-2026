@@ -1,0 +1,190 @@
+                                                                           Confidential
+                                                                    Technical Note TN304
+
+SALEAGLE® ADC 模数转换用户指南
+1 术语/缩略词
+   ADC            ：Analog-to-Digital Converter            模拟数字转换器
+
+   GPIO           ：General Purpose Input Output           通用输入/输出
+
+   SAR            ：Successive Approximation Register      逐次逼近
+
+2 关于本手册
+   安路 EAGLE ADC 使用说明手册介绍了 EAGLE 系列芯片 ADC 的使用方法。
+
+   本手册适用软件版本：TD4.2.213。
+
+3 ADC 模块
+   EAGLE 系列芯片中内嵌有 1 个 8 通道 SAR 型 ADC 模块。8 个通道输入和用户 IO 复用，当用户不需
+要 ADC 时可以当作普通用户 IO 使用，复用 IO 设置相互独立，未使用的 ADC 通道管脚可以作为普
+通 IO 使用。当使用 ADC 时，相关 BANK 的 VCCIO 电压应不低于 ADC 模拟电源电压。
+
+
+
+
+                                          图 1 ADC 模块
+
+                                        表 1 ADC 模块端口
+
+     内部端口名                  端口方向              位宽/bit                 说明
+            clk               input               1         ADC 工作时钟，fmax=16Mhz
+            pd                input               1           ADC 低功耗掉电模式
+             s                input               3          ADC 通道选择信号输入
+            soc               input               1         采样使能信号输入，高有效
+            eoc              output               1         ADC 转换完成输出，高有效
+          dout               output               12         对应通道 ADC 转换结果
+
+
+
+
+TN304_1.3                               www.anlogic.com                               1
+
+2019.8                                                                      Confidential
+SALEAGLE® ADC 模数转换用户指南                                                   安路科技
+
+
+
+
+                            图 2 EAGLE ADC 采样控制时序
+
+4 ADC 性能
+                                 表 2 ADC 性能
+
+                参数                                     性能
+               工作电压                3.3V 模拟电源（VDDA）和 3.3V 数字电源(VDDD)
+             最高采样速率                                    1Mhz
+                通道数                                     8
+               采样范围                             0.1*VREF ~ 0.9*VREF
+                                                    >50dB SFDR
+               动态性能
+                                                    >45dB SINAD
+              线性度性能                     INL<1 LSB,DNL<1 LSB（8bits 精度）
+             最高时钟频率                                   16Mhz
+            ADC 参考电压 VREF                          0.5~1.0xVDDA
+            ADC 输出数字位宽                                12bit
+             ADC 有效精度                                  8bit
+              线性度性能                     INL<1 LSB,DNL<1 LSB（8bits 精度）
+1. ADC 的精度和参考电压关系非常紧密，需要板上提供非常准确和干净的 VREF 参考电压，精度控制
+   在 VDDA +/- 0.2%以内。
+
+2. VREF 可以接受的范围是 0.5xVDDA~1.0xVDDA，由于输入信号范围也是由 VREF 决定，为了得到更大
+   的输入信号范围，建议 VREF 设成 1.0xVDDA。
+
+3. 在用 ADC 的时候，尽量避免使用 ADC IO 相同 BANK 的数字 IO 以减小噪声。
+
+TN304_1.3                     www.anlogic.com                                   2
+
+2019.8                                                                Confidential
+SALEAGLE® ADC 模数转换用户指南                                                                       安路科技
+4.1 ADC 模块说明
+   module EG _PHY_ADC(clk, pd, s, soc, eoc, dout);
+
+         input     clk;            // clock
+
+         input     pd;             // power Down signal.
+
+         input     [2:0] s;               // channel Select Signal.
+
+         input     soc;            // start of Conversion.
+
+         output           eoc;            // end of Conversion.
+
+         output           [11:0] dout; // AD conversion results
+
+         parameter CH0 = "DISABLE" ;
+
+         parameter CH1 = "DISABLE" ;
+
+         parameter CH2 = "DISABLE" ;
+
+         parameter CH3 = "DISABLE" ;
+
+         parameter CH4 = "DISABLE" ;
+
+         parameter CH5 = "DISABLE" ;
+
+         parameter CH6 = "DISABLE" ;
+
+         parameter CH7 = "DISABLE" ;
+
+         parameter VREF = "DISABLE" ;
+
+   endmodule
+
+                                               表 3 参数描述
+
+     Attribute                   Allowed Values              Default             Descriptions
+          VREF             "DISABLE" “ENABLE”              "DISABLE"           ADC 参考电压使能
+          CH0              "DISABLE" “ENABLE”              "DISABLE"              通道 0 使能
+          CH1              "DISABLE" “ENABLE”              "DISABLE"              通道 1 使能
+          CH2              "DISABLE" “ENABLE”              "DISABLE"              通道 2 使能
+          CH3              "DISABLE" “ENABLE”              "DISABLE"              通道 3 使能
+          CH4              "DISABLE" “ENABLE”              "DISABLE"              通道 4 使能
+          CH5              "DISABLE" “ENABLE”              "DISABLE"              通道 5 使能
+          CH6              "DISABLE" “ENABLE”              "DISABLE"              通道 6 使能
+          CH7              "DISABLE" “ENABLE”              "DISABLE"              通道 7 使能
+
+                                              表 4 ADC 端口说明
+
+                 端口名                           类型                              描述
+                  clk                         input                          fmax=16Mhz
+                  pd                          input                    power_down，1’b0 正常工作
+                   s                          input                           通道选择
+
+
+TN304_1.3                                  www.anlogic.com                                          3
+
+2019.8                                                                                    Confidential
+SALEAGLE® ADC 模数转换用户指南                                    安路科技
+            soc            input              开始转换标志
+            eoc            output             结束转换标志
+            dout           output          12bit 的 ADC 输出结果
+
+  用户可自身需要选择需要采样的通道，通过 IP generate 的方法使用 ADC 模块，如错误!未找到引
+用源。所示。
+
+
+
+
+                          图 3 ADC 模块使用
+
+5 注意事项
+   建议 SOC 采样间隔要小于 10us，即采样频率不要低于 100Khz；若需要大间隔的采样，需要在 SOC
+到来 5 个时钟周期前拉高一下 PD 脚之后再进行采样。
+
+
+
+
+TN304_1.3                www.anlogic.com                         4
+
+2019.8                                                 Confidential
+SALEAGLE® ADC 模数转换用户指南                                   安路科技
+版本信息
+    日期        版本    修订记录
+  2018/7/19   1.0   初版建立
+  2018/9/13   1.1   文档格式调整
+                    1、修改了当使用 ADC 通道时，相关 BANK 的 VCCIO 电压应不低于 ADC
+  2019/7/29   1.2   模拟电源电压；
+                    2、修改了表 2 ADC 性能相关的参数
+  2019/8/5    1.3   更新文档页面页脚
+
+
+
+
+版权所有©2021 上海安路信息科技股份有限公司
+
+未经本公司书面许可，任何单位和个人都不得擅自摘抄、复制、翻译本文档内容的部分或全部，并不
+得以任何形式传播。
+
+免责声明
+本文档并未授予任何知识产权的许可，并未以明示或暗示，或以禁止发言或其它方式授予任何知识产
+权许可。除安路科技在其产品的销售条款和条件中声明的责任之外，安路科技概不承担任何法律或非
+法律责任。安路科技对安路科技产品的销售和/或使用不作任何明示或暗示的担保，包括对产品的特定
+用途适用性、适销性或对任何专利权、版权或其它知识产权的侵权责任等，均不作担保。安路科技对
+文档中包含的文字、图片及其它内容的准确性和完整性不承担任何法律或非法律责任，安路科技保留
+修改文档中任何内容的权利，恕不另行通知。安路科技不承诺对这些文档进行适时的更新。
+
+TN304_1.3                  www.anlogic.com                        5
+
+2019.8                                                 Confidential
+

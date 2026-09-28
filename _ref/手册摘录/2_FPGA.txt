@@ -1,0 +1,561 @@
+    1                                                                                   2                                               3           4                                                                        5                                   6
+
+
+
+
+                               COU7A
+                               COU7B
+                               COU7C
+                               COU7D
+                              U7A                                                                                                                                                                     U7B
+        NLSEL0
+         SEL0            F16                                                    B15                  NLFPGA0SD0D1
+                                                                                                     FPGA_SD_D1                                                                     NLGPIOA17
+                                                                                                                                                                                    GPIOA17      P15                                             K16 NLGPIOA28
+                                                                                                                                                                                                                                                       GPIOA28
+        NLSEL1
+         SEL1
+                     PIU70F16
+
+
+                         E16
+                      PIU70E16
+                                    IO_BE1N_0
+                                    IO_BE1P_0
+                                                   BANK0          IO_BE15N_0
+                                                                                B16
+                                                                  IO_BE15P_0 PIU70B16
+                                                                                      PIU70B15
+
+
+                                                                                                                                                                                    GPIOA18
+                                                                                                                                                                                            PIU70P15
+
+
+                                                                                                                                                                                    NLGPIOA18 PIU70P16
+                                                                                                                                                                                                 P16
+                                                                                                                                                                                                       IO_L1N_1
+                                                                                                                                                                                                       IO_L1P_1
+                                                                                                                                                                                                                                     IO_L15N_1 PIU70K16
+
+
+                                                                                                                                                                                                                                                 J16 NLGPIOA29
+                                                                                                                                                                                                                                     IO_L15P_1 PIU70J16GPIOA29
+        NLSEL2
+         SEL2            E12                                                    B8                                                                                                  NLGPIOA19 PIU70M11
+                                                                                                                                                                                    GPIOA19     M11                                              D16 NLGPIOA11
+                                                                                                                                                                                                                                                       GPIOA11
+        NLRXD
+         RXD
+                      PIU70E12
+                         F12        IO_BE2N_0                     IO_BE16N_0 PIU70B8
+                                                                                C8                   NLSWKEY01
+                                                                                                     SWKEY_1                                                                        NLGPIOA20 PIU70L12
+                                                                                                                                                                                    GPIOA20     L12    IO_L2N_1                      IO_L16N_1 PIU70D16
+                                                                                                                                                                                                                                                 D14 NLGPIOA9
+                                                                                                                                                                                                                                                       GPIOA9
+        NLBUZZER
+                      PIU70F12
+                                    IO_BE2P_0                     IO_BE16P_0 PIU70C8
+                                                                                                     NLFPGA0SD0D3                                                                   NLGPIOA21          IO_L2P_1                      IO_L16P_1 PIU70D14
+         BUZZER          H11                                                    A12                  FPGA_SD_D3                                                                     GPIOA21      P14                                             E15 NLGPIOA30
+                                                                                                                                                                                                                                                       GPIOA30
+        NLSEL5
+                     PIU70H11
+                                    IO_BE3N_0                     IO_BE17N_0          PIU70A12
+
+                                                                                                     NLFPGA0SD0CMD
+                                                                                                                                                                                            PIU70P14
+
+                                                                                                                                                                                    NLGPIOA22          IO_L3N_1                      IO_L17N_1 PIU70E15
+
+
+         SEL5            F10                                                    A13                  FPGA_SD_CMD                                                                    GPIOA22     K11                                              F15 NLGPIOA31
+                                                                                                                                                                                                                                                       GPIOA31
+        NLTXD
+                     PIU70F10
+                                    IO_BE3P_0                     IO_BE17P_0          PIU70A13
+
+                                                                                                     NLDIG6
+                                                                                                                                                                                            PIU70K11
+
+                                                                                                                                                                                    NLGPIOA23          IO_L4P_1                      IO_L17P_1 PIU70F15
+
+
+         TXD            D12                                                     A7                   DIG6                                                                           GPIOA23      J11                                             H16 NLGPIOA32
+                                                                                                                                                                                                                                                       GPIOA32
+                         D11 IO_BE4N_0                            IO_BE18N_0                                                                                                                           IO_L4N_1                      IO_L18N_1
+                     PIU70D12                                                         PIU70A7                                                                                               PIU70J11                                           PIU70H16
+
+
+        NLSEL7
+         SEL7                                                                   A8                   NLDIG5
+                                                                                                     DIG5                                                                           NLMDC0
+                                                                                                                                                                                    MDC0         L13                                             G16 NLGPIOA33
+                                                                                                                                                                                                                                                       GPIOA33
+        NLSEL3
+                     PIU70D11
+                                    IO_BE4P_0                     IO_BE18P_0          PIU70A8
+
+
+                                                                                                     NLSWKEY02                                                                      NLMDIO0
+                                                                                                                                                                                            PIU70L13
+                                                                                                                                                                                                       IO_L5P_1                      IO_L18P_1 PIU70G16
+
+
+
+
+A        SEL3            E10
+                      PIU70E10 IO_BE5N_0                                        C7
+                                                                  IO_BE19N_0 PIU70C7                 SWKEY_2                                                                        MDIO0       M13
+                                                                                                                                                                                              PIU70M13 IO_L5N_1                                                      A
+        NLSEL6
+         SEL6            E11                                                    C6                   NLSWKEY03
+                                                                                                     SWKEY_3                                                                        NLGPIOA24 PIU70L14
+                                                                                                                                                                                    GPIOA24     L14
+        NLSEL4
+         SEL4
+                      PIU70E11
+                         C13        IO_BE5P_0                     IO_BE19P_0 PIU70C6
+                                                                                A6                   NLDIG7
+                                                                                                     DIG7                                                                           NLGPIOA25 PIU70M14
+                                                                                                                                                                                    GPIOA25     M14    IO_L6P_1
+        NLVGAD11
+                      PIU70C13
+                                    IO_BE6N_0                     IO_BE20N_0 PIU70A6                 NLDIG3                                                                         NLGPIOA26          IO_L6N_1
+         VGAD11          E13 IO_BE6P_0                                          A5                   DIG3                                                                           GPIOA26     K15
+        NLLED2
+         LED2
+                     PIU70E13
+
+
+                         C10
+                     PIU70C10
+                                    IO_BE7N_0
+                                                                  IO_BE20P_0
+                                                                  IO_BE21N_0
+                                                                                B6
+                                                                                      PIU70A5
+
+
+                                                                                      PIU70B6
+                                                                                                     NLDIG2
+                                                                                                     DIG2                                                                           GPIOA27
+                                                                                                                                                                                            PIU70K15
+
+                                                                                                                                                                                    NLGPIOA27   M15
+                                                                                                                                                                                            PIU70M15
+                                                                                                                                                                                                       IO_L7P_1
+                                                                                                                                                                                                       IO_L7N_1
+                                                                                                                                                                                                                            BANK1
+        NLLED3
+         LED3            B12                                                    C5                   NLSWKEY04
+                                                                                                     SWKEY_4                                                                        NLGPIOA12
+                                                                                                                                                                                    GPIOA12 K12
+        NLFPGA0SD0D2
+                     PIU70B12
+                                    IO_BE7P_0                     IO_BE21P_0          PIU70C5
+
+
+                                                                                                     NLVGA0HSYNC
+                                                                                                                                                                                            PIU70K12
+
+
+                                                                                                                                                                                    NLGPIOA35          IO_L8P_GCLKIOL_3_1
+         FPGA_SD_D2 A11                                                         E7                   VGA_HSYNC                                                                      GPIOA35 J12
+                     PIU70A11
+                                    IO_BE8N_0                     IO_BE22N_0          PIU70E7
+
+
+                                                                                                     NLVGA0VSYNC
+                                                                                                                                                                                            PIU70J12
+
+
+                                                                                                                                                                                    NLGPIOA34          IO_L8N_GCLKIOL_2_1
+                         C11
+                      PIU70C11      IO_BE8P_0                                   F7
+                                                                  IO_BE22P_0 PIU70F7                 VGA_VSYNC                                                                      GPIOA34 PIU70K14
+                                                                                                                                                                                                K14    IO_L_GCLKIOL_4_1
+                          D9                                                    F6                   NLVGAD0
+                                                                                                     VGAD0                                                                          NLGPIOA15
+                                                                                                                                                                                    GPIOA15 PIU70J14
+                                                                                                                                                                                                 J14
+                      PIU70D9
+                          F9        IO_BE9N_GCLKIOB_0_0           IO_BE23N_0 PIU70F6
+                                                                                E6                   NLVGAD1
+                                                                                                     VGAD1           3V3                                                            NLGPIOA16
+                                                                                                                                                                                    GPIOA16 PIU70H14
+                                                                                                                                                                                                H14    IO_L_1
+                      PIU70F9
+                          C9        IO_BE9P_GCLKIOB_1_0           IO_BE23P_0 PIU70E6
+                                                                                A4                   NLLED0
+                                                                                                     LED0                                                                           NLGPIOA10    J13 IO_L_1
+                                                                                                                                                                                    GPIOA10 PIU70J13
+                      PIU70C9
+                                    IO_BE10N_GCLKIOB_4_0          IO_BE24N_0 PIU70A4                 NLLED1                                                                         NLGPIOA0           IO_L9N_1
+                         B10
+                     PIU70B10
+                                    IO_BE10P_GCLKIOB_5_0          IO_BE24P_0    A3    PIU70A3
+                                                                                                     LED1                                                                           GPIOA0      H13
+                                                                                                                                                                                            PIU70H13
+                                                                                                                                                                                                       IO_L9P_1
+                          A9                                                    D6                   NLVGAD2
+                                                                                                     VGAD2           PIR12302                                                       NLGPIOA1
+                                                                                                                                                                                    GPIOA1      N16
+                     PIU70A9
+
+
+                        A10         IO_BE11N_GCLKIOB_6_0          IO_BE25N_0    D5
+                                                                                      PIU70D6
+
+                                                                                                     NLVGAD3
+                                                                                                     VGAD3                  COR123
+                                                                                                                            R123                                                    NLGPIOA2
+                                                                                                                                                                                    GPIOA2
+                                                                                                                                                                                            PIU70N16
+
+
+                                                                                                                                                                                                N14    IO_L10N_1
+                     PIU70A10
+                                    IO_BE11P_GCLKIOB_7_0          IO_BE25P_0          PIU70D5
+
+
+                                                                                                     NLDIG4                     10.0k
+                                                                                                                                                                                            PIU70N14
+
+
+                                                                                                                                                                                    NLGPIOA3 PIU70G14  IO_L10P_1
+                          E8
+                      PIU70E8 IO_BE12N_GCLKIOB_2_0
+                                                                                B5                   DIG4                                                                           GPIOA3      G14
+                                                                  IO_BE26N_0 PIU70B5                                 PIR12301                                                       NLGPIOA4 PIU70H15  IO_L11N_1
+                          D8
+                      PIU70D8       IO_BE12P_GCLKIOB_3_0 IO_BE26P_0,HSWAPEN     C4
+                                                                             PIU70C4                                                                                                GPIOA4      H15    IO_L11P_1
+        NLDIG0
+         DIG0            C15                                                                                                                                                        NLGPIOA5 PIU70F14
+                                                                                                                                                                                    GPIOA5       F14
+        NLDIG1
+         DIG1
+                      PIU70C15
+                         C16
+                      PIU70C16
+                                    IO_BE13N_0
+                                    IO_BE13P_0
+                                                                                         Enable IO Pull-up                                                                          NLGPIOA7 PIU70F13
+                                                                                                                                                                                    GPIOA7       F13   IO_L12N_1
+                                                                                                                                                                                                       IO_L12P_1
+        NLFPGA0SD0CLK
+         FPGA_SD_CLK A14                                                                                                                                                            NLGPIOA6
+                                                                                                                                                                                    GPIOA6      G11
+        NLFPGA0SD0D0
+                     PIU70A14
+                                    IO_BE14N_0                                                                                                                                      NLGPIOA8
+                                                                                                                                                                                            PIU70G11
+                                                                                                                                                                                                       IO_L13N_1
+         FPGA_SD_D0 B14                                                                                                                                                             GPIOA8      G12
+                     PIU70B14
+                                    IO_BE14P_0                                                                                                                                      GPIOA13
+                                                                                                                                                                                            PIU70G12
+
+                                                                                                                                                                                    NLGPIOA13 PIU70M16
+                                                                                                                                                                                                M16    IO_L13P_1
+                                                                                                                                                                                    NLGPIOA14 PIU70L16 IO_L14N_1
+                                                                                                                                                                                    GPIOA14     L16
+                                                                                                                                                                                                       IO_L14P_1
+                            EG4S20BG256
+                                                                                                                                                                                                   EG4S20BG256
+
+
+
+
+B                                                                                                                                                                                                                                                                    B
+
+
+
+
+                                                                                                                                                                       U7D
+                                                                                                                                            FPGA_HDMI1_D2N
+                                                                                                                                            NLFPGA0HDMI10D2N       D3 IO_R1N_3                                         K2        FPGA_HDMI1_HPD
+                                                                                                                                                                                                                                 NLFPGA0HDMI10HPD
+                                                                                                                                            NLFPGA0HDMI10D2P
+                                                                                                                                            FPGA_HDMI1_D2P
+                                                                                                                                                                PIU70D3
+                                                                                                                                                                   B3
+                                                                                                                                                                PIU70B3 IO_R1P_3
+                                                                                                                                                                                          BANK3            IO_R16N_3 PIU70K2
+                                                                                                                                                                                                                       K3
+                                                                                                                                                                                                           IO_R16P_3 PIU70K3
+                                                                                                                                                                                                                                 NLFPGA0HDMI10CEC
+                                                                                                                                                                                                                                 FPGA_HDMI1_CEC
+                                                                                                                                            NLFPGA0HDMI10D1N
+                                                                                                                                            FPGA_HDMI1_D1N         E4                                                  J6        NLFPGA0HDMI20HPD
+                                                                                                                                                                                                                                 FPGA_HDMI2_HPD
+                                                                                                                                            NLFPGA0HDMI10D1P
+                                                                                                                                            FPGA_HDMI1_D1P
+                                                                                                                                                                PIU70E4
+                                                                                                                                                                   E3   IO_R2N_3                           IO_R17N_3 PIU70J6
+                                                                                                                                                                                                                       K5        NLFPGA0HDMI20CEC
+                                                                                                                                                                                                                                 FPGA_HDMI2_CEC
+                                                                                                                                                                PIU70E3 IO_R2P_3                           IO_R17P_3 PIU70K5
+                                                                                                                                            NLFPGA0HDMI10D0N
+                                                                                                                                            FPGA_HDMI1_D0N         F4                                                            NLFPGA0HDMI10SCL
+                                                                                                                                            NLFPGA0HDMI10D0P
+                                                                                                                                                                PIU70F4 IO_R3N_3                           IO_R18P_3 P1
+                                                                                                                                                                                                                     PIU70P1
+                                                                                                                                                                                                                                 FPGA_HDMI1_SCL
+                                                                                                                                                                                                                                 NLFPGA0HDMI10SDA
+                                                                                                                                            FPGA_HDMI1_D0P         F5                                                  R1        FPGA_HDMI1_SDA
+                                                                                                                                            NLKEY01
+                                                                                                                                            KEY_1
+                                                                                                                                                                PIU70F5
+
+                                                                                                                                                                   A2   IO_R3P_3                           IO_R18N_3  PIU70R1
+
+                                                                                                                                                                                                                       P2        NLFPGA0HDMI20SCL
+                                                                                                                                                                                                                                 FPGA_HDMI2_SCL
+                                                                                                                                            KEY_2
+                                                                                                                                                                PIU70A2
+
+                                                                                                                                                                   B2   IO_R4N_3                           IO_R19N_3  PIU70P2
+
+                                                                                                                                                                                                                       R2        FPGA_HDMI2_SDA
+                                                                                                                                            NLKEY02             PIU70B2
+                                                                                                                                                                        IO_R4P_3                           IO_R19P_3  PIU70R2
+                                                                                                                                                                                                                                 NLFPGA0HDMI20SDA
+                                                                                                                                            NLFPGA0HDMI20CLKN
+                                                                                                                                            FPGA_HDMI2_CLKN        C2
+                                                                                                                                                                PIU70C2 IO_R5N_3
+                                                                                                                                                                                                                       M2        NLGPIOB12
+                                                                                                                                                                                                                                 GPIOB12
+                                                                                                                                                                                                           IO_R20N_3 PIU70M2
+                                                                                                                                            NLFPGA0HDMI20CLKP
+                                                                                                                                            FPGA_HDMI2_CLKP        C3
+                                                                                                                                                                PIU70C3 IO_R5P_3
+                                                                                                                                                                                                                       L3        NLGPIOB14
+                                                                                                                                                                                                                                 GPIOB14
+                                                                                                                                            NLGPIOB0                                                       IO_R20P_3 PIU70L3     NLGPIOB15
+                                                                                                                                            GPIOB0                 E2
+                                                                                                                                                                PIU70E2 IO_R6N_3
+                                                                                                                                                                                                                       M3        GPIOB15
+                                                                                                                                            NLKEY04                                                        IO_R21N_3 PIU70M3     NLGPIOB16
+                                                                                                                                            KEY_4                  C1
+                                                                                                                                                                PIU70C1 IO_R6P_3
+                                                                                                                                                                                                                       K6        GPIOB16
+                                                                                                                                            NLFPGA0HDMI20D2N                                               IO_R21P_3 PIU70K6     NLGPIOB17
+                                 U7C                                                                                                        FPGA_HDMI2_D2N         D1 IO_R7N_3
+                                                                                                                                                                PIU70D1
+                                                                                                                                                                                                           IO_R22N_3   N3
+                                                                                                                                                                                                                      PIU70N3
+                                                                                                                                                                                                                                 GPIOB17
+          NLTXD0
+           TXD0              T4                                                 T15                NLGPIOB25
+                                                                                                    GPIOB25                                 NLFPGA0HDMI20D2P
+                                                                                                                                            FPGA_HDMI2_D2P         E1                                                  M4        NLGPIOB18
+                                                                                                                                                                                                                                 GPIOB18
+           RXD0
+          NLRXD0
+                       PIU70T4
+
+                             P6
+                       PIU70P6
+                                  IO_TE1N_2
+                                  IO_TE1P_2
+                                                        BANK2    IO_TE15N_2
+                                                                  IO_TE15P_2
+                                                                                R15
+                                                                                        PIU70T15
+
+
+                                                                                        PIU70R15
+                                                                                                    GPIOB26
+                                                                                                   NLGPIOB26                                FPGA_HDMI2_D1N
+                                                                                                                                            NLFPGA0HDMI20D1N
+                                                                                                                                                                PIU70E1
+
+                                                                                                                                                                   F2
+                                                                                                                                                                PIU70F2
+                                                                                                                                                                        IO_R7P_3
+                                                                                                                                                                        IO_R8N_3
+                                                                                                                                                                                                           IO_R22P_3 N4
+                                                                                                                                                                                                           IO_R23N_3
+                                                                                                                                                                                                                      PIU70M4
+
+
+                                                                                                                                                                                                                      PIU70N4
+                                                                                                                                                                                                                                 GPIOB19
+                                                                                                                                                                                                                                 NLGPIOB19
+          NLTXD1
+           TXD1              T6
+                         PIU70T6 IO_TE2N_2
+                                                                                R12                NLGPIOB27
+                                                                                                    GPIOB27                                 NLFPGA0HDMI20D1P
+                                                                                                                                            FPGA_HDMI2_D1P         F1                                                  P4        NLGPIOB20
+                                                                                                                                                                                                                                 GPIOB20
+                                                                 IO_TE16N_2 PIU70R12                                                                            PIU70F1 IO_R8P_3                           IO_R23P_3 PIU70P4
+          NLVGAD4
+           VGAD4             T5
+                         PIU70T5 IO_TE2P_2
+                                                                                R14                NLGPIOB28
+                                                                                                    GPIOB28                                 NLFPGA0HDMI20D0N
+                                                                                                                                            FPGA_HDMI2_D0N         G6                                                  M1        NLGPIOB21
+                                                                                                                                                                                                                                 GPIOB21
+          NLVGAD5
+           VGAD5             P5                                   IO_TE16P_2 PIU70R14
+                                                                                P11                NLGPIOB29
+                                                                                                    GPIOB29                                 NLFPGA0HDMI20D0P
+                                                                                                                                            FPGA_HDMI2_D0P
+                                                                                                                                                                PIU70G6 IO_R9N_3
+                                                                                                                                                                   G5                                      IO_R24N_3 PIU70M1
+                                                                                                                                                                                                                       N1        NLGPIOB22
+                                                                                                                                                                                                                                 GPIOB22
+                         PIU70P5 IO_TE3N_2,D4           IO_TE17N_2,ADC_CH_3 PIU70P11                                                                            PIU70G5 IO_R9P_3                           IO_R24P_3 PIU70N1
+          NLVGAD6
+           VGAD6             N5                                                 M10                NLGPIOB30
+                                                                                                    GPIOB30                                 NLGPIOB2
+                                                                                                                                            GPIOB2                 G3                                                  L4        NLGPIOB23
+                                                                                                                                                                                                                                 GPIOB23
+          NLVGAD7
+                       PIU70N5
+                                  IO_TE3P_2,D3          IO_TE17P_2,ADC_CH_1             PIU70M10
+
+                                                                                                   NLGPIOB31                                NLGPIOB3
+                                                                                                                                                                PIU70G3
+                                                                                                                                                                        IO_R10N_3                             IO_R_3  PIU70L4
+
+                                                                                                                                                                                                                                 NLGPIOB24
+           VGAD7             N6                                                 P12                 GPIOB31                                 GPIOB3                 G1                                                  L5        GPIOB24
+                       PIU70N6
+                                  IO_TE4N_2          IO_TE18N_2,D2,ADC_CH_6             PIU70P12                                                                PIU70G1
+                                                                                                                                                                        IO_R10P_3                             IO_R_3  PIU70L5
+
+          NLRXD1
+           RXD1             M6
+                                  IO_TE4P_2          IO_TE18P_2,D1,ADC_CH_5
+                                                                                N12                NLGPIOB32
+                                                                                                    GPIOB32                                 NLGPIOB1
+                                                                                                                                            GPIOB1                 H5                                                  M5        NLGPIOB13
+                                                                                                                                                                                                                                 GPIOB13
+                                                                                                                                                                   H1 IO_R11N_3                               IO_R_3
+                       PIU70M6                                                          PIU70N12                                                                PIU70H5                                               PIU70M5
+
+C          TXD2
+          NLTXD2            M7                                                  R16                 GPIOB33
+                                                                                                   NLGPIOB33                                GPIOB4
+                                                                                                                                            NLGPIOB4                                                                                                                 C
+                       PIU70M7
+                                  IO_TE5N_2             IO_TE19N_2,ADC_CH_7             PIU70R16                                                                PIU70H1
+                                                                                                                                                                        IO_R11P_3
+           TXCLK
+          NLTXCLK           T12
+                         PIU70T12 IO_TE5P_2
+                                                                                M12
+                                                        IO_TE19P_2,ADC_CH_4 PIU70M12                GPIOB34
+                                                                                                   NLGPIOB34                                FPGA_HDMI1_CLKN
+                                                                                                                                            NLFPGA0HDMI10CLKN       J1
+                                                                                                                                                                PIU70J1 IO_R12N_3
+          NLFLASH0CS
+           FLASH_CS PIU70P8  P8                                                 L10                NLGPIOB35
+                                                                                                    GPIOB35                                 NLFPGA0HDMI10CLKP
+                                                                                                                                            FPGA_HDMI1_CLKP        K1
+          NLVGAD8
+           VGAD8             R5   IO_TE6N_2                 IO_T_2,ADC_CH_2  PIU70L10
+                                                                                                                                            NLGPIOB7
+                                                                                                                                            GPIOB7
+                                                                                                                                                                PIU70K1 IO_R12P_3
+                                                                                                                                                                   L1
+                         PIU70R5 IO_TE6P_2,D7                                                                                                                   PIU70L1 IO_R13N_GCLKIOR_6_3
+          NLFLASH0SDO
+           FLASH_SDO PIU70N8 N8                                                                                                             NLGPIOB8
+                                                                                                                                            GPIOB8                 H2
+          NLRXD2                  IO_TE7N_2                                                                                                 NLGPIOB9
+                                                                                                                                                                PIU70H2 IO_R13P_GCLKIOR_7_3
+           RXD2              T9
+                       PIU70T9
+                                  IO_TE7P_2                                                                                                 GPIOB9                 H3 IO_R14N_GCLKIOR_0_3
+                                                                                                                                                                PIU70H3
+
+          NLFLASH0WP
+           FLASH_WP          P9                                                                                                             NLGPIOB6
+                                                                                                                                            GPIOB6                 H4
+          NLFLASH0HOLD
+                       PIU70P9
+                                  IO_TE8N_2                                                                                                 NLGPIOB5
+                                                                                                                                                                PIU70H4
+                                                                                                                                                                        IO_R14P_GCLKIOR_1_3
+           FLASH_HOLD        R9                                                                                                             GPIOB5                 J4
+                       PIU70R9
+                                  IO_TE8P_2                                                                                                                     PIU70J4
+                                                                                                                                                                        IO_R15N_GCLKIOR_4_3
+           VGAD9
+          NLVGAD9            L7
+                         PIU70L7 IO_TE9N_2,D6
+                                                                                                                                            GPIOB10
+                                                                                                                                            NLGPIOB10               J3
+                                                                                                                                                                PIU70J3 IO_R15P_GCLKIOR_5_3
+          NLVGAD10
+           VGAD10            L8
+                         PIU70L8 IO_TE9P_2,D5
+                                                                                                                                            NLKEY03
+                                                                                                                                            KEY_3                  B1
+                                                                                                                                                                PIU70B1 IO_R_3
+          NLFLASH0SCLK
+           FLASH_SCLKPIU70M9M9                                                                                                              NLGPIOB11
+                                                                                                                                            GPIOB11                F3
+          NLFLASH0SDI
+           FLASH_SDI PIU70P7 P7   IO_TE10N_GCLKIOT_6_2                                                                                                          PIU70F3 IO_R_3
+
+
+          NLTXCTL                 IO_TE10P_GCLKIOT_7_2
+           TXCTL             T7
+                       PIU70T7
+                                  IO_TE11N_GCLKIOT_4_2
+          NLFPGA0GCLK
+           FPGA_GCLK         R7                                                                                                                                       EG4S20BG256
+          NLTXD3
+           TXD3
+                       PIU70R7
+
+                             T8   IO_TE11P_GCLKIOT_5_2
+                       PIU70T8
+                                  IO_TE12N_GCLKIOT_0_2
+           RXD3
+          NLRXD3             N9
+                         PIU70N9 IO_TE12P_GCLKIOT_1_2
+          NLRXCTL0PHY0AD
+           RXCTL/PHY_AD     T13
+                         PIU70T13 IO_TE13N_GCLKIOT_2_2
+          NLRXC
+           RXC              T14
+                         PIU70T14 IO_TE13P_GCLKIOT_3_2
+
+
+                                EG4S20BG256
+
+
+
+
+                                                        GND
+
+
+                                                          PIC10 2
+                                                              COC10
+                                         Y1
+                                        COY1                  C10
+                                    1               4 PIC10 1 0.1uF
+                                 PIY101      NC
+                                             VCC PIY104                     3V3
+                                    2                         R16
+                                                    3 PIR1602COR16        FPGA_GCLK
+                                 PIY102 GND  OUT PIY103
+D                                                                   PIR1601
+                                                                                                                                                                                                                                                                     D
+                                       50MHz                  33R
+                                GND
+
+
+
+
+    1                                                                                   2                                               3           4                                                                        5                                   6
+Comment   Description   Designator   Footprint   LibRef   Quantity
+

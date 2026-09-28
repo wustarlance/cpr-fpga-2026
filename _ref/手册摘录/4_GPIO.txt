@@ -1,0 +1,532 @@
+    1                                                          2                                                    3                                                   4         5                                                    6                                                     7                                                       8
+
+
+
+
+A                                                                                                                                                                                                                                                                                                                                                            A
+                                      COJ1
+                                      J1                                                                                    COU16
+                                                                                                                            U16                                                                      COJ2
+                                                                                                                                                                                                     J2                                                                                 COU17
+                                                                                                                                                                                                                                                                                        U17
+                    GPIOA_0                              GPIOA_1                                                GPIOA_12                         GPIOA_12                             GPIOB_0                          GPIOB_1                                              GPIOB_12                        GPIOB_12
+                            PIJ101
+                                    1           2 PIJ102                                                             PIU1601
+                                                                                                                             1         10 PIU16010                                            PIJ201
+                                                                                                                                                                                                      1       2 PIJ202                                                           PIU1701
+                                                                                                                                                                                                                                                                                         1       10 PIU17010
+                    GPIOA_2                              GPIOA_3                                                GPIOA_13                         GPIOA_13                             GPIOB_2                          GPIOB_3                                              GPIOB_13                        GPIOB_13
+                            PIJ103
+                                    3           4 PIJ104                                                             PIU1602
+                                                                                                                             2          9 PIU1609                                             PIJ203
+                                                                                                                                                                                                      3       4 PIJ204                                                           PIU1702
+                                                                                                                                                                                                                                                                                         2        9 PIU1709
+                    GPIOA_4 PIJ105 5                     GPIOA_5                                                                                                                      GPIOB_4                          GPIOB_5
+                                                6 PIJ106                                           GND               PIU1603 3          8 PIU1608                 GND                         PIJ205 5        6 PIJ206                                          GND              PIU1703 3        8 PIU1708                     GND
+                    GPIOA_6                              GPIOA_7                                                GPIOA_14                         GPIOA_14                             GPIOB_6                          GPIOB_7                                              GPIOB_14                        GPIOB_14
+                            PIJ107
+                                    7           8 PIJ108                                                             PIU1604
+                                                                                                                             4          7 PIU1607                                             PIJ207
+                                                                                                                                                                                                      7       8 PIJ208                                                           PIU1704
+                                                                                                                                                                                                                                                                                         4        7 PIU1707
+                    GPIOA_8                              GPIOA_9                                                GPIOA_15                         GPIOA_15                             GPIOB_8                          GPIOB_9                                              GPIOB_15                        GPIOB_15
+                            PIJ109
+                                    9          10 PIJ1010                                                            PIU1605
+                                                                                                                             5          6 PIU1606                                             PIJ209
+                                                                                                                                                                                                      9      10 PIJ2010                                                          PIU1705
+                                                                                                                                                                                                                                                                                         5        6 PIU1706
+          5V                PIJ1011
+                                    11         12 PIJ1012                 GND                                                                                                 5V              PIJ2011
+                                                                                                                                                                                                      11     12 PIJ2012             GND
+                    GPIOA_10PIJ1013 13                   GPIOA_11                                                           RClamp0524PA                                              GPIOB_10                         GPIOB_11                                                         RClamp0524PA
+                   NLGPIOA012                  14 PIJ1014NLGPIOA013                                                                                                                           PIJ2013 13
+                                                                                                                                                                                      NLGPIOB012             14 PIJ2014NLGPIOB013
+                    GPIOA_12                             GPIOA_13                                                                                                                     GPIOB_12                         GPIOB_13
+                            PIJ1015
+                   NLGPIOA014       15         16 PIJ1016NLGPIOA015                                                         COU18
+                                                                                                                                                                                              PIJ2015
+                                                                                                                                                                                      NLGPIOB014      15     16 PIJ2016NLGPIOB015                                                      COU19
+                    GPIOA_14                             GPIOA_15                                                           U18                                                       GPIOB_14                         GPIOB_15                                                        U19
+                            PIJ1017
+                   NLGPIOA016       17         18 PIJ1018NLGPIOA017                                                                                                                           PIJ2017
+                                                                                                                                                                                      NLGPIOB016      17     18 PIJ2018NLGPIOB017
+                    GPIOA_16                             GPIOA_17                                               GPIOA_16                         GPIOA_16                             GPIOB_16                         GPIOB_17                                             GPIOB_16                   GPIOB_16
+                            PIJ1019
+
+                   NLGPIOA018       19         20 PIJ1020NLGPIOA019                                                  PIU1801
+                                                                                                                             1         10 PIU18010                                            PIJ2019
+
+                                                                                                                                                                                      NLGPIOB018      19     20 PIJ2020NLGPIOB019                                                PIU1901
+                                                                                                                                                                                                                                                                                          1 10 PIU19010
+                    GPIOA_18                             GPIOA_19                                               GPIOA_17                         GPIOA_17                             GPIOB_18                         GPIOB_19                                             GPIOB_17                   GPIOB_17
+                            PIJ1021
+                   NLGPIOA020       21         22 PIJ1022
+                                                          NLGPIOA021
+                                                                                                                     PIU1802
+                                                                                                                             2          9 PIU1809                                             PIJ2021
+                                                                                                                                                                                      NLGPIOB020      21     22 PIJ2022
+                                                                                                                                                                                                                       NLGPIOB021
+                                                                                                                                                                                                                                                                                 PIU1902
+                                                                                                                                                                                                                                                                                          2  9 PIU1909
+                    GPIOA_20                             GPIOA_21                                                                                                                     GPIOB_20                         GPIOB_21
+                            PIJ1023
+                   NLGPIOA022       23         24 PIJ1024NLGPIOA023                                GND               PIU1803
+                                                                                                                             3          8 PIU1808                 GND                         PIJ2023
+                                                                                                                                                                                      NLGPIOB022      23     24 PIJ2024NLGPIOB023                               GND              PIU1903
+                                                                                                                                                                                                                                                                                          3  8 PIU1908                          GND
+                    GPIOA_22                             GPIOA_23                                               GPIOA_18                         GPIOA_18                             GPIOB_22                         GPIOB_23                                             GPIOB_18                   GPIOB_18
+                            PIJ1025
+                   NLGPIOA024       25         26 PIJ1026NLGPIOA025                                                  PIU1804
+                                                                                                                             4          7 PIU1807                                             PIJ2025
+                                                                                                                                                                                      NLGPIOB024      25     26 PIJ2026NLGPIOB025                                                PIU1904
+                                                                                                                                                                                                                                                                                          4  7 PIU1907
+                    GPIOA_24                             GPIOA_25                                               GPIOA_19                         GPIOA_19                             GPIOB_24                         GPIOB_25                                             GPIOB_19                   GPIOB_19
+                            PIJ1027 27         28 PIJ1028                                                            PIU1805 5          6 PIU1806                                             PIJ2027 27     28 PIJ2028                                                          PIU1905 5   6 PIU1906
+          3V3               PIJ1029
+                   NLGPIOA026       29         30 PIJ1030NLGPIOA027       GND                                                                                                 3V3             PIJ2029
+                                                                                                                                                                                      NLGPIOB026      29     30 PIJ2030NLGPIOB027   GND
+                    GPIOA_26                             GPIOA_27                                                           RClamp0524PA                                              GPIOB_26                         GPIOB_27                                                         RClamp0524PA
+                            PIJ1031
+                   NLGPIOA028       31         32 PIJ1032NLGPIOA029                                                                                                                           PIJ2031
+                                                                                                                                                                                      NLGPIOB028      31     32 PIJ2032NLGPIOB029
+                    GPIOA_28                             GPIOA_29                                                                                                                     GPIOB_28                         GPIOB_29
+                           PIJ1033
+
+
+                   NLGPIOA030       33         34  PIJ1034
+
+
+                                                          NLGPIOA031                                                        COU20
+                                                                                                                                                                                              PIJ2033
+
+
+                                                                                                                                                                                      NLGPIOB030      33     34 PIJ2034
+
+
+                                                                                                                                                                                                                       NLGPIOB031                                                      COU21
+                    GPIOA_30                             GPIOA_31                                                           U20                                                       GPIOB_30                         GPIOB_31                                                        U21
+                            PIJ1035
+                   NLGPIOA032       35         36 PIJ1036NLGPIOA033                                                                                                                           PIJ2035 35
+                                                                                                                                                                                      NLGPIOB032             36 PIJ2036NLGPIOB033
+                    GPIOA_32                             GPIOA_33                                               GPIOA_20                         GPIOA_20                             GPIOB_32                         GPIOB_33                                             GPIOB_20                   GPIOB_20
+                            PIJ1037
+                   NLGPIOA034       37         38 PIJ1038NLGPIOA035                                                  PIU2001
+                                                                                                                             1         10 PIU20010                                            PIJ2037
+                                                                                                                                                                                      NLGPIOB034      37     38 PIJ2038NLGPIOB035                                                PIU2101
+                                                                                                                                                                                                                                                                                          1 10 PIU21010
+                    GPIOA_34                             GPIOA_35                                               GPIOA_21                         GPIOA_21                             GPIOB_34                         GPIOB_35                                             GPIOB_21                   GPIOB_21
+                            PIJ1039
+                                    39         40 PIJ1040                                                            PIU2002
+                                                                                                                             2          9 PIU2009                                             PIJ2039
+                                                                                                                                                                                                      39     40 PIJ2040                                                          PIU2102
+                                                                                                                                                                                                                                                                                          2  9 PIU2109
+                                                                                                   GND               PIU2003 3          8 PIU2008                 GND                                                                                           GND              PIU2103 3   8 PIU2108                          GND
+                                      IDC40                                                                     GPIOA_22                         GPIOA_22                                            IDC40                                                                  GPIOB_22                   GPIOB_22
+                                                                                                                     PIU2004
+                                                                                                                             4          7 PIU2007                                                                                                                                PIU2104
+                                                                                                                                                                                                                                                                                          4  7 PIU2107
+                                                                                                                GPIOA_23                         GPIOA_23                                                                                                                   GPIOB_23                   GPIOB_23
+                                      COU10
+                                                                                                                     PIU2005
+                                                                                                                             5          6 PIU2006                                                    COU11
+                                                                                                                                                                                                                                                                                 PIU2105
+                                                                                                                                                                                                                                                                                          5  6 PIU2106
+                                      U10                                                                                                                                                            U11
+                   NLGPIOA00
+                    GPIOA_0                               GPIOA_0                                                           RClamp0524PA                                              NLGPIOB00PIU1101
+                                                                                                                                                                                      GPIOB_0                          GPIOB_0                                                          RClamp0524PA
+                           PIU1001
+                   NLGPIOA01        1          10 PIU10010                                                                                                                            NLGPIOB01PIU1102 1     10 PIU11010
+B                   GPIOA_1                               GPIOA_1                                                                                                                     GPIOB_1                          GPIOB_1                                                                                                                               B
+                           PIU1002
+                                    2           9 PIU1009                                                                   COU22                                                                       2     9 PIU1109                                                                COU23
+                                                                                                                            U22                                                                                                                                                        U23
+        GND                PIU1003
+                   NLGPIOA02        3           8 PIU1008
+                                                                          GND                                                                                               GND       NLGPIOB02PIU1104 34
+                                                                                                                                                                                               PIU1103
+                                                                                                                                                                                                              8 PIU1108
+                                                                                                                                                                                                                                    GND
+                    GPIOA_2                               GPIOA_2                                               GPIOA_24                         GPIOA_24                             GPIOB_2                          GPIOB_2                                              GPIOB_24                    GPIOB_24
+                            PIU1004 4           7 PIU1007                                                            PIU2201 1         10 PIU22010                                                            7 PIU1107                                                          PIU2301 1   10 PIU23010
+                   NLGPIOA03
+                    GPIOA_3                               GPIOA_3                                               GPIOA_25                         GPIOA_25                             NLGPIOB03PIU1105
+                                                                                                                                                                                      GPIOB_3                          GPIOB_3                                              GPIOB_25                    GPIOB_25
+                            PIU1005 5           6 PIU1006                                                            PIU2202 2          9 PIU2209                                                       5     6 PIU1106                                                          PIU2302 2    9 PIU2309
+                                                                                                   GND               PIU2203
+                                                                                                                             3          8 PIU2208
+                                                                                                                                                                  GND                                                                                           GND              PIU2303
+                                                                                                                                                                                                                                                                                          3   8 PIU2308
+                                                                                                                                                                                                                                                                                                                                GND
+                                      RClamp0524PA                                                              GPIOA_26                         GPIOA_26                                            RClamp0524PA                                                           GPIOB_26                    GPIOB_26
+                                                                                                                     PIU2204
+                                                                                                                             4          7 PIU2207                                                                                                                                PIU2304
+                                                                                                                                                                                                                                                                                          4   7 PIU2307
+                                                                                                                GPIOA_27                         GPIOA_27                                                                                                                   GPIOB_27                    GPIOB_27
+                                      COU12
+                                                                                                                     PIU2205 5          6 PIU2206                                                    COU13
+                                                                                                                                                                                                                                                                                 PIU2305 5    6 PIU2306
+                                      U12                                                                                                                                                            U13
+                   NLGPIOA04
+                    GPIOA_4                               GPIOA_4                                                           RClamp0524PA                                              NLGPIOB04PIU1301
+                                                                                                                                                                                      GPIOB_4                          GPIOB_4                                                          RClamp0524PA
+                           PIU1201
+                   NLGPIOA05        1          10 PIU12010                                                                                                                            NLGPIOB05        1     10 PIU13010
+                    GPIOA_5                               GPIOA_5                                                                                                                     GPIOB_5                          GPIOB_5
+                           PIU1202
+                                    2           9  PIU1209
+
+
+                                                                                                                            COU24
+                                                                                                                                                                                              PIU1302
+                                                                                                                                                                                                       2      9 PIU1309
+
+
+                                                                                                                                                                                                                                                                                       COU25
+                                                                                                                            U24                                                                                                                                                        U25
+        GND                PIU1203
+                   NLGPIOA06        3           8 PIU1208                 GND                                                                                               GND       NLGPIOB06PIU1304 3
+                                                                                                                                                                                               PIU1303        8 PIU1308             GND
+                    GPIOA_6                               GPIOA_6                                               GPIOA_28                         GPIOA_28                             GPIOB_6                          GPIOB_6                                              GPIOB_28                   GPIOB_28
+                   NLGPIOA07
+                            PIU1204
+                                    4           7 PIU1207                                                            PIU2401
+                                                                                                                             1         10 PIU24010                                    NLGPIOB07        4      7 PIU1307                                                          PIU2501
+                                                                                                                                                                                                                                                                                          1 10 PIU25010
+                    GPIOA_7                               GPIOA_7                                               GPIOA_29                         GPIOA_29                             GPIOB_7                          GPIOB_7                                              GPIOB_29                   GPIOB_29
+                            PIU1205
+                                    5           6 PIU1206                                                            PIU2402
+                                                                                                                             2          9 PIU2409                                              PIU1305
+                                                                                                                                                                                                       5      6 PIU1306                                                          PIU2502
+                                                                                                                                                                                                                                                                                          2  9 PIU2509
+                                                                                                   GND               PIU2403 3          8 PIU2408                 GND                                                                                           GND              PIU2503 3   8 PIU2508                          GND
+                                      RClamp0524PA                                                              GPIOA_30                         GPIOA_30                                            RClamp0524PA                                                           GPIOB_30                   GPIOB_30
+                                                                                                                     PIU2404 4          7 PIU2407                                                                                                                                PIU2504 4   7 PIU2507
+                                                                                                                GPIOA_31                         GPIOA_31                                                                                                                   GPIOB_31                   GPIOB_31
+                                      COU14
+                                                                                                                     PIU2405
+                                                                                                                             5          6 PIU2406                                                    COU15
+                                                                                                                                                                                                                                                                                 PIU2505
+                                                                                                                                                                                                                                                                                          5  6 PIU2506
+                                      U14                                                                                                                                                             U15
+                   NLGPIOA08
+                    GPIOA_8
+                                    1          10 PIU14010
+                                                          GPIOA_8                                                           RClamp0524PA                                              NLGPIOB08PIU1501
+                                                                                                                                                                                      GPIOB_8                       GPIOB_8                                                             RClamp0524PA
+                                                                                                                                                                                      NLGPIOB09PIU1502 1 10 PIU1509GPIOB_9
+                           PIU1401                                                                                                                                                                           PIU15010
+                   NLGPIOA09
+                    GPIOA_9                               GPIOA_9                                                                                                                     GPIOB_9
+                           PIU1402  2           9 PIU1409                                                                   COU26                                                                       2  9                                                                           COU27
+                                                                                                                            U26                                                                                                                                                        U27
+        GND                 PIU1403
+                                    3           8 PIU1408                 GND                                                                                               GND                PIU1503
+                                                                                                                                                                                                        3  8 PIU1508                GND
+                   NLGPIOA010
+                    GPIOA_10PIU1404 4           7 PIU1407
+                                                          GPIOA_10                                              GPIOA_32
+                                                                                                                     PIU2601 1
+                                                                                                                                                 GPIOA_32
+                                                                                                                                       10 PIU26010
+                                                                                                                                                                                      NLGPIOB010
+                                                                                                                                                                                      GPIOB_10 PIU1504 4   7 PIU1507
+                                                                                                                                                                                                                    GPIOB_10                                                GPIOB_32
+                                                                                                                                                                                                                                                                                 PIU2701 1   10 PIU27010
+                                                                                                                                                                                                                                                                                                        GPIOB_32
+                    GPIOA_11
+                   NLGPIOA011                             GPIOA_11                                              GPIOA_33                         GPIOA_33                             GPIOB_11
+                                                                                                                                                                                      NLGPIOB011                    GPIOB_11                                                GPIOB_33                    GPIOB_33
+                            PIU1405 5           6 PIU1406                                                            PIU2602 2          9 PIU2609                                              PIU1505 5   6 PIU1506                                                             PIU2702 2    9 PIU2709
+                                                                                                   GND               PIU2603
+                                                                                                                             3          8 PIU2608                 GND                                                                                           GND              PIU2703
+                                                                                                                                                                                                                                                                                          3   8 PIU2708                         GND
+                                      RClamp0524PA                                                              GPIOA_34
+                                                                                                                     PIU2604 4
+                                                                                                                                                 GPIOA_34                                            RClamp0524PA                                                           GPIOB_34                    GPIOB_34
+                                                                                                                                        7 PIU2607                                                                                                                                PIU2704 4    7 PIU2707
+                                                                                                                GPIOA_35                         GPIOA_35                                                                                                                   GPIOB_35                    GPIOB_35
+                                                                                                                     PIU2605 5          6 PIU2606                                                                                                                                PIU2705 5    6 PIU2706
+                                                                                                                            RClamp0524PA                                                                                                                                                RClamp0524PA
+
+C                                                                                                                                                                                                                                                                                                                                                            C
+
+                                                                                                                                                                                      NLGPIOB20
+                                                                                                                                                                                      GPIOB20   CORN29
+                                                                                                                                                                                                RN29           47R     GPIOB_0      NLGPIOB21 CORN32
+                                                                                                                                                                                                                                    GPIOB21 RN32             47R     GPIOB_12      NLGPIOB0
+                                                                                                                                                                                                                                                                                   GPIOB0 CORN35
+                                                                                                                                                                                                                                                                                             RN35            47R     GPIOB_24
+                                                                                                                                                                                                 PIRN2904       PIRN2905                       PIRN3204       PIRN3205                        PIRN3504        PIRN3505
+              NLGPIOA9
+              GPIOA9     CORN20
+                         RN20
+                           PIRN2004
+                                             47R    GPIOA_0
+                                             PIRN2005
+                                                                    NLGPIOB35 CORN23
+                                                                    GPIOB35   RN23
+                                                                               PIRN2304
+                                                                                            47R
+                                                                                             PIRN2305
+                                                                                                     GPIOA_12       NLGPIOA14
+                                                                                                                    GPIOA14          47R
+                                                                                                                                    PIRN2605
+                                                                                                                                                CORN26GPIOA_27
+                                                                                                                                               RN26
+                                                                                                                                               PIRN2604
+                                                                                                                                                                                      NLGPIOB19
+                                                                                                                                                                                      GPIOB19    PIRN2903
+                                                                                                                                                                                                                       GPIOB_1
+                                                                                                                                                                                                                PIRN2906
+                                                                                                                                                                                                                                    NLGPIOB7
+                                                                                                                                                                                                                                    GPIOB7        PIRN3203
+                                                                                                                                                                                                                                                                     GPIOB_13
+                                                                                                                                                                                                                                                              PIRN3206
+                                                                                                                                                                                                                                                                                   NLGPIOA23
+                                                                                                                                                                                                                                                                                   GPIOA23        PIRN3503
+                                                                                                                                                                                                                                                                                                                     GPIOB_25
+                                                                                                                                                                                                                                                                                                              PIRN3506
+              GPIOA6
+              NLGPIOA6     PIRN2003
+                                                    GPIOA_1
+                                             PIRN2006
+                                                                    GPIOB30
+                                                                    NLGPIOB30  PIRN2303      PIRN2306
+                                                                                                     GPIOA_13       GPIOA27
+                                                                                                                    NLGPIOA27       PIRN2606
+                                                                                                                                                      GPIOA_26
+                                                                                                                                               PIRN2603
+                                                                                                                                                                                      GPIOB17
+                                                                                                                                                                                      NLGPIOB17  PIRN2902
+                                                                                                                                                                                                                       GPIOB_2
+                                                                                                                                                                                                                PIRN2907
+                                                                                                                                                                                                                                    GPIOB8
+                                                                                                                                                                                                                                    NLGPIOB8      PIRN3202
+                                                                                                                                                                                                                                                                     GPIOB_14
+                                                                                                                                                                                                                                                              PIRN3207
+                                                                                                                                                                                                                                                                                   GPIOA35
+                                                                                                                                                                                                                                                                                   NLGPIOA35      PIRN3502
+                                                                                                                                                                                                                                                                                                                     GPIOB_26
+                                                                                                                                                                                                                                                                                                              PIRN3507
+              NLGPIOA8
+              GPIOA8       PIRN2002
+                                                    GPIOA_2
+                                             PIRN2007
+                                                                    NLGPIOA11
+                                                                    GPIOA11    PIRN2302      PIRN2307
+                                                                                                     GPIOA_14       NLGPIOA13
+                                                                                                                    GPIOA13         PIRN2607
+                                                                                                                                                      GPIOA_25
+                                                                                                                                               PIRN2602
+                                                                                                                                                                                      NLGPIOB13
+                                                                                                                                                                                      GPIOB13    PIRN2901
+                                                                                                                                                                                                                       GPIOB_3
+                                                                                                                                                                                                                PIRN2908
+                                                                                                                                                                                                                                    NLGPIOB4
+                                                                                                                                                                                                                                    GPIOB4        PIRN3201
+                                                                                                                                                                                                                                                                     GPIOB_15
+                                                                                                                                                                                                                                                              PIRN3208
+                                                                                                                                                                                                                                                                                   NLGPIOA22
+                                                                                                                                                                                                                                                                                   GPIOA22        PIRN3501
+                                                                                                                                                                                                                                                                                                                     GPIOB_27
+                                                                                                                                                                                                                                                                                                              PIRN3508
+              NLGPIOA7
+              GPIOA7                                GPIOA_3         NLGPIOA30
+                                                                    GPIOA30                          GPIOA_15       NLGPIOA28
+                                                                                                                    GPIOA28                           GPIOA_24
+                           PIRN2001          PIRN2008                            PIRN2301    PIRN2308                               PIRN2608   PIRN2601
+                                                                                                                                                                                      NLGPIOB15 RN30
+                                                                                                                                                                                      GPIOB15   CORN30
+                                                                                                                                                                                                 PIRN3004
+                                                                                                                                                                                                               47R     GPIOB_4
+                                                                                                                                                                                                                PIRN3005
+                                                                                                                                                                                                                                    NLGPIOB3  CORN33
+                                                                                                                                                                                                                                    GPIOB3 RN33   PIRN3304
+                                                                                                                                                                                                                                                             47R     GPIOB_16
+                                                                                                                                                                                                                                                              PIRN3305
+                                                                                                                                                                                                                                                                                   NLGPIOA34
+                                                                                                                                                                                                                                                                                   GPIOA34 CORN36
+                                                                                                                                                                                                                                                                                             RN36 PIRN3604
+                                                                                                                                                                                                                                                                                                             47R     GPIOB_28
+                                                                                                                                                                                                                                                                                                              PIRN3605
+              GPIOA0 CORN21
+              NLGPIOA0  RN21
+                           PIRN2104
+                                             47R    GPIOA_4
+                                             PIRN2105
+                                                                    GPIOA5
+                                                                    NLGPIOA5  RN24
+                                                                              CORN24
+                                                                               PIRN2404
+                                                                                            47R
+                                                                                             PIRN2405
+                                                                                                     GPIOA_16       GPIOA17
+                                                                                                                    NLGPIOA17        47R
+                                                                                                                                    PIRN2705
+                                                                                                                                               RN27
+                                                                                                                                                CORN27GPIOA_31
+                                                                                                                                               PIRN2704
+                                                                                                                                                                                      GPIOB18
+                                                                                                                                                                                      NLGPIOB18  PIRN3003
+                                                                                                                                                                                                                       GPIOB_5
+                                                                                                                                                                                                                PIRN3006
+                                                                                                                                                                                                                                    GPIOB2
+                                                                                                                                                                                                                                    NLGPIOB2      PIRN3303
+                                                                                                                                                                                                                                                                     GPIOB_17
+                                                                                                                                                                                                                                                              PIRN3306
+                                                                                                                                                                                                                                                                                   GPIOA20
+                                                                                                                                                                                                                                                                                   NLGPIOA20      PIRN3603
+                                                                                                                                                                                                                                                                                                                     GPIOB_29
+                                                                                                                                                                                                                                                                                                              PIRN3606
+              NLGPIOA16
+              GPIOA16      PIRN2103
+                                                    GPIOA_5
+                                             PIRN2106
+                                                                    NLGPIOA31
+                                                                    GPIOA31    PIRN2403      PIRN2406
+                                                                                                     GPIOA_17       NLGPIOA18
+                                                                                                                    GPIOA18         PIRN2706
+                                                                                                                                                      GPIOA_30
+                                                                                                                                               PIRN2703
+                                                                                                                                                                                      NLGPIOB14
+                                                                                                                                                                                      GPIOB14    PIRN3002
+                                                                                                                                                                                                                       GPIOB_6
+                                                                                                                                                                                                                PIRN3007
+                                                                                                                                                                                                                                    NLGPIOB23
+                                                                                                                                                                                                                                    GPIOB23       PIRN3302
+                                                                                                                                                                                                                                                                     GPIOB_18
+                                                                                                                                                                                                                                                              PIRN3307
+                                                                                                                                                                                                                                                                                   NLGPIOB34
+                                                                                                                                                                                                                                                                                   GPIOB34        PIRN3602
+                                                                                                                                                                                                                                                                                                                     GPIOB_30
+                                                                                                                                                                                                                                                                                                              PIRN3607
+              NLGPIOA15
+              GPIOA15      PIRN2102
+                                                    GPIOA_6
+                                             PIRN2107
+                                                                    NLGPIOA33
+                                                                    GPIOA33    PIRN2402      PIRN2407
+                                                                                                     GPIOA_18       NLGPIOA2
+                                                                                                                    GPIOA2          PIRN2707
+                                                                                                                                                      GPIOA_29
+                                                                                                                                               PIRN2702
+                                                                                                                                                                                      NLGPIOB10
+                                                                                                                                                                                      GPIOB10    PIRN3001
+                                                                                                                                                                                                                       GPIOB_7
+                                                                                                                                                                                                                PIRN3008
+                                                                                                                                                                                                                                    NLGPIOB24
+                                                                                                                                                                                                                                    GPIOB24       PIRN3301
+                                                                                                                                                                                                                                                                     GPIOB_19
+                                                                                                                                                                                                                                                              PIRN3308
+                                                                                                                                                                                                                                                                                   NLGPIOA19
+                                                                                                                                                                                                                                                                                   GPIOA19        PIRN3601
+                                                                                                                                                                                                                                                                                                                     GPIOB_31
+                                                                                                                                                                                                                                                                                                              PIRN3608
+              GPIOA10
+              NLGPIOA10    PIRN2101
+                                                    GPIOA_7
+                                             PIRN2108
+                                                                    GPIOA3
+                                                                    NLGPIOA3   PIRN2401      PIRN2408
+                                                                                                     GPIOA_19       GPIOA1
+                                                                                                                    NLGPIOA1        PIRN2708
+                                                                                                                                                      GPIOA_28
+                                                                                                                                               PIRN2701
+                                                                                                                                                                                      NLGPIOB5
+                                                                                                                                                                                      GPIOB5    CORN31
+                                                                                                                                                                                                RN31
+                                                                                                                                                                                                 PIRN3104
+                                                                                                                                                                                                               47R     GPIOB_8
+                                                                                                                                                                                                                PIRN3105
+                                                                                                                                                                                                                                    NLGPIOB16 CORN34
+                                                                                                                                                                                                                                    GPIOB16 RN34  PIRN3404
+                                                                                                                                                                                                                                                             47R     GPIOB_20
+                                                                                                                                                                                                                                                              PIRN3405
+                                                                                                                                                                                                                                                                                   NLGPIOB32
+                                                                                                                                                                                                                                                                                   GPIOB32 CORN37
+                                                                                                                                                                                                                                                                                             RN37 PIRN3704
+                                                                                                                                                                                                                                                                                                             47R     GPIOB_32
+                                                                                                                                                                                                                                                                                                              PIRN3705
+              NLGPIOA12
+              GPIOA12 CORN22
+                        RN22                 47R    GPIOA_8         NLGPIOA26
+                                                                    GPIOA26   CORN25
+                                                                              RN25          47R      GPIOA_20       NLGPIOB33 CORN28
+                                                                                                                    GPIOB33 RN28               47R     GPIOA_32                       NLGPIOB6
+                                                                                                                                                                                      GPIOB6                           GPIOB_9      NLGPIOB9
+                                                                                                                                                                                                                                    GPIOB9                           GPIOB_21      NLGPIOA21
+                                                                                                                                                                                                                                                                                   GPIOA21 PIRN3703                  GPIOB_33
+                        PIRN2204             PIRN2205                          PIRN2504      PIRN2505                          PIRN2804         PIRN2805                                         PIRN3103       PIRN3106                       PIRN3403       PIRN3406                                        PIRN3706
+              NLGPIOA24
+              GPIOA24      PIRN2203
+                                                    GPIOA_9
+                                             PIRN2206
+                                                                    NLGPIOA29
+                                                                    GPIOA29    PIRN2503      PIRN2506
+                                                                                                     GPIOA_21       NLGPIOB26
+                                                                                                                    GPIOB26         PIRN2803
+                                                                                                                                                       GPIOA_33
+                                                                                                                                                PIRN2806
+                                                                                                                                                                                      NLGPIOB22
+                                                                                                                                                                                      GPIOB22    PIRN3102
+                                                                                                                                                                                                                       GPIOB_10
+                                                                                                                                                                                                                PIRN3107
+                                                                                                                                                                                                                                    NLGPIOB1
+                                                                                                                                                                                                                                    GPIOB1        PIRN3402
+                                                                                                                                                                                                                                                                     GPIOB_22
+                                                                                                                                                                                                                                                              PIRN3407
+                                                                                                                                                                                                                                                                                   NLGPIOB31
+                                                                                                                                                                                                                                                                                   GPIOB31        PIRN3702
+                                                                                                                                                                                                                                                                                                                     GPIOB_34
+                                                                                                                                                                                                                                                                                                              PIRN3707
+              GPIOA25
+              NLGPIOA25    PIRN2202
+                                                    GPIOA_10
+                                             PIRN2207
+                                                                    GPIOA4
+                                                                    NLGPIOA4   PIRN2502      PIRN2507
+                                                                                                     GPIOA_22       GPIOB25
+                                                                                                                    NLGPIOB25       PIRN2802
+                                                                                                                                                       GPIOA_34
+                                                                                                                                                PIRN2807
+                                                                                                                                                                                      GPIOB12
+                                                                                                                                                                                      NLGPIOB12  PIRN3101
+                                                                                                                                                                                                                       GPIOB_11
+                                                                                                                                                                                                                PIRN3108
+                                                                                                                                                                                                                                    GPIOB11
+                                                                                                                                                                                                                                    NLGPIOB11     PIRN3401
+                                                                                                                                                                                                                                                                     GPIOB_23
+                                                                                                                                                                                                                                                              PIRN3408
+                                                                                                                                                                                                                                                                                   GPIOB27
+                                                                                                                                                                                                                                                                                   NLGPIOB27      PIRN3701
+                                                                                                                                                                                                                                                                                                                     GPIOB_35
+                                                                                                                                                                                                                                                                                                              PIRN3708
+              NLGPIOB29
+              GPIOB29      PIRN2201
+                                                    GPIOA_11
+                                             PIRN2208
+                                                                    NLGPIOA32
+                                                                    GPIOA32    PIRN2501      PIRN2508
+                                                                                                     GPIOA_23       NLGPIOB28
+                                                                                                                    GPIOB28         PIRN2801
+                                                                                                                                                       GPIOA_35
+                                                                                                                                                PIRN2808
+
+
+
+
+D                                                                                                                                                                                                                                                                                                                                                            D
+
+
+
+                                                                                                                                                                                                                                                                           Title
+
+
+                                                                                                                                                                                                                                                                           Size        Number                                                     Revision
+                                                                                                                                                                                                                                                                            A3
+                                                                                                                                                                                                                                                                           Date:     9/21/2025                                        Sheet of
+                                                                                                                                                                                                                                                                           File:     E:\hjy211128\..\4_GPIO.SchDoc                    Drawn By:
+    1                                                          2                                                    3                                                   4         5                                                    6                                                     7                                                       8
+Comment   Description   Designator   Footprint   LibRef   Quantity
+
