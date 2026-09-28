@@ -44,7 +44,7 @@
 ## 队友如何克隆
 
 仓库含个人材料，**不必全量克隆**。用稀疏检出只取自己负责的部分：
-
+(也可以全部克隆下来，你们有关的资料和信息也可以放到对应的文件夹里一起管理，里面也有许多东西可以参考一下)
 ```bash
 git clone --no-checkout ssh://git@github.com/wustarlance/cpr-fpga-2026.git
 cd cpr-fpga-2026
