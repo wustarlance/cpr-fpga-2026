@@ -41,6 +41,37 @@
 
 ---
 
+## 队友如何克隆
+
+仓库含个人材料，**不必全量克隆**。用稀疏检出只取自己负责的部分：
+
+```bash
+git clone --no-checkout ssh://git@github.com/wustarlance/cpr-fpga-2026.git
+cd cpr-fpga-2026
+git sparse-checkout init --cone
+git sparse-checkout set project tests 03_技术方案
+git checkout main
+
+git config user.name  "你的名字"      # ← 各自必设，否则提交全记成 wuqi
+git config user.email "你的邮箱"
+```
+
+| 稀疏集 | 工作树 | 拿到什么 |
+|---|---|---|
+| `project tests` | 56 KB | 只要代码（`project/` 含共享的 `project.al`，谁都得有） |
+| `+ 03_技术方案` | 352 KB | 加方案与接口规范 ← **推荐** |
+| `+ 05_lab_ex 06_例程精读` | 34 MB | 加参考工程，照它写 RTL 时才需要 |
+
+管理：`git sparse-checkout list` / `add <目录>` / `disable`（取消，全部检出）。
+
+三条要知道的：
+
+1. **别用 `git clone --sparse`** —— 在 git 2.34 上它是 no-cone 模式，连 `README.md` 都不检出
+2. **改没检出的文件前，先 `git sparse-checkout add <目录>`**，否则文件不在磁盘上
+3. 提交不必担心范围：**改哪个目录，提交的差异就只有那个目录**，未检出的文件不受影响（已实测）
+
+---
+
 ## 快速开始
 
 | 做什么 | 命令 |
