@@ -72,6 +72,37 @@ git config user.email "你的邮箱"
 
 ---
 
+## 团队协作
+
+**文件所有权**（改共享文件前先在群里说一声；A/B/C 换成各自名字）：
+
+| 文件 | Owner | 备注 |
+|---|---|---|
+| `project/project.al`、`timing.sdc`、`pin.adc`、顶层 `top_tf_hdmi_audio.v` | **A 独占** | ⚠️ 共享文件，改错三人一起挂 |
+| 其余 `SD/*.v` | B | |
+| `adc_ctrl.v`、`peak_detect.v` | C | |
+
+> 那 4 个共享文件正对应 CERN [Hog](https://hog.readthedocs.io/) 所说的「可复现性三要素」：**源文件 / 约束文件 / IDE 设置**。少一样，工程就无法在别人机器上重建。
+
+**日常节奏**：开工 `git pull`，收工 `git push`，**每天至少进 main 一次**（分支放得越久，冲突越难解）。
+
+**改自己的模块 → 直接推 main；改共享文件 → 必须走 PR**（PR 的 diff 是另外两人唯一能确切看见"你到底动了什么"的地方）：
+
+```bash
+git checkout main && git pull --rebase
+git checkout -b feat/adc-threshold          # 从最新 main 切
+# …写代码，小步提交…
+git fetch origin && git rebase origin/main  # 冲突在本地解，别等到网页上
+git push -u origin feat/adc-threshold       # rebase 过就要用 --force-with-lease
+# → 网页发 PR → 队友 review → Merge
+```
+
+**Review 只看四件事**：① **位宽**（每次赋值/运算）② **时钟域**（有无未同步的跨域信号）③ **约束文件有没有被动过** ④ **diff 里有没有混进不该改的文件**。
+
+> ⚠️ **PR 通过 ≠ 代码正确。** 你们没有 CI（TD 工具链 2.7G + 许可证跑不了 GitHub Actions），PR 上的"检查"只是人眼看 RTL —— 而位宽截断、跨时钟域这两类最高频的 bug，在 diff 里和正确代码长得**一模一样**。
+
+---
+
 ## 快速开始
 
 | 做什么 | 命令 |
