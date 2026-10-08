@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+# =============================================================================
+# burn —— FPGA 位流烧写快捷工具（HX4S20C / EG4S20BG256）
+#
+# 为什么要有它
+# ------------
+# 1. 原命令太长：openFPGALoader -c anlogicCable xxx.bit
+# 2. 更重要的：TD 的图形界面会记住【过期路径】，读不到文件就报
+#      0bit_base, 0bitstream_faster      （0.15 秒失败）
+#    本脚本每次都用【文件系统实时扫描】解析路径，不可能指向不存在的文件。
+#
+# 用法
+# ----
+#   burn <文件.bit 或 demo 名>      烧进 SRAM（掉电丢失，调试用）
+#   burn -f <...>                   烧进 FLASH（掉电不丢，固化）
+#   burn -r <...>                   烧完让 FPGA 重新加载
+#   burn -d                         检测板子（只读，不动任何东西）
+#   burn -l [关键词]                列出所有可烧的 demo 位流
+#   burn -h                         帮助
+#
+# 例子
+# ----
+#   burn 1_breath_led               按 demo 名烧（自动选最新的那个 .bit）
+#   burn 0_cnt1s
+#   burn -f 0_cnt1s                 固化到 FLASH
+#   burn DEMO/DEMO/1_breath_led/breath_led_Runs/phy_1/breath_led.bit
+#   burn -d
+#
+# 注意
+# ----
+#   擦除 FLASH 命令行的 openFPGALoader 【不支持】，只能用 TD 的
+#   BitWriter → Mode Selection → ERASE-FLASH。
+# =============================================================================
+set -u
+
+CABLE="anlogicCable"
+REPO="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+DEMO_ROOT="$REPO/DEMO/DEMO"
+
+# ---------- 常用 demo 的一句话说明（烧之前能想起是哪个）----------
+describe() {
+    case "$1" in
+        0_cnt1s)              echo "1 秒计数器 → 4 个独立 LED 二进制计数" ;;
+        1_breath_led)         echo "呼吸灯 → 4 个独立 LED 渐亮渐暗" ;;
+        2_key_led)            echo "按键控 LED" ;;
+        3_seg_LDE7S)          echo "数码管静态显示" ;;
+        4_seg_led_static_top) echo "数码管静态" ;;
+        5_seg_SCAN)           echo "数码管动态扫描（SW6 拨上）" ;;
+        6_cnt10|7_seg_led)    echo "数码管计数" ;;
+        8_key_sw)             echo "按键 + 拨码开关" ;;
+        9_MUX_buzz)           echo "蜂鸣器（SW5 拨下）" ;;
+        10_PLL_TEST)          echo "PLL 测试" ;;
+        13_music)             echo "音乐播放" ;;
+        15_VGA)               echo "VGA 输出（需显示器）" ;;
+        16_uart_rs232)        echo "串口收发" ;;
+        18_sd_card_audio)     echo "SD 卡读音频（需 TF 卡）" ;;
+        20_i2sound_wm8731)    echo "WM8731 音频（需扩展模块）" ;;
+        21_liushuideng)       echo "流水灯（⚠️ 走扩展口引脚，需外接 LED）" ;;
+        23_SCAN_4X4KEY)       echo "4×4 矩阵键盘扫描" ;;
+        25_seg70_small16x16)  echo "点阵显示" ;;
+        27_DAC_SIN)           echo "DAC 输出正弦波" ;;
+        28_adda_direct)       echo "AD/DA 直连（需扩展模块）" ;;
+        31_hdmi_tx_display_A|31_hdmi_tx_display_B) echo "HDMI 彩条输出（需显示器）" ;;
+        *)                    echo "" ;;
+    esac
+}
+
+usage() {
+    sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+# ---------- 把「用户输入」解析成一个真实存在的 .bit ----------
+resolve_bit() {
+    local arg="$1" hit
+
+    # 1) 本身就是文件
+    if [ -f "$arg" ]; then readlink -f "$arg"; return 0; fi
+    # 2) 相对仓库根
+    if [ -f "$REPO/$arg" ]; then readlink -f "$REPO/$arg"; return 0; fi
+
+    # 3) 当作 demo 名（先精确匹配，再模糊匹配）
+    hit="$(find "$DEMO_ROOT" -maxdepth 1 -type d -name "$arg" 2>/dev/null | head -1)"
+    [ -z "$hit" ] && hit="$(find "$DEMO_ROOT" -maxdepth 1 -type d -name "*${arg}*" 2>/dev/null | head -1)"
+
+    if [ -n "$hit" ]; then
+        # 优先 phy_1（TD 的标准构建输出目录），没有才退回「最新的那个」
+        local f
+        f="$(find "$hit" -path '*/phy_1/*.bit' -printf '%T@ %p\n' 2>/dev/null \
+             | sort -rn | awk '{print $2}' | head -1)"
+        [ -z "$f" ] && f="$(find "$hit" -name '*.bit' -printf '%T@ %p\n' 2>/dev/null \
+             | sort -rn | awk '{print $2}' | head -1)"
+        if [ -n "$f" ]; then readlink -f "$f"; return 0; fi
+        echo "burn: demo「$arg」里没有找到 .bit 文件 —— 需要先在 TD 里构建" >&2
+        return 1
+    fi
+
+    echo "burn: 找不到「$arg」" >&2
+    echo "  既不是已存在的文件，也不是 DEMO/DEMO/ 下的 demo 名。" >&2
+    echo "  用  burn -l  看看有哪些 demo。" >&2
+    return 1
+}
+
+list_demos() {
+    local kw="${1:-}"
+    printf '  %-26s %s\n' "DEMO 名" "现象（+ 是否有现成位流）"
+    printf '  %-26s %s\n' "-------" "--------------------"
+    while IFS= read -r d; do
+        [ -d "$d" ] || continue
+        local name; name="$(basename "$d")"
+        [ -n "$kw" ] && case "$name" in *"$kw"*) ;; *) continue ;; esac
+        local n; n="$(find "$d" -name '*.bit' 2>/dev/null | wc -l)"
+        local mark; if [ "$n" -gt 0 ]; then mark="✅ $n"; else mark="❌ 0"; fi
+        local desc; desc="$(describe "$name")"
+        [ -z "$desc" ] && desc="—"
+        printf '  %-4s %-26s %s\n' "$mark" "$name" "$desc"
+    done < <(find "$DEMO_ROOT" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -V)
+    echo
+    echo "  用法： burn <DEMO 名>        烧进 SRAM"
+    echo "         burn -f <DEMO 名>     烧进 FLASH"
+}
+
+# ---------- 参数解析 ----------
+MODE="sram"; RESET=""; ARG=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help)    usage; exit 0 ;;
+        -d|--detect)  MODE="detect"; shift ;;
+        -l|--list)    MODE="list"; shift; ARG="${1:-}"; [ -n "$ARG" ] && shift ;;
+        -f|--flash)   MODE="flash"; shift ;;
+        -r|--reset)   RESET="-r"; shift ;;
+        -s|--sram)    MODE="sram"; shift ;;
+        -*)           echo "burn: 未知选项 $1" >&2; usage >&2; exit 2 ;;
+        *)            ARG="$1"; shift ;;
+    esac
+done
+
+command -v openFPGALoader >/dev/null || { echo "burn: 找不到 openFPGALoader（不在 PATH）" >&2; exit 1; }
+
+case "$MODE" in
+    list)
+        list_demos "$ARG"; exit 0 ;;
+    detect)
+        echo ">>> 扫 JTAG 链（只读，不动板子）"
+        exec openFPGALoader -c "$CABLE" --detect ;;
+esac
+
+[ -n "$ARG" ] || { echo "burn: 没给位流文件或 demo 名" >&2; echo; usage >&2; exit 2; }
+
+BIT="$(resolve_bit "$ARG")" || exit 1
+
+# ---------- 烧之前把要烧的东西【明确打出来】----------
+NAME="$(basename "$BIT")"
+DEMO="$(echo "$BIT" | sed -n "s|$DEMO_ROOT/\([^/]*\)/.*|\1|p")"
+{
+    echo "┌─────────────────────────────────────────────────────────"
+    echo "│ 位流   : $NAME"
+    echo "│ 大小   : $(stat -c%s "$BIT") 字节"
+    echo "│ 时间   : $(stat -c%y "$BIT" | cut -d. -f1)"
+    echo "│ 路径   : $BIT"
+    [ -n "$DEMO" ] && echo "│ demo   : $DEMO   $(describe "$DEMO")"
+    if [ "$MODE" = "flash" ]; then
+        echo "│ 目标   : FLASH（掉电不丢）"
+    else
+        echo "│ 目标   : SRAM（掉电丢失，调试用）"
+    fi
+    echo "└─────────────────────────────────────────────────────────"
+}
+
+OPTS=(-c "$CABLE")
+[ "$MODE" = "flash" ] && OPTS+=(-f)
+[ -n "$RESET" ] && OPTS+=(-r)
+OPTS+=("$BIT")
+
+echo ">>> openFPGALoader ${OPTS[*]}"
+echo
+openFPGALoader "${OPTS[@]}"
+RC=$?
+
+echo
+if [ $RC -eq 0 ]; then
+    echo "✅ 烧写成功"
+    [ "$MODE" = "flash" ] && echo "   → 断电重启后板子会自动加载这个设计"
+else
+    echo "❌ 烧写失败（退出码 $RC）"
+    echo "   常见原因："
+    echo "     · 板子没插 / 电源开关没开  → 先跑  burn -d"
+    echo "     · 位流不是这块芯片的        → 文件名带 EG4S20 才对"
+fi
+exit $RC
