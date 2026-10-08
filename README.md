@@ -27,7 +27,7 @@
 | 目录 | 是什么 |
 |---|---|
 | **`project/`** | ⭐ 安路 TD 工程（`project.al`；日志落 `project/log/`，已忽略） |
-| **`tests/`** | ⭐ 仿真验证工程（入口 `tests/sim/run.sh`） |
+| **`tests/`** | ⭐ **验证工程**：`tests/sim/` 仿真（入口 `tests/sim/run.sh`）、`tests/board/` 上板验证（bring-up） |
 | `05_lab_ex/` | 安路官方参考工程 `lab_ex5_i2s` / `lab_ex4_tf` —— 自研代码照它改 |
 | `06_例程精读/` | ⭐ 参考工程逐站走读笔记（8 站） |
 | `03_技术方案/` | 完整方案、硬件实证、接口规范、物料清单 |
