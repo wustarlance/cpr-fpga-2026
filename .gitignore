@@ -32,8 +32,11 @@ waves/          # 仿真波形，每次跑都重新生成
 *.area
 *.timing
 *.db
-*.qor          # 质量报告（每次 place/route 都变）
-*.rpt          # 时序与检查报告（同上）
+# 下面两类是 TD 的报告文件，每次 place/route 都变，可由 .tcl 重新生成。
+# 注意：.gitignore 不支持行内注释 —— "#" 只在行首才是注释，写在模式后面
+# 会被当成模式的一部分，导致整个规则失效。
+*.qor
+*.rpt
 *.log
 *.logw
 
