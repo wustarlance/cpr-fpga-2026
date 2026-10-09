@@ -11,19 +11,33 @@
 #
 # 用法
 # ----
-#   burn <文件.bit 或 demo 名>      烧进 SRAM（掉电丢失，调试用）
-#   burn -f <...>                   烧进 FLASH（掉电不丢，固化）
-#   burn -r <...>                   烧完让 FPGA 重新加载
-#   burn -d                         检测板子（只读，不动任何东西）
-#   burn -l [关键词]                列出所有可烧的 demo 位流
-#   burn -h                         帮助
+#   burn <名字 或 路径>              烧进 SRAM（掉电丢失，调试用）
+#   burn -f <名字 或 路径>           烧进 FLASH（掉电不丢，固化）
+#   burn -r <名字 或 路径>           烧完让 FPGA 重新加载
+#   burn -n <名字 或 路径>           只解析出路径、打印出来，不烧（先确认找到的对不对）
+#   burn -d                          检测板子（只读，不动任何东西）
+#   burn -l [关键词]                 列出 DEMO 里的官方例程
+#   burn -h                          帮助
+#
+# 「名字」怎么解析（不限于 DEMO/）
+# ------------------------------
+#   1) 完整路径         /any/where/xxx.bit
+#   2) 相对仓库根       project/xxx_Runs/phy_1/xxx.bit
+#   3) 路径片段         phy_1/xxx.bit          ← 在仓库里模糊匹配
+#   4) 裸名字           my_proj                ← 在【整个仓库】里找同名目录或同名 .bit
+#
+#   ⭐ 第 4 种不限于 DEMO/ —— 你自己在任意位置建的工程，只要
+#      目录名（或位流文件名）能对上，`burn 你的工程名` 就能烧。
+#      命中的是 phy_1/ 下最新的那个 .bit。
 #
 # 例子
 # ----
-#   burn 1_breath_led               按 demo 名烧（自动选最新的那个 .bit）
-#   burn 0_cnt1s
+#   burn 1_breath_led               官方 demo：呼吸灯
+#   burn 5_seg_SCAN                 官方 demo：数码管扫描
 #   burn -f 0_cnt1s                 固化到 FLASH
-#   burn DEMO/DEMO/1_breath_led/breath_led_Runs/phy_1/breath_led.bit
+#   burn my_cpr                     自己建的工程（在仓库任意位置）
+#   burn -n my_cpr                  只看看会烧哪个文件
+#   burn project/x_Runs/phy_1/x.bit 直接给相对路径
 #   burn -d
 #
 # 注意
@@ -70,33 +84,66 @@ usage() {
 }
 
 # ---------- 把「用户输入」解析成一个真实存在的 .bit ----------
+#
+# 支持四种写法：
+#   1) 完整路径     /any/where/xxx.bit
+#   2) 相对仓库根   project/xxx_Runs/phy_1/xxx.bit
+#   3) 路径片段     phy_1/xxx.bit          （在仓库里模糊匹配）
+#   4) 裸名字       xxx                    （先找同名目录，再找同名 .bit）
+#
+# ⭐ 第 4 种【不限于 DEMO/】—— 你在仓库任意位置建的工程，只要
+#    目录名或位流文件名能对上，都会被找到。
 resolve_bit() {
-    local arg="$1" hit
+    local arg="$1" cand="" d
+    # 剪掉这些目录，避免全仓扫描太慢、也避免翻到工具链里去
+    local PRUNE=( -name .git -o -name .tools -o -name .scratch -o -name node_modules -o -name '99_归档' )
+    # 用户可能写成 "my_cpr" 也可能写成 "my_cpr.bit"，统一去掉后缀再匹配，
+    # 否则会拼成 "my_cpr.bit.bit" 而永远找不到。
+    local base="${arg%.bit}"
 
     # 1) 本身就是文件
-    if [ -f "$arg" ]; then readlink -f "$arg"; return 0; fi
+    [ -f "$arg" ] && { readlink -f "$arg"; return 0; }
     # 2) 相对仓库根
-    if [ -f "$REPO/$arg" ]; then readlink -f "$REPO/$arg"; return 0; fi
+    [ -f "$REPO/$arg" ] && { readlink -f "$REPO/$arg"; return 0; }
 
-    # 3) 当作 demo 名（先精确匹配，再模糊匹配）
-    hit="$(find "$DEMO_ROOT" -maxdepth 1 -type d -name "$arg" 2>/dev/null | head -1)"
-    [ -z "$hit" ] && hit="$(find "$DEMO_ROOT" -maxdepth 1 -type d -name "*${arg}*" 2>/dev/null | head -1)"
+    # 3) 名字里带 "/" → 当路径片段在仓库里找
+    if [ "${arg#*/}" != "$arg" ]; then
+        cand="$(find "$REPO" \( "${PRUNE[@]}" \) -prune -o \
+                    -type f -name '*.bit' -path "*${arg}*" -printf '%T@ %p\n' 2>/dev/null \
+                | sort -rn | awk 'NR==1{print $2}')"
+        [ -n "$cand" ] && { readlink -f "$cand"; return 0; }
+    fi
 
-    if [ -n "$hit" ]; then
+    # 4a) 裸名字 → 仓库里任意位置的同名【目录】，取它下面最新的位流
+    d="$(find "$REPO" \( "${PRUNE[@]}" \) -prune -o \
+              -type d -name "$base" -print 2>/dev/null | head -1)"
+    if [ -n "$d" ]; then
         # 优先 phy_1（TD 的标准构建输出目录），没有才退回「最新的那个」
-        local f
-        f="$(find "$hit" -path '*/phy_1/*.bit' -printf '%T@ %p\n' 2>/dev/null \
-             | sort -rn | awk '{print $2}' | head -1)"
-        [ -z "$f" ] && f="$(find "$hit" -name '*.bit' -printf '%T@ %p\n' 2>/dev/null \
-             | sort -rn | awk '{print $2}' | head -1)"
-        if [ -n "$f" ]; then readlink -f "$f"; return 0; fi
-        echo "burn: demo「$arg」里没有找到 .bit 文件 —— 需要先在 TD 里构建" >&2
+        cand="$(find "$d" -path '*/phy_1/*.bit' -printf '%T@ %p\n' 2>/dev/null \
+                | sort -rn | awk 'NR==1{print $2}')"
+        [ -z "$cand" ] && cand="$(find "$d" -name '*.bit' -printf '%T@ %p\n' 2>/dev/null \
+                | sort -rn | awk 'NR==1{print $2}')"
+        if [ -n "$cand" ]; then readlink -f "$cand"; return 0; fi
+        echo "burn: 找到目录「$base」，但里面没有 .bit —— 需要先在 TD 里构建" >&2
         return 1
     fi
 
-    echo "burn: 找不到「$arg」" >&2
-    echo "  既不是已存在的文件，也不是 DEMO/DEMO/ 下的 demo 名。" >&2
-    echo "  用  burn -l  看看有哪些 demo。" >&2
+    # 4b) 裸名字 → 仓库里任意位置的 <名字>.bit（或正好叫 <名字> 的文件）
+    cand="$(find "$REPO" \( "${PRUNE[@]}" \) -prune -o \
+                -type f \( -name "${base}.bit" -o -name "$base" \) -printf '%T@ %p\n' 2>/dev/null \
+            | sort -rn | awk 'NR==1{print $2}')"
+    [ -n "$cand" ] && { readlink -f "$cand"; return 0; }
+
+    # 4c) 模糊：名字出现在位流文件名任意位置的
+    cand="$(find "$REPO" \( "${PRUNE[@]}" \) -prune -o \
+                -type f -name "*${base}*.bit" -printf '%T@ %p\n' 2>/dev/null \
+            | sort -rn | awk 'NR==1{print $2}')"
+    [ -n "$cand" ] && { readlink -f "$cand"; return 0; }
+
+    echo "burn: 在仓库里找不到「$arg」" >&2
+    echo "  支持：完整路径 / 相对仓库根路径 / 路径片段 / 工程名或位流名" >&2
+    echo "  用  burn -l  列出 DEMO 里的 demo。" >&2
+    echo "  用  burn -n <名字>  只解析出路径不烧 —— 先确认找到的是不是你要的。" >&2
     return 1
 }
 
@@ -120,17 +167,18 @@ list_demos() {
 }
 
 # ---------- 参数解析 ----------
-MODE="sram"; RESET=""; ARG=""
+MODE="sram"; RESET=""; ARG=""; DRY=0
 while [ $# -gt 0 ]; do
     case "$1" in
-        -h|--help)    usage; exit 0 ;;
-        -d|--detect)  MODE="detect"; shift ;;
-        -l|--list)    MODE="list"; shift; ARG="${1:-}"; [ -n "$ARG" ] && shift ;;
-        -f|--flash)   MODE="flash"; shift ;;
-        -r|--reset)   RESET="-r"; shift ;;
-        -s|--sram)    MODE="sram"; shift ;;
-        -*)           echo "burn: 未知选项 $1" >&2; usage >&2; exit 2 ;;
-        *)            ARG="$1"; shift ;;
+        -h|--help)     usage; exit 0 ;;
+        -d|--detect)   MODE="detect"; shift ;;
+        -l|--list)     MODE="list"; shift; ARG="${1:-}"; [ -n "$ARG" ] && shift ;;
+        -n|--dry-run)  DRY=1; shift ;;
+        -f|--flash)    MODE="flash"; shift ;;
+        -r|--reset)    RESET="-r"; shift ;;
+        -s|--sram)     MODE="sram"; shift ;;
+        -*)            echo "burn: 未知选项 $1" >&2; usage >&2; exit 2 ;;
+        *)             ARG="$1"; shift ;;
     esac
 done
 
@@ -144,7 +192,7 @@ case "$MODE" in
         exec openFPGALoader -c "$CABLE" --detect ;;
 esac
 
-[ -n "$ARG" ] || { echo "burn: 没给位流文件或 demo 名" >&2; echo; usage >&2; exit 2; }
+[ -n "$ARG" ] || { echo "burn: 没给位流文件或工程名" >&2; echo; usage >&2; exit 2; }
 
 BIT="$(resolve_bit "$ARG")" || exit 1
 
@@ -165,6 +213,12 @@ DEMO="$(echo "$BIT" | sed -n "s|$DEMO_ROOT/\([^/]*\)/.*|\1|p")"
     fi
     echo "└─────────────────────────────────────────────────────────"
 }
+
+if [ "$DRY" = "1" ]; then
+    echo
+    echo "（--dry-run：只解析，未烧写）"
+    exit 0
+fi
 
 OPTS=(-c "$CABLE")
 [ "$MODE" = "flash" ] && OPTS+=(-f)
