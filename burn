@@ -199,6 +199,17 @@ BIT="$(resolve_bit "$ARG")" || exit 1
 # ---------- 烧之前把要烧的东西【明确打出来】----------
 NAME="$(basename "$BIT")"
 DEMO="$(echo "$BIT" | sed -n "s|$DEMO_ROOT/\([^/]*\)/.*|\1|p")"
+
+# 防呆：查询名与实际解析到的位流文件名对不上时警告。
+# 实例： burn lab_ex5_i2s 会匹配到目录 05_lab_ex/lab_ex5_i2s/，
+#       而该目录下唯一的位流其实是 HDMI1.4b_Transmitter_v1.0.bit，
+#       真正要的 lab_ex5_i2s_v1.0.bit 在别处 —— 名字对不上就该拦住你。
+WARN=""
+case "$NAME" in
+    *"${ARG%.bit}"*) ;;
+    *) WARN="⚠️ 位流文件名里不含「$ARG」—— 确认一下是不是你要的那个" ;;
+esac
+
 {
     echo "┌─────────────────────────────────────────────────────────"
     echo "│ 位流   : $NAME"
@@ -211,6 +222,7 @@ DEMO="$(echo "$BIT" | sed -n "s|$DEMO_ROOT/\([^/]*\)/.*|\1|p")"
     else
         echo "│ 目标   : SRAM（掉电丢失，调试用）"
     fi
+    [ -n "$WARN" ] && echo "│ $WARN"
     echo "└─────────────────────────────────────────────────────────"
 }
 
