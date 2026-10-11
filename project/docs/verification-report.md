@@ -1,3 +1,5 @@
+当前整合版验证见 [integration-verification.md](integration-verification.md)。以下是原 PR 的历史综合/数字测试记录。
+
 # 基础架构验证报告
 
 验证日期为 2026-10-11（Asia/Shanghai）。目标为 HX4S20C V1.0、EG4S20BG256；来源基线为 GitHub 快照 `20026ba86faa6a7ce63be6195f27a458a12e15fd`。本地 Git 用于保存快照差异，发布采用远端 `codex/cpr-foundation` 分支和 PR，不复用本地初始化的快照历史。重建步骤见 [工程说明](../README.md)。

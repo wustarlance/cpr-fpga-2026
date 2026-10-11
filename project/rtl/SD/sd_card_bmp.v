@@ -19,6 +19,8 @@ module sd_card_bmp #(
     input                       write_finish_toggle,
     output reg [1:0]            write_buf_idx,
     output reg [1:0]            disp_buf_idx,
+    output reg                  publish_req,
+    input                       publish_done,
 
     output                      write_req,
     input                       write_req_ack,
@@ -71,6 +73,7 @@ reg [31:0]       img_sector2;
 reg [31:0]       img_sector3;
 reg              next_req_pending;
 reg              load_busy;
+reg              publish_wait;
 
 // bmp_ready 先表示“源文件读取/送 FIFO 完成”；真正切显示要等 write_finish_toggle 同步后
 reg              source_done_seen;
@@ -190,6 +193,8 @@ always @(posedge clk or posedge rst) begin
         next_req_pending      <= 1'b0;
         pending_prev <= 1'b0;
         load_busy             <= 1'b0;
+            publish_wait <= 1'b0;
+            publish_req <= 1'b0;
         source_done_seen      <= 1'b0;
         source_busy_seen <= 1'b0;
         write_done_seen <= 1'b0;
@@ -198,6 +203,7 @@ always @(posedge clk or posedge rst) begin
         wrfin_tgl_sync   <= {wrfin_tgl_sync[1:0], write_finish_toggle};
         scan_start_pulse <= 1'b0;
         load_start_pulse <= 1'b0;
+        publish_req <= 1'b0;
 
         if (!sd_init_done) begin
             scan_kicked           <= 1'b0;
@@ -217,6 +223,8 @@ always @(posedge clk or posedge rst) begin
             next_req_pending      <= 1'b0;
         pending_prev <= 1'b0;
             load_busy             <= 1'b0;
+            publish_wait <= 1'b0;
+            publish_req <= 1'b0;
             source_done_seen      <= 1'b0;
         source_busy_seen <= 1'b0;
         write_done_seen <= 1'b0;
@@ -241,16 +249,23 @@ always @(posedge clk or posedge rst) begin
             if (load_busy && source_busy_seen && bmp_ready) source_done_seen <= 1'b1;
             if (load_busy && write_finish_pulse) write_done_seen <= 1'b1;
 
-            // 只有真正收到 write_finish_toggle 脉冲，才提交新图并切换显示缓冲区
-            if (load_busy && (source_done_seen || (source_busy_seen && bmp_ready)) &&
+            // Publish only after both completions. Keep the old read buffer
+            // reserved until the memory reader acknowledges a frame-boundary swap.
+            if (load_busy && !publish_wait &&
+                (source_done_seen || (source_busy_seen && bmp_ready)) &&
                 (write_done_seen || write_finish_pulse)) begin
-                load_busy             <= 1'b0;
-                source_done_seen      <= 1'b0;
-        source_busy_seen <= 1'b0;
-        write_done_seen <= 1'b0;
-                disp_buf_idx          <= pending_buf_idx;
-                img_idx               <= load_idx;
-                display_valid         <= 1'b1;
+                disp_buf_idx <= pending_buf_idx;
+                publish_req <= 1'b1;
+                publish_wait <= 1'b1;
+            end
+            if (load_busy && publish_wait && publish_done) begin
+                load_busy <= 1'b0;
+                publish_wait <= 1'b0;
+                source_done_seen <= 1'b0;
+                source_busy_seen <= 1'b0;
+                write_done_seen <= 1'b0;
+                img_idx <= load_idx;
+                display_valid <= 1'b1;
                 first_image_committed <= 1'b1;
             end
 
@@ -271,6 +286,8 @@ always @(posedge clk or posedge rst) begin
         pending_prev <= 1'b0;
                 display_valid         <= 1'b0;
                 load_busy             <= 1'b0;
+            publish_wait <= 1'b0;
+            publish_req <= 1'b0;
                 source_done_seen      <= 1'b0;
         source_busy_seen <= 1'b0;
         write_done_seen <= 1'b0;

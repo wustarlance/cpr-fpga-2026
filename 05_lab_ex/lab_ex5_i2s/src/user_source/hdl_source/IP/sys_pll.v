@@ -16,9 +16,11 @@
 //	Clock information:
 //		Clock name	| Frequency 	| Phase shift
 //		C0        	| 100.000000MHZ	| 0.0000  DEG  
-//		C1        	| 125.000000MHZ	| 0.0000  DEG  
-//		C2        	| 125.000000MHZ	| 180.0000 DEG  
+//		C1        	| 40.000000MHZ	| 0.0000  DEG
+//		C2        	| 40.000000MHZ	| 180.0000 DEG
 ///////////////////////////////////////////////////////////////////////////////
+// 2026-10-10: physical parameters synchronized with sys_pll.ipc.
+// VCO stays at 1 GHz. C2 uses a half VCO cycle of fine phase because DIV=25.
 `timescale 1 ns / 100 fs
 
 module sys_pll (
@@ -63,13 +65,13 @@ module sys_pll (
     .CLKC0_CPHASE(9),
     .CLKC0_FPHASE(0),
     .CLKC1_ENABLE("ENABLE"),
-    .CLKC1_DIV(8),
-    .CLKC1_CPHASE(7),
+    .CLKC1_DIV(25),
+    .CLKC1_CPHASE(24),
     .CLKC1_FPHASE(0),
     .CLKC2_ENABLE("ENABLE"),
-    .CLKC2_DIV(8),
-    .CLKC2_CPHASE(3),
-    .CLKC2_FPHASE(0) 
+    .CLKC2_DIV(25),
+    .CLKC2_CPHASE(11),
+    .CLKC2_FPHASE(4)
   ) pll_inst (
     .refclk(refclk),
     .reset(reset),

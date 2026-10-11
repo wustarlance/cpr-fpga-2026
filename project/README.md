@@ -1,121 +1,58 @@
-# 构建 HX4S20C 基础工程
+# HX4S20C 心肺复苏训练终端：整合工程
 
-这份说明用于从仓库源码重建基础架构。目标器件为 **EG4S20BG256**，板卡为 HX4S20C V1.0；默认顶层 `top` 用板载按键演示训练计数，`top_adc` 启用片内 ADC 压力采样。两者使用同一个 [project.al](project.al)、管脚表和构建脚本。
+主工程入口为 `project/project.al`，顶层 `top`（按键演示）或 `top_adc`（未标定压力输入）。工具为安路 TD 6.2.1 SP1 / 6.2.178840，器件 EG4S20BG256，HDMI_B 输出。
 
-本地验证工具为 TD **6.2.168116（6.2.1）**。原仓库的 Linux/SP1 安装记录属于另一套环境，不能代替本次工具版本或验证证据。当前代码保留 HDMI、SD 原始扇区 BMP 和片内 SDRAM 链路；整体方案中的音乐、语音、转场、频谱、缩放、对比度与文字滚动尚未实现。
+本工程整合 PR #1 的训练、ADC、OSD、复位和自检，与本地 SDRAM 40 MHz、刷新参数及 BMP 扫描流水化修复。媒体层继续用原始扇区扫描；尚未实现 FAT32、语音/音乐、缩放、频谱或转场。ADC 数字链可构建，模拟输入与机械深度仍未标定。
 
-## 1. 准备源码和工具
+## 目录与依赖
 
-完整检出仓库，或在已有稀疏检出中加入这些目录：
+- `rtl/`：应用、训练、ADC、OSD、帧发布逻辑。
+- `ip/`：系统/视频 PLL 配置与配套 HDL；SD 时钟100 MHz、SDRAM 40 MHz/180°、像素25 MHz、串行125 MHz。
+- `vendor/SD/`：主工程实际编译的 SD/BMP/帧缓存源码，包含扫描分拍及读端切换边界。
+- `vendor/include/`：SDRAM 刷新定义及兼容包装。
+- `constraints/`：管脚、相关时钟、局部 CDC 与复位约束。
+- `docs/`：数字接口、来源及本次验证结果。
 
-```sh
-git sparse-checkout add project tests 05_lab_ex 03_技术方案
+`05_lab_ex/lab_ex5_i2s/src` 仍提供 HDMI 加密核、部分音频模块、FIFO IP 和 SDRAM 加密核，必须与 project 一起检出。其媒体 SD 源码不再作为主工程的隐式可变副本；主工程媒体修改请改 `project/vendor/SD`。独立例程仍在 `05_lab_ex` 下运行。
+
+## 验证与构建
+
+在仓库根目录运行全部自检：
+
+```bash
+python3 tests/sim/run.py --all --self-test-runner
 ```
 
-**`05_lab_ex` 是编译依赖。** 主工程直接引用其中的 HDMI 加密核、SD/BMP/帧缓存模块、音频测试音和生成 IP，不能只检出 `project/`。源文件映射见 [来源记录](docs/source-provenance.md)。
+在 `project/` 运行完整构建：
 
-安装或准备：
-
-- 安路 TD 6.2.1，包含 EG4 器件库和有效许可证。
-- Python 3.9+ 和 Icarus Verilog，用于数字功能仿真。仿真器无需写入仓库。
-
-在 TD GUI 中打开 `project/project.al` 可以查看源文件、约束和 IP 清单。GUI 默认顶层为 `top`；ADC 顶层请按下文运行 `build.tcl`，它还会加载 ADC 专用约束。命令行通过 `CPR_TOP` 选择顶层，不需要改写共享工程文件。
-
-## 2. 先跑数字功能仿真
-
-在仓库根目录执行：
-
-```sh
-python tests/sim/run.py --all --self-test-runner
-```
-
-Windows 上若工具不在 PATH，显式传入路径：
-
-```powershell
-python tests/sim/run.py --all --iverilog "C:/tools/iverilog/bin/iverilog.exe" --vvp "C:/tools/iverilog/bin/vvp.exe"
-```
-
-所有测试必须编译成功、在超时前正常结束、没有失败标记并输出指定的 `PASS`。空跑结束不算通过。运行器在 `tests/sim/build/<UTC 时间戳>/` 保存日志、源文件哈希和 `results.json`；测试清单、单项运行及 portable 工具用法见 [仿真说明](../tests/sim/README.md)。
-
-## 3. 综合默认按键演示顶层
-
-从仓库根目录进入 `project/`。Windows PowerShell 使用本机的 TD 命令行程序；以下路径对应此次验证环境：
-
-```powershell
-Set-Location project
-$env:CPR_TOP = 'top'
-& 'E:/bin/td_commands_prompt.exe' build.tcl
-```
-
-如果安装位置不同，替换可执行文件路径。Linux 使用已经配置运行库和许可证的 `td` 启动器：
-
-```sh
+```bash
 cd project
 CPR_TOP=top td build.tcl
-```
-
-成功末尾输出 `CPR_SYNTHESIS_PASS top`，报告写入 `project/build/top/rtl_area.rpt` 和 `gate_area.rpt`。脚本执行 RTL 和门级综合；它不执行布局布线、静态时序签核、位流生成或下载。
-
-## 4. 综合 ADC 压力顶层
-
-仍在 `project/` 目录中执行：
-
-```powershell
-$env:CPR_TOP = 'top_adc'
-& 'E:/bin/td_commands_prompt.exe' build.tcl
-```
-
-Linux 对应命令：
-
-```sh
 CPR_TOP=top_adc td build.tcl
 ```
 
-成功末尾输出 `CPR_SYNTHESIS_PASS top_adc`，报告写入 `project/build/top_adc/`。ADC 使用已有音频 PLL 的约 **12.295082 MHz** 输出，应用逻辑使用 **25 MHz** 视频时钟，不新增 PLL 或逻辑分频时钟。
+位流分别为 `project/build/top/top.bit`、`project/build/top_adc/top_adc.bit`。脚本检查实际 PLL 周期和最终 setup/hold WNS、TNS，时序失败返回非零；不下载硬件。需要只综合时用 `CPR_STAGE=synth`。
 
-也可以在仓库根目录一次执行两种顶层，并保存本次源码、工具和报告的哈希：
+一次核对两个顶层并保留源码/日志/位流哈希：
 
-```powershell
-python project/verify_td.py --td 'E:/bin/td_commands_prompt.exe'
+```bash
+python3 project/verify_td.py --td /usr/local/bin/td --stage full
 ```
 
-运行器将证据保存在 `project/build/verify_<UTC 时间戳>/`，检查工具退出码、成功标记、资源报告、错误与严重告警，以及 ADC 邮箱约束命中的 12 位寄存器。普通告警会完整保留，不能将综合成功理解为告警已经解决。`--tops top_adc` 可只检查 ADC 顶层。
+默认 GUI 的 `syn_1 / phy_1` 重建可在 project 运行 `td rebuild.tcl`。ADC 构建必须用 `CPR_TOP=top_adc td build.tcl` 加载并验证 ADC 专用约束；只在 GUI 中改顶层不等价。关闭旧工程窗口，再打开 `project/project.al`；旧 `project/td_project` 已归档，不应继续使用。
 
-`timing.sdc` 只含两种顶层共用的时钟约束。`build.tcl` 仅在选择 `top_adc` 时加载 `constraints/adc_mailbox.sdc`，并检查完整 12 位源/目标寄存器；该文件由脚本显式加载，不在 `project.al` 的默认约束清单中。只在 GUI 中改顶层名字不能代替这一步。
+## 使用
 
-`EG_PHY_ADC` 启用 CH1 和 VREF，VREF 对应 BG256 的 L11。CH1 的已核对信号路径为 **M10 → GPIOB30 → RN23（2→7）→ GPIOA_13 → J1 第 16 脚**。该复用模拟脚没有额外分配数字顶层端口。接入前仍需实测板卡参考电压、有效输入范围和码值方向；本次未验证模拟输入。
+KEY1 复位；KEY4 在教学、自动展播、训练之间循环；KEY2 在教学模式下一张、自动模式暂停/继续、默认训练模式按下并释放模拟按压；KEY3 上一张。默认按压档由 SW1～SW4 选择，0000 代用目标档，0001 浅、0011/0111 目标、1111 深。训练频率以完成释放事件间隔计量。
 
-默认归一化为 `max(3000 - ADC 原始码, 0)`，四个有效样本滑动平均后检测峰值。触发阈值为 150，完全释放阈值为 100；峰值小于 800、800–1600、大于 1600 分别输出三档。**这些数值都是未标定 ADC 压力码，不能解释为厘米。** ADC 顶层的 OSD 标记为 `PRESS UNCAL`。
+ADC 模式使用 CH1（M10，J1 第16脚），复用约12.295 MHz音频 PLL。当前归一化 baseline=3000，触发150、释放100、评级800～1600均为未标定压力码，OSD 显示 `PRESS UNCAL`。不能将它们直接解释为厘米。KEY2 在 ADC 模式不产生模拟按压。
 
-进入训练、清场、停用或复位后，检测器先观察完全释放，再接受新按压。一次按压必须完整释放才计数，中途回落不会重复计数。ADC 超时或采样邮箱溢出锁存硬件故障并抑制后续计数；清场不会解除故障，修正故障后需共同复位。接口细节见 [ADC 契约](docs/adc-contract.md)、[压力契约](docs/pressure-contract.md)、[整条采样链契约](docs/sensor-path-contract.md) 和 [训练计数契约](docs/training-contract.md)。
+有外部按键时，`top` 的 `USE_EXTERNAL_IO=1` 可选择五按键及四接触输入，具体见 pin.adc 和原 PR 输入契约。默认板载模式尚无亮度/独立清场按键。四图素材为640×480、24位无压缩、正高度BMP，仍要求受控扇区布局。
 
-## 5. 使用默认按键演示
+帧发布流程与复位契约见 [frame-buffer-contract.md](docs/frame-buffer-contract.md)。必须等读端在帧边界确认新缓冲区后，才释放旧缓冲区；不再仅凭写完认为切图已经完成。
 
-以下是代码定义的操作和预期行为，仍需上板验证：
+## 已知限制
 
-| 板载输入 | 顶层信号 / 管脚 | 操作 |
-|---|---|---|
-| KEY1 | `rst_n` / A2 | 共同复位，清除训练状态和采样故障 |
-| KEY2 | `key1` / B2 | 手动模式下一张；自动模式暂停/继续；默认 `top` 的训练模式中按下并释放模拟一次按压 |
-| KEY3 | `key3` / B1 | 手动模式上一张 |
-| KEY4 | `key2` / C1 | 手动浏览 → 自动展播 → 训练 → 手动浏览 |
-| SW1–SW4 | `dip_sw[3:0]` | 默认 `top` 的按压接触模式；`0000` 按目标档 `0011` 演示 |
+数字测试、完整构建和静态时序通过不等于实际显示/ADC/机械已通过。加密 SDRAM 刷新时的请求行为、长时间读写、板级 I/O 和 HDMI 接收端仍需上板验收。TD 可能报告内置 SDRAM 宏在中间 ECO 布局重新定位；验证脚本只在完整 route/bitgen 成功时单独记录这个精确诊断，其他错误或严重告警仍拒绝。
 
-默认 `top` 的演示接触码为 `0001` 浅、`0011/0111` 目标、`1111` 深；其他非零组合报传感器状态异常。按压计数在 KEY2 释放后更新，不测量真实深度。`top_adc` 的训练计数来自采样链，KEY2 不再产生模拟按压。
-
-`top` 参数 `USE_EXTERNAL_IO=1` 可选择五个外部低有效按键和四路接触输入，管脚见 [pin.adc](constraints/pin.adc)。外部按键顺序为 `[0]` 模式、`[1]` 上一张、`[2]` 下一张/暂停、`[3]` 亮度、`[4]` 清场。默认板载按键映射没有亮度和单独清场键；尚未实现板载组合键。`top_adc` 包装顶层未暴露此参数，若需要两者组合，应另建参数明确的包装顶层后复核管脚和工程入口。
-
-图像链路保留例程的原始扇区扫描方式，要求 640×480、24 位无压缩、正高度 BMP；不能把普通文件复制到卡中就视为必然可读。素材准备见 [素材规范与烧卡流程](../03_技术方案/素材规范与烧卡流程.md)。本次构建和仿真不写 TF 卡，也不下载板卡。
-
-## 验证记录
-
-2026-10-11 本地验证：11 项产品 RTL 自检和 5 项运行器控制全部通过；两种顶层用 TD 6.2.168116 完成 RTL/门级综合，均无错误或严重告警。实际资源如下：
-
-| 顶层 | LUT / 19600 | 寄存器 / 19600 | BRAM / 64 | PLL / 4 | ADC / 1 |
-|---|---:|---:|---:|---:|---:|
-| `top` | 5691（29.04%） | 4198 | 20 | 3 | 0 |
-| `top_adc` | 5754（29.36%） | 4282 | 20 | 3 | 1 |
-
-两种顶层各保留 43 条普通诊断，包括参考 SDRAM 的未驱动寄存器时钟、SD 写数据未使用和 IP 位宽告警。它们需要在后续联调中逐项处理；本次综合通过没有证明完整媒体链路正确。证据目录、约束绑定及负控记录见 [本次验证报告](docs/verification-report.md)，用户返回的接口审阅处理见 [DeepSeek 复核记录](docs/deepseek-review-resolution.md)。
-
-数字仿真与综合的通过范围仅限所列源码和数字接口。布局布线、CDC 物理路径、SDRAM DQ 的 setup/hold、外设电气条件、模拟精度、机械标定与实板演示仍需独立验证。
+本次结果见 [integration-verification.md](docs/integration-verification.md)。位流、日志及工具不进 Git。

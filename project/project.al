@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project Version="3" Minor="2" Path=".">
     <Project_Created_Time />
-    <TD_Version>6.2.168116</TD_Version>
+    <TD_Version>6.2.178840</TD_Version>
     <Name>project</Name>
     <HardWare>
         <Family>EG4</Family>
@@ -58,7 +58,7 @@
                     <Attr Name="CompileOrder" Val="6" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/bmp_read.v">
+            <File Path="vendor/SD/bmp_read.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -66,7 +66,7 @@
                     <Attr Name="CompileOrder" Val="7" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/color_bar.v">
+            <File Path="vendor/SD/color_bar.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -74,7 +74,7 @@
                     <Attr Name="CompileOrder" Val="8" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/frame_fifo_read.v">
+            <File Path="vendor/SD/frame_fifo_read.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -82,7 +82,7 @@
                     <Attr Name="CompileOrder" Val="9" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/frame_fifo_write.v">
+            <File Path="vendor/SD/frame_fifo_write.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -90,7 +90,7 @@
                     <Attr Name="CompileOrder" Val="10" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/frame_read_write.v">
+            <File Path="vendor/SD/frame_read_write.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -106,7 +106,7 @@
                     <Attr Name="CompileOrder" Val="12" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/seg_decoder.v">
+            <File Path="vendor/SD/seg_decoder.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -114,7 +114,7 @@
                     <Attr Name="CompileOrder" Val="13" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/seg_scan.v">
+            <File Path="vendor/SD/seg_scan.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -122,7 +122,7 @@
                     <Attr Name="CompileOrder" Val="14" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/video_delay.v">
+            <File Path="vendor/SD/video_delay.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -130,7 +130,7 @@
                     <Attr Name="CompileOrder" Val="15" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/video_timing_data.v">
+            <File Path="vendor/SD/video_timing_data.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -162,7 +162,7 @@
                     <Attr Name="CompileOrder" Val="19" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_cmd.v">
+            <File Path="vendor/SD/sd_card_cmd.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -170,7 +170,7 @@
                     <Attr Name="CompileOrder" Val="20" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_sec_read_write.v">
+            <File Path="vendor/SD/sd_card_sec_read_write.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -178,7 +178,7 @@
                     <Attr Name="CompileOrder" Val="21" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_top.v">
+            <File Path="vendor/SD/sd_card_top.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -186,7 +186,7 @@
                     <Attr Name="CompileOrder" Val="22" />
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/spi_master.v">
+            <File Path="vendor/SD/spi_master.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
@@ -338,6 +338,14 @@
                     <Attr Name="CompileOrder" Val="41" />
                 </FileInfo>
             </File>
+            <File Path="rtl/frame_buffer_publish.v">
+                <FileInfo>
+                    <Attr Name="UsedInSyn" Val="true" />
+                    <Attr Name="UsedInP&R" Val="true" />
+                    <Attr Name="BelongTo" Val="design_1" />
+                    <Attr Name="CompileOrder" Val="43" />
+                </FileInfo>
+            </File>
         </Verilog>
         <ADC_FILE>
             <File Path="constraints/pin.adc">
@@ -345,7 +353,7 @@
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
                     <Attr Name="BelongTo" Val="constraint_1" />
-                    <Attr Name="CompileOrder" Val="42" />
+                    <Attr Name="CompileOrder" Val="2" />
                 </FileInfo>
             </File>
         </ADC_FILE>
@@ -355,7 +363,15 @@
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
                     <Attr Name="BelongTo" Val="constraint_1" />
-                    <Attr Name="CompileOrder" Val="43" />
+                    <Attr Name="CompileOrder" Val="3" />
+                </FileInfo>
+            </File>
+            <File Path="constraints/reset_publish.sdc">
+                <FileInfo>
+                    <Attr Name="UsedInSyn" Val="true" />
+                    <Attr Name="UsedInP&R" Val="true" />
+                    <Attr Name="BelongTo" Val="constraint_1" />
+                    <Attr Name="CompileOrder" Val="1" />
                 </FileInfo>
             </File>
         </SDC_FILE>
@@ -365,7 +381,7 @@
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
                     <Attr Name="BelongTo" Val="design_1" />
-                    <Attr Name="CompileOrder" Val="44" />
+                    <Attr Name="CompileOrder" Val="42" />
                 </FileInfo>
             </File>
             <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.ipc">
@@ -373,7 +389,7 @@
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
                     <Attr Name="BelongTo" Val="design_1" />
-                    <Attr Name="CompileOrder" Val="45" />
+                    <Attr Name="CompileOrder" Val="44" />
                 </FileInfo>
             </File>
             <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.ipc">
@@ -381,7 +397,7 @@
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
                     <Attr Name="BelongTo" Val="design_1" />
-                    <Attr Name="CompileOrder" Val="46" />
+                    <Attr Name="CompileOrder" Val="45" />
                 </FileInfo>
             </File>
             <File Path="ip/sys_pll.ipc">
@@ -389,7 +405,7 @@
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
                     <Attr Name="BelongTo" Val="design_1" />
-                    <Attr Name="CompileOrder" Val="47" />
+                    <Attr Name="CompileOrder" Val="46" />
                 </FileInfo>
             </File>
             <File Path="ip/video_pll.ipc">
@@ -397,7 +413,7 @@
                     <Attr Name="UsedInSyn" Val="true" />
                     <Attr Name="UsedInP&R" Val="true" />
                     <Attr Name="BelongTo" Val="design_1" />
-                    <Attr Name="CompileOrder" Val="48" />
+                    <Attr Name="CompileOrder" Val="47" />
                 </FileInfo>
             </File>
         </IP_FILE>

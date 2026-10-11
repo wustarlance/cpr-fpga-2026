@@ -35,6 +35,12 @@ TESTS = {
         "sources": [RTL + "rate_display_lut.v", TB + "tb_rate_display_lut.v"],
         "pass_pattern": r"(?m)^PASS: (?:tb_rate_display_lut\b|rate_display_lut exhaustive range test\b)"},
     "tb_brightness_rgb": {"sources": [RTL + "brightness_rgb.v", TB + "tb_brightness_rgb.v"]},
+    "tb_bmp_scan": {"sources": ["project/vendor/SD/bmp_read.v", TB + "tb_bmp_scan.v"], "pass_pattern": r"(?m)^\[PASS\] BMP scanner/load regression complete"},
+    "tb_sdram_refresh": {"sources": [TB + "tb_sdram_refresh.v"], "include_dirs": ["project/vendor/include"], "pass_pattern": r"(?m)^\[PASS\]"},
+    "tb_frame_buffer_publish": {"sources": [RTL + "frame_buffer_publish.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_buffer_publish.v"]},
+    "tb_sd_buffer_ownership": {"sources": [RTL + "frame_buffer_publish.v", RTL + "SD/sd_card_bmp.v", "tests/sim/stubs/sd_image_reader_model.v", TB + "tb_sd_buffer_ownership.v"]},
+    "tb_cpr_overlay": {"sources": [RTL + "cpr_overlay.v", TB + "tb_cpr_overlay.v"]},
+    "tb_reset_release": {"sources": [RTL + "reset_release.v", TB + "tb_reset_release.v"]},
 }
 FAIL_PATTERN = re.compile(r"\b(?:FAIL|FATAL|TIMEOUT)\b", re.IGNORECASE)
 
@@ -96,7 +102,8 @@ def run_test(name, config, output, compiler, runtime, env, timeout):
         re.compile(pattern)
         record["pass_pattern"] = pattern
         image = directory / (name + ".vvp")
-        command = compiler + ["-g2012", "-Wall", "-s", record["top"], "-o", str(image)] + list(map(str, sources))
+        include_args = ["-I" + str((REPO / directory).resolve()) for directory in config.get("include_dirs", [])]
+        command = compiler + ["-g2012", "-Wall", "-s", record["top"], "-o", str(image)] + include_args + list(map(str, sources))
         record["compile"], _ = invoke(command, HERE, env, timeout, directory / "compile.log")
         if record["compile"]["timed_out"] or record["compile"]["returncode"] != 0 or not image.is_file():
             record["error"] = "Compilation failed or timed out"

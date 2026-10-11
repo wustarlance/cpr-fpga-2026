@@ -35,6 +35,12 @@ Linux/macOS 或 Git Bash 可执行 `bash tests/sim/run.sh --all`。`run.sh tb_na
 | `tb_cpr_control` | 三模式、按键去抖、浏览控制与训练接口集成 |
 | `tb_rate_display_lut` | 频率显示有效区间和查表范围 |
 | `tb_brightness_rgb` | RGB 亮度档位、边界和组合输出 |
+| `tb_bmp_scan` | 格式过滤、扫描边界、文件长度取整、跨扇区像素加载 |
+| `tb_sdram_refresh` | 刷新计数和实际周期满足保持期限 |
+| `tb_frame_buffer_publish` | 真实读 FSM 在帧边界锁存地址后才确认、复位取消 |
+| `tb_sd_buffer_ownership` | 连续翻页、源/写完成先后、等待切换时不复用旧缓冲 |
+| `tb_cpr_overlay` | 帧内状态稳定、下一帧快照、数字饱和与评级颜色 |
+| `tb_reset_release` | 异步置复位、就绪同步及同步释放 |
 
 ## 成功判据与证据
 

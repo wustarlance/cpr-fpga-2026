@@ -1,3 +1,17 @@
+# 整合后的来源变更（2026-10-11）
+
+以远端 PR #1 的 `50fea941512f3aabfafb93ad200f84abf84bd79b` 为历史基础，保留队友提交。加入本地已验证的40MHz PLL/刷新/BMP修复，相关独立例程也保留这些修改。
+
+主工程SD/BMP/帧缓存源码从原本的例程路径收口到 `project/vendor/SD`；仅主工程版帧读控制器增加帧边界信号和同步编号参数。图片发布模块 `rtl/frame_buffer_publish.v` 新增稳定数据请求/确认跨域，`rtl/SD/sd_card_bmp.v` 等待读端确认才解除忙状态。
+
+`reset_release.v` 新增ready输入，raw reset与就绪电平分离，减少复位来源歧义；`constraints/reset_publish.sdc` 只豁免真正的第一级控制同步路径，并给缓冲编号总线加25ns上限。PLL包装保留PR的lock端口。HDMI加密/SDRAM加密核未修改，仍从原例程引用。
+
+本次构建扩展到place/route/bitgen，所有输入/报告/位流哈希由 `verify_td.py` 保存。新增媒体/复位测试并统一到 `run.py`，没有额外处理器或文件系统实现。
+
+以下为PR整合前的来源记录，保留作历史；以本段和整合验证报告解释当前活动输入。
+
+---
+
 # 基础工程源码来源
 
 本文件记录 `project/` 与原仓库参考工程的关系，供审查源文件、IP 和约束变更。构建步骤见 [工程说明](../README.md)，接口行为见同目录各模块契约。

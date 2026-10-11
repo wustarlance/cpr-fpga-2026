@@ -80,6 +80,9 @@ reg         frame_write_toggle_mem;
 
 wire [1:0]  write_buf_idx;
 wire [1:0]  disp_buf_idx;
+wire [1:0] active_read_idx;
+wire publish_req, publish_done, read_frame_start;
+
 
 wire App_rd_en;
 wire [ADDR_BITS-1:0] App_rd_addr;
@@ -147,10 +150,20 @@ wire rst_video = ~app_rst_n;
 wire rst_sd = ~sd_rst_n;
 wire rst_mem = ~mem_rst_n;
 wire rst_audio = ~audio_rst_n;
-reset_release u_app_reset(video_clk, ~rst_all, app_rst_n);
-reset_release u_sd_reset(sd_card_clk, ~rst_all, sd_rst_n);
-reset_release u_mem_reset(ext_mem_clk, ~rst_all, mem_rst_n);
-reset_release u_audio_reset(audio_mclk, ~rst_all, audio_rst_n);
+reset_release u_app_reset(.clk(video_clk), .reset_n_async(por_reset_n),
+    .rst_n(app_rst_n), .ready(por_ready));
+reset_release u_sd_reset(.clk(sd_card_clk), .reset_n_async(por_reset_n),
+    .rst_n(sd_rst_n), .ready(por_ready));
+reset_release u_mem_reset(.clk(ext_mem_clk), .reset_n_async(por_reset_n),
+    .rst_n(mem_rst_n), .ready(por_ready));
+reset_release u_audio_reset(.clk(audio_mclk), .reset_n_async(por_reset_n),
+    .rst_n(audio_rst_n), .ready(por_ready));
+frame_buffer_publish u_frame_publish(
+    .src_clk(sd_card_clk), .src_rst_n(sd_rst_n),
+    .publish(publish_req), .buffer_index(disp_buf_idx), .busy(), .done(publish_done),
+    .mem_clk(ext_mem_clk), .mem_rst_n(mem_rst_n),
+    .frame_start(read_frame_start), .active_index(active_read_idx));
+
 wire tick_ms, next_key_n, prev_key_n, auto_enable, training_enabled;
 wire [1:0] app_mode, brightness_level;
 wire [31:0] press_count, rotate_remaining_ms;
@@ -302,6 +315,8 @@ sd_card_bmp #(
     .write_finish_toggle(frame_write_toggle_mem),
     .write_buf_idx     (write_buf_idx),
     .disp_buf_idx      (disp_buf_idx),
+    .publish_req       (publish_req),
+    .publish_done      (publish_done),
 
     .write_req         (sd_card_write_req),
     .write_req_ack     (sd_card_write_req_ack),
@@ -362,7 +377,8 @@ assign vout_data = app_rgb; // status UI is visible while SD scans or is absent
 frame_read_write #(
     .WRITE_V_FLIP     (1),
     .FRAME_WIDTH      (640),
-    .FRAME_HEIGHT     (480)
+    .FRAME_HEIGHT     (480),
+    .READ_INDEX_SYNCHRONOUS (1)
 ) frame_read_write_m0(
     .mem_clk           (ext_mem_clk),
     .rst               (rst_mem),
@@ -383,7 +399,8 @@ frame_read_write #(
     .read_addr_1       (BUF1_ADDR[ADDR_BITS-1:0]),
     .read_addr_2       (21'd0),
     .read_addr_3       (21'd0),
-    .read_addr_index   (disp_buf_idx),
+    .read_addr_index   (active_read_idx),
+    .frame_start       (read_frame_start),
     .read_len          (FRAME_PIXELS[ADDR_BITS-1:0]),
     .read_en           (video_read_en),
     .read_data         (video_read_data),
