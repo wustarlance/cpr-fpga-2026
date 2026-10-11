@@ -51,15 +51,25 @@ module cpr_control #(
     // training_core clears on entry/exit as well as this explicit event.
     assign clear_session = keys_rise[4];
     timebase #(.CLK_HZ(CLK_HZ)) u_timebase (
-        .clk(clk), .rst_n(rst_n), .tick_ms(tick_ms)
+        .clk     (clk),
+        .rst_n   (rst_n),
+        .tick_ms (tick_ms)
     );
     input_filter #(.WIDTH(5), .STABLE_MS(KEY_STABLE_MS)) u_keys (
-        .clk(clk), .rst_n(rst_n), .tick_ms(tick_ms),
-        .raw(raw_keys), .level(keys_level), .rise(keys_rise)
+        .clk     (clk),
+        .rst_n   (rst_n),
+        .tick_ms (tick_ms),
+        .raw     (raw_keys),
+        .level   (keys_level),
+        .rise    (keys_rise)
     );
     input_filter #(.WIDTH(4), .STABLE_MS(DEPTH_STABLE_MS)) u_depth (
-        .clk(clk), .rst_n(rst_n), .tick_ms(tick_ms),
-        .raw(raw_depth), .level(depth_level), .rise(depth_rise_unused)
+        .clk     (clk),
+        .rst_n   (rst_n),
+        .tick_ms (tick_ms),
+        .raw     (raw_depth),
+        .level   (depth_level),
+        .rise    (depth_rise_unused)
     );
     // SD controller applies its own debounce in sd_card_clk. These levels
     // are persistent enough to cross domains; they are not 25 MHz pulses.
@@ -85,22 +95,37 @@ module cpr_control #(
         end
     end
     training_core #(
-        .PAUSE_WARN_MS(PAUSE_WARN_MS), .ROTATE_MS(ROTATE_MS),
-        .BEAT_MS(BEAT_MS), .USE_PRESS_EVENTS(USE_PRESS_EVENTS)
+        .PAUSE_WARN_MS    (PAUSE_WARN_MS),
+        .ROTATE_MS        (ROTATE_MS),
+        .BEAT_MS          (BEAT_MS),
+        .USE_PRESS_EVENTS (USE_PRESS_EVENTS)
     ) u_training (
-        .clk(clk), .rst_n(rst_n), .tick_ms(tick_ms),
-        .enabled(training_enabled), .clear_session(clear_session),
-        .depth_switches(depth_level), .press_count(press_count),
-        .interval_ms(interval_ms), .rate_valid(rate_valid),
-        .rate_grade(rate_grade), .depth_grade(depth_grade),
-        .pause_ms(pause_ms), .pause_warning(pause_warning),
-        .rotate_remaining_ms(rotate_remaining_ms), .rotate_due(rotate_due),
-        .beat_event(beat_event), .compression_event(compression_event),
-        .sensor_fault(sensor_fault), .press_event(press_event),
-        .press_grade(press_grade), .press_fault(press_fault)
+        .clk                 (clk),
+        .rst_n               (rst_n),
+        .tick_ms             (tick_ms),
+        .enabled             (training_enabled),
+        .clear_session       (clear_session),
+        .depth_switches      (depth_level),
+        .press_count         (press_count),
+        .interval_ms         (interval_ms),
+        .rate_valid          (rate_valid),
+        .rate_grade          (rate_grade),
+        .depth_grade         (depth_grade),
+        .pause_ms            (pause_ms),
+        .pause_warning       (pause_warning),
+        .rotate_remaining_ms (rotate_remaining_ms),
+        .rotate_due          (rotate_due),
+        .beat_event          (beat_event),
+        .compression_event   (compression_event),
+        .sensor_fault        (sensor_fault),
+        .press_event         (press_event),
+        .press_grade         (press_grade),
+        .press_fault         (press_fault)
     );
     rate_display_lut u_rate_display (
-        .interval_ms(interval_ms), .rate_valid(rate_valid),
-        .bpm_approx(bpm_approx), .bpm_valid(bpm_valid)
+        .interval_ms (interval_ms),
+        .rate_valid  (rate_valid),
+        .bpm_approx  (bpm_approx),
+        .bpm_valid   (bpm_valid)
     );
 endmodule

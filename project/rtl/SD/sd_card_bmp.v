@@ -116,7 +116,10 @@ key_press_debounce #(
 );
 
 key_press_debounce #(.CLK_FREQ_HZ(CLK_FREQ_HZ), .DEBOUNCE_MS(20)) u_key_prev(
-    .clk(clk), .rst(rst), .button_in(key_prev), .press_pulse(key_prev_press));
+    .clk         (clk),
+    .rst         (rst),
+    .button_in   (key_prev),
+    .press_pulse (key_prev_press));
 function [1:0] prev_index_limited;
     input [1:0] cur;
     input [2:0] count;

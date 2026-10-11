@@ -150,19 +150,33 @@ wire rst_video = ~app_rst_n;
 wire rst_sd = ~sd_rst_n;
 wire rst_mem = ~mem_rst_n;
 wire rst_audio = ~audio_rst_n;
-reset_release u_app_reset(.clk(video_clk), .reset_n_async(por_reset_n),
-    .rst_n(app_rst_n), .ready(por_ready));
-reset_release u_sd_reset(.clk(sd_card_clk), .reset_n_async(por_reset_n),
-    .rst_n(sd_rst_n), .ready(por_ready));
-reset_release u_mem_reset(.clk(ext_mem_clk), .reset_n_async(por_reset_n),
-    .rst_n(mem_rst_n), .ready(por_ready));
-reset_release u_audio_reset(.clk(audio_mclk), .reset_n_async(por_reset_n),
-    .rst_n(audio_rst_n), .ready(por_ready));
+reset_release u_app_reset(.clk           (video_clk),
+                          .reset_n_async (por_reset_n),
+                          .rst_n         (app_rst_n),
+                          .ready         (por_ready));
+reset_release u_sd_reset(.clk           (sd_card_clk),
+                         .reset_n_async (por_reset_n),
+                         .rst_n         (sd_rst_n),
+                         .ready         (por_ready));
+reset_release u_mem_reset(.clk           (ext_mem_clk),
+                          .reset_n_async (por_reset_n),
+                          .rst_n         (mem_rst_n),
+                          .ready         (por_ready));
+reset_release u_audio_reset(.clk           (audio_mclk),
+                            .reset_n_async (por_reset_n),
+                            .rst_n         (audio_rst_n),
+                            .ready         (por_ready));
 frame_buffer_publish u_frame_publish(
-    .src_clk(sd_card_clk), .src_rst_n(sd_rst_n),
-    .publish(publish_req), .buffer_index(disp_buf_idx), .busy(), .done(publish_done),
-    .mem_clk(ext_mem_clk), .mem_rst_n(mem_rst_n),
-    .frame_start(read_frame_start), .active_index(active_read_idx));
+    .src_clk      (sd_card_clk),
+    .src_rst_n    (sd_rst_n),
+    .publish      (publish_req),
+    .buffer_index (disp_buf_idx),
+    .busy         (),
+    .done         (publish_done),
+    .mem_clk      (ext_mem_clk),
+    .mem_rst_n    (mem_rst_n),
+    .frame_start  (read_frame_start),
+    .active_index (active_read_idx));
 
 wire tick_ms, next_key_n, prev_key_n, auto_enable, training_enabled;
 wire [1:0] app_mode, brightness_level;
@@ -181,17 +195,38 @@ wire [4:0] app_keys_raw = USE_EXTERNAL_IO ? ~ext_keys_n : {2'b00,~key1,~key3,~ke
 wire [3:0] app_depth_raw = USE_EXTERNAL_IO ? ~depth_sw_n :
     ((!key1) ? ((dip_sw == 0) ? 4'b0011 : dip_sw) : 4'b0000);
 cpr_control #(.USE_PRESS_EVENTS(USE_ADC)) u_control(
-    .clk(video_clk), .rst_n(app_rst_n), .raw_keys(app_keys_raw), .raw_depth(app_depth_raw),
-    .tick_ms(tick_ms), .mode(app_mode), .brightness_level(brightness_level),
-    .keys_level(), .depth_level(), .next_key_n(next_key_n), .prev_key_n(prev_key_n),
-    .auto_enable(auto_enable), .training_enabled(training_enabled), .auto_run(),
-    .press_count(press_count), .interval_ms(interval_ms), .rate_valid(rate_valid),
-    .rate_grade(rate_grade), .depth_grade(depth_grade), .pause_ms(pause_ms),
-    .pause_warning(pause_warning), .rotate_remaining_ms(rotate_remaining_ms),
-    .rotate_due(rotate_due), .beat_event(beat_event), .compression_event(compression_event),
-    .sensor_fault(sensor_fault), .bpm_approx(bpm_approx), .bpm_valid(bpm_valid),
-    .press_event(adc_peak_event), .press_grade(adc_peak_grade),
-    .press_fault(adc_path_fault), .clear_session(clear_session));
+    .clk                 (video_clk),
+    .rst_n               (app_rst_n),
+    .raw_keys            (app_keys_raw),
+    .raw_depth           (app_depth_raw),
+    .tick_ms             (tick_ms),
+    .mode                (app_mode),
+    .brightness_level    (brightness_level),
+    .keys_level          (),
+    .depth_level         (),
+    .next_key_n          (next_key_n),
+    .prev_key_n          (prev_key_n),
+    .auto_enable         (auto_enable),
+    .training_enabled    (training_enabled),
+    .auto_run            (),
+    .press_count         (press_count),
+    .interval_ms         (interval_ms),
+    .rate_valid          (rate_valid),
+    .rate_grade          (rate_grade),
+    .depth_grade         (depth_grade),
+    .pause_ms            (pause_ms),
+    .pause_warning       (pause_warning),
+    .rotate_remaining_ms (rotate_remaining_ms),
+    .rotate_due          (rotate_due),
+    .beat_event          (beat_event),
+    .compression_event   (compression_event),
+    .sensor_fault        (sensor_fault),
+    .bpm_approx          (bpm_approx),
+    .bpm_valid           (bpm_valid),
+    .press_event         (adc_peak_event),
+    .press_grade         (adc_peak_grade),
+    .press_fault         (adc_path_fault),
+    .clear_session       (clear_session));
 
 generate
     if (USE_ADC) begin : g_adc
@@ -203,21 +238,39 @@ generate
         // TN304's parameter contract. Its actual board voltage and the
         // front-end range require bench checking before analog use.
         EG_PHY_ADC #(.CH1("ENABLE"), .VREF("ENABLE")) u_adc (
-            .clk(audio_mclk), .pd(adc_pd), .s(adc_channel), .soc(adc_soc),
-            .eoc(adc_eoc), .dout(adc_dout));
+            .clk  (audio_mclk),
+            .pd   (adc_pd),
+            .s    (adc_channel),
+            .soc  (adc_soc),
+            .eoc  (adc_eoc),
+            .dout (adc_dout));
         cpr_sensor_path #(
-            .ADC_CLK_HZ(12295082), .SAMPLE_HZ(200000), .CHANNEL(1),
-            .RELEASE_BASELINE(RELEASE_BASELINE), .TRIGGER_LEVEL(TRIGGER_LEVEL),
-            .RELEASE_LEVEL(RELEASE_LEVEL), .TARGET_LOW(TARGET_LOW),
+            .ADC_CLK_HZ       (12295082),
+            .SAMPLE_HZ        (200000),
+            .CHANNEL          (1),
+            .RELEASE_BASELINE (RELEASE_BASELINE),
+            .TRIGGER_LEVEL    (TRIGGER_LEVEL),
+            .RELEASE_LEVEL    (RELEASE_LEVEL),
+            .TARGET_LOW       (TARGET_LOW),
             .TARGET_HIGH(TARGET_HIGH)
         ) u_sensor (
-            .adc_clk(audio_mclk), .adc_rst_n(audio_rst_n),
-            .app_clk(video_clk), .app_rst_n(app_rst_n),
-            .adc_eoc(adc_eoc), .adc_dout(adc_dout),
-            .adc_soc(adc_soc), .adc_pd(adc_pd), .adc_channel(adc_channel),
-            .enabled(training_enabled), .clear_session(clear_session),
-            .peak_event(adc_peak_event), .peak_grade(adc_peak_grade),
-            .peak_value(), .raw_valid(), .raw_data(), .sensor_fault(adc_path_fault));
+            .adc_clk       (audio_mclk),
+            .adc_rst_n     (audio_rst_n),
+            .app_clk       (video_clk),
+            .app_rst_n     (app_rst_n),
+            .adc_eoc       (adc_eoc),
+            .adc_dout      (adc_dout),
+            .adc_soc       (adc_soc),
+            .adc_pd        (adc_pd),
+            .adc_channel   (adc_channel),
+            .enabled       (training_enabled),
+            .clear_session (clear_session),
+            .peak_event    (adc_peak_event),
+            .peak_grade    (adc_peak_grade),
+            .peak_value    (),
+            .raw_valid     (),
+            .raw_data      (),
+            .sensor_fault  (adc_path_fault));
     end else begin : g_demo
         assign adc_peak_event = 1'b0;
         assign adc_peak_grade = 2'd0;
@@ -244,15 +297,29 @@ end
 wire [23:0] app_rgb, adjusted_rgb;
 brightness_rgb u_brightness(
     .rgb(display_valid_sync[1] ? vout_data_raw : 24'h102030),
-    .level(brightness_video), .out_rgb(adjusted_rgb));
+    .level   (brightness_video),
+    .out_rgb (adjusted_rgb));
 cpr_overlay #(.UNCALIBRATED_PRESSURE(USE_ADC)) u_overlay(
-    .clk(video_clk), .rst(rst_video), .vs(vs), .de(de),
+    .clk (video_clk),
+    .rst (rst_video),
+    .vs  (vs),
+    .de  (de),
     .rgb(adjusted_rgb),
-    .mode(app_mode), .count(press_count), .rate(rate_grade), .depth_grade(depth_grade),
-    .interval_ms(interval_ms), .pause_ms(pause_ms), .rotate_remaining_ms(rotate_remaining_ms),
-    .bpm(bpm_approx), .bpm_valid(bpm_valid), .sensor_fault(sensor_fault | adc_path_fault),
-    .brightness_level(brightness_level), .pause_warning(pause_warning),
-    .rotate_due(rotate_due), .beat(beat_hold_ms != 0), .out_rgb(app_rgb));
+    .mode                (app_mode),
+    .count               (press_count),
+    .rate                (rate_grade),
+    .depth_grade         (depth_grade),
+    .interval_ms         (interval_ms),
+    .pause_ms            (pause_ms),
+    .rotate_remaining_ms (rotate_remaining_ms),
+    .bpm                 (bpm_approx),
+    .bpm_valid           (bpm_valid),
+    .sensor_fault        (sensor_fault | adc_path_fault),
+    .brightness_level    (brightness_level),
+    .pause_warning       (pause_warning),
+    .rotate_due          (rotate_due),
+    .beat                (beat_hold_ms != 0),
+    .out_rgb             (app_rgb));
 always @(posedge video_clk or posedge rst_video) begin
     if (rst_video) display_valid_sync <= 0;
     else display_valid_sync <= {display_valid_sync[0],display_valid};

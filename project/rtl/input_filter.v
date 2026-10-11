@@ -1,8 +1,11 @@
 // Normalize polarity before this module. Output 1 means asserted.
 // Independent switches are filtered independently; coherent buses need a handshake.
 module input_filter #(parameter WIDTH = 4, parameter STABLE_MS = 10)(
-    input wire clk, input wire rst_n, input wire tick_ms,
-    input wire [WIDTH-1:0] raw, output reg [WIDTH-1:0] level,
+    input wire clk,
+    input wire rst_n,
+    input wire tick_ms,
+    input wire [WIDTH-1:0] raw,
+    output reg [WIDTH-1:0] level,
     output reg [WIDTH-1:0] rise
 );
     reg [WIDTH-1:0] sync_a, sync_b;
