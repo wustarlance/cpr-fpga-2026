@@ -1,0 +1,22 @@
+# 帧缓存发布与复位契约
+
+`rtl/frame_buffer_publish.v` 在 SD 时钟域接受一拍 `publish` 和对应的 `buffer_index`。仅在 `busy=0` 接受请求；源域锁存缓冲区号，保持到读端确认返回。各域须共同异步置复位，再在各自时钟下释放。
+
+请求 toggle 经两级同步进入 40 MHz 内存域。模块额外锁存稳定的编号，等 `vendor/SD/frame_fifo_read.v` 的 `frame_start` 才更改 `active_index`。`frame_start` 表示读 FSM 进入 `S_ACK`；下一拍读端锁存该编号的帧首地址。确认在这一拍才发出，经两级同步回到 SD 域，产生一拍 `done`。
+
+主工程将 `READ_INDEX_SYNCHRONOUS=1`，直接使用内存域的 active 编号。默认参数为 0，保留旧独立调用者的编号同步行为。不能将一个 SD 域编号直接接入同步模式。
+
+图片调度器的过程是：
+
+1. 写入非当前读取缓冲区。
+2. 分别锁存 BMP 源完成和 SDRAM 写完成；不假定两者先后顺序。
+3. 发布新编号，保持 `load_busy`，此期间只记录一个待处理翻页请求。
+4. 收到发布 `done` 后更新显示状态，释放旧缓冲，再允许下一次加载。
+
+源完成必须先观察 BMP 解析器离开空闲，再返回空闲；启动请求时遗留的一拍 `ready` 不能算完成。第一张图片也必须等待新帧读地址被捕获，不依靠复位后恰好读 buffer0 来提前确认。
+
+`reset_publish.sdc` 为保持的数据总线设置 25 ns 上限，只豁免 request/ack 第一级同步寄存器。不能对整个内存/SD 时钟组 false-path。
+
+复位释放模块接收原始共同复位原因 `rst_n && all_plls_locked`，失锁/按键立即清零；50 MHz 的上电等待 `por_ready` 经各域两级 readiness 同步，再经两级 release 寄存器放行。只有 readiness 首级接收异域电平，SDC 对 `por_ready → ready_meta` 设置局部例外，后续链仍分析时序。同步释放保证协议顺序，不代替实际 PLL、电源和亚稳态硬件验证。
+
+测试入口：`tb_frame_buffer_publish` 检查真实读 FSM 的地址捕获、切换确认、复位取消；`tb_sd_buffer_ownership` 检查连续翻页和完成先后顺序；`tb_reset_release` 检查异步置位与延迟释放。读卡/写存储模型不能代表加密 SDRAM 的实板行为。

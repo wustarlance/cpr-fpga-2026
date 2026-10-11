@@ -1,0 +1,5 @@
+# Keep the shell wrapper executable under Git Bash on Windows checkouts.
+tests/sim/run.sh text eol=lf
+# Preserve formatting in copied vendor wrappers and protected source files.
+project/ip/** -whitespace
+project/vendor/** -whitespace

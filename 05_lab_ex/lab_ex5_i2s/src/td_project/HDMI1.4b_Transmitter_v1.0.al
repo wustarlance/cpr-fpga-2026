@@ -356,6 +356,38 @@
                     <Attr Name="CompileOrder" Val="13"/>
                 </FileInfo>
             </File>
+            <File Path="../user_source/hdl_source/IP/sys_pll.ipc">
+                <FileInfo>
+                    <Attr Name="UsedInSyn" Val="true"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="design_1"/>
+                    <Attr Name="CompileOrder" Val="40"/>
+                </FileInfo>
+            </File>
+            <File Path="../user_source/hdl_source/IP/video_pll.ipc">
+                <FileInfo>
+                    <Attr Name="UsedInSyn" Val="true"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="design_1"/>
+                    <Attr Name="CompileOrder" Val="41"/>
+                </FileInfo>
+            </File>
+            <File Path="../user_source/hdl_source/IP/afifo_16_32_256.ipc">
+                <FileInfo>
+                    <Attr Name="UsedInSyn" Val="true"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="design_1"/>
+                    <Attr Name="CompileOrder" Val="42"/>
+                </FileInfo>
+            </File>
+            <File Path="../user_source/hdl_source/IP/afifo_32_16_256.ipc">
+                <FileInfo>
+                    <Attr Name="UsedInSyn" Val="true"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="design_1"/>
+                    <Attr Name="CompileOrder" Val="43"/>
+                </FileInfo>
+            </File>
         </IP_FILE>
     </Source_Files>
     <FileSets>

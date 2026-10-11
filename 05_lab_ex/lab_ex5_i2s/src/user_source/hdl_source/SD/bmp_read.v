@@ -40,6 +40,9 @@ localparam ST_SCAN      = 3'd1;
 localparam ST_LOAD_HDR  = 3'd2;
 localparam ST_LOAD_WAIT = 3'd3;
 localparam ST_LOAD_DATA = 3'd4;
+localparam ST_SCAN_SIZE = 3'd5;
+localparam ST_SCAN_NEXT = 3'd6;
+localparam ST_SCAN_DECIDE = 3'd7;
 
 reg [2:0]  state;
 reg [9:0]  rd_cnt;
@@ -60,9 +63,9 @@ reg [1:0]  bmp_byte_idx;
 
 wire header_match;
 wire bmp_data_valid;
-wire [31:0] file_sector_count;
-wire [31:0] next_scan_sector_if_match;
-wire [31:0] next_scan_sector_if_miss;
+reg [31:0] scan_file_sectors;
+reg [31:0] scan_next_sector;
+reg        scan_header_match;
 
 assign ready = (state == ST_IDLE);
 assign header_match = (header_0 == "B") &&
@@ -74,9 +77,6 @@ assign header_match = (header_0 == "B") &&
 assign bmp_data_valid = (sd_sec_read_data_valid == 1'b1) &&
                         (bmp_len_cnt >= pixel_offset) &&
                         (bmp_len_cnt <  file_len);
-assign file_sector_count = (file_len == 32'd0) ? 32'd1 : ((file_len + 32'd511) >> 9);
-assign next_scan_sector_if_match = scan_sector + file_sector_count;
-assign next_scan_sector_if_miss  = scan_sector + 32'd1;
 
 always @(posedge clk or posedge rst) begin
     if (rst) begin
@@ -204,6 +204,9 @@ always @(posedge clk or posedge rst) begin
         scan_found_total  <= 3'd0;
         scan_sector       <= 32'd0;
         load_sector_latched <= 32'd0;
+        scan_file_sectors  <= 32'd0;
+        scan_next_sector   <= 32'd0;
+        scan_header_match  <= 1'b0;
     end else if (!sd_init_done) begin
         state             <= ST_IDLE;
         state_code        <= 4'd0;
@@ -216,6 +219,9 @@ always @(posedge clk or posedge rst) begin
         scan_found_total  <= 3'd0;
         scan_sector       <= 32'd0;
         load_sector_latched <= 32'd0;
+        scan_file_sectors  <= 32'd0;
+        scan_next_sector   <= 32'd0;
+        scan_header_match  <= 1'b0;
     end else begin
         scan_found_valid <= 1'b0;
 
@@ -244,29 +250,50 @@ always @(posedge clk or posedge rst) begin
 
                 if (sd_sec_read_end) begin
                     sd_sec_read <= 1'b0;
+                    state <= ST_SCAN_SIZE;
+                end
+            end
 
-                    if (header_match) begin
-                        scan_found_valid  <= 1'b1;
-                        scan_found_sector <= scan_sector;
-                        scan_found_total  <= scan_found_total + 3'd1;
+            // Separate length rounding, LBA addition and bounds comparison.
+            // No SD request is active in these three cycles, so the completed
+            // header remains stable and the next sector cannot start early.
+            ST_SCAN_SIZE: begin
+                scan_file_sectors <= (file_len == 32'd0) ? 32'd1 :
+                                     ((file_len + 32'd511) >> 9);
+                scan_header_match <= header_match;
+                state <= ST_SCAN_NEXT;
+            end
 
-                        if ((scan_found_total + 3'd1 >= scan_target_count) || (next_scan_sector_if_match > scan_max_sector)) begin
-                            scan_done        <= 1'b1;
-                            state            <= ST_IDLE;
-                            sd_sec_read_addr <= next_scan_sector_if_match;
-                            scan_sector      <= next_scan_sector_if_match;
-                        end else begin
-                            sd_sec_read_addr <= next_scan_sector_if_match;
-                            scan_sector      <= next_scan_sector_if_match;
-                        end
+            ST_SCAN_NEXT: begin
+                scan_next_sector <= scan_sector +
+                                    (scan_header_match ? scan_file_sectors : 32'd1);
+                state <= ST_SCAN_DECIDE;
+            end
+
+            ST_SCAN_DECIDE: begin
+                if (scan_header_match) begin
+                    scan_found_valid  <= 1'b1;
+                    scan_found_sector <= scan_sector;
+                    scan_found_total  <= scan_found_total + 3'd1;
+
+                    if ((scan_found_total + 3'd1 >= scan_target_count) || (scan_next_sector > scan_max_sector)) begin
+                        scan_done        <= 1'b1;
+                        state            <= ST_IDLE;
+                        sd_sec_read_addr <= scan_next_sector;
+                        scan_sector      <= scan_next_sector;
                     end else begin
-                        if (scan_sector >= scan_max_sector) begin
-                            scan_done <= 1'b1;
-                            state     <= ST_IDLE;
-                        end else begin
-                            sd_sec_read_addr <= next_scan_sector_if_miss;
-                            scan_sector      <= next_scan_sector_if_miss;
-                        end
+                        sd_sec_read_addr <= scan_next_sector;
+                        scan_sector      <= scan_next_sector;
+                        state            <= ST_SCAN;
+                    end
+                end else begin
+                    if (scan_sector >= scan_max_sector) begin
+                        scan_done <= 1'b1;
+                        state     <= ST_IDLE;
+                    end else begin
+                        sd_sec_read_addr <= scan_next_sector;
+                        scan_sector      <= scan_next_sector;
+                        state            <= ST_SCAN;
                     end
                 end
             end
