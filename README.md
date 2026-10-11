@@ -4,6 +4,14 @@
 > 赛题：**选题一 — 基于安路 EG4S20 的 HDMI 多媒体播放系统**（本作品在其基础上改造为 CPR 训练终端）
 > 平台 HX4S20C（安路 EG4S20BG256，19600 LUT / 8MB 片内 SDRAM）· 团队 3 人，均为"一生一芯"（YSYX）学员
 
+## 当前代码入口（2026-10-11）
+
+基础架构现在登记在 [`project/project.al`](project/project.al)：默认 `top` 用板载按键演示，`top_adc` 接入片内 ADC CH1 的采样、跨域、四点均值和完整释放后的按压事件。源文件、构建方法与操作见 [`project/README.md`](project/README.md)，变更来源见 [`source-provenance.md`](project/docs/source-provenance.md)。
+
+当前实现包括三模式控制、训练计数/间隔/计时、基础亮度与固定 OSD，并保留参考工程的 HDMI 测试音和 SD/BMP/SDRAM 链路。**压力阈值是未标定码值；音乐、语音、转场、频谱、缩放、对比度与文字滚动仍是方案目标。** 下方作品简介说明完整设计定位，不能视为所有功能已经完成。
+
+本地工作基于 GitHub `20026ba86faa6a7ce63be6195f27a458a12e15fd` 快照，尚未推送远端。11 项产品 RTL 仿真及两种顶层的 TD 综合已通过，详见 [本次验证报告](project/docs/verification-report.md)；布局布线、时序签核、模拟精度和上板行为不在已验证范围内。
+
 **心脏骤停多发生在家中（79.2%），急救车响应中位数 12 分钟才到，黄金时间只有 4 分钟。**
 **这段没人能替的时间里只有胸外按压，而会做的旁人只有 20.3%。**
 
@@ -26,9 +34,9 @@
 
 | 目录 | 是什么 |
 |---|---|
-| **`project/`** | ⭐ 安路 TD 工程（`project.al`；日志落 `project/log/`，已忽略） |
-| **`tests/`** | ⭐ **验证工程**：`tests/sim/` 仿真（入口 `tests/sim/run.sh`）、`tests/board/` 上板验证（bring-up） |
-| `05_lab_ex/` | 安路官方参考工程 `lab_ex5_i2s` / `lab_ex4_tf` —— 自研代码照它改 |
+| **`project/`** | ⭐ 安路 TD 主工程：`project.al`、`rtl/`、`ip/`、`vendor/`、`constraints/`；综合报告落 `project/build/` |
+| **`tests/`** | ⭐ **验证工程**：`tests/sim/run.py` 编译产品 RTL 自检；`run.sh` 为脚本包装；`tests/board/` 为独立上板验证 |
+| `05_lab_ex/` | 安路官方参考工程 `lab_ex5_i2s` / `lab_ex4_tf`；**主工程仍直接依赖其中源码和 IP** |
 | `06_例程精读/` | ⭐ 参考工程逐站走读笔记（8 站） |
 | `03_技术方案/` | 完整方案、硬件实证、接口规范、物料清单 |
 | `04_环境与工具/` | TD 工具链安装与自检 |
@@ -53,18 +61,20 @@
 git clone --no-checkout ssh://git@github.com/wustarlance/cpr-fpga-2026.git
 cd cpr-fpga-2026
 git sparse-checkout init --cone
-git sparse-checkout set project tests 03_技术方案
+git sparse-checkout set project tests 05_lab_ex 03_技术方案
 git checkout main
 
 git config user.name  "你的名字"      # ← 各自必设，否则提交全记成 wuqi
 git config user.email "你的邮箱"
 ```
 
-| 稀疏集 | 工作树 | 拿到什么 |
-|---|---|---|
-| `project tests` | 56 KB | 只要代码（`project/` 含共享的 `project.al`，谁都得有） |
-| `+ 03_技术方案` | 352 KB | 加方案与接口规范 ← **推荐** |
-| `+ 05_lab_ex 06_例程精读` | 34 MB | 加参考工程，照它写 RTL 时才需要 |
+| 稀疏集 | 拿到什么 |
+|---|---|
+| `project tests 05_lab_ex` | 主工程、验证和实际编译依赖；这是当前最小代码集合 |
+| `+ 03_技术方案` | 加方案、接线和素材规范 ← **推荐** |
+| `+ 06_例程精读` | 加参考工程走读笔记 |
+
+已有只检出 `project tests` 的工作树需先执行 `git sparse-checkout add 05_lab_ex`；省略参考工程会导致主工程缺源文件。
 
 管理：`git sparse-checkout list` / `add <目录>` / `disable`（取消，全部检出）。
 
@@ -85,6 +95,8 @@ git config user.email "你的邮箱"
 | `project/project.al`、`timing.sdc`、`pin.adc`、顶层 `top_tf_hdmi_audio.v` | **A 独占** | ⚠️ 共享文件，改错三人一起挂 |
 | 其余 `SD/*.v` | B | |
 | `adc_ctrl.v`、`peak_detect.v` | C | |
+
+当前主工程路径为 `project/rtl/top_tf_hdmi_audio.v`、`project/constraints/pin.adc`、`project/constraints/timing.sdc`；ADC/按压模块位于 `project/rtl/`。`05_lab_ex/` 保留参考内容，新修改放入 `project/`。
 
 > 那 4 个共享文件正对应 CERN [Hog](https://hog.readthedocs.io/) 所说的「可复现性三要素」：**源文件 / 约束文件 / IDE 设置**。少一样，工程就无法在别人机器上重建。
 
@@ -109,6 +121,26 @@ git push -u origin feat/adc-threshold       # rebase 过就要用 --force-with-l
 
 ## 快速开始
 
+从仓库根目录跑仿真：
+
+```sh
+python tests/sim/run.py --all --self-test-runner
+```
+
+Windows PowerShell 综合默认顶层：
+
+```powershell
+Set-Location project
+$env:CPR_TOP = 'top'
+& 'E:/bin/td_commands_prompt.exe' build.tcl
+```
+
+此路径对应本次验证环境的 TD **6.2.168116**；安装位置不同需替换。ADC 顶层将 `CPR_TOP` 改为 `top_adc`；Linux 在 `project/` 中运行 `CPR_TOP=top td build.tcl`。两种顶层都只执行综合，完整工具要求、报告路径与预期按键操作见 [`project/README.md`](project/README.md)。
+
+### 旧 Linux 环境快速开始（历史记录）
+
+下面保留原仓库环境的操作，不代表当前 Windows 已完成下载器安装或板卡验证。
+
 | 做什么 | 命令 |
 |---|---|
 | 启动 TD GUI | `td -gui`（**在你自己的终端里开**） |
@@ -122,6 +154,17 @@ git push -u origin feat/adc-threshold       # rebase 过就要用 --force-with-l
 ---
 
 ## 进度
+
+### 当前基础架构
+
+- 主工程源码/IP/约束清单与 `top/top_adc` 构建入口已落到 `project/`。
+- ADC 控制、完整字跨域传输、压力码归一化与峰值事件已有独立 RTL 和自检 TB；训练逻辑同时支持按键/接触演示与 ADC 事件。
+- 修复每行第 640 像素的 AXIS `last` 与 SD 新加载误用旧完成状态，统一所有 PLL 锁定条件并按时钟域释放复位。
+- 本次综合和数字仿真的最终证据见 [`project/README.md`](project/README.md#验证记录)。仍需实际布局布线/时序、模拟采样与机械标定、板卡联调，以及完整赛题功能开发。
+
+### 历史进度（原仓库记录）
+
+以下是旧 Linux 参考工程的完成情况和当时待办。板卡已到手；“等板子”不是当前所有工作的前置条件，旧时序分析也不能直接作为新工程的签核结论。
 
 **已完成** —— TD 6.2.1 SP1 部署与端到端自检 · 参考工程在 6.2.1 下编译通过（0 错误）· 全流程出位流 ·
 时序约束验证（`checking no clock` 归零）· 方案定稿 · 报名与板卡申请已提交
