@@ -1,6 +1,8 @@
 // Single clock domain. tick_ms is a clock enable, never a generated clock.
 module timebase #(parameter CLK_HZ = 50000000)(
-    input wire clk, input wire rst_n, output reg tick_ms
+    input wire clk,
+    input wire rst_n,
+    output reg tick_ms
 );
     localparam DIV = CLK_HZ / 1000;
     reg [31:0] counter;

@@ -126,7 +126,6 @@ wire [9:0]  tmds_ch2_data;
 wire [9:0]  tmds_clk_data;
 
 // 统一复位：TF 图像链路 + HDMI 音频链路
-wire rst_all;
 wire sys_lock, video_lock;
 wire all_plls_locked = sys_lock && video_lock && audio_pll_lock;
 wire por_reset_n = rst_n && all_plls_locked;
@@ -144,7 +143,6 @@ always @(posedge clk or negedge por_reset_n) begin
         end
     end
 end
-assign rst_all = ~por_reset_n | ~por_ready;
 wire app_rst_n, sd_rst_n, mem_rst_n, audio_rst_n;
 wire rst_video = ~app_rst_n;
 wire rst_sd = ~sd_rst_n;
@@ -327,18 +325,18 @@ end
 
 // 保持你原来的 TF / SDRAM / video 时钟
 sys_pll sys_pll_m0(
-    .refclk     (clk),
-    .clk0_out   (sd_card_clk),
-    .clk1_out   (ext_mem_clk),
-    .clk2_out   (ext_mem_clk_sft),
-    .extlock    (sys_lock),
+    .refclk     (clk),              // 50 MHz输入
+    .clk0_out   (sd_card_clk),      // 100 MHz TF
+    .clk1_out   (ext_mem_clk),      // 40 MHz SDRAM
+    .clk2_out   (ext_mem_clk_sft),  // 40 MHz 180° SDRAM相位
+    .extlock    (sys_lock),         //锁定指示
     .reset      (1'b0)
 );
 
 video_pll video_pll_m0(
     .refclk     (clk),
-    .clk0_out   (video_clk),
-    .clk1_out   (hdmi_5x_clk),
+    .clk0_out   (video_clk),        // 25 MHz HDMI视频
+    .clk1_out   (hdmi_5x_clk),      // 125 MHz HDMI视频5倍
     .extlock    (video_lock),
     .reset      (1'b0)
 );
@@ -350,7 +348,7 @@ PLL_HDMI_AUDIO u_audio_pll(
     .extlock    (audio_pll_lock),
     .clk0_out   (),
     .clk1_out   (),
-    .clk2_out   (audio_mclk)
+    .clk2_out   (audio_mclk)        // 12.295082 MH, 音频 + ADC
 );
 
 // mem_clk 域把 write_finish 单拍转成 toggle，供 sd_card_clk 域可靠同步

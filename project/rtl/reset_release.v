@@ -1,6 +1,11 @@
 // Raw reset asserts immediately; readiness crosses two clocks before release.
-module reset_release(input wire clk, input wire reset_n_async,
-                     output wire rst_n, input wire ready);
+module reset_release(
+    input wire clk,
+    input wire reset_n_async,
+    output wire rst_n,
+    input wire ready
+);
+
     reg ready_meta, ready_sync;
     reg [1:0] release_pipe;
     always @(posedge clk or negedge reset_n_async) begin
