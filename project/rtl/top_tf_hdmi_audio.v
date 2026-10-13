@@ -226,11 +226,18 @@ cpr_control #(.USE_PRESS_EVENTS(USE_ADC)) u_control(
     .press_fault         (adc_path_fault),
     .clear_session       (clear_session));
 
+// ADC 路径：generate 是【综合期二选一】，不是运行时的 if。
+// USE_ADC=0 时整条采样链不会被综合进去（top 比 top_adc 少约 250 LUT）。
 generate
     if (USE_ADC) begin : g_adc
         wire adc_soc, adc_pd, adc_eoc;
         wire [2:0] adc_channel;
         wire [11:0] adc_dout;
+        // EG_PHY_ADC 是 FPGA 硬核原语，直接接管专用 ADC pad：
+        //   CH1("ENABLE")  → 通道 1 = M10，经 RN23 到 J1 第 16 脚
+        //   VREF("ENABLE") → 内部参考电压，在独立的 L11 pad 上
+        // 因为走专用 pad，pin.adc 里【找不到 M10/L11】的 set_pin_assignment。
+        // 时钟复用音频 PLL 的 12.295082 MHz —— 音频本来就要跑，不多占 PLL（器件共 4 个）。
         // TN304: CH1 is M10 -> RN23 -> J1 pin 16. No digital top port is
         // assigned to this multiplexed pad. Enable VREF (BG256 L11) per
         // TN304's parameter contract. Its actual board voltage and the

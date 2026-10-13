@@ -8,10 +8,10 @@ module cpr_control #(
     parameter CLK_HZ = 25000000,
     parameter KEY_STABLE_MS = 20,
     parameter DEPTH_STABLE_MS = 3,
-    parameter PAUSE_WARN_MS = 5000,
-    parameter ROTATE_MS = 120000,
-    parameter BEAT_MS = 545,
-    parameter USE_PRESS_EVENTS = 0
+    parameter PAUSE_WARN_MS = 5000, // 5s
+    parameter ROTATE_MS = 120000, // 2min
+    parameter BEAT_MS = 545, // 节拍 545ms ≈ 110BPM
+    parameter USE_PRESS_EVENTS = 0 // 顶层传 USE_ADC
 )(
     input wire clk,
     input wire rst_n,

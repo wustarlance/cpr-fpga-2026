@@ -84,8 +84,8 @@ always @(posedge clk or posedge rst) begin
     end
     else begin
         last_de <= de; last_vs <= vs;
-        if (beat) beat_seen <= 1;
-        if (last_vs && !vs) begin
+        if (beat) beat_seen <= 1;       // ← 帧内"见过节拍"标记
+        if (last_vs && !vs) begin       // VS 下降沿 = 新帧开始
             x <= 0; y <= 0;
             frame_mode <= mode; frame_rate <= rate; frame_depth <= depth_grade;
             frame_brightness <= brightness_level;
@@ -98,7 +98,7 @@ always @(posedge clk or posedge rst) begin
             rotate_bcd <= to_bcd6(rotate_remaining_ms > 32'd999999 ? 20'd999999 : rotate_remaining_ms[19:0]);
             bpm_bcd <= to_bcd3(bpm);
         end
-        else begin
+        else begin                      // 帧内：只推进扫描坐标
             if (de) begin if (x < 10'd639) x <= x + 1'b1; end
             else x <= 0;
             if (last_de && !de && y < 10'd479) y <= y + 1'b1;

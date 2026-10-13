@@ -3,10 +3,10 @@
 // Outside that range, keep bpm_valid low and use rate_grade for fast/slow.
 // Error versus the rounded exact integer rate in this range is <= 1 bpm.
 module rate_display_lut (
-    input wire [15:0] interval_ms,
-    input wire rate_valid,
-    output reg [7:0] bpm_approx,
-    output wire bpm_valid
+    input wire [15:0] interval_ms, // 来自 training_core
+    input wire rate_valid,         // 间隔是否有效
+    output reg [7:0] bpm_approx,   // 近似 BPM（reg：在 always 里赋值）
+    output wire bpm_valid          // wire：纯 assign
 );
     reg [3:0] index;
     assign bpm_valid = rate_valid && interval_ms >= 16'd500 &&
