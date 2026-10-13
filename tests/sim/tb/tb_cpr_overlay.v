@@ -10,7 +10,7 @@ module tb_cpr_overlay;
   .pause_warning(1'b0),.rotate_due(1'b0),.beat(1'b0),
   .interval_ms(16'd545),.pause_ms(16'd0),.rotate_remaining_ms(32'd120000),
   .bpm(8'd110),.bpm_valid(1'b1),.sensor_fault(1'b0),
-  .brightness_level(2'd3),.out_rgb(rgb));
+  .brightness_level(2'd3),.contrast_level(3'd2),.auto_running(1'b1),.out_rgb(rgb));
  integer x,y;
  task latch_frame;
   begin @(negedge clk);de=0;vs=1;@(negedge clk);vs=0;
@@ -21,7 +21,7 @@ module tb_cpr_overlay;
    for(y=0;y<=96;y=y+1)begin
     for(x=0;x<640;x=x+1)begin
      @(negedge clk);de=1;#1;
-     if(y==96 && x==499)begin
+     if(y==96 && x==627)begin
       if(rgb!==24'h20d060)$fatal(1,"rate box is not green for target grade: %h",rgb);
      end
     end
