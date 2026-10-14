@@ -42,6 +42,21 @@ TESTS = {
     "tb_cpr_overlay": {"sources": [RTL + "cpr_overlay.v", TB + "tb_cpr_overlay.v"]},
     "tb_reset_release": {"sources": [RTL + "reset_release.v", TB + "tb_reset_release.v"]},
 }
+TESTS.update({
+    "tb_contrast_rgb": {"sources": [RTL + "contrast_rgb.v", TB + "tb_contrast_rgb.v"], "plusargs": ["+golden=fixtures/contrast_golden.mem"], "pass_pattern": r"(?m)^PASS: contrast_rgb\b"},
+    "tb_font5x7_rom": {"sources": [RTL + "font5x7_rom.v", TB + "tb_font5x7_rom.v"], "plusargs": ["+glyph=fixtures/glyph5x7_golden.mem"], "pass_pattern": r"(?m)^PASS: font5x7_rom\b"},
+    "tb_scroll_contract": {"sources": [RTL + "scroll_text.v", RTL + "font5x7_rom.v", TB + "tb_scroll_contract.v"]},
+    "tb_contrast_controls": {"sources": [RTL + "input_filter.v", RTL + "contrast_controls.v", TB + "tb_contrast_controls.v"]},
+    "tb_cpr_overlay_features": {"sources": [RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_cpr_overlay_features.v"]},
+})
+TESTS["tb_contrast_rgb"]["fixtures"] = ["tests/sim/fixtures/contrast_golden.mem"]
+TESTS["tb_font5x7_rom"]["fixtures"] = ["tests/sim/fixtures/glyph5x7_golden.mem"]
+TESTS["tb_scroll_contract"]["fixtures"] = ["tests/sim/fixtures/scroll_text_ascii.mem", "tests/sim/fixtures/glyph5x7_golden.mem"]
+TESTS["tb_cpr_overlay"]["sources"] += [RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v"]
+TESTS["tb_training_layout"] = {
+    "sources": [RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_training_layout.v"],
+    "fixtures": ["tests/sim/fixtures/training_panel_golden.mem", "tests/sim/fixtures/glyph5x7_golden.mem"],
+}
 FAIL_PATTERN = re.compile(r"\b(?:FAIL|FATAL|TIMEOUT)\b", re.IGNORECASE)
 
 
@@ -98,6 +113,10 @@ def run_test(name, config, output, compiler, runtime, env, timeout):
             record["error"] = "Missing sources: " + ", ".join(missing)
             return record
         record["sources"] = [{"path": str(source), "sha256": sha256(source)} for source in sources]
+        fixtures = [(REPO / value).resolve() for value in config.get("fixtures", [])]
+        if any(not value.is_file() for value in fixtures):
+            raise ValueError("Missing verification fixture")
+        record["fixtures"] = [{"path": str(value), "sha256": sha256(value)} for value in fixtures]
         pattern = config.get("pass_pattern", rf"(?m)^PASS:? {re.escape(name)}(?:\s|:|$)")
         re.compile(pattern)
         record["pass_pattern"] = pattern
@@ -109,7 +128,7 @@ def run_test(name, config, output, compiler, runtime, env, timeout):
             record["error"] = "Compilation failed or timed out"
             return record
         record["compiled_image_sha256"] = sha256(image)
-        record["run"], text = invoke(runtime + [str(image)], HERE, env, timeout, directory / "run.log")
+        record["run"], text = invoke(runtime + [str(image)] + config.get("plusargs", []), HERE, env, timeout, directory / "run.log")
         record["pass_marker_seen"] = re.search(pattern, text) is not None
         record["failure_marker_seen"] = FAIL_PATTERN.search(text) is not None
         if record["run"]["timed_out"]:
@@ -120,6 +139,8 @@ def run_test(name, config, output, compiler, runtime, env, timeout):
             record["error"] = "Simulation printed a failure marker"
         elif not record["pass_marker_seen"]:
             record["error"] = "Missing required PASS marker; an empty run is not a pass"
+        elif any(sha256(value) != entry["sha256"] for value, entry in zip(fixtures, record["fixtures"])):
+            record["error"] = "Fixture changed during simulation"
         elif any(sha256(source) != entry["sha256"] for source, entry in zip(sources, record["sources"])):
             record["error"] = "Source changed during simulation"
         else:
@@ -164,7 +185,9 @@ def main():
     parser.add_argument("--iverilog", default=os.environ.get("IVERILOG"))
     parser.add_argument("--vvp", default=os.environ.get("VVP"))
     parser.add_argument("--ivl-dir", type=Path, help="portable compiler backend/VPI directory")
-    parser.add_argument("--timeout", type=float, default=30.0, help="seconds per compile/run")
+    # Paired demo/ADC raster checks exercise over a million pixels and took
+    # about 60 seconds locally. Keep a finite default that covers that test.
+    parser.add_argument("--timeout", type=float, default=120.0, help="seconds per compile/run")
     parser.add_argument("--output", type=Path, help="new or empty evidence directory")
     parser.add_argument("--manifest", type=Path, help="JSON tests/sources/top/pass_pattern; paths relative to repo")
     parser.add_argument("--self-test-runner", action="store_true")

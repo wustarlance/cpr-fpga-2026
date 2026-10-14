@@ -15,6 +15,8 @@ module cpr_overlay #(parameter UNCALIBRATED_PRESSURE = 0)(
     input wire [7:0] bpm,
     input wire bpm_valid, sensor_fault,
     input wire [1:0] brightness_level,
+    input wire [2:0] contrast_level,
+    input wire auto_running,
     output reg [23:0] out_rgb
 );
 reg [9:0] x, y;
@@ -22,6 +24,20 @@ reg last_de, last_vs;
 reg [1:0] frame_mode, frame_rate, frame_depth, frame_brightness;
 reg frame_pause, frame_rotate, frame_beat, frame_fault, frame_bpm_valid;
 reg beat_seen;
+reg [2:0] frame_contrast;
+reg frame_auto_running;
+wire [5:0] subtitle_addr;
+wire [7:0] subtitle_code;
+wire [34:0] subtitle_glyph;
+wire subtitle_pixel;
+cpr_subtitle_rom #(.UNCALIBRATED_PRESSURE(UNCALIBRATED_PRESSURE)) u_subtitle_message(
+    .mode(frame_mode), .addr(subtitle_addr), .code(subtitle_code));
+font5x7_rom u_subtitle_font(.code(subtitle_code), .pixels(subtitle_glyph));
+scroll_text u_subtitles(
+    .clk(clk), .rst_n(!rst), .frame_start(last_vs && !vs), .de(de),
+    .x(x), .y(y), .enable(1'b1),
+    .scroll_enable((frame_mode != 2'd1) || frame_auto_running),
+    .text_addr(subtitle_addr), .glyph_pixels(subtitle_glyph), .text_pixel(subtitle_pixel));
 reg [15:0] count_bcd, interval_bcd, pause_bcd;
 reg [23:0] rotate_bcd;
 reg [11:0] bpm_bcd;
@@ -77,7 +93,8 @@ always @(posedge clk or posedge rst) begin
     if (rst) begin
         x <= 0; y <= 0; last_de <= 0; last_vs <= 1;
         frame_mode <= 0; frame_rate <= 0; frame_depth <= 0;
-        frame_brightness <= 3; frame_pause <= 0; frame_rotate <= 0;
+        frame_brightness <= 3; frame_contrast <= 2; frame_auto_running <= 0;
+        frame_pause <= 0; frame_rotate <= 0;
         frame_beat <= 0; frame_fault <= 0; frame_bpm_valid <= 0;
         beat_seen <= 0; count_bcd <= 0; interval_bcd <= 0;
         pause_bcd <= 0; rotate_bcd <= 0; bpm_bcd <= 0;
@@ -89,6 +106,8 @@ always @(posedge clk or posedge rst) begin
             x <= 0; y <= 0;
             frame_mode <= mode; frame_rate <= rate; frame_depth <= depth_grade;
             frame_brightness <= brightness_level;
+            frame_contrast <= contrast_level;
+            frame_auto_running <= auto_running;
             frame_pause <= pause_warning; frame_rotate <= rotate_due;
             frame_beat <= beat || beat_seen; frame_fault <= sensor_fault;
             frame_bpm_valid <= bpm_valid; beat_seen <= 0;
@@ -155,7 +174,14 @@ endfunction
 reg [7:0] character;
 reg [34:0] pixels;
 reg [23:0] text_color, rate_color, depth_color;
-wire [5:0] cell_x = x[9:4] - 6'd1;
+// Training reserves x0..383 for the tutorial; feedback fits x384..639.
+// BMP pixels keep their original coordinates (no scaling or added latency).
+localparam [9:0] TRAIN_PANEL_LEFT = 10'd384;
+localparam [9:0] TRAIN_TEXT_LEFT = 10'd400;
+localparam [9:0] TRAIN_TEXT_RIGHT = 10'd624;
+localparam [9:0] TRAIN_SUBTITLE_RIGHT = 10'd368;
+wire [5:0] cell_x = (frame_mode == 2 && y >= 16) ?
+    x[9:4] - 6'd25 : x[9:4] - 6'd1;
 wire [3:0] line_y = y[8:5];
 wire [2:0] glyph_x = x[3:1];
 wire [2:0] glyph_y = y[3:1];
@@ -187,9 +213,12 @@ always @(*) begin
             16: character = "B"; 17: character = "R"; 18: character = "I";
             19: character = "G"; 20: character = "H"; 21: character = "T";
             22: character = ":"; 23: character = digit({2'b0,frame_brightness});
+            26: character = "C"; 27: character = "O"; 28: character = "N";
+            29: character = "T"; 30: character = ":";
+            31: character = digit({1'b0,frame_contrast});
             default: character = " ";
         endcase
-    end else if (frame_mode == 2) begin
+    end else if (frame_mode == 2 && x >= TRAIN_TEXT_LEFT && x < TRAIN_TEXT_RIGHT) begin
         case (line_y)
             2: case (cell_x)
                 0: character = "C"; 1: character = "O"; 2: character = "U";
@@ -202,13 +231,13 @@ always @(*) begin
                 text_color = rate_color;
                 case (cell_x)
                     0: character = "B"; 1: character = "P"; 2: character = "M";
-                    8: character = frame_bpm_valid ? digit(bpm_bcd[11:8]) : "-";
-                    9: character = frame_bpm_valid ? digit(bpm_bcd[7:4]) : "-";
-                    10: character = frame_bpm_valid ? digit(bpm_bcd[3:0]) : "-";
-                    14: character = frame_rate == 1 ? "S" : frame_rate == 2 ? "G" : frame_rate == 3 ? "F" : "-";
-                    15: character = frame_rate == 1 ? "L" : frame_rate == 2 ? "O" : frame_rate == 3 ? "A" : "-";
-                    16: character = frame_rate == 1 ? "O" : frame_rate == 2 ? "O" : frame_rate == 3 ? "S" : "-";
-                    17: character = frame_rate == 1 ? "W" : frame_rate == 2 ? "D" : frame_rate == 3 ? "T" : "-";
+                    4: character = frame_bpm_valid ? digit(bpm_bcd[11:8]) : "-";
+                    5: character = frame_bpm_valid ? digit(bpm_bcd[7:4]) : "-";
+                    6: character = frame_bpm_valid ? digit(bpm_bcd[3:0]) : "-";
+                    9: character = frame_rate == 1 ? "S" : frame_rate == 2 ? "G" : frame_rate == 3 ? "F" : "-";
+                    10: character = frame_rate == 1 ? "L" : frame_rate == 2 ? "O" : frame_rate == 3 ? "A" : "-";
+                    11: character = frame_rate == 1 ? "O" : frame_rate == 2 ? "O" : frame_rate == 3 ? "S" : "-";
+                    12: character = frame_rate == 1 ? "W" : frame_rate == 2 ? "D" : frame_rate == 3 ? "T" : "-";
                     default: character = " ";
                 endcase
             end
@@ -220,22 +249,20 @@ always @(*) begin
                     2: character = UNCALIBRATED_PRESSURE ? "E" : "P";
                     3: character = UNCALIBRATED_PRESSURE ? "S" : "T";
                     4: character = UNCALIBRATED_PRESSURE ? "S" : "H";
-                    8: character = digit({2'b0,frame_depth});
-                    11: character = UNCALIBRATED_PRESSURE ? "U" : " ";
-                    12: character = UNCALIBRATED_PRESSURE ? "N" : " ";
-                    13: character = UNCALIBRATED_PRESSURE ? "C" : " ";
-                    14: character = UNCALIBRATED_PRESSURE ? "A" : " ";
-                    15: character = UNCALIBRATED_PRESSURE ? "L" : " ";
+                    6: character = digit({2'b0,frame_depth});
+                    8: character = UNCALIBRATED_PRESSURE ? "U" : " ";
+                    9: character = UNCALIBRATED_PRESSURE ? "N" : " ";
+                    10: character = UNCALIBRATED_PRESSURE ? "C" : " ";
+                    11: character = UNCALIBRATED_PRESSURE ? "A" : " ";
+                    12: character = UNCALIBRATED_PRESSURE ? "L" : " ";
                     default: character = " ";
                 endcase
             end
             5: case (cell_x)
                 0: character = "I"; 1: character = "N"; 2: character = "T";
-                3: character = "E"; 4: character = "R"; 5: character = "V";
-                6: character = "A"; 7: character = "L";
-                10: character = digit(interval_bcd[15:12]); 11: character = digit(interval_bcd[11:8]);
-                12: character = digit(interval_bcd[7:4]); 13: character = digit(interval_bcd[3:0]);
-                15: character = "M"; 16: character = "S";
+                5: character = digit(interval_bcd[15:12]); 6: character = digit(interval_bcd[11:8]);
+                7: character = digit(interval_bcd[7:4]); 8: character = digit(interval_bcd[3:0]);
+                10: character = "M"; 11: character = "S";
                 default: character = " ";
             endcase
             6: begin
@@ -243,9 +270,9 @@ always @(*) begin
                 case (cell_x)
                     0: character = "P"; 1: character = "A"; 2: character = "U";
                     3: character = "S"; 4: character = "E";
-                    8: character = digit(pause_bcd[15:12]); 9: character = digit(pause_bcd[11:8]);
-                    10: character = digit(pause_bcd[7:4]); 11: character = digit(pause_bcd[3:0]);
-                    13: character = "M"; 14: character = "S";
+                    6: character = digit(pause_bcd[15:12]); 7: character = digit(pause_bcd[11:8]);
+                    8: character = digit(pause_bcd[7:4]); 9: character = digit(pause_bcd[3:0]);
+                    11: character = "M"; 12: character = "S";
                     default: character = " ";
                 endcase
             end
@@ -253,21 +280,44 @@ always @(*) begin
                 if (frame_rotate) text_color = 24'hffb020;
                 case (cell_x)
                     0: character = "R"; 1: character = "O"; 2: character = "T";
-                    3: character = "A"; 4: character = "T"; 5: character = "E";
-                    8: character = digit(rotate_bcd[23:20]); 9: character = digit(rotate_bcd[19:16]);
-                    10: character = digit(rotate_bcd[15:12]); 11: character = digit(rotate_bcd[11:8]);
-                    12: character = digit(rotate_bcd[7:4]); 13: character = digit(rotate_bcd[3:0]);
-                    15: character = "M"; 16: character = "S";
+                    4: character = digit(rotate_bcd[23:20]); 5: character = digit(rotate_bcd[19:16]);
+                    6: character = digit(rotate_bcd[15:12]); 7: character = digit(rotate_bcd[11:8]);
+                    8: character = digit(rotate_bcd[7:4]); 9: character = digit(rotate_bcd[3:0]);
+                    11: character = "M"; 12: character = "S";
                     default: character = " ";
                 endcase
             end
-            9: case (cell_x)
-                0: character = "F"; 1: character = "L"; 2: character = "A";
-                3: character = "G"; 4: character = "S";
-                7: character = "P"; 8: character = ":"; 9: character = digit({3'b0,frame_pause});
-                11: character = "R"; 12: character = ":"; 13: character = digit({3'b0,frame_rotate});
-                15: character = "F"; 16: character = ":"; 17: character = digit({3'b0,frame_fault});
-                19: character = "B"; 20: character = ":"; 21: character = digit({3'b0,frame_beat});
+            9: begin
+                if (frame_pause) text_color = 24'hff4040;
+                case (cell_x)
+                    0: character = "P"; 1: character = "A"; 2: character = "U";
+                    3: character = "S"; 4: character = "E"; 5: character = ":";
+                    7: character = digit({3'b0,frame_pause});
+                    default: character = " ";
+                endcase
+            end
+            10: begin
+                if (frame_rotate) text_color = 24'hffb020;
+                case (cell_x)
+                    0: character = "R"; 1: character = "O"; 2: character = "T";
+                    3: character = "A"; 4: character = "T"; 5: character = "E";
+                    6: character = ":"; 8: character = digit({3'b0,frame_rotate});
+                    default: character = " ";
+                endcase
+            end
+            11: begin
+                text_color = frame_fault ? 24'hff4040 : 24'h206040;
+                case (cell_x)
+                    0: character = "F"; 1: character = "A"; 2: character = "U";
+                    3: character = "L"; 4: character = "T"; 5: character = ":";
+                    7: character = digit({3'b0,frame_fault});
+                    default: character = " ";
+                endcase
+            end
+            12: case (cell_x)
+                0: character = "B"; 1: character = "E"; 2: character = "A";
+                3: character = "T"; 4: character = ":";
+                7: character = digit({3'b0,frame_beat});
                 default: character = " ";
             endcase
             default: character = " ";
@@ -276,12 +326,16 @@ always @(*) begin
     pixels = glyph(character);
     glyph_index = 34 - glyph_y * 5 - glyph_x;
     text_pixel = 0;
-    if (x >= 16 && x < 624 && !y[4] && glyph_y < 7 && glyph_x < 5)
+    if (x >= 16 && x < 624 && !y[4] && glyph_y < 7 && glyph_x < 5 &&
+        (y < 16 || (frame_mode == 2 && x >= TRAIN_TEXT_LEFT && x < TRAIN_TEXT_RIGHT)))
         text_pixel = pixels[glyph_index];
 
     out_rgb = rgb;
     if (de) begin
-        if (frame_mode == 2) out_rgb = 24'h101820;
+        if (frame_mode == 2 && x >= TRAIN_PANEL_LEFT && y >= 16) begin
+            out_rgb = 24'h101820;
+            if (x < TRAIN_PANEL_LEFT + 10'd4) out_rgb = 24'h405060;
+        end
         if (y < 16) begin
             case (frame_mode)
                 0: out_rgb = 24'h204080;
@@ -289,11 +343,16 @@ always @(*) begin
                 default: out_rgb = 24'h805020;
             endcase
         end
-        if (frame_mode == 2 && x >= 480 && x < 560) begin
+        if (frame_mode == 2 && x >= 624 && x < 632) begin
             if (y >= 96 && y < 112) out_rgb = rate_color;
             if (y >= 128 && y < 144) out_rgb = depth_color;
-            if (y >= 288 && y < 304) out_rgb = frame_fault ? 24'hff4040 : 24'h206040;
-            if (y >= 320 && y < 352) out_rgb = frame_beat ? 24'hffffff : 24'h304050;
+            if (y >= 352 && y < 368) out_rgb = frame_fault ? 24'hff4040 : 24'h206040;
+            if (y >= 384 && y < 400) out_rgb = frame_beat ? 24'hffffff : 24'h304050;
+        end
+        if (y >= 448 && y < 464 && x >= 16 && x < 624 &&
+            (frame_mode != 2 || x < TRAIN_SUBTITLE_RIGHT)) begin
+            out_rgb = 24'h182430;
+            if (subtitle_pixel) out_rgb = 24'hffffff;
         end
         if (text_pixel) out_rgb = text_color;
     end

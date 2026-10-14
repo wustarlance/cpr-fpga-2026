@@ -4,13 +4,15 @@
 > 赛题：**选题一 — 基于安路 EG4S20 的 HDMI 多媒体播放系统**（本作品在其基础上改造为 CPR 训练终端）
 > 平台 HX4S20C（安路 EG4S20BG256，19600 LUT / 8MB 片内 SDRAM）· 团队 3 人，均为"一生一芯"（YSYX）学员
 
-## 当前代码入口（2026-10-11）
+## 当前代码入口（2026-10-13）
 
 基础架构现在登记在 [`project/project.al`](project/project.al)：默认 `top` 用板载按键演示，`top_adc` 接入片内 ADC CH1 的采样、跨域、四点均值和完整释放后的按压事件。源文件、构建方法与操作见 [`project/README.md`](project/README.md)，变更来源见 [`source-provenance.md`](project/docs/source-provenance.md)。
 
-当前实现包括三模式控制、训练计数/间隔/计时、基础亮度与固定 OSD，并保留参考工程的 HDMI 测试音和 SD/BMP/SDRAM 链路。**压力阈值是未标定码值；音乐、语音、转场、频谱、缩放、对比度与文字滚动仍是方案目标。** 下方作品简介说明完整设计定位，不能视为所有功能已经完成。
+当前实现包含三模式、训练计数/评级/计时、亮度和对比度、英文OSD及滚动字幕。训练画面采用左侧384像素教程与右侧256像素反馈，字幕限制在左侧；完整教程图可用素材工具等比例排版。操作、坐标和素材命令见[训练布局说明](project/docs/training-layout.md)。**压力仍未标定；语音、音乐、中文标注、运行时缩放、转场及音频可视化仍待实现。** 下方作品简介说明设计定位，不能视为所有功能已经完成。
 
-本次工作基于 GitHub `20026ba86faa6a7ce63be6195f27a458a12e15fd` 快照，发布分支为 `codex/cpr-foundation`，共享文件通过 PR 审阅。17 项产品/媒体 RTL 自检及两种顶层的完整 TD 构建已通过，默认顶层另外重跑标准 GUI `syn_1 / phy_1`。SDRAM 使用 40 MHz，双缓冲等待读端切换确认；详见 [整合验证报告](project/docs/integration-verification.md)。静态结果只覆盖当前约束，板级电气、实际 ADC/机械和持续上板显示仍待验收。
+![训练画面RTL输出，底图为仿真测试图案](project/docs/training-layout-rtl.png)
+
+本次基于 `b44ce6ef90a0897d0aa43b331e4588ad3a7a0859`，发布分支为 `codex/cpr-display-20261013`，通过PR审阅。**23项产品RTL自检及5项运行器检查通过；本机TD 6.2.168116完整验证仍因PLL/SDRAM严重告警未通过。** 两种顶层均生成位流且当前约束下setup/hold裕量为正，这不代表硬件验收完成。验证汇总见[display-validation-20261013.json](project/docs/display-validation-20261013.json)。此前TD 6.2.178840/SP1的整合结果属于[历史记录](project/docs/integration-verification.md)。
 
 **心脏骤停多发生在家中（79.2%），急救车响应中位数 12 分钟才到，黄金时间只有 4 分钟。**
 **这段没人能替的时间里只有胸外按压，而会做的旁人只有 20.3%。**
@@ -135,7 +137,7 @@ $env:CPR_TOP = 'top'
 & 'E:/bin/td_commands_prompt.exe' build.tcl
 ```
 
-此路径对应本次验证环境的 TD **6.2.168116**；安装位置不同需替换。ADC 顶层将 `CPR_TOP` 改为 `top_adc`；Linux 在 `project/` 中运行 `CPR_TOP=top td build.tcl`。两种顶层都只执行综合，完整工具要求、报告路径与预期按键操作见 [`project/README.md`](project/README.md)。
+此路径对应本次验证环境的 TD **6.2.168116**；安装位置不同需替换。ADC 顶层将 `CPR_TOP` 改为 `top_adc`；Linux 在 `project/` 中运行 `CPR_TOP=top td build.tcl`。默认执行完整构建；只综合需设置 `$env:CPR_STAGE='synth'`。本机完整验证仍有严重告警，完整工具要求、报告路径与预期按键操作见 [`project/README.md`](project/README.md)。
 
 ### 旧 Linux 环境快速开始（历史记录）
 
@@ -160,7 +162,7 @@ $env:CPR_TOP = 'top'
 - 主工程源码/IP/约束清单与 `top/top_adc` 构建入口已落到 `project/`。
 - ADC 控制、完整字跨域传输、压力码归一化与峰值事件已有独立 RTL 和自检 TB；训练逻辑同时支持按键/接触演示与 ADC 事件。
 - 修复每行第 640 像素的 AXIS `last` 与 SD 新加载误用旧完成状态，统一所有 PLL 锁定条件并按时钟域释放复位。
-- 本次综合和数字仿真的最终证据见 [`project/README.md`](project/README.md#验证记录)。仍需实际布局布线/时序、模拟采样与机械标定、板卡联调，以及完整赛题功能开发。
+- 当前数字回归与完整TD执行结果见[训练布局说明](project/docs/training-layout.md)；时钟严重告警、模拟采样与机械标定、板卡联调以及完整赛题功能仍待完成。
 
 ### 历史进度（原仓库记录）
 

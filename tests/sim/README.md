@@ -1,3 +1,9 @@
+# 仿真验证状态（2026-10-13）
+
+默认清单为23项RTL自检；新增训练栅格对照、布局/帧快照与完整底图透出检查。默认每次编译/运行超时为120秒，以容纳约60秒的双实例画面扫描；运行器负控仍独立限时。见[训练底图修改说明](../../project/docs/training-layout.md)。
+
+---
+
 # RTL 功能仿真
 
 `run.py` 的测试清单逐项指定 `project/rtl/` 产品模块及 TB，不会把只跑行为桩当作产品验证。需要 Python 3.9+ 和 Icarus Verilog；脚本只用 Python 标准库。
@@ -41,10 +47,16 @@ Linux/macOS 或 Git Bash 可执行 `bash tests/sim/run.sh --all`。`run.sh tb_na
 | `tb_sd_buffer_ownership` | 连续翻页、源/写完成先后、等待切换时不复用旧缓冲 |
 | `tb_cpr_overlay` | 帧内状态稳定、下一帧快照、数字饱和与评级颜色 |
 | `tb_reset_release` | 异步置复位、就绪同步及同步释放 |
+| `tb_contrast_rgb` | 三通道对比度逐值、负数取整、饱和及无像素延迟 |
+| `tb_font5x7_rom` | 全部256字符地址与原字模期望表 |
+| `tb_scroll_contract` | 参数边界、裁剪、帧计数、完整回绕、暂停/隐藏及字模联调 |
+| `tb_contrast_controls` | 全部拨码映射、短脉冲过滤、训练保持与ADC模式实时调节 |
+| `tb_cpr_overlay_features` | 教学透明区、字幕颜色、帧参数快照及展播暂停恢复 |
+| `tb_training_layout` | 完整教程区域透出、面板/文字/标记/字幕边界、两种输入模式与告警帧 |
 
 ## 成功判据与证据
 
-每项必须同时满足：编译返回 0；仿真在超时前返回 0；没有 `FAIL`、`FATAL`、`TIMEOUT`；出现清单要求的 `PASS` 文本；执行期间源文件未变。空 `$finish` 会失败。TB 用 `$fatal(1, ...)` 报错，默认每次编译和运行超时 30 秒，可用 `--timeout` 修改。
+每项必须同时满足：编译返回 0；仿真在超时前返回 0；没有 `FAIL`、`FATAL`、`TIMEOUT`；出现清单要求的 `PASS` 文本；执行期间源文件未变。空 `$finish` 会失败。TB 用 `$fatal(1, ...)` 报错，默认每次编译和运行超时 120 秒，可用 `--timeout` 修改。
 
 每次在 `tests/sim/build/<UTC 时间戳>/` 创建独立证据目录，保留编译/运行日志、命令、源文件 SHA256、工具版本与可执行文件 SHA256、编译产物 SHA256，以及 `results.json`。`--output` 可指定新的或空的目录。生成物保持在 Git 忽略目录中。
 

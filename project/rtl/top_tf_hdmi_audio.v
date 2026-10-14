@@ -299,17 +299,31 @@ always @(posedge video_clk or posedge rst_video) begin
         if (brightness_vs_d && !vs) brightness_video <= brightness_level;
     end
 end
-wire [23:0] app_rgb, adjusted_rgb;
+wire [2:0] contrast_level;
+reg [2:0] contrast_video;
+contrast_controls #(.HOLD_DURING_TRAINING(!(USE_ADC || USE_EXTERNAL_IO))) u_contrast_controls(
+    .clk(video_clk), .rst_n(app_rst_n), .tick_ms(tick_ms),
+    .raw_switches(dip_sw[2:0]), .training_enabled(training_enabled),
+    .contrast_level(contrast_level));
+always @(posedge video_clk or posedge rst_video) begin
+    if (rst_video) contrast_video <= 3'd2;
+    else if (brightness_vs_d && !vs) contrast_video <= contrast_level;
+end
+wire [23:0] app_rgb, adjusted_rgb, contrasted_rgb;
 brightness_rgb u_brightness(
     .rgb(display_valid_sync[1] ? vout_data_raw : 24'h102030),
     .level   (brightness_video),
     .out_rgb (adjusted_rgb));
+contrast_rgb u_contrast(
+    .rgb(adjusted_rgb), .level(contrast_video), .out_rgb(contrasted_rgb));
 cpr_overlay #(.UNCALIBRATED_PRESSURE(USE_ADC)) u_overlay(
     .clk (video_clk),
     .rst (rst_video),
     .vs  (vs),
     .de  (de),
-    .rgb(adjusted_rgb),
+    .rgb(contrasted_rgb),
+    .contrast_level      (contrast_level),
+    .auto_running        (auto_enable),
     .mode                (app_mode),
     .count               (press_count),
     .rate                (rate_grade),

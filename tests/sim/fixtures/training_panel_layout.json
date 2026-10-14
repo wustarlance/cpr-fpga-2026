@@ -1,0 +1,93 @@
+{
+  "columns": 14,
+  "rows": 15,
+  "text_origin_x": 400,
+  "cell_width": 16,
+  "row_pitch": 32,
+  "states": [
+    {
+      "warning": false,
+      "adc": false,
+      "rows": [
+        "              ",
+        "              ",
+        "COUNT   0087  ",
+        "BPM 110  GOOD ",
+        "DEPTH 2       ",
+        "INT  0545 MS  ",
+        "PAUSE 0000 MS ",
+        "ROT 120000 MS ",
+        "              ",
+        "PAUSE: 0      ",
+        "ROTATE: 0     ",
+        "FAULT: 0      ",
+        "BEAT:  0      ",
+        "              ",
+        "              "
+      ]
+    },
+    {
+      "warning": false,
+      "adc": true,
+      "rows": [
+        "              ",
+        "              ",
+        "COUNT   0087  ",
+        "BPM 110  GOOD ",
+        "PRESS 2 UNCAL ",
+        "INT  0545 MS  ",
+        "PAUSE 0000 MS ",
+        "ROT 120000 MS ",
+        "              ",
+        "PAUSE: 0      ",
+        "ROTATE: 0     ",
+        "FAULT: 0      ",
+        "BEAT:  0      ",
+        "              ",
+        "              "
+      ]
+    },
+    {
+      "warning": true,
+      "adc": false,
+      "rows": [
+        "              ",
+        "              ",
+        "COUNT   9999  ",
+        "BPM ---  FAST ",
+        "DEPTH 3       ",
+        "INT  9999 MS  ",
+        "PAUSE 9999 MS ",
+        "ROT 999999 MS ",
+        "              ",
+        "PAUSE: 1      ",
+        "ROTATE: 1     ",
+        "FAULT: 1      ",
+        "BEAT:  1      ",
+        "              ",
+        "              "
+      ]
+    },
+    {
+      "warning": true,
+      "adc": true,
+      "rows": [
+        "              ",
+        "              ",
+        "COUNT   9999  ",
+        "BPM ---  FAST ",
+        "PRESS 3 UNCAL ",
+        "INT  9999 MS  ",
+        "PAUSE 9999 MS ",
+        "ROT 999999 MS ",
+        "              ",
+        "PAUSE: 1      ",
+        "ROTATE: 1     ",
+        "FAULT: 1      ",
+        "BEAT:  1      ",
+        "              ",
+        "              "
+      ]
+    }
+  ]
+}

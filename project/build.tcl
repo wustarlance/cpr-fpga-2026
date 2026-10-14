@@ -36,6 +36,10 @@ if {[catch {
     if {$cpr_top eq "top_adc"} {
         set cpr_src [get_regs {*u_mailbox/src_hold[*]}]
         set cpr_dst [get_regs {*u_mailbox/dst_data[*]}]
+        set cpr_hold_names {}; set cpr_capture_names {}
+        foreach cpr_reg $cpr_src { lappend cpr_hold_names [format {{%s}} $cpr_reg] }
+        foreach cpr_reg $cpr_dst { lappend cpr_capture_names [format {{%s}} $cpr_reg] }
+        puts "CPR_MAILBOX_REGS hold=[join $cpr_hold_names { }] capture=[join $cpr_capture_names { }]"
         if {[llength $cpr_src] != 12 || [llength $cpr_dst] != 12} {
             error "ADC mailbox must bind 12 source and 12 capture registers"
         }
