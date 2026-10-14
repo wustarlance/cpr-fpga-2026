@@ -1,3 +1,82 @@
+# ═══════════════════════════════════════════════════════════════════
+#  行尾策略
+#
+#  为什么要有这个文件
+#  ------------------
+#  2026-10-13 的 PR #2 无意中把 18 个文件从 LF 转成了 CRLF。后果：
+#  build.tcl 实际只改了 4 行，git 却显示"整个文件重写"（79 行 → 83 行
+#  报成 162 行改动），diff 完全不可读。project.al（541 行）同样中招。
+#
+#  根因是这个文件此前只保护了一个文件（tests/sim/run.sh），
+#  .v / .al / .md / .py 全都没有行尾规则。
+#
+#  规则设计
+#  --------
+#  git 对同一属性按【最后匹配的规则】生效，所以：
+#    第 1 节  我们自己的源文件/文档 → 一律 LF
+#    第 2 节  厂商原件与厂商派生件   → 保持 CRLF 原样（必须写在后面）
+#    第 3 节  二进制                 → 不做任何转换
+#
+#  ⚠️ 改动本文件后，用这两条命令自检：
+#       git check-attr -a project/rtl/adc_ctrl.v      # 应显示 text: set, eol: lf
+#       git check-attr -a project/vendor/sdram.v      # 应显示 text: unset
+# ═══════════════════════════════════════════════════════════════════
+
+# ── 1. 我们自己的文件：强制 LF ───────────────────────────────────
+*.v         text eol=lf
+*.sv        text eol=lf
+*.vh        text eol=lf
+*.tcl       text eol=lf
+*.sdc       text eol=lf
+*.adc       text eol=lf
+*.cwc       text eol=lf
+*.ipc       text eol=lf
+*.al        text eol=lf
+*.md        text eol=lf
+*.py        text eol=lf
+*.json      text eol=lf
+*.sh        text eol=lf
+*.mem       text eol=lf
+*.txt       text eol=lf
+.gitignore  text eol=lf
+.gitattributes text eol=lf
+
+# ── 2. 例外：厂商原件与厂商派生件，保持 CRLF 原样 ────────────────
+#    这些树里是厂商提供的原始文件，不要转换。
+#
+#    注：第 1 节的 `eol=lf` 在这些文件上仍会被 check-attr 报出来，
+#    但按 git 文档「text 为 unset 时 eol 属性无效果」，它是惰性的 ——
+#    `git check-attr text <file>` 显示 unset 即表示不会做任何转换。
+05_lab_ex/**      -text
+project/vendor/** -text
+project/ip/**     -text
+DEMO/**           -text
+99_归档/**        -text
+
+#    以下是【我们改过的厂商文件】—— 故意保留 CRLF，这样可以直接
+#    和 05_lab_ex/ 下的原始例程 diff，不需要 --strip-trailing-cr。
+#    这对"区分参考依赖与自研部分"这件事有实际用处。
+project/rtl/cpr_overlay.v               -text
+project/rtl/top_tf_hdmi_audio.v         -text
+project/rtl/SD/sd_card_bmp.v            -text
+project/rtl/video_rgb_to_axis_640x480.v -text
+project/constraints/pin.adc             -text
+
+# ── 3. 二进制：不做任何转换 ──────────────────────────────────────
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.bmp  binary
+*.bit  binary
+*.pdf  binary
+*.docx binary
+*.vvp  binary
+*.db   binary
+*.zip  binary
+*.wav  binary
+
+# ── 4. 保留原有规则 ──────────────────────────────────────────────
 # Keep the shell wrapper executable under Git Bash on Windows checkouts.
 tests/sim/run.sh text eol=lf
 # Preserve formatting in copied vendor wrappers and protected source files.
