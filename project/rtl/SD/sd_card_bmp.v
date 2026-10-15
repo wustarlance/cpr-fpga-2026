@@ -1,6 +1,13 @@
 
 module sd_card_bmp #(
+    parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
     parameter integer CLK_FREQ_HZ       = 100_000_000,
+    parameter integer RETRY_LIMIT       = 1,
+    parameter integer LOAD_TIMEOUT_CYCLES = CLK_FREQ_HZ * 3,
+    parameter integer READER_TIMEOUT_CYCLES = CLK_FREQ_HZ,
+    parameter integer TOKEN_TIMEOUT_CYCLES = CLK_FREQ_HZ / 10,
+    parameter integer SPI_TIMEOUT_CYCLES = CLK_FREQ_HZ / 100,
+    parameter integer RECOVERY_GUARD_CYCLES = 32,
     parameter [31:0]  SCAN_START_SECTOR = 32'd0,
     parameter [31:0]  SCAN_MAX_SECTOR   = 32'd131071,
     parameter [2:0]   SCAN_TARGET_COUNT = 3'd4
@@ -11,7 +18,12 @@ module sd_card_bmp #(
     input                       key_prev,
     input                       key_auto,
     input                       external_auto,
+    input                       training_active,
+    input                       training_next,
+    input                       training_prev,
+    output [11:0]               page_status,
     output [3:0]                state_code,
+    output reg [2:0]            media_error,
     input  [15:0]               bmp_width,
     input  [15:0]               bmp_height,
     output reg                  display_valid,
@@ -51,6 +63,15 @@ wire             bmp_data_wr_en;
 wire [23:0]      bmp_data;
 wire             sd_init_done;
 wire             bmp_ready;
+wire sd_ready, sd_read_error, abort_sd, operation_error;
+wire [2:0] operation_error_code;
+wire [3:0] bmp_state_code;
+reg cancel_load;
+reg recovering, recover_scan, media_fault;
+reg [7:0] retry_count;
+reg [31:0] recovery_count, load_timer;
+reg writer_started;
+reg [1:0] write_ack_sync;
 wire             scan_done;
 wire             scan_found_valid;
 wire [31:0]      scan_found_sector;
@@ -75,6 +96,35 @@ reg              next_req_pending;
 reg              load_busy;
 reg              publish_wait;
 
+// These three inputs are debounced levels from the video clock domain.
+reg [1:0] training_sync, train_next_sync, train_prev_sync;
+always @(posedge clk or posedge rst) begin
+    if (rst) begin training_sync<=0; train_next_sync<=0; train_prev_sync<=0; end
+    else begin
+        training_sync<={training_sync[0],training_active};
+        train_next_sync<={train_next_sync[0],training_next};
+        train_prev_sync<={train_prev_sync[0],training_prev};
+    end
+end
+wire page_request, page_pending, page_missing, page_user_request;
+wire [1:0] page_index;
+assign state_code = media_fault ? 4'he : page_missing ? 4'hd : bmp_state_code;
+wire page_accept = page_request && sd_init_done && scan_done &&
+                   !recovering && !load_busy && bmp_ready && sd_ready;
+cpr_page_manager #(.TRAINING_PAGE_INDEX(TRAINING_PAGE_INDEX)) u_pages(
+    .clk(clk), .rst(rst), .training(training_sync[1]),
+    .next_level(train_next_sync[1]), .prev_level(train_prev_sync[1]),
+    .catalog_ready(scan_done && sd_init_done), .page_count(img_found_count),
+    .display_valid(display_valid), .display_index(img_idx),
+    .request_accept(page_accept), .request_valid(page_request),
+    .request_pending(page_pending), .request_index(page_index),
+    .page_missing(page_missing), .user_request(page_user_request));
+wire page_loading = load_busy || recovering || (page_pending && !page_missing);
+wire [1:0] status_target = page_pending ? page_index : load_busy ? load_idx : img_idx;
+// Coherent SD-domain word: valid/current/count/target/loading/missing/error/train.
+assign page_status = {display_valid,img_idx,img_found_count,status_target,
+                      page_loading,page_missing,media_fault,training_sync[1]};
+
 // bmp_ready 先表示“源文件读取/送 FIFO 完成”；真正切显示要等 write_finish_toggle 同步后
 reg              source_done_seen;
 reg              source_busy_seen;
@@ -88,7 +138,7 @@ wire auto_tick;
 wire [1:0] next_from_current;
 wire [1:0] manual_from_current;
 
-assign write_en   = bmp_data_wr_en;
+assign write_en   = bmp_data_wr_en && load_busy && !recovering && !operation_error && !cancel_load;
 assign write_data = {bmp_data[23:16], bmp_data[15:8], bmp_data[7:0], 8'b0};
 assign auto_tick  = (auto_cnt == (CLK_FREQ_HZ - 1));
 assign next_from_current = next_index_limited(img_idx, img_found_count);
@@ -173,197 +223,177 @@ function [1:0] next_buf_lut;
     end
 endfunction
 
+// Failure recovery never changes a published/displayed buffer. A retry uses
+// the same non-display buffer and performs a fresh writer request/FIFO reset.
+wire source_complete = source_done_seen || (source_busy_seen && bmp_ready);
+wire writer_complete = write_done_seen || (writer_started && write_finish_pulse);
+wire load_expired = load_busy && !publish_wait &&
+                    load_timer >= LOAD_TIMEOUT_CYCLES-1 &&
+                    !(source_complete && writer_complete);
+
 always @(posedge clk or posedge rst) begin
     if (rst) begin
-        wrfin_tgl_sync        <= 3'b000;
-        scan_start_pulse      <= 1'b0;
-        load_start_pulse      <= 1'b0;
-        load_sector           <= 32'd0;
-        scan_kicked           <= 1'b0;
-        first_image_committed <= 1'b0;
-        auto_play_en          <= 1'b0;
-        auto_cnt              <= 32'd0;
-        img_found_count       <= 3'd0;
-        img_idx               <= 2'd0;
-        load_idx              <= 2'd0;
-        pending_buf_idx       <= 2'd0;
-        write_buf_idx         <= 2'd0;
-        disp_buf_idx          <= 2'd0;
-        img_sector0           <= 32'd0;
-        img_sector1           <= 32'd0;
-        img_sector2           <= 32'd0;
-        img_sector3           <= 32'd0;
-        next_req_pending      <= 1'b0;
-        pending_prev <= 1'b0;
-        load_busy             <= 1'b0;
-            publish_wait <= 1'b0;
-            publish_req <= 1'b0;
-        source_done_seen      <= 1'b0;
-        source_busy_seen <= 1'b0;
-        write_done_seen <= 1'b0;
-        display_valid         <= 1'b0;
+        wrfin_tgl_sync<=0; write_ack_sync<=0;
+        scan_start_pulse<=0; load_start_pulse<=0; cancel_load<=0;
+        load_sector<=0; scan_kicked<=0; first_image_committed<=0;
+        auto_play_en<=0; auto_cnt<=0; img_found_count<=0;
+        img_idx<=0; load_idx<=0; pending_buf_idx<=0;
+        write_buf_idx<=0; disp_buf_idx<=0;
+        img_sector0<=0; img_sector1<=0; img_sector2<=0; img_sector3<=0;
+        next_req_pending<=0; pending_prev<=0;
+        load_busy<=0; publish_wait<=0; publish_req<=0;
+        source_done_seen<=0; source_busy_seen<=0; write_done_seen<=0;
+        display_valid<=0; recovering<=0; recover_scan<=0;
+        retry_count<=0; recovery_count<=0; media_fault<=0; media_error<=0;
+        writer_started<=0; load_timer<=0;
     end else begin
-        wrfin_tgl_sync   <= {wrfin_tgl_sync[1:0], write_finish_toggle};
-        scan_start_pulse <= 1'b0;
-        load_start_pulse <= 1'b0;
-        publish_req <= 1'b0;
+        wrfin_tgl_sync <= {wrfin_tgl_sync[1:0],write_finish_toggle};
+        write_ack_sync <= {write_ack_sync[0],write_req_ack};
+        scan_start_pulse<=0; load_start_pulse<=0; cancel_load<=0; publish_req<=0;
+        if (!load_busy || publish_wait) load_timer<=0;
+        else if (load_timer < LOAD_TIMEOUT_CYCLES) load_timer<=load_timer+1'b1;
 
         if (!sd_init_done) begin
-            scan_kicked           <= 1'b0;
-            first_image_committed <= 1'b0;
-            auto_play_en          <= 1'b0;
-            auto_cnt              <= 32'd0;
-            img_found_count       <= 3'd0;
-            img_idx               <= 2'd0;
-            load_idx              <= 2'd0;
-            pending_buf_idx       <= 2'd0;
-            write_buf_idx         <= 2'd0;
-            disp_buf_idx          <= 2'd0;
-            img_sector0           <= 32'd0;
-            img_sector1           <= 32'd0;
-            img_sector2           <= 32'd0;
-            img_sector3           <= 32'd0;
-            next_req_pending      <= 1'b0;
-        pending_prev <= 1'b0;
-            load_busy             <= 1'b0;
-            publish_wait <= 1'b0;
-            publish_req <= 1'b0;
-            source_done_seen      <= 1'b0;
-        source_busy_seen <= 1'b0;
-        write_done_seen <= 1'b0;
-            display_valid         <= 1'b0;
+            scan_kicked<=0; img_found_count<=0; next_req_pending<=0;
+            load_busy<=0; publish_wait<=0; source_done_seen<=0;
+            source_busy_seen<=0; write_done_seen<=0; writer_started<=0;
+            recovering<=0; retry_count<=0; media_fault<=0; media_error<=0;
+            auto_cnt<=0; auto_play_en<=0;
+        end else if (recovering) begin
+            if (recovery_count < RECOVERY_GUARD_CYCLES)
+                recovery_count<=recovery_count+1'b1;
+            // Drain the cancelled transaction and any previous write ACK first.
+            if (recovery_count >= RECOVERY_GUARD_CYCLES && bmp_ready &&
+                sd_ready && !write_ack_sync[1]) begin
+                recovering<=0;
+                if (RETRY_LIMIT >= 0 && RETRY_LIMIT < 255 && retry_count <= RETRY_LIMIT) begin
+                    if (recover_scan) begin
+                        scan_start_pulse<=1; img_found_count<=0;
+                        first_image_committed<=0;
+                    end else begin
+                        load_start_pulse<=1; load_busy<=1; load_timer<=0;
+                        source_done_seen<=0; source_busy_seen<=0;
+                        write_done_seen<=0; writer_started<=0;
+                    end
+                end else begin
+                    media_fault<=1;
+                    next_req_pending<=0;
+                end
+            end
+        end else if ((load_busy && !publish_wait && operation_error) || load_expired ||
+                     (!load_busy && scan_kicked && operation_error)) begin
+            recovering<=1;
+            recover_scan<=!load_busy;
+            recovery_count<=0;
+            if (retry_count != 255) retry_count<=retry_count+1'b1;
+            media_error<=load_expired ? 3'd3 : operation_error_code;
+            cancel_load<=load_expired;
+            load_busy<=0; publish_wait<=0;
+            source_done_seen<=0; source_busy_seen<=0; write_done_seen<=0;
+            writer_started<=0; next_req_pending<=0; auto_cnt<=0;
         end else begin
-            // 扫描阶段缓存前 4 张图的起始 sector
-            if (scan_found_valid) begin
+            if (scan_found_valid && !media_fault) begin
                 case (img_found_count)
-                    3'd0: img_sector0 <= scan_found_sector;
-                    3'd1: img_sector1 <= scan_found_sector;
-                    3'd2: img_sector2 <= scan_found_sector;
-                    3'd3: img_sector3 <= scan_found_sector;
+                    0: img_sector0<=scan_found_sector;
+                    1: img_sector1<=scan_found_sector;
+                    2: img_sector2<=scan_found_sector;
+                    3: img_sector3<=scan_found_sector;
                     default: ;
                 endcase
-
-                if (img_found_count < 3'd4)
-                    img_found_count <= img_found_count + 3'd1;
+                if (img_found_count<4) img_found_count<=img_found_count+1'b1;
             end
+            if (load_busy && !bmp_ready) source_busy_seen<=1;
+            if (load_busy && source_busy_seen && bmp_ready) source_done_seen<=1;
+            if (load_busy && write_req && write_ack_sync[1]) begin
+                writer_started<=1;
+                write_done_seen<=0;
+            end else if (load_busy && writer_started && write_finish_pulse)
+                write_done_seen<=1;
 
-            // 记住 bmp_read 已经把源图送完 FIFO，但还不能切显示，得等整帧写完
-            if (load_busy && !bmp_ready) source_busy_seen <= 1'b1;
-            if (load_busy && source_busy_seen && bmp_ready) source_done_seen <= 1'b1;
-            if (load_busy && write_finish_pulse) write_done_seen <= 1'b1;
-
-            // Publish only after both completions. Keep the old read buffer
-            // reserved until the memory reader acknowledges a frame-boundary swap.
-            if (load_busy && !publish_wait &&
-                (source_done_seen || (source_busy_seen && bmp_ready)) &&
-                (write_done_seen || write_finish_pulse)) begin
-                disp_buf_idx <= pending_buf_idx;
-                publish_req <= 1'b1;
-                publish_wait <= 1'b1;
+            if (load_busy && !publish_wait && source_complete && writer_complete) begin
+                disp_buf_idx<=pending_buf_idx;
+                publish_req<=1; publish_wait<=1;
             end
+            // Once publication has been sent it is irrevocable. Wait for the
+            // existing frame-boundary ACK; never free a possibly active buffer.
             if (load_busy && publish_wait && publish_done) begin
-                load_busy <= 1'b0;
-                publish_wait <= 1'b0;
-                source_done_seen <= 1'b0;
-                source_busy_seen <= 1'b0;
-                write_done_seen <= 1'b0;
-                img_idx <= load_idx;
-                display_valid <= 1'b1;
-                first_image_committed <= 1'b1;
+                load_busy<=0; publish_wait<=0;
+                source_done_seen<=0; source_busy_seen<=0; write_done_seen<=0;
+                writer_started<=0; img_idx<=load_idx; display_valid<=1;
+                first_image_committed<=1; retry_count<=0;
+                media_fault<=0; media_error<=0;
             end
 
-            // 上电后自动发起一次“扫描前 4 张 BMP”
-            if (!scan_kicked && bmp_ready) begin
-                scan_start_pulse      <= 1'b1;
-                scan_kicked           <= 1'b1;
-                first_image_committed <= 1'b0;
-                auto_play_en          <= 1'b0;
-                auto_cnt              <= 32'd0;
-                img_found_count       <= 3'd0;
-                img_idx               <= 2'd0;
-                load_idx              <= 2'd0;
-                pending_buf_idx       <= 2'd0;
-                write_buf_idx         <= 2'd0;
-                disp_buf_idx          <= 2'd0;
-                next_req_pending      <= 1'b0;
-        pending_prev <= 1'b0;
-                display_valid         <= 1'b0;
-                load_busy             <= 1'b0;
-            publish_wait <= 1'b0;
-            publish_req <= 1'b0;
-                source_done_seen      <= 1'b0;
-        source_busy_seen <= 1'b0;
-        write_done_seen <= 1'b0;
-            end else begin
-                // 忙的时候也只记 1 次“下一张”请求，不会累积成连跳两张
-                if ((key_next_press || key_prev_press) && scan_done && (img_found_count > 3'd0)) begin
-                    next_req_pending <= 1'b1;
-                    pending_prev <= key_prev_press && !key_next_press;
+            // A new managed request may retry a failed load. Scan failures need
+            // an explicit new action, rather than endlessly retrying a pending page.
+            if (page_user_request && media_fault && (recover_scan || img_found_count==0)) begin
+                media_fault<=0; media_error<=0; retry_count<=0; scan_kicked<=0;
+            end
+            if (training_sync[1] || page_pending) begin
+                next_req_pending<=0;
+            end else if ((key_next_press || key_prev_press) && media_fault) begin
+                media_fault<=0; media_error<=0; retry_count<=0;
+                if (recover_scan || img_found_count==0) begin
+                    scan_kicked<=0; next_req_pending<=0;
+                end else if (display_valid) begin
+                    next_req_pending<=1;
+                    pending_prev<=key_prev_press && !key_next_press;
                 end
+            end else if ((key_next_press || key_prev_press) && scan_done && img_found_count>0) begin
+                next_req_pending<=1;
+                pending_prev<=key_prev_press && !key_next_press;
+            end
 
-                // 自动播放开/关
-                if (scan_done && (img_found_count > 3'd1)) begin
-                    auto_play_en <= auto_sync[1];
-                    auto_cnt     <= 32'd0;
-                end
+            auto_play_en<=auto_sync[1] && !training_sync[1] && !page_pending;
+            if (scan_done && auto_play_en && !training_sync[1] && !page_pending && display_valid && !load_busy &&
+                first_image_committed && img_found_count>1 && !media_fault) begin
+                if (auto_tick) auto_cnt<=0;
+                else auto_cnt<=auto_cnt+1'b1;
+            end else auto_cnt<=0;
 
-                // 自动播放 1s 计数：只有当前没有写图任务时才计时
-                if (scan_done && auto_play_en && display_valid && !load_busy && first_image_committed && (img_found_count > 3'd1)) begin
-                    if (auto_tick)
-                        auto_cnt <= 32'd0;
-                    else
-                        auto_cnt <= auto_cnt + 32'd1;
-                end else begin
-                    auto_cnt <= 32'd0;
+            if (!scan_kicked && bmp_ready && sd_ready && !media_fault) begin
+                scan_start_pulse<=1; scan_kicked<=1;
+                first_image_committed<=0; img_found_count<=0;
+                next_req_pending<=0; retry_count<=0;
+            end else if (page_accept) begin
+                // ACK even if already showing the page; faults require a fresh load.
+                next_req_pending<=0; auto_cnt<=0;
+                if (!display_valid || img_idx!=page_index || media_fault) begin
+                    load_idx<=page_index; load_sector<=sector_lut(page_index);
+                    pending_buf_idx<=next_buf_lut(disp_buf_idx,display_valid);
+                    write_buf_idx<=next_buf_lut(disp_buf_idx,display_valid);
+                    load_start_pulse<=1; load_busy<=1; load_timer<=0;
+                    source_done_seen<=0; source_busy_seen<=0; write_done_seen<=0;
+                    writer_started<=0; retry_count<=0; media_fault<=0; media_error<=0;
                 end
-
-                // 首图自动加载到 buffer0
-                if (scan_done && !first_image_committed && bmp_ready && !load_busy && (img_found_count != 3'd0)) begin
-                    load_idx         <= 2'd0;
-                    load_sector      <= img_sector0;
-                    pending_buf_idx  <= 2'd0;
-                    write_buf_idx    <= 2'd0;
-                    load_start_pulse <= 1'b1;
-                    load_busy        <= 1'b1;
-                    source_done_seen <= 1'b0;
-                    source_busy_seen <= 1'b0;
-                    write_done_seen <= 1'b0;
-                    next_req_pending <= 1'b0;
-                    auto_cnt         <= 32'd0;
-                end
-                // 手动下一张优先：写到“非当前显示”的另一块 buffer
-                else if (scan_done && bmp_ready && display_valid && !load_busy && next_req_pending && (img_found_count != 3'd0)) begin
-                    load_idx         <= manual_from_current;
-                    load_sector      <= sector_lut(manual_from_current);
-                    pending_buf_idx  <= next_buf_lut(disp_buf_idx, display_valid);
-                    write_buf_idx    <= next_buf_lut(disp_buf_idx, display_valid);
-                    load_start_pulse <= 1'b1;
-                    load_busy        <= 1'b1;
-                    source_done_seen <= 1'b0;
-                    source_busy_seen <= 1'b0;
-                    write_done_seen <= 1'b0;
-                    next_req_pending <= 1'b0;
-                    auto_cnt         <= 32'd0;
-                end
-                // 自动播放下一张：同样写到“非当前显示”的另一块 buffer
-                else if (scan_done && bmp_ready && display_valid && !load_busy && auto_play_en && auto_tick && (img_found_count > 3'd1)) begin
-                    load_idx         <= next_from_current;
-                    load_sector      <= sector_lut(next_from_current);
-                    pending_buf_idx  <= next_buf_lut(disp_buf_idx, display_valid);
-                    write_buf_idx    <= next_buf_lut(disp_buf_idx, display_valid);
-                    load_start_pulse <= 1'b1;
-                    load_busy        <= 1'b1;
-                    source_done_seen <= 1'b0;
-                    source_busy_seen <= 1'b0;
-                    write_done_seen <= 1'b0;
-                    auto_cnt         <= 32'd0;
+            end else if (!training_sync[1] && !page_pending && !media_fault &&
+                         scan_done && bmp_ready && sd_ready && !load_busy) begin
+                if (!first_image_committed && img_found_count>0) begin
+                    load_idx<=0; load_sector<=img_sector0;
+                    pending_buf_idx<=next_buf_lut(disp_buf_idx,display_valid);
+                    write_buf_idx<=next_buf_lut(disp_buf_idx,display_valid);
+                    load_start_pulse<=1; load_busy<=1; load_timer<=0;
+                    source_done_seen<=0; source_busy_seen<=0; write_done_seen<=0;
+                    writer_started<=0; next_req_pending<=0; auto_cnt<=0; retry_count<=0;
+                end else if (display_valid && img_found_count>0 &&
+                             (next_req_pending || (auto_play_en && auto_tick && img_found_count>1))) begin
+                    load_idx<=next_req_pending ? manual_from_current : next_from_current;
+                    load_sector<=sector_lut(next_req_pending ? manual_from_current : next_from_current);
+                    pending_buf_idx<=next_buf_lut(disp_buf_idx,display_valid);
+                    write_buf_idx<=next_buf_lut(disp_buf_idx,display_valid);
+                    load_start_pulse<=1; load_busy<=1; load_timer<=0;
+                    source_done_seen<=0; source_busy_seen<=0; write_done_seen<=0;
+                    writer_started<=0; next_req_pending<=0; auto_cnt<=0; retry_count<=0;
                 end
             end
         end
     end
 end
 
-bmp_read bmp_read_m0(
+bmp_read #(.WAIT_TIMEOUT_CYCLES(READER_TIMEOUT_CYCLES)) bmp_read_m0(
+    .cancel(cancel_load), .sd_sec_ready(sd_ready),
+    .sd_sec_read_error(sd_read_error), .abort_sd(abort_sd),
+    .operation_error(operation_error), .error_code(operation_error_code),
     .clk                    (clk),
     .rst                    (rst),
     .ready                  (bmp_ready),
@@ -381,11 +411,11 @@ bmp_read bmp_read_m0(
     .load_sector            (load_sector),
 
     .sd_init_done           (sd_init_done),
-    .state_code             (state_code),
+    .state_code             (bmp_state_code),
     .bmp_width              (bmp_width),
     .bmp_height             (bmp_height),
     .write_req              (write_req),
-    .write_req_ack          (write_req_ack),
+    .write_req_ack          (write_ack_sync[1]),
     .sd_sec_read            (sd_sec_read),
     .sd_sec_read_addr       (sd_sec_read_addr),
     .sd_sec_read_data       (sd_sec_read_data),
@@ -395,7 +425,10 @@ bmp_read bmp_read_m0(
     .bmp_data               (bmp_data)
 );
 
-sd_card_top sd_card_top_m0(
+sd_card_top #(.TOKEN_TIMEOUT_CYCLES(TOKEN_TIMEOUT_CYCLES),
+              .SPI_TIMEOUT_CYCLES(SPI_TIMEOUT_CYCLES)) sd_card_top_m0(
+    .read_cancel(abort_sd), .sd_sec_ready(sd_ready),
+    .sd_sec_read_error(sd_read_error),
     .clk                    (clk),
     .rst                    (rst),
     .SD_nCS                 (SD_nCS),
@@ -410,7 +443,7 @@ sd_card_top sd_card_top_m0(
     .sd_sec_read_end        (sd_sec_read_end),
     .sd_sec_write           (1'b0),
     .sd_sec_write_addr      (32'd0),
-    .sd_sec_write_data      (),
+    .sd_sec_write_data      (8'd0),
     .sd_sec_write_data_req  (),
     .sd_sec_write_end       ()
 );
