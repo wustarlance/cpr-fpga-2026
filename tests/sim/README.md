@@ -1,6 +1,6 @@
-# 仿真验证状态（2026-10-13）
+# 仿真验证状态（2026-10-15）
 
-默认清单为23项RTL自检；新增训练栅格对照、布局/帧快照与完整底图透出检查。默认每次编译/运行超时为120秒，以容纳约60秒的双实例画面扫描；运行器负控仍独立限时。见[训练底图修改说明](../../project/docs/training-layout.md)。
+默认清单为30项RTL自检；在SD恢复四项基础上，新增页面策略、完整状态字跨时钟/页眉快照、训练页面整链三项。已有训练栅格、布局/帧快照与完整底图透出检查继续保留。默认每次编译/运行超时为120秒，运行器负控仍独立限时。见[SD恢复契约](../../project/docs/sd-recovery.md)及[训练底图修改说明](../../project/docs/training-layout.md)。
 
 ---
 
@@ -30,6 +30,13 @@ Linux/macOS 或 Git Bash 可执行 `bash tests/sim/run.sh --all`。`run.sh tb_na
 
 | 测试 | 主要检查 |
 |---|---|
+| `tb_page_manager` | 进入/退出、保存实际浏览页、连续导航、按住进入、缺页/空目录及请求握手 |
+| `tb_page_status` | 双时钟完整状态字、忙时合并、最终值、页眉字形/帧快照及教程透出 |
+| `tb_training_pages` | 四图真实BMP/写帧/发布联动；快速导航、加载中退出、错误恢复、缺页与开机训练 |
+| `tb_sd_cmd_recovery` | 令牌/SPI超时、错误令牌、CRC、取消、截止拍与恢复后读取 |
+| `tb_sd_sector_recovery` | CMD17失败退出、块错误上传、取消与ready门控 |
+| `tb_sd_image_recovery` | 真实BMP/调度/发布/写帧状态机；半帧丢弃、旧帧保护、有限重试与手动恢复 |
+| `tb_sd_retry_limits` | 0次、2次及非法重试配置，首图失败不发布 |
 | `tb_adc_ctrl` | 快速/稀疏采样、PD 时序、EOC 接收、超时恢复、旧 EOC 与复位取消 |
 | `tb_pressure_normalize` | 两种极性、码值边界、四点预热/取整、连续或间断 valid |
 | `tb_peak_detect` | 阈值边界、追踪峰值、完整释放后一次事件、持压清场/停用 |
