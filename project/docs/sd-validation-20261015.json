@@ -1,0 +1,102 @@
+{
+  "date_asia_shanghai": "2026-10-15",
+  "baseline_commit": "a9e1aadfded635304f6f06eebee021a11a8913a0",
+  "rtl_tests_passed": 27,
+  "runner_controls_passed": 5,
+  "current_source_hashes_verified": true,
+  "test_evidence": {
+    "full_run": "full-regression/results.json",
+    "note": "Full 27 tests passed; every current source/fixture/runner hash is checked against this run."
+  },
+  "negative_mutations_rejected": [
+    "disabled_token_timeout",
+    "accepted_bad_crc",
+    "overwrite_display_buffer",
+    "unlimited_retries"
+  ],
+  "registered_project_inputs": 55,
+  "td_full_strict_status": "failed",
+  "td_tops": [
+    {
+      "top": "top",
+      "td_version": "6.2.168116",
+      "physical_build_completed": true,
+      "strict_status": "failed",
+      "setup_wns_ns": 0.154,
+      "hold_wns_ns": 0.003,
+      "resources": {
+        "lut": {
+          "used": 6862,
+          "available": 19600
+        },
+        "reg": {
+          "used": 4468,
+          "available": 19600
+        },
+        "bram": {
+          "used": 20,
+          "available": 64
+        },
+        "pll": {
+          "used": 3,
+          "available": 4
+        }
+      },
+      "critical_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "bitstream_sha256": "117bf98b7e580b9afe496fcc9d6463bae94797d64d1e5a4ccab689a436c7c01e",
+      "log_sha256": "9f003be5a5b8b8381a0c93e5d59aa02d14e0efcfddf438d42961269a5cab03ff"
+    },
+    {
+      "top": "top_adc",
+      "td_version": "6.2.168116",
+      "physical_build_completed": true,
+      "strict_status": "failed",
+      "setup_wns_ns": 0.112,
+      "hold_wns_ns": 0.015,
+      "resources": {
+        "lut": {
+          "used": 6993,
+          "available": 19600
+        },
+        "reg": {
+          "used": 4608,
+          "available": 19600
+        },
+        "bram": {
+          "used": 20,
+          "available": 64
+        },
+        "adc": {
+          "used": 1,
+          "available": 1
+        },
+        "pll": {
+          "used": 3,
+          "available": 4
+        }
+      },
+      "critical_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "bitstream_sha256": "77f6e6d00390742ee763734cb62ff803c9b4f6236203eb6ebb41ad9ccadc186e",
+      "log_sha256": "c68f6491138d7a1e9e836513abe53a72aeb614640b6d8f3868fd209e155eb01b"
+    }
+  ],
+  "td_note": "Local 6.2.168116 still reports PLL/SDRAM critical warnings. The upstream 6.2.178840/SP1 pass predates these SD changes and does not validate this revision.",
+  "board_programmed": false,
+  "flash_erased": false,
+  "tf_card_written": false,
+  "github_published": false
+}
