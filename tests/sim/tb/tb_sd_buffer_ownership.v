@@ -7,11 +7,12 @@ module tb_sd_buffer_ownership;
  always #5 clk=~clk;always #12.5 mem_clk=~mem_clk;
  sd_card_bmp #(.CLK_FREQ_HZ(1000)) dut(
   .clk(clk),.rst(!rst_n),.key_next(key_next),.key_prev(1'b1),
-  .key_auto(1'b1),.external_auto(1'b0),.state_code(),
+  .key_auto(1'b1),.external_auto(1'b0),
+  .training_active(1'b0),.training_next(1'b0),.training_prev(1'b0),.page_status(),.state_code(),
   .bmp_width(16'd640),.bmp_height(16'd480),.display_valid(valid),
   .write_finish_toggle(write_toggle),.write_buf_idx(write_index),
   .disp_buf_idx(pending_index),.publish_req(publish),.publish_done(done),
-  .write_req(),.write_req_ack(1'b0),.write_en(),.write_data(),
+  .write_req(),.write_req_ack(dut.write_req),.write_en(),.write_data(),
   .SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
  frame_buffer_publish swap(clk,rst_n,publish,pending_index,,done,
                            mem_clk,rst_n,frame_start,active_index);
