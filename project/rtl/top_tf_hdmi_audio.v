@@ -3,6 +3,7 @@
 module top #(
     parameter USE_EXTERNAL_IO = 0,
     parameter USE_ADC = 0,
+    parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
     parameter [11:0] RELEASE_BASELINE = 12'd3000,
     parameter [11:0] TRIGGER_LEVEL = 12'd150,
     parameter [11:0] RELEASE_LEVEL = 12'd100,
@@ -187,6 +188,11 @@ wire bpm_valid;
 wire clear_session, adc_peak_event, adc_path_fault;
 wire [1:0] adc_peak_grade;
 reg [5:0] beat_hold_ms;
+wire [4:0] app_keys_level;
+wire [11:0] page_status_sd, page_status_video;
+page_status_cdc u_page_status(
+    .src_clk(sd_card_clk), .src_rst_n(sd_rst_n), .status(page_status_sd),
+    .dst_clk(video_clk), .dst_rst_n(app_rst_n), .video_status(page_status_video));
 wire [4:0] app_keys_raw = USE_EXTERNAL_IO ? ~ext_keys_n : {2'b00,~key1,~key3,~key2};
 // Board demo: KEY2 generates a press; dips select a contact pattern, zero selects target.
 // External mode observes real contacts directly; calibration remains a mechanical task.
@@ -200,7 +206,7 @@ cpr_control #(.USE_PRESS_EVENTS(USE_ADC)) u_control(
     .tick_ms             (tick_ms),
     .mode                (app_mode),
     .brightness_level    (brightness_level),
-    .keys_level          (),
+    .keys_level          (app_keys_level),
     .depth_level         (),
     .next_key_n          (next_key_n),
     .prev_key_n          (prev_key_n),
@@ -316,12 +322,13 @@ brightness_rgb u_brightness(
     .out_rgb (adjusted_rgb));
 contrast_rgb u_contrast(
     .rgb(adjusted_rgb), .level(contrast_video), .out_rgb(contrasted_rgb));
-cpr_overlay #(.UNCALIBRATED_PRESSURE(USE_ADC)) u_overlay(
+cpr_overlay #(.UNCALIBRATED_PRESSURE(USE_ADC), .PAGE_STATUS_ENABLE(1)) u_overlay(
     .clk (video_clk),
     .rst (rst_video),
     .vs  (vs),
     .de  (de),
     .rgb(contrasted_rgb),
+    .page_status         (page_status_video),
     .contrast_level      (contrast_level),
     .auto_running        (auto_enable),
     .mode                (app_mode),
@@ -382,6 +389,7 @@ end
 
 // ===================== TF 多图扫描与缓存（双缓冲） =====================
 sd_card_bmp #(
+    .TRAINING_PAGE_INDEX(TRAINING_PAGE_INDEX),
     .CLK_FREQ_HZ       (100_000_000),
     .SCAN_START_SECTOR (32'd0),
     .SCAN_MAX_SECTOR   (32'd131071),
@@ -393,6 +401,11 @@ sd_card_bmp #(
     .key_prev          (prev_key_n),
     .key_auto          (1'b1),
     .external_auto     (auto_enable),
+    .training_active   (training_enabled),
+    // In contact demo KEY2 is a simulated compression, not page navigation.
+    .training_next     ((USE_ADC || USE_EXTERNAL_IO) ? app_keys_level[2] : 1'b0),
+    .training_prev     ((USE_ADC || USE_EXTERNAL_IO) ? app_keys_level[1] : 1'b0),
+    .page_status       (page_status_sd),
     .state_code        (state_code),
     .bmp_width         (16'd640),
     .bmp_height        (16'd480),
