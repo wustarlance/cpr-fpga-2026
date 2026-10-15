@@ -1,7 +1,9 @@
 `timescale 1ns/1ps
 // Byte transport is tested separately. This model controls catalogue/load
 // completion timing so the scheduler's buffer ownership can be stressed.
-module bmp_read(
+module bmp_read #(parameter WAIT_TIMEOUT_CYCLES=100000000)(
+ input cancel,sd_sec_ready,sd_sec_read_error,
+ output abort_sd,operation_error,output[2:0]error_code,
  input clk,rst, output reg ready,
  input scan_start, input [31:0] scan_start_sector,scan_max_sector,
  input [2:0] scan_target_count, output reg scan_done,scan_found_valid,
@@ -15,14 +17,16 @@ module bmp_read(
  reg [9:0] remaining;
  reg [2:0] scan_step;
  assign state_code=ready?1:4;
- assign write_req=0;assign sd_sec_read=0;assign sd_sec_read_addr=load_sector;
+ assign abort_sd=0;assign operation_error=0;assign error_code=0;
+ assign write_req=!ready && scan_step==0 && remaining>490;assign sd_sec_read=0;assign sd_sec_read_addr=load_sector;
  assign bmp_data_wr_en=0;assign bmp_data=0;
  always @(posedge clk or posedge rst) begin
   if(rst)begin ready<=1;scan_done<=0;scan_found_valid<=0;
    scan_found_sector<=0;scan_found_total<=0;remaining<=0;scan_step<=0;end
   else begin
    scan_found_valid<=0;
-   if(scan_start)begin ready<=0;scan_step<=1;scan_done<=0;scan_found_total<=0;end
+   if(cancel)begin ready<=1;remaining<=0;end
+   else if(scan_start)begin ready<=0;scan_step<=1;scan_done<=0;scan_found_total<=0;end
    else if(scan_step!=0)begin
     scan_step<=scan_step+1;
     if(scan_step==1||scan_step==3)begin scan_found_valid<=1;
@@ -35,12 +39,15 @@ module bmp_read(
  end
 endmodule
 
-module sd_card_top(
+module sd_card_top #(parameter TOKEN_TIMEOUT_CYCLES=10000000,
+ parameter SPI_TIMEOUT_CYCLES=1000000)(
+ input read_cancel,output sd_sec_ready,sd_sec_read_error,
  input clk,rst,output SD_nCS,SD_DCLK,SD_MOSI,input SD_MISO,
  output sd_init_done,input sd_sec_read,input[31:0]sd_sec_read_addr,
  output[7:0]sd_sec_read_data,output sd_sec_read_data_valid,sd_sec_read_end,
  input sd_sec_write,input[31:0]sd_sec_write_addr,input[7:0]sd_sec_write_data,
  output sd_sec_write_data_req,sd_sec_write_end);
+ assign sd_sec_ready=!rst;assign sd_sec_read_error=0;
  assign sd_init_done=!rst;
  assign SD_nCS=1;assign SD_DCLK=0;assign SD_MOSI=1;
  assign sd_sec_read_data=0;assign sd_sec_read_data_valid=0;assign sd_sec_read_end=0;
