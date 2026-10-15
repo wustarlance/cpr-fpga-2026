@@ -47,6 +47,10 @@ def summarize(log, top, stage):
     for match in re.finditer(r"^CPR_MAILBOX_REGS hold=(.*?) capture=(.*?)$", log, re.M):
         mailbox.append({"hold_bits": len(re.findall(r"\{[^{}]+\}", match[1])),
                         "capture_bits": len(re.findall(r"\{[^{}]+\}", match[2]))})
+    page_mailbox = []
+    for match in re.finditer(r"^CPR_PAGE_REGS hold=(.*?) capture=(.*?)$", log, re.M):
+        page_mailbox.append({"hold_bits": len(re.findall(r"\{[^{}]+\}", match[1])),
+                             "capture_bits": len(re.findall(r"\{[^{}]+\}", match[2]))})
     # TD reports the built-in SDRAM macro moving during intermediate ECO
     # placement. No product LOC binds that macro. Retain this exact diagnostic
     # separately; accept it only for a completed route and successful bitgen.
@@ -62,7 +66,7 @@ def summarize(log, top, stage):
             "pass_marker": (f"CPR_BUILD_PASS {top}" if stage == "full" else f"CPR_SYNTHESIS_PASS {top}") in log,
             "diagnostics": diagnostics, "reviewed_sdram_relocation_warnings": relocation,
             "errors_or_critical_warnings": errors,
-            "mailbox_collections": mailbox}
+            "mailbox_collections": mailbox, "page_mailbox_collections": page_mailbox}
 
 
 def run_top(tool, top, output, timeout, stage):
@@ -120,13 +124,15 @@ def run_top(tool, top, output, timeout, stage):
     record["reports"] = {p.name: digest(p) for p in destination.glob("*.rpt")}
     mailbox_ok = top != "top_adc" or (record["mailbox_collections"] and all(
         x["hold_bits"] == 12 and x["capture_bits"] == 12 for x in record["mailbox_collections"]))
+    page_mailbox_ok = bool(record["page_mailbox_collections"]) and all(
+        x["hold_bits"] == 12 and x["capture_bits"] == 12 for x in record["page_mailbox_collections"])
     expected_adc = 1 if top == "top_adc" else 0
     resources_ok = (set(resources) == {"lut", "reg", "bram", "adc", "pll"}
                     and resources["lut"]["available"] == 19600
                     and resources["adc"]["used"] == expected_adc
                     and all(v["used"] <= v["available"] for v in resources.values()))
     record["status"] = "passed" if (reports_fresh and not record["errors_or_critical_warnings"]
-        and record["td_version"] and len(record["reports"]) == (5 if stage == "full" else 2) and physical_ok and mailbox_ok and resources_ok) else "failed"
+        and record["td_version"] and len(record["reports"]) == (5 if stage == "full" else 2) and physical_ok and mailbox_ok and page_mailbox_ok and resources_ok) else "failed"
     return record
 
 
