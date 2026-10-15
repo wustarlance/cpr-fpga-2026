@@ -34,7 +34,14 @@
 //             这是全工程的统一约定，写上层时要记住。
 // ============================================================================
 
-module sd_card_cmd(
+module sd_card_cmd #(
+    parameter integer TOKEN_TIMEOUT_CYCLES = 10_000_000,
+    parameter integer SPI_TIMEOUT_CYCLES = 1_000_000
+)(
+    input                       read_cancel,
+    output                      ready,
+    output                      block_read_error,
+    output                      spi_abort,
 	input                       sys_clk,
 	input                       rst,						  // 系统复位（异步、高有效）
 	input[15:0]                 spi_clk_div,                  // SPI 时钟分频参数（由上层切换：初始化慢速 / 传数据快速）
@@ -78,8 +85,44 @@ parameter S_WRITE_BUSY   = 14;
 parameter S_WRITE_ACK    = 15;
 parameter S_ERR          = 16;
 parameter S_END          = 17;
-
 reg[4:0]                      state;
+localparam S_READ_ERROR = 18;
+localparam S_RECOVER = 19;
+reg [31:0] token_wait;
+reg [31:0] spi_wait;
+reg [15:0] read_crc;
+reg [7:0] received_crc_hi;
+wire spi_active = spi_wr_req && state != S_WAIT && state != S_IDLE;
+wire spi_timeout = spi_active && !spi_wr_ack &&
+                   spi_wait >= SPI_TIMEOUT_CYCLES - 1;
+assign ready = state == S_WAIT;
+assign block_read_error = state == S_READ_ERROR;
+assign spi_abort = (state == S_READ_ERROR) || (state == S_ERR) || read_cancel;
+
+// CRC-16/CCITT, SD data convention: polynomial 0x1021, zero seed, MSB first.
+function [15:0] crc16_byte;
+    input [15:0] previous;
+    input [7:0] value;
+    reg [15:0] c;
+    integer b;
+    begin
+        c = previous ^ {value,8'b0};
+        for (b=0; b<8; b=b+1)
+            c = c[15] ? (c << 1) ^ 16'h1021 : (c << 1);
+        crc16_byte = c;
+    end
+endfunction
+always @(posedge sys_clk or posedge rst) begin
+    if (rst) begin token_wait<=0; spi_wait<=0; end
+    else begin
+        if (state != S_READ_WAIT) token_wait<=0;
+        else if (token_wait < TOKEN_TIMEOUT_CYCLES) token_wait<=token_wait+1'b1;
+        if (!spi_active || spi_wr_ack) spi_wait<=0;
+        else if (spi_wait < SPI_TIMEOUT_CYCLES) spi_wait<=spi_wait+1'b1;
+    end
+end
+
+
 reg                           CS_reg;                       // 片选寄存（1 = 不选中，0 = 选中）
 reg[15:0]                     byte_cnt;                     // 字节计数：不同状态下含义不同（已发字节数 / 已收字节数）
 reg[7:0]                      send_data;                    // 下一个要发的字节
@@ -88,7 +131,7 @@ reg[9:0]                      wr_data_cnt;                  // 写模式下已�
 
 // ── 下面这 4 条是"完成"信号，都是"只高一拍"的脉冲（把某个状态直接当输出用）──
 assign cmd_req_ack = (state == S_END);                      // 命令流程结束
-assign block_read_req_ack = (state == S_READ_ACK);          // 一个扇区读完
+assign block_read_req_ack = (state == S_READ_ACK) || (state == S_READ_ERROR);          // 一个扇区读完
 assign block_write_req_ack= (state == S_WRITE_ACK);         // 一个扇区写完
 assign block_write_data_rd = (state == S_WRITE_DATA_0);     // 该给下一个待写字节了
 assign spi_data_in = send_data;
@@ -106,8 +149,20 @@ begin
 		state <= S_IDLE;
 		cmd_req_error <= 1'b0;
 		wr_data_cnt <= 10'd0;
+        read_crc <= 0;
+        received_crc_hi <= 0;
 	end
-	else
+    else if (read_cancel) begin
+        state <= S_READ_ERROR;
+        CS_reg <= 1;
+        spi_wr_req <= 0;
+        byte_cnt <= 0;
+    end else if (spi_timeout && state != S_RECOVER) begin
+        state <= (state == S_READ || state == S_READ_WAIT) ? S_READ_ERROR : S_ERR;
+        CS_reg <= 1;
+        spi_wr_req <= 0;
+        byte_cnt <= 0;
+    end else
 		case(state)
 			S_IDLE:
 			begin
@@ -144,8 +199,11 @@ begin
 				// 空闲等待：三种请求谁先来就走谁（只有电平，所以不用担心漏拍）
 				if(cmd_req == 1'b1)
 					state <= S_CMD_PRE;
-				else if(block_read_req == 1'b1)
-					state <= S_READ_WAIT;
+				else if(block_read_req == 1'b1) begin
+                    state <= S_READ_WAIT;
+                    byte_cnt <= 0;
+                    read_crc <= 0;
+                end
 				else if(block_write_req == 1'b1)
 					state <= S_WRITE_TOKEN;
 				clk_div <= spi_clk_div;
@@ -241,44 +299,54 @@ begin
 					send_data <= 8'hff;
 				end
 			end
-			S_READ_WAIT:
-			begin
-				// 等数据起始令牌 0xFE：卡发出它之后才会紧跟 512 字节数据
-				if(spi_wr_ack == 1'b1 && data_recv == 8'hfe)
-				begin
-					spi_wr_req <= 1'b0;
-					state <= S_READ;
-					byte_cnt <= 16'd0;
-				end
-				else
-				begin
-					spi_wr_req <= 1'b1;
-					send_data <= 8'hff;                     // 发 0xFF 的同时在读 MISO
-				end
-			end
-			S_READ:
-			begin
-				// 收满 514 个字节：512 字节数据 + 2 字节 CRC
-				// （数据部分的 512 字节由下面第二个 always 块挑出来打 valid）
-				if(spi_wr_ack == 1'b1)
-				begin
-					if(byte_cnt == 16'd513)                 // 0~513 正好 514 个
-					begin
-						state <= S_READ_ACK;
-						spi_wr_req <= 1'b0;
-						byte_cnt <= 16'd0;
-					end
-					else
-					begin
-						byte_cnt <= byte_cnt + 16'd1;
-					end
-				end
-				else
-				begin
-					spi_wr_req <= 1'b1;
-					send_data <= 8'hff;
-				end
-			end
+            S_READ_WAIT: begin
+                // An accepted token wins on the deadline edge.
+                if (spi_wr_ack && data_recv == 8'hfe) begin
+                    spi_wr_req <= 0;
+                    state <= S_READ;
+                    byte_cnt <= 0;
+                    read_crc <= 0;
+                end else if ((spi_wr_ack && data_recv != 8'hff) ||
+                             token_wait >= TOKEN_TIMEOUT_CYCLES-1) begin
+                    state <= S_READ_ERROR;
+                    CS_reg <= 1;
+                    spi_wr_req <= 0;
+                    byte_cnt <= 0;
+                end else begin
+                    spi_wr_req <= 1;
+                    send_data <= 8'hff;
+                end
+            end
+            S_READ: begin
+                if (spi_wr_ack) begin
+                    if (byte_cnt < 512) read_crc <= crc16_byte(read_crc, data_recv);
+                    if (byte_cnt == 512) received_crc_hi <= data_recv;
+                    if (byte_cnt == 513) begin
+                        state <= ({received_crc_hi,data_recv} == read_crc) ? S_READ_ACK : S_READ_ERROR;
+                        CS_reg <= 1;
+                        spi_wr_req <= 0;
+                        byte_cnt <= 0;
+                    end else byte_cnt <= byte_cnt + 1'b1;
+                end else begin
+                    spi_wr_req <= 1;
+                    send_data <= 8'hff;
+                end
+            end
+            S_READ_ERROR: begin
+                state <= S_RECOVER;
+                CS_reg <= 1;
+                spi_wr_req <= 0;
+            end
+            // Deselect and provide a complete dummy byte before accepting another
+            // command. spi_abort resets an interrupted byte in the SPI engine.
+            S_RECOVER: begin
+                CS_reg <= 1;
+                send_data <= 8'hff;
+                if (spi_wr_ack || spi_timeout) begin
+                    spi_wr_req <= 0;
+                    state <= S_WAIT;
+                end else spi_wr_req <= 1;
+            end
 			S_WRITE_TOKEN:
 				// 写操作由主机先发起始令牌 0xFE（与读方向相反）
 				if(spi_wr_ack == 1'b1)
@@ -376,12 +444,16 @@ begin
 			S_ERR:
 			begin
 				state <= S_END;                             // 报错也要走 S_END，好让上层收到 cmd_req_ack
+				CS_reg <= 1'b1;
+                spi_wr_req <= 0;
 				cmd_req_error <= 1'b1;                      // 上层靠这个区分"成功结束"和"出错结束"
 			end
-			S_READ_ACK,S_WRITE_ACK,S_END:
+			S_WRITE_ACK:
 			begin
 				state <= S_WAIT;                            // 这三种"结束态"都只停一拍，然后回空闲
 			end
+            S_READ_ACK: state <= S_RECOVER;
+            S_END: state <= cmd_req_error ? S_RECOVER : S_WAIT;
 			default:
 				state <= S_IDLE;
 		endcase
@@ -391,7 +463,7 @@ always@(posedge sys_clk or posedge rst)
 begin
 	if(rst == 1'b1)
 		block_read_valid <= 1'b0;
-	else if(state == S_READ && byte_cnt < 16'd512)          // 只在前 512 字节内放行
+	else if(!read_cancel && !spi_timeout && state == S_READ && byte_cnt < 16'd512)          // 只在前 512 字节内放行
 		block_read_valid <= spi_wr_ack;
 	else
 		block_read_valid <= 1'b0;

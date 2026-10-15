@@ -1,4 +1,12 @@
-module bmp_read(
+module bmp_read #(
+    parameter integer WAIT_TIMEOUT_CYCLES = 100_000_000
+)(
+    input                       cancel,
+    input                       sd_sec_ready,
+    input                       sd_sec_read_error,
+    output reg                  abort_sd,
+    output reg                  operation_error,
+    output reg [2:0]            error_code,
     input                       clk,
     input                       rst,
     output                      ready,
@@ -45,6 +53,24 @@ localparam ST_SCAN_NEXT = 3'd6;
 localparam ST_SCAN_DECIDE = 3'd7;
 
 reg [2:0]  state;
+reg [31:0] idle_wait;
+reg [9:0] sector_bytes;
+wire active = state != ST_IDLE;
+wire progress = sd_sec_read_data_valid || sd_sec_read_end ||
+                (state == ST_LOAD_WAIT && write_req_ack);
+wire wait_expired = active && !progress && idle_wait >= WAIT_TIMEOUT_CYCLES-1;
+wire bad_sector = active && sd_sec_read_end && !sd_sec_read_error &&
+                  (sector_bytes + (sd_sec_read_data_valid ? 10'd1 : 10'd0) != 10'd512);
+wire fail_operation = active && (cancel || sd_sec_read_error || wait_expired || bad_sector);
+always @(posedge clk or posedge rst) begin
+    if (rst) begin idle_wait<=0; sector_bytes<=0; end
+    else begin
+        if (!active || progress) idle_wait<=0;
+        else if (idle_wait < WAIT_TIMEOUT_CYCLES) idle_wait<=idle_wait+1'b1;
+        if (!active || sd_sec_read_end) sector_bytes<=0;
+        else if (sd_sec_read_data_valid) sector_bytes<=sector_bytes+1'b1;
+    end
+end
 reg [9:0]  rd_cnt;
 
 reg [7:0]  header_0;
@@ -152,7 +178,7 @@ end
 always @(posedge clk or posedge rst) begin
     if (rst) begin
         bmp_byte_idx <= 2'd0;
-    end else if (state == ST_LOAD_DATA) begin
+    end else if (state == ST_LOAD_DATA && !fail_operation) begin
         if (bmp_data_valid)
             bmp_byte_idx <= (bmp_byte_idx == 2'd2) ? 2'd0 : (bmp_byte_idx + 2'd1);
     end else begin
@@ -164,7 +190,7 @@ always @(posedge clk or posedge rst) begin
     if (rst) begin
         bmp_data_wr_en <= 1'b0;
         bmp_data       <= 24'd0;
-    end else if (state == ST_LOAD_DATA) begin
+    end else if (state == ST_LOAD_DATA && !fail_operation) begin
         if (bmp_data_valid) begin
             case (bmp_byte_idx)
                 2'd0: begin
@@ -193,6 +219,9 @@ end
 
 always @(posedge clk or posedge rst) begin
     if (rst) begin
+        abort_sd <= 0;
+        operation_error <= 0;
+        error_code <= 0;
         state             <= ST_IDLE;
         state_code        <= 4'd0;
         sd_sec_read       <= 1'b0;
@@ -208,6 +237,9 @@ always @(posedge clk or posedge rst) begin
         scan_next_sector   <= 32'd0;
         scan_header_match  <= 1'b0;
     end else if (!sd_init_done) begin
+        abort_sd <= 0;
+        operation_error <= active;
+        error_code <= active ? 3'd1 : error_code;
         state             <= ST_IDLE;
         state_code        <= 4'd0;
         sd_sec_read       <= 1'b0;
@@ -222,7 +254,19 @@ always @(posedge clk or posedge rst) begin
         scan_file_sectors  <= 32'd0;
         scan_next_sector   <= 32'd0;
         scan_header_match  <= 1'b0;
+    end else if (fail_operation) begin
+        abort_sd <= !sd_sec_read_error;
+        operation_error <= 1;
+        error_code <= sd_sec_read_error ? 3'd1 : bad_sector ? 3'd4 : 3'd3;
+        state <= ST_IDLE;
+        state_code <= 4'he;
+        sd_sec_read <= 0;
+        write_req <= 0;
+        scan_found_valid <= 0;
+        scan_done <= 1;
     end else begin
+        abort_sd <= 0;
+        operation_error <= 0;
         scan_found_valid <= 1'b0;
 
         case (state)
@@ -246,7 +290,7 @@ always @(posedge clk or posedge rst) begin
 
             ST_SCAN: begin
                 state_code  <= 4'd2;
-                sd_sec_read <= 1'b1;
+                if (sd_sec_ready) sd_sec_read <= 1'b1;
 
                 if (sd_sec_read_end) begin
                     sd_sec_read <= 1'b0;
@@ -300,16 +344,19 @@ always @(posedge clk or posedge rst) begin
 
             ST_LOAD_HDR: begin
                 state_code  <= 4'd2;
-                sd_sec_read <= 1'b1;
+                if (sd_sec_ready) sd_sec_read <= 1'b1;
 
                 if (sd_sec_read_end) begin
                     sd_sec_read <= 1'b0;
-                    if (header_match) begin
+                    if (header_match && pixel_offset >= 54 && file_len >= pixel_offset) begin
                         write_req        <= 1'b1;
                         sd_sec_read_addr <= load_sector_latched;
                         state            <= ST_LOAD_WAIT;
                     end else begin
                         state <= ST_IDLE;
+                        operation_error <= 1;
+                        error_code <= 3'd2;
+                        state_code <= 4'he;
                     end
                 end
             end
@@ -324,7 +371,7 @@ always @(posedge clk or posedge rst) begin
 
             ST_LOAD_DATA: begin
                 state_code  <= 4'd4;
-                sd_sec_read <= 1'b1;
+                if (sd_sec_ready) sd_sec_read <= 1'b1;
 
                 if (sd_sec_read_end) begin
                     sd_sec_read <= 1'b0;
