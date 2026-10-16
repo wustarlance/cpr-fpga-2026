@@ -21,12 +21,12 @@
 // de & enable & rst_n are all active. text_addr never depends on glyph_pixels.
 
 module scroll_text #(
-    parameter integer TEXT_LENGTH      = 32,
-    parameter integer GAP_CELLS        = 4,
-    parameter integer X_LEFT           = 16,
-    parameter integer Y_TOP            = 448,
-    parameter integer WINDOW_WIDTH     = 608,
-    parameter integer FRAMES_PER_PIXEL = 3
+    parameter integer TEXT_LENGTH      = 32,    //32个字符
+    parameter integer GAP_CELLS        = 4,     // 循环间隙 4 格
+    parameter integer X_LEFT           = 16,    // 窗口左边界
+    parameter integer Y_TOP            = 448,   // 窗口上边界
+    parameter integer WINDOW_WIDTH     = 608,   // 窗口宽
+    parameter integer FRAMES_PER_PIXEL = 3      // 每 3 帧移 1 像素
 )(
     input  wire        clk,
     input  wire        rst_n,          // async, active low
