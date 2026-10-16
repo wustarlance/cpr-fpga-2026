@@ -44,6 +44,16 @@ if {[catch {
             error "ADC mailbox must bind 12 source and 12 capture registers"
         }
     }
+    read_sdc constraints/page_status.sdc
+    set cpr_page_src [get_regs {*u_page_status/u_transfer/src_hold[*]}]
+    set cpr_page_dst [get_regs {*u_page_status/u_transfer/dst_data[*]}]
+    set cpr_page_hold_names {}; set cpr_page_capture_names {}
+    foreach cpr_reg $cpr_page_src { lappend cpr_page_hold_names [format {{%s}} $cpr_reg] }
+    foreach cpr_reg $cpr_page_dst { lappend cpr_page_capture_names [format {{%s}} $cpr_reg] }
+    puts "CPR_PAGE_REGS hold=[join $cpr_page_hold_names { }] capture=[join $cpr_page_capture_names { }]"
+    if {[llength $cpr_page_src] != 12 || [llength $cpr_page_dst] != 12} {
+        error "Page status mailbox must bind 12 source and 12 capture registers"
+    }
     report_area -file $cpr_reports/rtl_area.rpt
     commit_param -step gate
     optimize_gate -packarea $cpr_reports/gate.area

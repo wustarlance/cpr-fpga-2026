@@ -1,12 +1,17 @@
 
 module sd_card_top
 #(
+    parameter integer TOKEN_TIMEOUT_CYCLES = 10_000_000,
+    parameter integer SPI_TIMEOUT_CYCLES = 1_000_000,
 	parameter  SPI_LOW_SPEED_DIV = 248,         // SD card low speed mode frequency division parameter,spi clk speed = clk speed /((SPI_LOW_SPEED_DIV + 2) * 2 )
 	parameter  SPI_HIGH_SPEED_DIV = 0           // SD card high speed mode frequency division parameter,spi clk speed = clk speed /((SPI_HIGH_SPEED_DIV + 2) * 2 )
 )
 (
 	input            clk,
 	input            rst,
+    input            read_cancel,
+    output           sd_sec_ready,
+    output           sd_sec_read_error,
 	output           SD_nCS,                    //SD card chip select (SPI mode)
 	output           SD_DCLK,                   //SD card clock
 	output           SD_MOSI,                   //SD card controller data output
@@ -23,6 +28,7 @@ module sd_card_top
 	output           sd_sec_write_data_req,     //SD card sector write data next clock is valid
 	output           sd_sec_write_end           //SD card sector write end
 );
+wire cmd_ready, block_read_error, spi_abort;
 wire[15:0]           spi_clk_div;               //SPI module clock division parameter
 wire                 cmd_req;                   //SD card command request
 wire                 cmd_req_ack;               //SD card command request response
@@ -51,6 +57,9 @@ sd_card_sec_read_write
 	.SPI_HIGH_SPEED_DIV(SPI_HIGH_SPEED_DIV)
 )
 sd_card_sec_read_write_m0(
+    .read_cancel(read_cancel), .cmd_ready(cmd_ready),
+    .block_read_error(block_read_error), .sd_sec_ready(sd_sec_ready),
+    .sd_sec_read_error(sd_sec_read_error),
 	.clk                            (clk                    ),
 	.rst                            (rst                    ),
 	.sd_init_done                   (sd_init_done           ),
@@ -81,7 +90,10 @@ sd_card_sec_read_write_m0(
 	.block_write_req_ack            (block_write_req_ack    )
 );
 
-sd_card_cmd sd_card_cmd_m0(
+sd_card_cmd #(.TOKEN_TIMEOUT_CYCLES(TOKEN_TIMEOUT_CYCLES),
+              .SPI_TIMEOUT_CYCLES(SPI_TIMEOUT_CYCLES)) sd_card_cmd_m0(
+    .read_cancel(read_cancel), .ready(cmd_ready),
+    .block_read_error(block_read_error), .spi_abort(spi_abort),
 	.sys_clk                        (clk                    ),
 	.rst                            (rst                    ),
 	.spi_clk_div                    (spi_clk_div            ),
@@ -110,7 +122,7 @@ sd_card_cmd sd_card_cmd_m0(
 
 spi_master spi_master_m0(
 	.sys_clk                        (clk                    ),
-	.rst                            (rst                    ),
+	.rst                            (rst || spi_abort       ),
 	.nCS                            (SD_nCS                 ),
 	.DCLK                           (SD_DCLK                ),
 	.MOSI                           (SD_MOSI                ),

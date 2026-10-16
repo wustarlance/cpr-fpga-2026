@@ -7,6 +7,11 @@ module sd_card_sec_read_write
 (
 	input            clk,
 	input            rst,
+    input            read_cancel,
+    input            cmd_ready,
+    input            block_read_error,
+    output           sd_sec_ready,
+    output           sd_sec_read_error,
 	output reg       sd_init_done,
 	input            sd_sec_read,
 	input[31:0]      sd_sec_read_addr,
@@ -52,12 +57,15 @@ localparam S_WRITE_END          = 15;
 localparam S_READ_END           = 16;
 localparam S_WAIT_READ_WRITE    = 17;
 localparam S_CMD16              = 18;
+localparam S_READ_ERROR = 19;
 
 reg[4:0]                       state;
 reg[31:0]                      sec_addr;
 assign sd_sec_read_data_valid = (state == S_READ) && block_read_valid;
 assign sd_sec_read_data = block_read_data;
-assign sd_sec_read_end = (state == S_READ_END);
+assign sd_sec_read_end = (state == S_READ_END) || (state == S_READ_ERROR);
+assign sd_sec_read_error = state == S_READ_ERROR;
+assign sd_sec_ready = (state == S_WAIT_READ_WRITE) && cmd_ready && sd_init_done;
 assign sd_sec_write_data_req = (state == S_WRITE) && block_write_data_rd;
 assign block_write_data = sd_sec_write_data;
 assign sd_sec_write_end = (state == S_WRITE_END);
@@ -77,7 +85,12 @@ begin
 		sec_addr <= 32'd0;
 		sd_init_done <= 1'b0;
 	end
-	else
+    else if (read_cancel && sd_init_done) begin
+        state <= S_READ_ERROR;
+        cmd_req <= 0;
+        block_read_req <= 0;
+        block_write_req <= 0;
+    end else
 		case(state)
 			S_IDLE:
 			begin
@@ -174,18 +187,18 @@ begin
 			end			
 			S_WAIT_READ_WRITE:
 			begin
-				if(sd_sec_write ==  1'b1)
+				if(cmd_ready && sd_sec_write ==  1'b1)
 				begin
 					state <= S_CMD24;
 					sec_addr <= sd_sec_write_addr;
 				end
-				else if(sd_sec_read == 1'b1)
+				else if(cmd_ready && sd_sec_read == 1'b1)
 				begin
 					state <= S_CMD17;
 					sec_addr <= sd_sec_read_addr;
 				end
 
-				spi_clk_div <= 16'd0;
+				spi_clk_div <= SPI_HIGH_SPEED_DIV[15:0];
 			end
 			S_CMD24:
 			begin
@@ -213,33 +226,28 @@ begin
 				else
 					block_write_req <= 1'b1;
 			end
-			S_CMD17:
-			begin
-				if(cmd_req_ack & ~cmd_req_error)
-				begin
-					state <= S_READ;
-					cmd_req <= 1'b0;
-				end
-				else
-				begin
-					cmd_req <= 1'b1;
-					cmd_data_len <= 16'd0;
-					cmd_r1 <= 8'h00;
-					cmd <= {8'd17,sec_addr,8'hff};
-				end
-			end
-			S_READ:
-			begin
-				if(block_read_req_ack)
-				begin
-					state <= S_READ_END;
-					block_read_req <= 1'b0;
-				end
-				else
-				begin
-					block_read_req <= 1'b1;
-				end
-			end
+            S_CMD17: begin
+                if (cmd_req_ack) begin
+                    state <= cmd_req_error ? S_READ_ERROR : S_READ;
+                    cmd_req <= 0;
+                end else begin
+                    cmd_req <= 1;
+                    cmd_data_len <= 0;
+                    cmd_r1 <= 8'h00;
+                    cmd <= {8'd17,sec_addr,8'hff};
+                end
+            end
+            S_READ: begin
+                if (block_read_req_ack) begin
+                    state <= block_read_error ? S_READ_ERROR : S_READ_END;
+                    block_read_req <= 0;
+                end else block_read_req <= 1;
+            end
+            S_READ_ERROR: begin
+                cmd_req <= 0;
+                block_read_req <= 0;
+                state <= S_WAIT_READ_WRITE;
+            end
 			S_WRITE_END:
 			begin
 				state <= S_WAIT_READ_WRITE;

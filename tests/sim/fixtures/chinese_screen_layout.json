@@ -1,0 +1,950 @@
+[
+  {
+    "state": 0,
+    "adc": 0,
+    "entries": [
+      {
+        "column": 1,
+        "row": 0,
+        "text": "心肺复苏",
+        "color": "ffffff"
+      },
+      {
+        "column": 6,
+        "row": 0,
+        "text": "按压训练",
+        "color": "ffffff"
+      },
+      {
+        "column": 11,
+        "row": 0,
+        "text": "训2/4",
+        "color": "ffffff"
+      },
+      {
+        "column": 16,
+        "row": 0,
+        "text": "已显示",
+        "color": "ffffff"
+      },
+      {
+        "column": 21,
+        "row": 0,
+        "text": "亮度3",
+        "color": "ffffff"
+      },
+      {
+        "column": 26,
+        "row": 0,
+        "text": "对比2",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 4,
+        "text": "按压次数",
+        "color": "ffffff"
+      },
+      {
+        "column": 33,
+        "row": 4,
+        "text": "0087",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 6,
+        "text": "频率",
+        "color": "20d060"
+      },
+      {
+        "column": 29,
+        "row": 6,
+        "text": "110",
+        "color": "20d060"
+      },
+      {
+        "column": 32,
+        "row": 6,
+        "text": "次/分",
+        "color": "20d060"
+      },
+      {
+        "column": 36,
+        "row": 6,
+        "text": "合适",
+        "color": "20d060"
+      },
+      {
+        "column": 25,
+        "row": 8,
+        "text": "触点档位",
+        "color": "20d060"
+      },
+      {
+        "column": 31,
+        "row": 8,
+        "text": "2",
+        "color": "20d060"
+      },
+      {
+        "column": 33,
+        "row": 8,
+        "text": "演示输入",
+        "color": "20d060"
+      },
+      {
+        "column": 25,
+        "row": 10,
+        "text": "按压间隔",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 10,
+        "text": "0545",
+        "color": "ffffff"
+      },
+      {
+        "column": 35,
+        "row": 10,
+        "text": "毫秒",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 12,
+        "text": "中断时间",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 12,
+        "text": "0000",
+        "color": "ffffff"
+      },
+      {
+        "column": 35,
+        "row": 12,
+        "text": "毫秒",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 14,
+        "text": "轮换剩余",
+        "color": "ffffff"
+      },
+      {
+        "column": 29,
+        "row": 14,
+        "text": "120000",
+        "color": "ffffff"
+      },
+      {
+        "column": 36,
+        "row": 14,
+        "text": "毫秒",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 18,
+        "text": "保持连续",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 20,
+        "text": "轮换计时中",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 22,
+        "text": "按键演示",
+        "color": "70c090"
+      },
+      {
+        "column": 25,
+        "row": 24,
+        "text": "下一拍",
+        "color": "91a4b0"
+      },
+      {
+        "column": 1,
+        "row": 28,
+        "text": "按下并松开完成一次  触点输入仅作演示",
+        "color": "ffffff"
+      }
+    ]
+  },
+  {
+    "state": 0,
+    "adc": 1,
+    "entries": [
+      {
+        "column": 1,
+        "row": 0,
+        "text": "心肺复苏",
+        "color": "ffffff"
+      },
+      {
+        "column": 6,
+        "row": 0,
+        "text": "按压训练",
+        "color": "ffffff"
+      },
+      {
+        "column": 11,
+        "row": 0,
+        "text": "训2/4",
+        "color": "ffffff"
+      },
+      {
+        "column": 16,
+        "row": 0,
+        "text": "已显示",
+        "color": "ffffff"
+      },
+      {
+        "column": 21,
+        "row": 0,
+        "text": "亮度3",
+        "color": "ffffff"
+      },
+      {
+        "column": 26,
+        "row": 0,
+        "text": "对比2",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 4,
+        "text": "按压次数",
+        "color": "ffffff"
+      },
+      {
+        "column": 33,
+        "row": 4,
+        "text": "0087",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 6,
+        "text": "频率",
+        "color": "20d060"
+      },
+      {
+        "column": 29,
+        "row": 6,
+        "text": "110",
+        "color": "20d060"
+      },
+      {
+        "column": 32,
+        "row": 6,
+        "text": "次/分",
+        "color": "20d060"
+      },
+      {
+        "column": 36,
+        "row": 6,
+        "text": "合适",
+        "color": "20d060"
+      },
+      {
+        "column": 25,
+        "row": 8,
+        "text": "压力档位",
+        "color": "20d060"
+      },
+      {
+        "column": 31,
+        "row": 8,
+        "text": "2",
+        "color": "20d060"
+      },
+      {
+        "column": 33,
+        "row": 8,
+        "text": "未标定",
+        "color": "20d060"
+      },
+      {
+        "column": 25,
+        "row": 10,
+        "text": "按压间隔",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 10,
+        "text": "0545",
+        "color": "ffffff"
+      },
+      {
+        "column": 35,
+        "row": 10,
+        "text": "毫秒",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 12,
+        "text": "中断时间",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 12,
+        "text": "0000",
+        "color": "ffffff"
+      },
+      {
+        "column": 35,
+        "row": 12,
+        "text": "毫秒",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 14,
+        "text": "轮换剩余",
+        "color": "ffffff"
+      },
+      {
+        "column": 29,
+        "row": 14,
+        "text": "120000",
+        "color": "ffffff"
+      },
+      {
+        "column": 36,
+        "row": 14,
+        "text": "毫秒",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 18,
+        "text": "保持连续",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 20,
+        "text": "轮换计时中",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 22,
+        "text": "采集正常",
+        "color": "70c090"
+      },
+      {
+        "column": 25,
+        "row": 24,
+        "text": "下一拍",
+        "color": "91a4b0"
+      },
+      {
+        "column": 1,
+        "row": 28,
+        "text": "跟随节拍练习  压力未标定  请充分释放",
+        "color": "ffffff"
+      }
+    ]
+  },
+  {
+    "state": 1,
+    "adc": 0,
+    "entries": [
+      {
+        "column": 1,
+        "row": 0,
+        "text": "心肺复苏",
+        "color": "ffffff"
+      },
+      {
+        "column": 6,
+        "row": 0,
+        "text": "按压训练",
+        "color": "ffffff"
+      },
+      {
+        "column": 11,
+        "row": 0,
+        "text": "训2/4",
+        "color": "ffffff"
+      },
+      {
+        "column": 16,
+        "row": 0,
+        "text": "读卡错",
+        "color": "ffd080"
+      },
+      {
+        "column": 21,
+        "row": 0,
+        "text": "亮度0",
+        "color": "ffffff"
+      },
+      {
+        "column": 26,
+        "row": 0,
+        "text": "对比4",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 4,
+        "text": "按压次数",
+        "color": "ffffff"
+      },
+      {
+        "column": 33,
+        "row": 4,
+        "text": "9999",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 6,
+        "text": "频率",
+        "color": "ffb020"
+      },
+      {
+        "column": 29,
+        "row": 6,
+        "text": "---",
+        "color": "ffb020"
+      },
+      {
+        "column": 32,
+        "row": 6,
+        "text": "次/分",
+        "color": "ffb020"
+      },
+      {
+        "column": 36,
+        "row": 6,
+        "text": "待测",
+        "color": "ffb020"
+      },
+      {
+        "column": 25,
+        "row": 8,
+        "text": "触点档位",
+        "color": "ff4040"
+      },
+      {
+        "column": 31,
+        "row": 8,
+        "text": "3",
+        "color": "ff4040"
+      },
+      {
+        "column": 33,
+        "row": 8,
+        "text": "演示输入",
+        "color": "ff4040"
+      },
+      {
+        "column": 25,
+        "row": 10,
+        "text": "按压间隔",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 10,
+        "text": "9999",
+        "color": "ffffff"
+      },
+      {
+        "column": 35,
+        "row": 10,
+        "text": "毫秒",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 12,
+        "text": "中断时间",
+        "color": "ff4040"
+      },
+      {
+        "column": 30,
+        "row": 12,
+        "text": "9999",
+        "color": "ff4040"
+      },
+      {
+        "column": 35,
+        "row": 12,
+        "text": "毫秒",
+        "color": "ff4040"
+      },
+      {
+        "column": 25,
+        "row": 14,
+        "text": "轮换剩余",
+        "color": "ffb020"
+      },
+      {
+        "column": 29,
+        "row": 14,
+        "text": "999999",
+        "color": "ffb020"
+      },
+      {
+        "column": 36,
+        "row": 14,
+        "text": "毫秒",
+        "color": "ffb020"
+      },
+      {
+        "column": 25,
+        "row": 18,
+        "text": "请继续按压",
+        "color": "ff4040"
+      },
+      {
+        "column": 25,
+        "row": 20,
+        "text": "请轮换按压者",
+        "color": "ffb020"
+      },
+      {
+        "column": 25,
+        "row": 22,
+        "text": "传感器故障",
+        "color": "ff4040"
+      },
+      {
+        "column": 25,
+        "row": 24,
+        "text": "跟随节拍",
+        "color": "ffffff"
+      },
+      {
+        "column": 1,
+        "row": 28,
+        "text": "按下并松开完成一次  触点输入仅作演示",
+        "color": "ffffff"
+      }
+    ]
+  },
+  {
+    "state": 1,
+    "adc": 1,
+    "entries": [
+      {
+        "column": 1,
+        "row": 0,
+        "text": "心肺复苏",
+        "color": "ffffff"
+      },
+      {
+        "column": 6,
+        "row": 0,
+        "text": "按压训练",
+        "color": "ffffff"
+      },
+      {
+        "column": 11,
+        "row": 0,
+        "text": "训2/4",
+        "color": "ffffff"
+      },
+      {
+        "column": 16,
+        "row": 0,
+        "text": "读卡错",
+        "color": "ffd080"
+      },
+      {
+        "column": 21,
+        "row": 0,
+        "text": "亮度0",
+        "color": "ffffff"
+      },
+      {
+        "column": 26,
+        "row": 0,
+        "text": "对比4",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 4,
+        "text": "按压次数",
+        "color": "ffffff"
+      },
+      {
+        "column": 33,
+        "row": 4,
+        "text": "9999",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 6,
+        "text": "频率",
+        "color": "ffb020"
+      },
+      {
+        "column": 29,
+        "row": 6,
+        "text": "---",
+        "color": "ffb020"
+      },
+      {
+        "column": 32,
+        "row": 6,
+        "text": "次/分",
+        "color": "ffb020"
+      },
+      {
+        "column": 36,
+        "row": 6,
+        "text": "待测",
+        "color": "ffb020"
+      },
+      {
+        "column": 25,
+        "row": 8,
+        "text": "压力档位",
+        "color": "ff4040"
+      },
+      {
+        "column": 31,
+        "row": 8,
+        "text": "3",
+        "color": "ff4040"
+      },
+      {
+        "column": 33,
+        "row": 8,
+        "text": "未标定",
+        "color": "ff4040"
+      },
+      {
+        "column": 25,
+        "row": 10,
+        "text": "按压间隔",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 10,
+        "text": "9999",
+        "color": "ffffff"
+      },
+      {
+        "column": 35,
+        "row": 10,
+        "text": "毫秒",
+        "color": "ffffff"
+      },
+      {
+        "column": 25,
+        "row": 12,
+        "text": "中断时间",
+        "color": "ff4040"
+      },
+      {
+        "column": 30,
+        "row": 12,
+        "text": "9999",
+        "color": "ff4040"
+      },
+      {
+        "column": 35,
+        "row": 12,
+        "text": "毫秒",
+        "color": "ff4040"
+      },
+      {
+        "column": 25,
+        "row": 14,
+        "text": "轮换剩余",
+        "color": "ffb020"
+      },
+      {
+        "column": 29,
+        "row": 14,
+        "text": "999999",
+        "color": "ffb020"
+      },
+      {
+        "column": 36,
+        "row": 14,
+        "text": "毫秒",
+        "color": "ffb020"
+      },
+      {
+        "column": 25,
+        "row": 18,
+        "text": "请继续按压",
+        "color": "ff4040"
+      },
+      {
+        "column": 25,
+        "row": 20,
+        "text": "请轮换按压者",
+        "color": "ffb020"
+      },
+      {
+        "column": 25,
+        "row": 22,
+        "text": "传感器故障",
+        "color": "ff4040"
+      },
+      {
+        "column": 25,
+        "row": 24,
+        "text": "跟随节拍",
+        "color": "ffffff"
+      },
+      {
+        "column": 1,
+        "row": 28,
+        "text": "跟随节拍练习  压力未标定  请充分释放",
+        "color": "ffffff"
+      }
+    ]
+  },
+  {
+    "state": 2,
+    "adc": 0,
+    "entries": [
+      {
+        "column": 1,
+        "row": 0,
+        "text": "心肺复苏",
+        "color": "ffffff"
+      },
+      {
+        "column": 6,
+        "row": 0,
+        "text": "教学浏览",
+        "color": "ffffff"
+      },
+      {
+        "column": 11,
+        "row": 0,
+        "text": "训2/4",
+        "color": "ffffff"
+      },
+      {
+        "column": 16,
+        "row": 0,
+        "text": "缺教程",
+        "color": "ffd080"
+      },
+      {
+        "column": 21,
+        "row": 0,
+        "text": "亮度3",
+        "color": "ffffff"
+      },
+      {
+        "column": 26,
+        "row": 0,
+        "text": "对比2",
+        "color": "ffffff"
+      },
+      {
+        "column": 1,
+        "row": 28,
+        "text": "先学流程  再练按压  按前后键翻页",
+        "color": "ffffff"
+      },
+      {
+        "column": 37,
+        "row": 28,
+        "text": "先学",
+        "color": "ffffff"
+      }
+    ]
+  },
+  {
+    "state": 2,
+    "adc": 1,
+    "entries": [
+      {
+        "column": 1,
+        "row": 0,
+        "text": "心肺复苏",
+        "color": "ffffff"
+      },
+      {
+        "column": 6,
+        "row": 0,
+        "text": "教学浏览",
+        "color": "ffffff"
+      },
+      {
+        "column": 11,
+        "row": 0,
+        "text": "训2/4",
+        "color": "ffffff"
+      },
+      {
+        "column": 16,
+        "row": 0,
+        "text": "缺教程",
+        "color": "ffd080"
+      },
+      {
+        "column": 21,
+        "row": 0,
+        "text": "亮度3",
+        "color": "ffffff"
+      },
+      {
+        "column": 26,
+        "row": 0,
+        "text": "对比2",
+        "color": "ffffff"
+      },
+      {
+        "column": 1,
+        "row": 28,
+        "text": "先学流程  再练按压  按前后键翻页",
+        "color": "ffffff"
+      },
+      {
+        "column": 37,
+        "row": 28,
+        "text": "先学",
+        "color": "ffffff"
+      }
+    ]
+  },
+  {
+    "state": 3,
+    "adc": 0,
+    "entries": [
+      {
+        "column": 1,
+        "row": 0,
+        "text": "心肺复苏",
+        "color": "ffffff"
+      },
+      {
+        "column": 6,
+        "row": 0,
+        "text": "自动展播",
+        "color": "ffffff"
+      },
+      {
+        "column": 11,
+        "row": 0,
+        "text": "训2/4",
+        "color": "ffffff"
+      },
+      {
+        "column": 16,
+        "row": 0,
+        "text": "加载中",
+        "color": "ffffff"
+      },
+      {
+        "column": 21,
+        "row": 0,
+        "text": "亮度3",
+        "color": "ffffff"
+      },
+      {
+        "column": 26,
+        "row": 0,
+        "text": "对比2",
+        "color": "ffffff"
+      },
+      {
+        "column": 32,
+        "row": 0,
+        "text": "已暂停",
+        "color": "ffffff"
+      },
+      {
+        "column": 1,
+        "row": 28,
+        "text": "急救知识循环展示  按下一张暂停或继续",
+        "color": "ffffff"
+      },
+      {
+        "column": 37,
+        "row": 28,
+        "text": "急救",
+        "color": "ffffff"
+      }
+    ]
+  },
+  {
+    "state": 3,
+    "adc": 1,
+    "entries": [
+      {
+        "column": 1,
+        "row": 0,
+        "text": "心肺复苏",
+        "color": "ffffff"
+      },
+      {
+        "column": 6,
+        "row": 0,
+        "text": "自动展播",
+        "color": "ffffff"
+      },
+      {
+        "column": 11,
+        "row": 0,
+        "text": "训2/4",
+        "color": "ffffff"
+      },
+      {
+        "column": 16,
+        "row": 0,
+        "text": "加载中",
+        "color": "ffffff"
+      },
+      {
+        "column": 21,
+        "row": 0,
+        "text": "亮度3",
+        "color": "ffffff"
+      },
+      {
+        "column": 26,
+        "row": 0,
+        "text": "对比2",
+        "color": "ffffff"
+      },
+      {
+        "column": 32,
+        "row": 0,
+        "text": "已暂停",
+        "color": "ffffff"
+      },
+      {
+        "column": 1,
+        "row": 28,
+        "text": "急救知识循环展示  按下一张暂停或继续",
+        "color": "ffffff"
+      },
+      {
+        "column": 37,
+        "row": 28,
+        "text": "急救",
+        "color": "ffffff"
+      }
+    ]
+  }
+]

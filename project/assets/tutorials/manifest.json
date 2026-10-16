@@ -1,0 +1,85 @@
+{
+  "source_content_sha256": "54bd8511d0043b6e2b6f829d3c129569e174a078ba4557103921ac0a4610477b",
+  "font_sha256": "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b",
+  "training_rectangle": [
+    16,
+    32,
+    352,
+    400
+  ],
+  "raster_format": "640x480 bottom-up RGB24 BI_RGB, BMP data offset 54",
+  "image_is_regular_file": true,
+  "sd_or_flash_written": false,
+  "cards": [
+    {
+      "index_zero_based": 0,
+      "title": "判断与呼救",
+      "file": "bmp_training_safe/01_assess_call.bmp",
+      "start_sector": 0,
+      "bytes": 921654,
+      "padding_bytes": 458,
+      "sha256": "e9a9aa49a8d6edc184d1386fa735f3678e69cdfe8d8190eacb0d5524b6fa8203"
+    },
+    {
+      "index_zero_based": 1,
+      "title": "胸外按压",
+      "file": "bmp_training_safe/02_compressions.bmp",
+      "start_sector": 1801,
+      "bytes": 921654,
+      "padding_bytes": 458,
+      "sha256": "6b93918cdcefaa0c9a5ee71865375577bf52639be30fab3bbdd95251dc62a274"
+    },
+    {
+      "index_zero_based": 2,
+      "title": "气道与人工呼吸",
+      "file": "bmp_training_safe/03_airway_breaths.bmp",
+      "start_sector": 3602,
+      "bytes": 921654,
+      "padding_bytes": 458,
+      "sha256": "4ef484f09549ece52ca7b62d58cf8bdbe46cbad26fce028431844fbe766db86e"
+    },
+    {
+      "index_zero_based": 3,
+      "title": "使用 AED",
+      "file": "bmp_training_safe/04_aed.bmp",
+      "start_sector": 5403,
+      "bytes": 921654,
+      "padding_bytes": 458,
+      "sha256": "1d4ffc4018a2d611ab2deddd19ab8311ec176468676ea11f443f1e75419e0a0e"
+    }
+  ],
+  "image_bytes": 3688448,
+  "image_sha256": "7218492977a432271e92708cd003884e5d4a91760b4e7b64e9a2e6d4edf7aa16",
+  "sources": {
+    "aha_bls_2025": {
+      "title": "AHA 2025 Adult Basic Life Support",
+      "url": "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/adult-basic-life-support",
+      "checked": "2026-10-16",
+      "sections": [
+        "6.1 Recognition",
+        "6.3 Airway Management",
+        "7.1 Hand Position",
+        "7.2 Pauses",
+        "7.3 Depth and Rate",
+        "7.4 Ventilation"
+      ]
+    },
+    "aha_what_cpr": {
+      "title": "AHA What is CPR: trained and hands-only approaches",
+      "url": "https://cpr.heart.org/en/resources/what-is-cpr",
+      "checked": "2026-10-16"
+    },
+    "rcuk_bls_2025": {
+      "title": "Resuscitation Council UK 2025 Adult BLS: AED use",
+      "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/adult-basic-life-support-guidelines",
+      "checked": "2026-10-16",
+      "localization": "Only AED procedure is used; UK emergency number is not carried into these Chinese cards."
+    },
+    "nhc_120": {
+      "title": "国家卫生健康委：院前急救 120 特服号码",
+      "url": "https://www.nhc.gov.cn/wjw/tia/202101/5f75d1537d45467dbbecdcdd33411283.shtml",
+      "checked": "2026-10-16"
+    }
+  },
+  "artwork": "Original vector schematics; no AHA/RCUK artwork copied."
+}

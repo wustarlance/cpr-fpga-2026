@@ -30,6 +30,8 @@ module tb_bmp_scan;
 
     bmp_read dut (
         .clk(clk), .rst(rst), .ready(ready),
+        .cancel(1'b0), .sd_sec_ready(1'b1), .sd_sec_read_error(1'b0),
+        .abort_sd(), .operation_error(), .error_code(),
         .scan_start(scan_start), .scan_start_sector(scan_start_sector),
         .scan_max_sector(scan_max_sector), .scan_target_count(scan_target_count),
         .scan_done(scan_done), .scan_found_valid(scan_found_valid),

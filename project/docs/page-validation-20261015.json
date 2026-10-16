@@ -1,0 +1,132 @@
+{
+  "date_asia_shanghai": "2026-10-15",
+  "upstream_baseline": "a9e1aadfded635304f6f06eebee021a11a8913a0",
+  "local_baseline_archive_sha256": "a08f8b0db0a946cbf547ede11806a2b840d4c7c1e284d1a3d92e1f30a953bc45",
+  "rtl_tests_passed": 30,
+  "runner_controls_passed": 5,
+  "page_mutations_rejected": [
+    "wrong_default",
+    "wrong_restore",
+    "dropped_pending",
+    "unheld_cdc_word"
+  ],
+  "current_source_hashes_verified": true,
+  "project_inputs": 58,
+  "td_tops": [
+    {
+      "top": "top",
+      "tool_version": "6.2.168116",
+      "physical_build_completed": true,
+      "strict_status": "failed",
+      "setup_wns_ns": 0.208,
+      "hold_wns_ns": 0.003,
+      "resources": {
+        "lut": {
+          "used": 6893,
+          "available": 19600,
+          "percent": 35.17
+        },
+        "reg": {
+          "used": 4523,
+          "available": 19600,
+          "percent": 23.08
+        },
+        "bram": {
+          "used": 20,
+          "available": 64,
+          "percent": 31.25
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        },
+        "adc": {
+          "used": 0,
+          "available": 1,
+          "percent": 0.0,
+          "report_row_omitted": true
+        }
+      },
+      "page_mailbox_collections": [
+        {
+          "hold_bits": 12,
+          "capture_bits": 12
+        }
+      ],
+      "critical_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "reviewed_sdram_relocation_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file."
+      ],
+      "bitstream_sha256": "760edd3a20516657d11a25212ceab68fb95aa5a042e291210f3c93431317dda6"
+    },
+    {
+      "top": "top_adc",
+      "tool_version": "6.2.168116",
+      "physical_build_completed": true,
+      "strict_status": "failed",
+      "setup_wns_ns": 0.123,
+      "hold_wns_ns": 0.003,
+      "resources": {
+        "lut": {
+          "used": 7145,
+          "available": 19600,
+          "percent": 36.45
+        },
+        "reg": {
+          "used": 4669,
+          "available": 19600,
+          "percent": 23.82
+        },
+        "bram": {
+          "used": 20,
+          "available": 64,
+          "percent": 31.25
+        },
+        "adc": {
+          "used": 1,
+          "available": 1,
+          "percent": 100.0
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        }
+      },
+      "page_mailbox_collections": [
+        {
+          "hold_bits": 12,
+          "capture_bits": 12
+        }
+      ],
+      "critical_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "reviewed_sdram_relocation_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file."
+      ],
+      "bitstream_sha256": "78a4efe4335c38e99933eb5d4820b3c600a4998acc1dcaf6a3eebe23f9208e81"
+    }
+  ],
+  "td_strict_status": "failed",
+  "td_note": "Local TD 6.2.168116 retains pre-existing PLL/SDRAM critical warnings. New revision requires team SP1 retest and physical board acceptance.",
+  "github_published": false,
+  "board_programmed": false,
+  "flash_erased": false,
+  "tf_card_written": false
+}

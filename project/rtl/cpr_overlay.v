@@ -2,7 +2,9 @@
 // All status inputs must use this clock. No RGB pixel register is added.
 // Official 640x480 VS is negative: capture status on its falling edge.
 // Display saturation never changes the underlying training counters.
-module cpr_overlay #(parameter UNCALIBRATED_PRESSURE = 0)(
+module cpr_overlay #(parameter UNCALIBRATED_PRESSURE = 0,
+                     parameter PAGE_STATUS_ENABLE = 0,
+                     parameter CHINESE_UI = 0)(
     input wire clk, rst, vs, de,
     input wire [23:0] rgb,
     input wire [1:0] mode,
@@ -17,6 +19,7 @@ module cpr_overlay #(parameter UNCALIBRATED_PRESSURE = 0)(
     input wire [1:0] brightness_level,
     input wire [2:0] contrast_level,
     input wire auto_running,
+    input wire [11:0] page_status,
     output reg [23:0] out_rgb
 );
 reg [9:0] x, y;
@@ -26,6 +29,8 @@ reg frame_pause, frame_rotate, frame_beat, frame_fault, frame_bpm_valid;
 reg beat_seen;
 reg [2:0] frame_contrast;
 reg frame_auto_running;
+reg [11:0] frame_page;
+wire [1:0] header_page = frame_page[3] || frame_page[2] ? frame_page[5:4] : frame_page[10:9];
 wire [5:0] subtitle_addr;
 wire [7:0] subtitle_code;
 wire [34:0] subtitle_glyph;
@@ -41,6 +46,24 @@ scroll_text u_subtitles(
 reg [15:0] count_bcd, interval_bcd, pause_bcd;
 reg [23:0] rotate_bcd;
 reg [11:0] bpm_bcd;
+wire zh_text_pixel;
+wire [23:0] zh_text_color;
+generate if (CHINESE_UI) begin: g_chinese
+    cpr_text_zh #(.UNCALIBRATED_PRESSURE(UNCALIBRATED_PRESSURE),
+                  .PAGE_STATUS_ENABLE(PAGE_STATUS_ENABLE)) u_text(
+        .clk(clk), .rst(rst), .frame_start(last_vs && !vs), .de(de), .x(x), .y(y),
+        .mode(frame_mode), .rate(frame_rate), .depth(frame_depth),
+        .brightness(frame_brightness), .contrast(frame_contrast),
+        .auto_running(frame_auto_running), .pause_warning(frame_pause),
+        .rotate_due(frame_rotate), .fault(frame_fault), .beat(frame_beat),
+        .bpm_valid(frame_bpm_valid), .page_status(frame_page),
+        .count_bcd(count_bcd), .interval_bcd(interval_bcd), .pause_bcd(pause_bcd),
+        .rotate_bcd(rotate_bcd), .bpm_bcd(bpm_bcd),
+        .text_pixel(zh_text_pixel), .text_color(zh_text_color));
+end else begin: g_ascii
+    assign zh_text_pixel=1'b0;
+    assign zh_text_color=24'd0;
+end endgenerate
 
 // Constant-bound shift/add-3 conversion; no runtime divider is inferred.
 function [15:0] to_bcd4;
@@ -92,6 +115,7 @@ endfunction
 always @(posedge clk or posedge rst) begin
     if (rst) begin
         x <= 0; y <= 0; last_de <= 0; last_vs <= 1;
+        frame_page <= 0;
         frame_mode <= 0; frame_rate <= 0; frame_depth <= 0;
         frame_brightness <= 3; frame_contrast <= 2; frame_auto_running <= 0;
         frame_pause <= 0; frame_rotate <= 0;
@@ -104,6 +128,7 @@ always @(posedge clk or posedge rst) begin
         if (beat) beat_seen <= 1;       // ← 帧内"见过节拍"标记
         if (last_vs && !vs) begin       // VS 下降沿 = 新帧开始
             x <= 0; y <= 0;
+            frame_page <= PAGE_STATUS_ENABLE ? page_status : 12'd0;
             frame_mode <= mode; frame_rate <= rate; frame_depth <= depth_grade;
             frame_brightness <= brightness_level;
             frame_contrast <= contrast_level;
@@ -210,6 +235,14 @@ always @(*) begin
             6: character = frame_mode == 0 ? "A" : frame_mode == 1 ? "T" : "A";
             7: character = frame_mode == 0 ? "C" : frame_mode == 1 ? "O" : "I";
             8: character = frame_mode == 0 ? "H" : frame_mode == 1 ? " " : "N";
+            10: character = PAGE_STATUS_ENABLE ? (frame_page[0] ? "T" : "P") : " ";
+            11: character = !PAGE_STATUS_ENABLE ? " " :
+                (frame_page[11] || frame_page[3] || frame_page[2]) ?
+                digit({2'b0,header_page}+4'd1) : "-";
+            12: character = PAGE_STATUS_ENABLE ? "-" : " ";
+            13: character = PAGE_STATUS_ENABLE ? digit({1'b0,frame_page[8:6]}) : " ";
+            14: character = !PAGE_STATUS_ENABLE ? " " : frame_page[1] ? "E" :
+                frame_page[2] ? "M" : frame_page[3] ? "L" : " ";
             16: character = "B"; 17: character = "R"; 18: character = "I";
             19: character = "G"; 20: character = "H"; 21: character = "T";
             22: character = ":"; 23: character = digit({2'b0,frame_brightness});
@@ -352,9 +385,10 @@ always @(*) begin
         if (y >= 448 && y < 464 && x >= 16 && x < 624 &&
             (frame_mode != 2 || x < TRAIN_SUBTITLE_RIGHT)) begin
             out_rgb = 24'h182430;
-            if (subtitle_pixel) out_rgb = 24'hffffff;
+            if (!CHINESE_UI && subtitle_pixel) out_rgb = 24'hffffff;
         end
-        if (text_pixel) out_rgb = text_color;
+        if (!CHINESE_UI && text_pixel) out_rgb = text_color;
+        if (CHINESE_UI && zh_text_pixel) out_rgb = zh_text_color;
     end
 end
 endmodule

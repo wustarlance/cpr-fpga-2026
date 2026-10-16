@@ -57,6 +57,27 @@ TESTS["tb_training_layout"] = {
     "sources": [RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_training_layout.v"],
     "fixtures": ["tests/sim/fixtures/training_panel_golden.mem", "tests/sim/fixtures/glyph5x7_golden.mem"],
 }
+TESTS.update({'tb_sd_cmd_recovery': {'sources': ['project/vendor/SD/sd_card_cmd.v', 'tests/sim/tb/tb_sd_cmd_recovery.v'], 'fixtures': ['tests/sim/fixtures/sd_crc_sector.mem'], 'plusargs': []}, 'tb_sd_sector_recovery': {'sources': ['project/vendor/SD/sd_card_sec_read_write.v', 'tests/sim/tb/tb_sd_sector_recovery.v']}, 'tb_sd_image_recovery': {'sources': ['project/rtl/SD/sd_card_bmp.v', 'project/vendor/SD/bmp_read.v', 'project/rtl/frame_buffer_publish.v', 'project/vendor/SD/frame_fifo_write.v', 'tests/sim/stubs/sd_fault_sector_model.v', 'tests/sim/tb/tb_sd_image_recovery.v']}, 'tb_sd_retry_limits': {'sources': ['project/rtl/SD/sd_card_bmp.v', 'project/vendor/SD/bmp_read.v', 'tests/sim/stubs/sd_fault_sector_model.v', 'tests/sim/tb/tb_sd_retry_limits.v']}})
+for name in ("tb_sd_buffer_ownership", "tb_sd_image_recovery", "tb_sd_retry_limits"):
+    TESTS[name]["sources"].insert(0, RTL + "cpr_page_manager.v")
+TESTS["tb_page_manager"] = {"sources": [RTL + "cpr_page_manager.v", TB + "tb_page_manager.v"]}
+TESTS["tb_page_status"] = {"sources": [RTL + "sample_mailbox.v", RTL + "page_status_cdc.v", RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_page_status.v"]}
+TESTS["tb_training_pages"] = {"sources": [RTL + "cpr_page_manager.v"] + [s for s in TESTS["tb_sd_image_recovery"]["sources"] if s != RTL + "cpr_page_manager.v" and s != TB + "tb_sd_image_recovery.v"] + [TB + "tb_training_pages.v"]}
+ZH = [RTL + "cpr_font16_rom.v", RTL + "cpr_zh_strings.v", RTL + "cpr_text_zh.v"]
+TESTS["tb_chinese_rom"] = {
+    "sources": ZH[:2] + [TB + "tb_chinese_rom.v"],
+    "fixtures": ["tests/sim/fixtures/chinese_glyphs.mem", "tests/sim/fixtures/chinese_messages.mem"],
+}
+TESTS["tb_chinese_scroll"] = {
+    "sources": ZH + [TB + "tb_chinese_scroll.v"],
+    "fixtures": ["tests/sim/fixtures/chinese_glyphs.mem", "tests/sim/fixtures/chinese_messages.mem"],
+}
+TESTS["tb_chinese_overlay"] = {
+    "sources": TESTS["tb_training_layout"]["sources"][:-1] + ZH + [TB + "tb_chinese_overlay.v"],
+    "fixtures": ["tests/sim/fixtures/chinese_glyphs.mem", "tests/sim/fixtures/chinese_screen_cells.mem",
+                 "project/assets/tutorials/bmp_training_safe/02_compressions.bmp"],
+}
+
 FAIL_PATTERN = re.compile(r"\b(?:FAIL|FATAL|TIMEOUT)\b", re.IGNORECASE)
 
 
@@ -185,9 +206,9 @@ def main():
     parser.add_argument("--iverilog", default=os.environ.get("IVERILOG"))
     parser.add_argument("--vvp", default=os.environ.get("VVP"))
     parser.add_argument("--ivl-dir", type=Path, help="portable compiler backend/VPI directory")
-    # Paired demo/ADC raster checks exercise over a million pixels and took
-    # about 60 seconds locally. Keep a finite default that covers that test.
-    parser.add_argument("--timeout", type=float, default=120.0, help="seconds per compile/run")
+    # Chinese raster checks compare 2,457,600 demo/ADC pixels across four
+    # complete frames. Keep a finite bound that covers this larger test.
+    parser.add_argument("--timeout", type=float, default=240.0, help="seconds per compile/run")
     parser.add_argument("--output", type=Path, help="new or empty evidence directory")
     parser.add_argument("--manifest", type=Path, help="JSON tests/sources/top/pass_pattern; paths relative to repo")
     parser.add_argument("--self-test-runner", action="store_true")
