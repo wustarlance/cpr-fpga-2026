@@ -21,7 +21,7 @@ module tb_training_pages;
  wire[31:0]fifo_word=fifo[rp%512];
  always #5 clk=~clk;
  always #12.5 mem_clk=~mem_clk;
- sd_card_bmp #(.CLK_FREQ_HZ(1000),.READER_TIMEOUT_CYCLES(80),
+ sd_card_bmp #(.CLK_FREQ_HZ(1000),.SCALE_ENABLE(0),.READER_TIMEOUT_CYCLES(80),
   .LOAD_TIMEOUT_CYCLES(2500),.SCAN_MAX_SECTOR(3),.SCAN_TARGET_COUNT(4)) dut(
   .clk(clk),.rst(!rst_n),.key_next(key_next),.key_prev(1'b1),
   .key_auto(1'b1),.external_auto(auto_run),
@@ -30,7 +30,7 @@ module tb_training_pages;
   .write_finish_toggle(hold_finish?frozen_toggle:write_toggle),
   .write_buf_idx(write_index),.disp_buf_idx(pending_index),
   .publish_req(publish),.publish_done(done),.write_req(write_req),
-  .write_req_ack(writer_ack&&!hold_ack),.write_en(write_en),.write_data(write_data),
+  .write_req_ack(writer_ack&&!hold_ack),.pixel_ready(1'b1),.write_en(write_en),.write_data(write_data),
   .SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
  frame_buffer_publish swap(clk,rst_n,publish,pending_index,,done,
                            mem_clk,rst_n,frame_start,active_index);

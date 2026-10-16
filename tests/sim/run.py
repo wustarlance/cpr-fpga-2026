@@ -42,6 +42,10 @@ TESTS = {
     "tb_cpr_overlay": {"sources": [RTL + "cpr_overlay.v", TB + "tb_cpr_overlay.v"]},
     "tb_reset_release": {"sources": [RTL + "reset_release.v", TB + "tb_reset_release.v"]},
 }
+TESTS["tb_sd_cache_ownership"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "frame_buffer_publish.v", RTL + "SD/sd_card_bmp.v", "tests/sim/stubs/sd_cache_reader_model.v", TB + "tb_sd_cache_ownership.v"]}
+TESTS["tb_bmp_scaled"] = {"sources": ["project/vendor/SD/bmp_read_scaled.v", TB + "tb_bmp_scaled.v"]}
+TESTS["tb_bmp_scaled_frame"] = {"sources": ["project/vendor/SD/bmp_read_scaled.v", TB + "tb_bmp_scaled.v"]}
+TESTS["tb_sd_scaled_pipeline"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "SD/sd_card_bmp.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/bmp_read_scaled.v", "project/vendor/SD/frame_read_write.v", "project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_sd_scaled_pipeline.v"]}
 TESTS.update({
     "tb_contrast_rgb": {"sources": [RTL + "contrast_rgb.v", TB + "tb_contrast_rgb.v"], "plusargs": ["+golden=fixtures/contrast_golden.mem"], "pass_pattern": r"(?m)^PASS: contrast_rgb\b"},
     "tb_font5x7_rom": {"sources": [RTL + "font5x7_rom.v", TB + "tb_font5x7_rom.v"], "plusargs": ["+glyph=fixtures/glyph5x7_golden.mem"], "pass_pattern": r"(?m)^PASS: font5x7_rom\b"},
@@ -63,6 +67,8 @@ for name in ("tb_sd_buffer_ownership", "tb_sd_image_recovery", "tb_sd_retry_limi
 TESTS["tb_page_manager"] = {"sources": [RTL + "cpr_page_manager.v", TB + "tb_page_manager.v"]}
 TESTS["tb_page_status"] = {"sources": [RTL + "sample_mailbox.v", RTL + "page_status_cdc.v", RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_page_status.v"]}
 TESTS["tb_training_pages"] = {"sources": [RTL + "cpr_page_manager.v"] + [s for s in TESTS["tb_sd_image_recovery"]["sources"] if s != RTL + "cpr_page_manager.v" and s != TB + "tb_sd_image_recovery.v"] + [TB + "tb_training_pages.v"]}
+TESTS["tb_sd_scaled_pages"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "SD/sd_card_bmp.v", "project/vendor/SD/bmp_read_scaled.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/frame_fifo_write.v", "tests/sim/stubs/sd_fault_sector_model.v", TB + "tb_sd_scaled_pages.v"]}
+TESTS["tb_sd_scaled_recovery"] = {"sources": TESTS["tb_sd_scaled_pages"]["sources"][:-1] + [TB + "tb_sd_scaled_recovery.v"]}
 ZH = [RTL + "cpr_font16_rom.v", RTL + "cpr_zh_strings.v", RTL + "cpr_text_zh.v"]
 TESTS["tb_chinese_rom"] = {
     "sources": ZH[:2] + [TB + "tb_chinese_rom.v"],

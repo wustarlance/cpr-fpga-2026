@@ -1,12 +1,12 @@
 # 中文显示自检（2026-10-16）
 
-新增 tb_chinese_rom、tb_chinese_scroll、tb_chinese_overlay。完整默认清单共 33 项 RTL，自检说明见 project/docs/chinese-ui.md。中文整帧测试默认超时 240 秒；旧组件默认英文，实际板级顶层默认中文。
+新增 tb_chinese_rom、tb_chinese_scroll、tb_chinese_overlay，并保留四槽缓存/缩放覆盖，增加缩放与训练选页/SD 恢复联动。完整默认清单共 39 项 RTL，自检说明见 project/docs/chinese-ui.md。中文整帧测试默认超时 240 秒；旧组件默认英文，实际板级顶层默认中文。
 
 ---
 
 # 仿真验证状态（2026-10-15）
 
-默认清单为30项RTL自检；在SD恢复四项基础上，新增页面策略、完整状态字跨时钟/页眉快照、训练页面整链三项。已有训练栅格、布局/帧快照与完整底图透出检查继续保留。默认每次编译/运行超时为120秒，运行器负控仍独立限时。见[SD恢复契约](../../project/docs/sd-recovery.md)及[训练底图修改说明](../../project/docs/training-layout.md)。
+当时默认清单为30项RTL自检；在SD恢复四项基础上，新增页面策略、完整状态字跨时钟/页眉快照、训练页面整链三项。已有训练栅格、布局/帧快照与完整底图透出检查继续保留。当前默认每次编译/运行超时为240秒，运行器负控仍独立限时。见[SD恢复契约](../../project/docs/sd-recovery.md)及[训练底图修改说明](../../project/docs/training-layout.md)。
 
 ---
 
@@ -57,6 +57,12 @@ Linux/macOS 或 Git Bash 可执行 `bash tests/sim/run.sh --all`。`run.sh tb_na
 | `tb_bmp_scan` | 格式过滤、扫描边界、文件长度取整、跨扇区像素加载 |
 | `tb_sdram_refresh` | 刷新计数和实际周期满足保持期限 |
 | `tb_frame_buffer_publish` | 真实读 FSM 在帧边界锁存地址后才确认、复位取消 |
+| `tb_sd_cache_ownership` | 四槽各加载一次、源/写完成先后、未就绪请求、缓存翻页/自动轮播 |
+| `tb_bmp_scaled` | 等比缩放、补边、行 padding、像素偏移、回压与无效格式 |
+| `tb_bmp_scaled_frame` | 640×480 直通和 426×240 适配的完整帧逐像素比对 |
+| `tb_sd_scaled_recovery` | 真实缩放/四槽/发布/写帧链，传输错误、短扇区、停滞、坏头、ACK/写完成缺失、有限重试与扫描重启 |
+| `tb_sd_scaled_pages` | 缩放后四槽逐像素、训练进出/导航/恢复、发布期间退出、坏帧重试、缺页与开机训练 |
+| `tb_sd_scaled_pipeline` | 实际缩放/调度/帧读写路径、四槽地址/像素、满 FIFO 回压与并发读优先 |
 | `tb_sd_buffer_ownership` | 连续翻页、源/写完成先后、等待切换时不复用旧缓冲 |
 | `tb_cpr_overlay` | 帧内状态稳定、下一帧快照、数字饱和与评级颜色 |
 | `tb_reset_release` | 异步置复位、就绪同步及同步释放 |
@@ -69,7 +75,7 @@ Linux/macOS 或 Git Bash 可执行 `bash tests/sim/run.sh --all`。`run.sh tb_na
 
 ## 成功判据与证据
 
-每项必须同时满足：编译返回 0；仿真在超时前返回 0；没有 `FAIL`、`FATAL`、`TIMEOUT`；出现清单要求的 `PASS` 文本；执行期间源文件未变。空 `$finish` 会失败。TB 用 `$fatal(1, ...)` 报错，默认每次编译和运行超时 120 秒，可用 `--timeout` 修改。
+每项必须同时满足：编译返回 0；仿真在超时前返回 0；没有 `FAIL`、`FATAL`、`TIMEOUT`；出现清单要求的 `PASS` 文本；执行期间源文件未变。空 `$finish` 会失败。TB 用 `$fatal(1, ...)` 报错，默认每次编译和运行超时 240 秒，可用 `--timeout` 修改。
 
 每次在 `tests/sim/build/<UTC 时间戳>/` 创建独立证据目录，保留编译/运行日志、命令、源文件 SHA256、工具版本与可执行文件 SHA256、编译产物 SHA256，以及 `results.json`。`--output` 可指定新的或空的目录。生成物保持在 Git 忽略目录中。
 

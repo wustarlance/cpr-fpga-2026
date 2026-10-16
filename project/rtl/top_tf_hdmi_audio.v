@@ -46,6 +46,8 @@ localparam BUSRT_BITS    = 10;
 localparam FRAME_PIXELS  = 21'd307200;   // 640*480
 localparam BUF0_ADDR     = 24'd0;
 localparam BUF1_ADDR     = FRAME_PIXELS;
+localparam BUF2_ADDR     = FRAME_PIXELS * 2;
+localparam BUF3_ADDR     = FRAME_PIXELS * 3;
 
 wire Sdr_init_done;
 wire Sdr_init_ref_vld;
@@ -74,6 +76,7 @@ wire        video_read_en;
 wire [31:0] video_read_data;
 
 wire        sd_card_write_en;
+wire        sd_card_pixel_ready;
 wire [31:0] sd_card_write_data;
 wire        sd_card_write_req;
 wire        sd_card_write_req_ack;
@@ -389,13 +392,14 @@ always @(posedge ext_mem_clk or posedge rst_mem) begin
         frame_write_toggle_mem <= ~frame_write_toggle_mem;
 end
 
-// ===================== TF 多图扫描与缓存（双缓冲） =====================
+// ===================== TF 多图扫描、缩放与四槽全缓存 =====================
 sd_card_bmp #(
     .TRAINING_PAGE_INDEX(TRAINING_PAGE_INDEX),
     .CLK_FREQ_HZ       (100_000_000),
     .SCAN_START_SECTOR (32'd0),
     .SCAN_MAX_SECTOR   (32'd131071),
-    .SCAN_TARGET_COUNT (3'd4)
+    .SCAN_TARGET_COUNT (3'd4),
+    .SCALE_ENABLE      (1'b1)
 ) sd_card_bmp_m0(
     .clk               (sd_card_clk),
     .rst               (rst_sd),
@@ -421,6 +425,7 @@ sd_card_bmp #(
 
     .write_req         (sd_card_write_req),
     .write_req_ack     (sd_card_write_req_ack),
+    .pixel_ready       (sd_card_pixel_ready),
     .write_en          (sd_card_write_en),
     .write_data        (sd_card_write_data),
     .SD_nCS            (sd_ncs),
@@ -498,8 +503,8 @@ frame_read_write #(
     .read_finish       (),
     .read_addr_0       (BUF0_ADDR[ADDR_BITS-1:0]),
     .read_addr_1       (BUF1_ADDR[ADDR_BITS-1:0]),
-    .read_addr_2       (21'd0),
-    .read_addr_3       (21'd0),
+    .read_addr_2       (BUF2_ADDR[ADDR_BITS-1:0]),
+    .read_addr_3       (BUF3_ADDR[ADDR_BITS-1:0]),
     .read_addr_index   (active_read_idx),
     .frame_start       (read_frame_start),
     .read_len          (FRAME_PIXELS[ADDR_BITS-1:0]),
@@ -515,10 +520,11 @@ frame_read_write #(
     .write_req         (sd_card_write_req),
     .write_req_ack     (sd_card_write_req_ack),
     .write_finish      (frame_write_finish),
+    .write_ready       (sd_card_pixel_ready),
     .write_addr_0      (BUF0_ADDR[ADDR_BITS-1:0]),
     .write_addr_1      (BUF1_ADDR[ADDR_BITS-1:0]),
-    .write_addr_2      (21'd0),
-    .write_addr_3      (21'd0),
+    .write_addr_2      (BUF2_ADDR[ADDR_BITS-1:0]),
+    .write_addr_3      (BUF3_ADDR[ADDR_BITS-1:0]),
     .write_addr_index  (write_buf_idx),
     .write_len         (FRAME_PIXELS[ADDR_BITS-1:0]),
     .write_en          (sd_card_write_en),

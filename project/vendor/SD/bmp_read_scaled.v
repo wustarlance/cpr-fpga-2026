@@ -1,0 +1,423 @@
+`timescale 1ns/1ps
+// Load-side nearest-neighbour contain scaler. SDRAM always receives a complete
+// bottom-up DST_WIDTH x DST_HEIGHT frame; the existing write-side vertical flip
+// converts it to HDMI order. Positive-height, uncompressed 24-bit BMP only.
+// One sector and one source row are buffered. No SD transaction is started
+// until its predecessor has been consumed, so arbitrary enlargement and output
+// backpressure cannot lose SD bytes. Pixel coordinates use exact integer
+// remainders (floor(x*src_w/fit_w)), with no accumulated fixed-point drift.
+module bmp_read_scaled #(
+    parameter integer MAX_WIDTH = 2048,
+    parameter integer MAX_HEIGHT = 1536,
+    parameter integer DST_WIDTH = 640,
+    parameter integer DST_HEIGHT = 480,
+    parameter integer WAIT_TIMEOUT_CYCLES = 100_000_000
+)(
+    input clk, rst,
+    input cancel,
+    input sd_sec_ready,
+    input sd_sec_read_error,
+    output reg abort_sd,
+    output reg operation_error,
+    output reg [2:0] error_code,
+    output ready,
+    input scan_start,
+    input [31:0] scan_start_sector, scan_max_sector,
+    input [2:0] scan_target_count,
+    output reg scan_done, scan_found_valid,
+    output reg [31:0] scan_found_sector,
+    output reg [2:0] scan_found_total,
+    input load_start,
+    input [31:0] load_sector,
+    input sd_init_done,
+    output reg [3:0] state_code,
+    input [15:0] bmp_width, bmp_height, // legacy interface; destination is parameterized
+    output reg write_req,
+    input write_req_ack,
+    output reg sd_sec_read,
+    output reg [31:0] sd_sec_read_addr,
+    input [7:0] sd_sec_read_data,
+    input sd_sec_read_data_valid, sd_sec_read_end,
+    output bmp_data_wr_en,
+    output [23:0] bmp_data,
+    input pixel_ready,
+    output reg load_error
+);
+    localparam IDLE=0, HEADER=1, CHECK_SIZE=2, CHECK_END=3, CHECK_HEADER=4,
+        SCAN_SIZE=5, SCAN_NEXT=6, SCAN_DECIDE=7,
+        FIT_START=8, DIVIDE=9, FIT_FINISH=10, WRITE_WAIT=11, WRITE_RELEASE=12,
+        SECTOR=13, BYTE_FETCH=14, BYTE_USE=15, ROW_READY=16,
+        OUT_FETCH=17, OUT_SEND=18, H_ADVANCE=19, V_ADVANCE=20,
+        NEXT_ROW=21, FINISH=22, CHECK_DECIDE=23, FIT_COMPARE=24;
+    reg [4:0] state;
+    reg header_is_scan;
+    reg [9:0] rx_count;
+    reg [31:0] idle_wait;
+    wire receiving = state==HEADER || state==SECTOR;
+    wire active = state!=IDLE;
+    // Only external waits time out. Compute and row-consumption states may
+    // legitimately take many clocks; every accepted output is progress.
+    wire waiting = receiving || state==WRITE_WAIT || state==WRITE_RELEASE || state==OUT_SEND;
+    // pixel_ready is the write FIFO's full flag, produced by a subtract-and-
+    // compare chain inside the vendor FIFO. Feeding it straight into the
+    // timeout and next-state cone dragged that vendor chain onto the critical
+    // path. The timeout only needs a "the output is still advancing" hint, so
+    // it samples a registered copy. The write enable keeps the raw signal, so a
+    // late stop can never overrun the FIFO.
+    reg pixel_ready_q;
+    always @(posedge clk or posedge rst) begin
+        if(rst) pixel_ready_q<=1'b0;
+        else pixel_ready_q<=pixel_ready;
+    end
+    wire progress = (receiving && (sd_sec_read_data_valid || sd_sec_read_end)) ||
+                    (state==WRITE_WAIT && write_req_ack) ||
+                    (state==WRITE_RELEASE && !write_req_ack) ||
+                    (state==OUT_SEND && pixel_ready_q);
+    wire wait_expired = waiting && !progress && idle_wait>=WAIT_TIMEOUT_CYCLES-1;
+    wire bad_sector = receiving && sd_sec_read_end && !sd_sec_read_error &&
+        (rx_count+(sd_sec_read_data_valid?10'd1:10'd0)!=10'd512);
+    wire fail_operation = active && (cancel || sd_sec_read_error || wait_expired || bad_sector);
+    always @(posedge clk or posedge rst) begin
+        if(rst) idle_wait<=0;
+        else if(!waiting || progress) idle_wait<=0;
+        else if(idle_wait<WAIT_TIMEOUT_CYCLES) idle_wait<=idle_wait+1'b1;
+    end
+    reg [8:0] proc_pos;
+    reg [31:0] scan_sector, load_base, next_sector, file_sectors;
+    reg scan_match;
+    reg [7:0] signature0, signature1;
+    reg [31:0] file_len, pixel_offset, width, height, dib_size, compression;
+    reg [15:0] planes, bpp;
+    reg [13:0] row_bytes, stride, stride_m1;
+    reg [31:0] pixel_end;
+    // The header validity decision is deliberately split across the four check
+    // states instead of one long expression. Each term is a wide (32-bit)
+    // comparison against a header field, and folding them all into a single
+    // net serialised the adders and carry chains into a ~9.9 ns path on the
+    // 100 MHz SD clock. Staging them costs three clocks per candidate and only
+    // runs once per header, never in the pixel path.
+    reg hdr_ok_a, hdr_ok_b, hdr_ok_c;
+    reg [31:0] pixel_offset_min;
+    wire hdr_fields_ok = signature0==8'h42 && signature1==8'h4d &&
+        dib_size>=40 && dib_size<=124 &&
+        planes==1 && bpp==24 && compression==0;
+    wire hdr_dims_ok = width>0 && width<=MAX_WIDTH &&
+        height>0 && height<=MAX_HEIGHT && pixel_offset>=pixel_offset_min;
+    wire hdr_len_ok = file_len>=pixel_end && pixel_end>pixel_offset;
+
+    reg [7:0] sector_buf[0:511];
+    reg [7:0] sector_q;
+    reg [23:0] row_buf[0:MAX_WIDTH-1];
+    reg [23:0] row_q;
+
+    reg [31:0] payload_left;
+    reg first_sector, sector_exhausted;
+    reg [13:0] row_byte;
+    reg [15:0] source_x, source_y;
+    reg [1:0] channel;
+    reg [7:0] blue, green;
+    reg [15:0] fit_w, fit_h, off_x, bottom_rows;
+    reg fit_width_limited;
+    reg [15:0] out_x, out_y, content_y;
+    reg [15:0] sample_x, sample_y;
+    reg [16:0] h_rem, v_rem;
+    // A shared restoring divider runs once per image, never in the pixel
+    // path. Explicit 32-bit operands and one subtract per clock bound timing.
+    reg [31:0] div_bits, div_rem, div_den;
+    reg [5:0] div_count;
+    wire [32:0] div_trial = {div_rem, div_bits[31]};
+    wire div_ge = div_trial >= {1'b0,div_den};
+    wire [32:0] div_sub = div_trial - {1'b0,div_den};
+    wire in_content_x = out_x>=off_x && out_x<off_x+fit_w;
+    wire in_content_y = out_y>=bottom_rows && out_y<bottom_rows+fit_h;
+    assign ready = state==IDLE;
+    assign bmp_data_wr_en = state==OUT_SEND && pixel_ready && !fail_operation;
+    assign bmp_data = (in_content_x && in_content_y) ? row_q : 24'h102030;
+
+    // Synchronous reads infer block RAM. RAM contents need no reset: only
+    // complete received sectors/rows are ever made visible to the consumer.
+    always @(posedge clk) begin
+        if (state==SECTOR && sd_sec_read_data_valid && rx_count<512)
+            sector_buf[rx_count[8:0]] <= sd_sec_read_data;
+        if (state==BYTE_FETCH) sector_q <= sector_buf[proc_pos];
+        if (state==OUT_FETCH) row_q <= row_buf[sample_x[10:0]];
+        if (state==BYTE_USE && row_byte<row_bytes && channel==2)
+            row_buf[source_x[10:0]] <= {sector_q, green, blue};
+    end
+
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            state<=IDLE; state_code<=0; header_is_scan<=0;
+            abort_sd<=0; operation_error<=0; error_code<=0;
+            rx_count<=0; proc_pos<=0; scan_sector<=0; load_base<=0;
+            next_sector<=0; file_sectors<=0; scan_match<=0;
+            signature0<=0; signature1<=0; file_len<=0; pixel_offset<=0;
+            width<=0; height<=0; dib_size<=0; compression<=0; planes<=0; bpp<=0;
+            row_bytes<=0; stride<=0; stride_m1<=0; pixel_end<=0; payload_left<=0;
+            hdr_ok_a<=0; hdr_ok_b<=0; hdr_ok_c<=0; pixel_offset_min<=0;
+            first_sector<=0; sector_exhausted<=0; row_byte<=0;
+            source_x<=0; source_y<=0; channel<=0; blue<=0; green<=0;
+            fit_w<=0; fit_h<=0; off_x<=0; bottom_rows<=0; fit_width_limited<=0;
+            out_x<=0; out_y<=0; content_y<=0; sample_x<=0; sample_y<=0;
+            h_rem<=0; v_rem<=0; div_bits<=0; div_rem<=0; div_den<=1; div_count<=0;
+            scan_done<=0; scan_found_valid<=0; scan_found_sector<=0; scan_found_total<=0;
+            write_req<=0; sd_sec_read<=0; sd_sec_read_addr<=0; load_error<=0;
+        end else if (!sd_init_done) begin
+            state<=IDLE; state_code<=0; scan_done<=0; scan_found_valid<=0;
+            abort_sd<=0; operation_error<=active; error_code<=active?3'd1:error_code;
+            scan_found_total<=0; write_req<=0; sd_sec_read<=0; load_error<=0;
+        end else if(fail_operation) begin
+            state<=IDLE; state_code<=4'he;
+            sd_sec_read<=0; write_req<=0; scan_found_valid<=0; scan_done<=1;
+            load_error<=1; abort_sd<=!sd_sec_read_error; operation_error<=1;
+            error_code<=sd_sec_read_error?3'd1:bad_sector?3'd4:3'd3;
+        end else begin
+            abort_sd<=0; operation_error<=0;
+            scan_found_valid<=0;
+            case(state)
+                IDLE: begin
+                    state_code<=1; sd_sec_read<=0;
+                    if (scan_start || load_start) begin
+                        rx_count<=0; load_error<=0;
+                        signature0<=0; signature1<=0; file_len<=0;
+                        pixel_offset<=0; width<=0; height<=0;
+                        dib_size<=0; planes<=0; bpp<=0; compression<=0;
+                        header_is_scan<=scan_start;
+                        if(scan_start) begin
+                            scan_done<=0; scan_found_total<=0;
+                            scan_sector<=scan_start_sector;
+                            sd_sec_read_addr<=scan_start_sector;
+                        end else begin
+                            load_base<=load_sector; sd_sec_read_addr<=load_sector;
+                        end
+                        state<=HEADER;
+                    end
+                end
+                HEADER: begin
+                    state_code<=2; if(sd_sec_ready) sd_sec_read<=1;
+                    if (sd_sec_read_data_valid) begin
+                        case(rx_count)
+                            0: signature0<=sd_sec_read_data;
+                            1: signature1<=sd_sec_read_data;
+                            2: file_len[7:0]<=sd_sec_read_data;
+                            3: file_len[15:8]<=sd_sec_read_data;
+                            4: file_len[23:16]<=sd_sec_read_data;
+                            5: file_len[31:24]<=sd_sec_read_data;
+                            10: pixel_offset[7:0]<=sd_sec_read_data;
+                            11: pixel_offset[15:8]<=sd_sec_read_data;
+                            12: pixel_offset[23:16]<=sd_sec_read_data;
+                            13: pixel_offset[31:24]<=sd_sec_read_data;
+                            14: dib_size[7:0]<=sd_sec_read_data;
+                            15: dib_size[15:8]<=sd_sec_read_data;
+                            16: dib_size[23:16]<=sd_sec_read_data;
+                            17: dib_size[31:24]<=sd_sec_read_data;
+                            18: width[7:0]<=sd_sec_read_data;
+                            19: width[15:8]<=sd_sec_read_data;
+                            20: width[23:16]<=sd_sec_read_data;
+                            21: width[31:24]<=sd_sec_read_data;
+                            22: height[7:0]<=sd_sec_read_data;
+                            23: height[15:8]<=sd_sec_read_data;
+                            24: height[23:16]<=sd_sec_read_data;
+                            25: height[31:24]<=sd_sec_read_data;
+                            26: planes[7:0]<=sd_sec_read_data;
+                            27: planes[15:8]<=sd_sec_read_data;
+                            28: bpp[7:0]<=sd_sec_read_data;
+                            29: bpp[15:8]<=sd_sec_read_data;
+                            30: compression[7:0]<=sd_sec_read_data;
+                            31: compression[15:8]<=sd_sec_read_data;
+                            32: compression[23:16]<=sd_sec_read_data;
+                            33: compression[31:24]<=sd_sec_read_data;
+                            default: ;
+                        endcase
+                        rx_count<=rx_count+1'b1;
+                    end
+                    if(sd_sec_read_end) begin
+                        sd_sec_read<=0; state<=CHECK_SIZE;
+                    end
+                end
+                CHECK_SIZE: begin
+                    // Dimensions are range checked before using truncated
+                    // operands; invalid candidates cannot become catalogue entries.
+                    row_bytes<=width[11:0]*14'd3;
+                    stride<=(width[11:0]*14'd3+14'd3)&14'h3ffc;
+                    // Compare against stride-1 in the byte loop instead of
+                    // testing row_byte+1==stride, so the 14-bit carry chain is
+                    // not in series with the row-end decision on the 100 MHz
+                    // byte path.
+                    stride_m1<=((width[11:0]*14'd3+14'd3)&14'h3ffc)-14'd1;
+                    hdr_ok_a<=hdr_fields_ok; pixel_offset_min<=dib_size+14;
+                    state<=CHECK_END;
+                end
+                CHECK_END: begin
+                    pixel_end<=pixel_offset + stride * height[10:0];
+                    hdr_ok_b<=hdr_ok_a && hdr_dims_ok;
+                    state<=CHECK_HEADER;
+                end
+                CHECK_HEADER: begin
+                    hdr_ok_c<=hdr_ok_b && hdr_len_ok;
+                    state<=CHECK_DECIDE;
+                end
+                CHECK_DECIDE: begin
+                    if(header_is_scan) begin scan_match<=hdr_ok_c; state<=SCAN_SIZE; end
+                    else if(hdr_ok_c) state<=FIT_COMPARE;
+                    else begin load_error<=1; operation_error<=1; error_code<=3'd2; state_code<=4'he; state<=IDLE; end
+                end
+                SCAN_SIZE: begin
+                    file_sectors <= (file_len>>9) + (|file_len[8:0]);
+                    state<=SCAN_NEXT;
+                end
+                SCAN_NEXT: begin
+                    next_sector<=scan_sector+(scan_match?file_sectors:32'd1);
+                    state<=SCAN_DECIDE;
+                end
+                SCAN_DECIDE: begin
+                    if(scan_match) begin
+                        scan_found_valid<=1; scan_found_sector<=scan_sector;
+                        scan_found_total<=scan_found_total+1'b1;
+                    end
+                    if((scan_match && scan_found_total+1'b1>=scan_target_count) ||
+                       scan_sector>=scan_max_sector || next_sector>scan_max_sector ||
+                       next_sector<=scan_sector) begin
+                        scan_done<=1; state<=IDLE;
+                    end else begin
+                        scan_sector<=next_sector; sd_sec_read_addr<=next_sector;
+                        rx_count<=0; state<=HEADER;
+                    end
+                end
+                // Compare cross products, then divide only the unconstrained
+                // dimension. A minimum of one pixel handles extreme aspects.
+                // The comparison runs in its own state: two multipliers plus a
+                // 22-bit compare in series with the destination register enables
+                // was the worst path on the 100 MHz SD clock.
+                FIT_COMPARE: begin
+                    fit_width_limited <= width[11:0]*DST_HEIGHT >= height[10:0]*DST_WIDTH;
+                    state<=FIT_START;
+                end
+                FIT_START: begin
+                    if(fit_width_limited) begin
+                        fit_w<=DST_WIDTH; div_bits<=height[10:0]*DST_WIDTH+(width>>1); div_den<=width;
+                    end else begin
+                        fit_h<=DST_HEIGHT; div_bits<=width[11:0]*DST_HEIGHT+(height>>1); div_den<=height;
+                    end
+                    div_rem<=0; div_count<=32; state<=DIVIDE;
+                end
+                DIVIDE: begin
+                    div_bits<={div_bits[30:0],div_ge};
+                    div_rem<=div_ge?div_sub[31:0]:div_trial[31:0];
+                    div_count<=div_count-1'b1;
+                    if(div_count==1) state<=FIT_FINISH;
+                end
+                FIT_FINISH: begin
+                    if(fit_width_limited) begin
+                        fit_h<=div_bits==0?1:div_bits[15:0];
+                        bottom_rows<=(DST_HEIGHT-(div_bits==0?1:div_bits[15:0])+1)>>1;
+                        off_x<=0;
+                    end else begin
+                        fit_w<=div_bits==0?1:div_bits[15:0];
+                        off_x<=(DST_WIDTH-(div_bits==0?1:div_bits[15:0]))>>1;
+                        bottom_rows<=0;
+                    end
+                    write_req<=1; state<=WRITE_WAIT;
+                end
+                WRITE_WAIT: begin
+                    state_code<=3;
+                    if(write_req_ack) begin
+                        write_req<=0; state<=WRITE_RELEASE;
+                        rx_count<=0; first_sector<=1;
+                        sd_sec_read_addr<=load_base+(pixel_offset>>9);
+                        payload_left<=pixel_end-pixel_offset;
+                        row_byte<=0; source_x<=0; source_y<=0; channel<=0;
+                        out_x<=0; out_y<=0; content_y<=0;
+                        sample_x<=0; sample_y<=0; h_rem<=0; v_rem<=0;
+                    end
+                end
+                WRITE_RELEASE: begin
+                    // ACK is held while the writer clears its FIFO. Do not
+                    // produce pixels before its synchronized deassertion.
+                    if(!write_req_ack) state<=SECTOR;
+                end
+                SECTOR: begin
+                    state_code<=4; if(sd_sec_ready) sd_sec_read<=1;
+                    if(sd_sec_read_data_valid) rx_count<=rx_count+1'b1;
+                    if(sd_sec_read_end) begin
+                        sd_sec_read<=0; rx_count<=0;
+                        if(rx_count+(sd_sec_read_data_valid?10'd1:10'd0)!=512) begin load_error<=1; operation_error<=1; error_code<=3'd4; state<=IDLE; end
+                        else begin
+                            proc_pos<=first_sector?pixel_offset[8:0]:9'd0;
+                            first_sector<=0; state<=BYTE_FETCH;
+                        end
+                    end
+                end
+                BYTE_FETCH: state<=BYTE_USE;
+                BYTE_USE: begin
+                    if(row_byte<row_bytes) begin
+                        case(channel)
+                            0: blue<=sector_q;
+                            1: green<=sector_q;
+                            2: source_x<=source_x+1'b1;
+                        endcase
+                        channel<=channel==2?0:channel+1'b1;
+                    end
+                    payload_left<=payload_left-1'b1;
+                    proc_pos<=proc_pos+1'b1;
+                    sector_exhausted<=proc_pos==511;
+                    if(row_byte==stride_m1) begin
+                        row_byte<=0; source_x<=0; channel<=0; state<=ROW_READY;
+                    end else begin
+                        row_byte<=row_byte+1'b1;
+                        if(proc_pos==511) begin
+                            sd_sec_read_addr<=sd_sec_read_addr+1'b1; state<=SECTOR;
+                        end else state<=BYTE_FETCH;
+                    end
+                end
+                ROW_READY: begin
+                    if(out_y<bottom_rows || content_y==fit_h ||
+                       (content_y<fit_h && sample_y==source_y))
+                        state<=OUT_FETCH;
+                    else state<=NEXT_ROW;
+                end
+                OUT_FETCH: state<=OUT_SEND;
+                OUT_SEND: if(pixel_ready) begin
+                    if(out_x==DST_WIDTH-1) begin
+                        out_x<=0; out_y<=out_y+1'b1; sample_x<=0; h_rem<=0;
+                        if(out_y==DST_HEIGHT-1) state<=FINISH;
+                        else if(in_content_y) begin
+                            content_y<=content_y+1'b1;
+                            v_rem<=v_rem+height[15:0]; state<=V_ADVANCE;
+                        end else state<=ROW_READY;
+                    end else begin
+                        out_x<=out_x+1'b1;
+                        if(in_content_x && in_content_y) begin
+                            h_rem<=h_rem+width[15:0]; state<=H_ADVANCE;
+                        end else state<=OUT_FETCH;
+                    end
+                end
+                H_ADVANCE: begin
+                    if(h_rem>=fit_w) begin
+                        h_rem<=h_rem-fit_w; sample_x<=sample_x+1'b1;
+                    end else state<=OUT_FETCH;
+                end
+                V_ADVANCE: begin
+                    if(v_rem>=fit_h) begin
+                        v_rem<=v_rem-fit_h; sample_y<=sample_y+1'b1;
+                    end else if(content_y==fit_h) state<=OUT_FETCH; // top border
+                    else state<=ROW_READY;
+                end
+                NEXT_ROW: begin
+                    source_y<=source_y+1'b1;
+                    if(payload_left==0) begin load_error<=1; operation_error<=1; error_code<=3'd2; state<=IDLE; end
+                    else if(sector_exhausted) begin
+                        sd_sec_read_addr<=sd_sec_read_addr+1'b1; state<=SECTOR;
+                    end else state<=BYTE_FETCH;
+                end
+                FINISH: begin
+                    // ready only rises after the final accepted pixel. The
+                    // scheduler independently waits for SDRAM write_finish.
+                    state<=IDLE;
+                end
+                default: state<=IDLE;
+            endcase
+        end
+    end
+endmodule

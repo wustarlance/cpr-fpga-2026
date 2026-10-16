@@ -11,7 +11,7 @@ module tb_sd_retry_limits;
   wire[3:0]status;
   wire published,valid;
   integer attempts=0;
-  sd_card_bmp #(.CLK_FREQ_HZ(1000),.RETRY_LIMIT(LIMIT),
+  sd_card_bmp #(.CLK_FREQ_HZ(1000),.SCALE_ENABLE(0),.RETRY_LIMIT(LIMIT),
     .LOAD_TIMEOUT_CYCLES(100),.READER_TIMEOUT_CYCLES(80),
     .SCAN_MAX_SECTOR(0),.SCAN_TARGET_COUNT(1)) dut(
    .clk(clk),.rst(rst),.key_next(1'b1),.key_prev(1'b1),.key_auto(1'b1),.external_auto(1'b0),
@@ -19,7 +19,7 @@ module tb_sd_retry_limits;
    .state_code(status),.media_error(),.bmp_width(16'd4),.bmp_height(16'd2),
    .display_valid(valid),.write_finish_toggle(1'b0),.write_buf_idx(),.disp_buf_idx(),
    .publish_req(published),.publish_done(1'b0),.write_req(),.write_req_ack(1'b0),
-   .write_en(),.write_data(),.SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
+   .pixel_ready(1'b1),.write_en(),.write_data(),.SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
   assign failed[k]=dut.media_fault;
   always @(posedge clk)if(!rst)begin
    if(dut.load_start_pulse)attempts<=attempts+1;

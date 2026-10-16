@@ -39,7 +39,8 @@ module frame_fifo_read
 	input[ADDR_BITS - 1:0]           read_len,                   // data read module read request data length
 	output reg                       fifo_aclr,                  // to fifo asynchronous clear
 	input[9:0]                      wrusedw,                    // from fifo write used words
-    output frame_start // enters S_ACK; address is captured next cycle
+    output frame_start, // enters S_ACK; address is captured next cycle
+    output read_urgent // low read FIFO must win arbitration over background writes
 
 );
 localparam ONE                       = 256'd1;                   //256 bit '1'   you can use ONE[n-1:0] for n bit '1'
@@ -78,7 +79,10 @@ assign frame_start = read_req_d2 &&
     (((state == S_IDLE) && Sdr_init_done) ||
      (state == S_CHECK_FIFO) || (state == S_READ_BURST_END));
 
-assign App_rd_addr = {App_rd_addr_r[ADDR_BITS - 1:0]};
+// Independent of App_wr_busy: including it here would form a combinational
+    // loop through the writer's into_burst/O_wr_busy lookahead.
+    assign read_urgent = (state == S_CHECK_FIFO) && (wrusedw < (FIFO_DEPTH-BURST_SIZE));
+    assign App_rd_addr = {App_rd_addr_r[ADDR_BITS - 1:0]};
 assign rd_vld = (state == S_READ_BURST && burst_cnt >= BURST_SIZE);
 
 assign O_rd_busy = (state == S_READ_BURST);//读指令期间

@@ -73,6 +73,15 @@
                     <Attr Name="CompileOrder" Val="7"/>
                 </FileInfo>
             </File>
+            <File Path="vendor/SD/bmp_read_scaled.v">
+                <FileInfo>
+                    <Attr Name="AutoExcluded" Val="true"/>
+                    <Attr Name="CompileOrder" Val="60"/>
+                    <Attr Name="UsedInSyn" Val="true"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="design_1"/>
+                </FileInfo>
+            </File>
             <File Path="vendor/SD/color_bar.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
@@ -390,6 +399,7 @@
             </File>
             <File Path="rtl/contrast_rgb.v">
                 <FileInfo>
+                    <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
@@ -398,6 +408,7 @@
             </File>
             <File Path="rtl/scroll_text.v">
                 <FileInfo>
+                    <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
@@ -406,6 +417,7 @@
             </File>
             <File Path="rtl/font5x7_rom.v">
                 <FileInfo>
+                    <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
@@ -414,6 +426,7 @@
             </File>
             <File Path="rtl/contrast_controls.v">
                 <FileInfo>
+                    <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
@@ -422,6 +435,7 @@
             </File>
             <File Path="rtl/cpr_subtitle_rom.v">
                 <FileInfo>
+                    <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>

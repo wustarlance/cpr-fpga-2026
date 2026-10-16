@@ -71,7 +71,8 @@ module frame_read_write
 	input[ADDR_BITS - 1:0]           write_len,                  // data write module write request data length
 	input                            write_en,                   // data write module write request for one data
 	input[WRITE_DATA_BITS - 1:0]     write_data,                // write data
-    output frame_start // memory-domain reader frame boundary
+    output frame_start, // memory-domain reader frame boundary
+    output write_ready // write FIFO has space
 
 );
 wire[BURST_BITS - 1:0]                           wrusedw;                    // write used words
@@ -84,10 +85,14 @@ wire                                 read_fifo_aclr;             // fifo Asynchr
 wire                                 write_fifo_aclr;            // fifo Asynchronous clear
 
 wire O_wr_busy;
+wire write_fifo_full;
+assign write_ready = ~write_fifo_full;
 wire O_rd_busy;
+wire read_urgent;
 
 assign App_wr_busy = O_wr_busy;//下个时钟写指令拉高
-assign App_rd_busy = O_rd_busy;//读指令还没有过去十个时钟;因为写指令优先，不需要在意下个时钟是否是读指令
+// Give a low display FIFO priority before starting another write burst.
+assign App_rd_busy = O_rd_busy | read_urgent;
 assign App_wr_dm = 4'b0000;
 
 //instantiate an asynchronous FIFO 
@@ -100,7 +105,7 @@ wfifo_32_32_512 write_buf
 	.re                      	(App_wr_en        		  ),          // Read Request
 	.di                       	(write_data               ),          // Input Data
 	.empty_flag                 (                         ),          // Read side Empty flag
-	.full_flag                  (                         ),          // Write side Full flag
+	.full_flag                  (write_fifo_full          ),          // Write side Full flag
 	.wrusedw                	(              	  		  ),          // Read Used Words
 	.rdusedw                	(rdusedw                  ),          // Write Used Words
 	.dout                       (App_wr_din		          )
@@ -182,6 +187,7 @@ frame_fifo_read_m0
     .App_rd_addr				(App_rd_addr),
 	.read_req                   (read_req                 ),
     .frame_start                (frame_start),
+    .read_urgent                (read_urgent),
 	.read_req_ack               (read_req_ack             ),
 	.read_finish                (read_finish              ),
 	.read_addr_0                (read_addr_0              ),

@@ -5,14 +5,14 @@ module tb_sd_buffer_ownership;
  wire[1:0]write_index,pending_index,active_index;
  integer loads=0,write_countdown=0,waits;
  always #5 clk=~clk;always #12.5 mem_clk=~mem_clk;
- sd_card_bmp #(.CLK_FREQ_HZ(1000)) dut(
+ sd_card_bmp #(.CLK_FREQ_HZ(1000),.SCALE_ENABLE(0)) dut(
   .clk(clk),.rst(!rst_n),.key_next(key_next),.key_prev(1'b1),
   .key_auto(1'b1),.external_auto(1'b0),
   .training_active(1'b0),.training_next(1'b0),.training_prev(1'b0),.page_status(),.state_code(),
   .bmp_width(16'd640),.bmp_height(16'd480),.display_valid(valid),
   .write_finish_toggle(write_toggle),.write_buf_idx(write_index),
   .disp_buf_idx(pending_index),.publish_req(publish),.publish_done(done),
-  .write_req(),.write_req_ack(dut.write_req),.write_en(),.write_data(),
+  .write_req(),.write_req_ack(dut.write_req),.pixel_ready(1'b1),.write_en(),.write_data(),
   .SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
  frame_buffer_publish swap(clk,rst_n,publish,pending_index,,done,
                            mem_clk,rst_n,frame_start,active_index);
