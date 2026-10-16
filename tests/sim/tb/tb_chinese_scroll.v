@@ -28,8 +28,13 @@ module tb_chinese_scroll;
     task check_window;
         begin
             msg=mode==0 ? 37 : mode==1 ? 38 : 39;
+            // cpr_text_zh registers its character decode, so the mask for a
+            // pixel is presented at the clock edge that ends that pixel. Drive
+            // x one pixel behind the pixel under test and clock once per
+            // column, which is what the real overlay counter does; the decode
+            // is fed x+1, so x=px-1 makes the register hold the decode of px.
             for(py=447;py<465;py=py+1)for(px=14;px<626;px=px+1)begin
-                x=px;y=py;#1;expected=0;
+                x=px-1;y=py;@(posedge clk);#1;expected=0;
                 p=(px-16+offset)%576;
                 if(!rst && de && px>=16 && px<(mode==2 ? 368 : 624) && py>=448 && py<464 && p<512)begin
                     id=messages[msg*32+p/16];
@@ -59,5 +64,5 @@ module tb_chinese_scroll;
         @(negedge clk);rst=0;offset=0;frame_count=0;check_window;
         $display("PASS: tb_chinese_scroll checks=%0d",checks);$finish;
     end
-    initial begin #2000000;$fatal(1,"TIMEOUT Chinese scrolling");end
+    initial begin #60000000;$fatal(1,"TIMEOUT Chinese scrolling");end
 endmodule
