@@ -1,0 +1,94 @@
+{
+  "version": "2026-10-16",
+  "scope": "成人心肺复苏训练演示；普通公众与受训施救者的通气路径分开说明",
+  "ui": [
+    "心肺复苏", "教学浏览", "自动展播", "按压训练", "亮度", "对比", "页",
+    "加载中", "缺教程", "读卡错", "已显示", "未显示", "播放中", "已暂停",
+    "按压次数", "频率", "偏慢", "合适", "偏快", "待测", "压力档位", "未标定",
+    "触点档位", "演示输入", "按压间隔", "中断时间", "轮换剩余", "毫秒",
+    "请继续按压", "保持连续", "请轮换按压者", "轮换计时中", "传感器故障",
+    "采集正常", "跟随节拍", "下一拍", "按键演示",
+    "先学流程  再练按压  按前后键翻页",
+    "急救知识循环展示  按下一张暂停或继续",
+    "跟随节拍练习  压力未标定  请充分释放",
+    "按下并松开完成一次  触点输入仅作演示", "次/分", "训"
+  ],
+  "cards": [
+    {
+      "file": "01_assess_call",
+      "title": "判断与呼救",
+      "tag": "先确保安全，再立即求助",
+      "steps": [
+        "确认周围安全，拍肩大声呼叫",
+        "无反应：呼叫 120，开启免提",
+        "请旁人取 AED，听从调度指导",
+        "无反应且无正常呼吸：开始 CPR"
+      ],
+      "note": "濒死喘息也不是正常呼吸",
+      "source_ids": ["aha_bls_2025", "nhc_120"]
+    },
+    {
+      "file": "02_compressions",
+      "title": "胸外按压",
+      "tag": "掌根置于胸骨下半部",
+      "steps": [
+        "双手叠放，双臂伸直，垂直下压",
+        "成人频率：100–120 次/分",
+        "深度至少 5 cm，避免超过 6 cm",
+        "每次充分回弹，尽量减少中断"
+      ],
+      "note": "多人施救时约每 2 分钟轮换",
+      "source_ids": ["aha_bls_2025"]
+    },
+    {
+      "file": "03_airway_breaths",
+      "title": "气道与人工呼吸",
+      "tag": "受训且愿意通气者：30 : 2",
+      "steps": [
+        "无颈部创伤时，仰头抬颏开放气道",
+        "按压 30 次，再进行 2 次人工呼吸",
+        "每次约 1 秒，以可见胸廓起伏为度",
+        "未受训或不能通气：持续胸外按压"
+      ],
+      "note": "人工呼吸后立即恢复按压",
+      "source_ids": ["aha_bls_2025", "aha_what_cpr"]
+    },
+    {
+      "file": "04_aed",
+      "title": "使用 AED",
+      "tag": "开机，贴片，听从设备提示",
+      "steps": [
+        "按电极片图示贴于裸露胸部",
+        "分析心律及电击时，所有人离开",
+        "是否电击由 AED 判断，按提示操作",
+        "电击后或无需电击：立即恢复按压"
+      ],
+      "note": "恢复 CPR，遵循后续提示",
+      "source_ids": ["rcuk_bls_2025"]
+    }
+  ],
+  "sources": {
+    "aha_bls_2025": {
+      "title": "AHA 2025 Adult Basic Life Support",
+      "url": "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/adult-basic-life-support",
+      "checked": "2026-10-16",
+      "sections": ["6.1 Recognition", "6.3 Airway Management", "7.1 Hand Position", "7.2 Pauses", "7.3 Depth and Rate", "7.4 Ventilation"]
+    },
+    "aha_what_cpr": {
+      "title": "AHA What is CPR: trained and hands-only approaches",
+      "url": "https://cpr.heart.org/en/resources/what-is-cpr",
+      "checked": "2026-10-16"
+    },
+    "rcuk_bls_2025": {
+      "title": "Resuscitation Council UK 2025 Adult BLS: AED use",
+      "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/adult-basic-life-support-guidelines",
+      "checked": "2026-10-16",
+      "localization": "Only AED procedure is used; UK emergency number is not carried into these Chinese cards."
+    },
+    "nhc_120": {
+      "title": "国家卫生健康委：院前急救 120 特服号码",
+      "url": "https://www.nhc.gov.cn/wjw/tia/202101/5f75d1537d45467dbbecdcdd33411283.shtml",
+      "checked": "2026-10-16"
+    }
+  }
+}

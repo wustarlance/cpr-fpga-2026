@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="1200" viewBox="0 0 352 400"><rect width="352" height="400" fill="#102030"/>
+<text x="16" y="12" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">成人心肺复苏  /  教程 03 · 04</text>
+<text x="16" y="32" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="25" fill="#f3f7fa">气道与人工呼吸</text>
+<text x="16" y="63" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#b6c9d5">受训且愿意通气者：30 : 2</text>
+<rect x="16" y="86" width="320" height="120" rx="12" fill="#142b3b" stroke="#284859"/>
+<ellipse cx="78.0" cy="143.0" rx="38.0" ry="38.0" fill="#244e5b" stroke="none"/>
+<text x="59" y="117" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="32" fill="#58e0bc">30</text>
+<text x="60" y="157" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="14" fill="#f3f7fa">按压</text>
+<polyline points="129,144 163,144" fill="none" stroke="#58e0bc" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="155,137 163,144 155,151" fill="none" stroke="#58e0bc" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="217.0" cy="143.0" rx="38.0" ry="38.0" fill="#244e5b" stroke="none"/>
+<text x="208" y="117" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="32" fill="#58e0bc">2</text>
+<text x="200" y="157" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="14" fill="#f3f7fa">通气</text>
+<text x="272" y="115" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="14" fill="#f3f7fa">受训者</text>
+<text x="272" y="142" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="14" fill="#b6c9d5">循环</text>
+<text x="272" y="169" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="14" fill="#b6c9d5">进行</text>
+<ellipse cx="24.5" cy="230.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
+<text x="21" y="223" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">1</text>
+<text x="41" y="222" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">无颈部创伤时，仰头抬颏开放气道</text>
+<ellipse cx="24.5" cy="257.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
+<text x="21" y="250" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">2</text>
+<text x="41" y="249" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">按压 30 次，再进行 2 次人工呼吸</text>
+<ellipse cx="24.5" cy="284.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
+<text x="21" y="277" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">3</text>
+<text x="41" y="276" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">每次约 1 秒，以可见胸廓起伏为度</text>
+<ellipse cx="24.5" cy="311.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
+<text x="21" y="304" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">4</text>
+<text x="41" y="303" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">未受训或不能通气：持续胸外按压</text>
+<rect x="16" y="339" width="320" height="29" rx="7" fill="#18493f" stroke="none"/>
+<text x="26" y="345" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#58e0bc">人工呼吸后立即恢复按压</text>
+<text x="16" y="379" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#b6c9d5">成人培训示意 · 请结合规范实操教学</text>
+</svg>

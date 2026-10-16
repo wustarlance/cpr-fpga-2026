@@ -1,3 +1,9 @@
+# 中文显示自检（2026-10-16）
+
+新增 tb_chinese_rom、tb_chinese_scroll、tb_chinese_overlay。完整默认清单共 33 项 RTL，自检说明见 project/docs/chinese-ui.md。中文整帧测试默认超时 240 秒；旧组件默认英文，实际板级顶层默认中文。
+
+---
+
 # 仿真验证状态（2026-10-15）
 
 默认清单为30项RTL自检；在SD恢复四项基础上，新增页面策略、完整状态字跨时钟/页眉快照、训练页面整链三项。已有训练栅格、布局/帧快照与完整底图透出检查继续保留。默认每次编译/运行超时为120秒，运行器负控仍独立限时。见[SD恢复契约](../../project/docs/sd-recovery.md)及[训练底图修改说明](../../project/docs/training-layout.md)。

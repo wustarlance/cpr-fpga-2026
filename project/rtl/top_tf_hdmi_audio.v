@@ -3,6 +3,7 @@
 module top #(
     parameter USE_EXTERNAL_IO = 0,
     parameter USE_ADC = 0,
+    parameter UI_LANGUAGE_ZH = 1,
     parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
     parameter [11:0] RELEASE_BASELINE = 12'd3000,
     parameter [11:0] TRIGGER_LEVEL = 12'd150,
@@ -322,7 +323,8 @@ brightness_rgb u_brightness(
     .out_rgb (adjusted_rgb));
 contrast_rgb u_contrast(
     .rgb(adjusted_rgb), .level(contrast_video), .out_rgb(contrasted_rgb));
-cpr_overlay #(.UNCALIBRATED_PRESSURE(USE_ADC), .PAGE_STATUS_ENABLE(1)) u_overlay(
+cpr_overlay #(.UNCALIBRATED_PRESSURE(USE_ADC), .PAGE_STATUS_ENABLE(1),
+              .CHINESE_UI(UI_LANGUAGE_ZH)) u_overlay(
     .clk (video_clk),
     .rst (rst_video),
     .vs  (vs),

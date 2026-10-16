@@ -1,6 +1,7 @@
 // Internal ADC variant of the same board top. All board pin names are shared.
 // Defaults are test pressure codes, not calibrated physical depth thresholds.
 module top_adc #(parameter USE_EXTERNAL_IO=0,
+                 parameter UI_LANGUAGE_ZH=1,
                  parameter [1:0] TRAINING_PAGE_INDEX=2'd1)(
     input wire clk, rst_n, key1, key3, key2,
     input wire [3:0] dip_sw,
@@ -15,7 +16,7 @@ module top_adc #(parameter USE_EXTERNAL_IO=0,
     input wire sd_miso
 );
     top #(.USE_ADC(1), .USE_EXTERNAL_IO(USE_EXTERNAL_IO),
-          .TRAINING_PAGE_INDEX(TRAINING_PAGE_INDEX)) u_board (
+          .TRAINING_PAGE_INDEX(TRAINING_PAGE_INDEX), .UI_LANGUAGE_ZH(UI_LANGUAGE_ZH)) u_board (
         .clk          (clk),
         .rst_n        (rst_n),
         .key1         (key1),

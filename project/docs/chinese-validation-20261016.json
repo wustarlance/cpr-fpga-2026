@@ -1,0 +1,208 @@
+{
+  "date_asia_shanghai": "2026-10-16",
+  "baseline_head": "0f6d027f25d792bd20665398652d17916af5ef7c",
+  "baseline_pr": "https://github.com/wustarlance/cpr-fpga-2026/pull/3",
+  "teammate_scaler_cache_integrated": false,
+  "rtl_tests_passed": 33,
+  "runner_controls_passed": 5,
+  "new_chinese_tests": [
+    "tb_chinese_rom",
+    "tb_chinese_scroll",
+    "tb_chinese_overlay"
+  ],
+  "raster_pixel_comparisons": 2457600,
+  "mutation_controls": [
+    {
+      "mutation": "font_wrong_row",
+      "rejected": true,
+      "evidence": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\chinese-ui-20261016\\mutations\\font_wrong_row\\evidence",
+      "run_log": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-chinese-ui\\tests\\sim\\tb\\tb_chinese_rom.v:18: Chinese glyph row mismatch id=1 row=2\n       Time: 19000  Scope: tb_chinese_rom"
+    },
+    {
+      "mutation": "pressure_warning_hidden",
+      "rejected": true,
+      "evidence": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\chinese-ui-20261016\\mutations\\pressure_warning_hidden\\evidence",
+      "run_log": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-chinese-ui\\tests\\sim\\tb\\tb_chinese_overlay.v:84: Chinese raster mismatch state=0 adc=1 x=535 y=129 expected=20d060 got=101820\n       Time: 833611000  Scope: tb_chinese_overlay"
+    },
+    {
+      "mutation": "training_page_bit_ignored",
+      "rejected": true,
+      "evidence": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\chinese-ui-20261016\\mutations\\training_page_bit_ignored\\evidence",
+      "run_log": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-chinese-ui\\tests\\sim\\tb\\tb_chinese_overlay.v:84: Chinese raster mismatch state=0 adc=0 x=183 y=1 expected=ffffff got=805020\n       Time: 8331000  Scope: tb_chinese_overlay"
+    }
+  ],
+  "runner_line_ending_normalization": {
+    "before_sha256": "a9278965655bc7cd2c84afff4f63b28e5c7ce09a35f461002afee9b5c3afc14a",
+    "after_sha256": "320dd9b93029584bf8bf1db9639691cf97b1145323f08d1dc8415c80d8664cf3",
+    "only_crlf_to_lf": true
+  },
+  "runner_controls_rechecked_after_normalization": true,
+  "font_glyphs": 130,
+  "font_bitmap_bytes": 4160,
+  "messages": 43,
+  "project_registered_inputs": 61,
+  "materials": {
+    "status": "passed",
+    "cards": 4,
+    "width": 640,
+    "height": 480,
+    "bits_per_pixel": 24,
+    "start_sectors": [
+      0,
+      1801,
+      3602,
+      5403
+    ],
+    "raw_image_bytes": 3688448,
+    "raw_image_sha256": "7218492977a432271e92708cd003884e5d4a91760b4e7b64e9a2e6d4edf7aa16",
+    "safe_viewport_pixels_preserved": true,
+    "physical_device_accessed": false
+  },
+  "td": [
+    {
+      "top": "top",
+      "td_version": "6.2.168116",
+      "status": "failed",
+      "pass_marker": true,
+      "timed_out": false,
+      "resources": {
+        "lut": {
+          "used": 8353,
+          "available": 19600,
+          "percent": 42.62
+        },
+        "reg": {
+          "used": 4523,
+          "available": 19600,
+          "percent": 23.08
+        },
+        "bram": {
+          "used": 20,
+          "available": 64,
+          "percent": 31.25
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        },
+        "adc": {
+          "used": 0,
+          "available": 1,
+          "percent": 0.0,
+          "report_row_omitted": true
+        }
+      },
+      "page_mailbox_collections": [
+        {
+          "hold_bits": 12,
+          "capture_bits": 12
+        }
+      ],
+      "bitstream_sha256": "54de77abdf021a85a1766cc1ab4f3b780c441b81fd27a4a26441ea740872ae6d",
+      "timing_ns": {
+        "SWNS": 0.122,
+        "STNS": 0.0,
+        "HWNS": 0.003,
+        "HTNS": 0.0
+      },
+      "critical_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "reviewed_sdram_relocation_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file."
+      ]
+    },
+    {
+      "top": "top_adc",
+      "td_version": "6.2.168116",
+      "status": "failed",
+      "pass_marker": true,
+      "timed_out": false,
+      "resources": {
+        "lut": {
+          "used": 8573,
+          "available": 19600,
+          "percent": 43.74
+        },
+        "reg": {
+          "used": 4669,
+          "available": 19600,
+          "percent": 23.82
+        },
+        "bram": {
+          "used": 20,
+          "available": 64,
+          "percent": 31.25
+        },
+        "adc": {
+          "used": 1,
+          "available": 1,
+          "percent": 100.0
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        }
+      },
+      "page_mailbox_collections": [
+        {
+          "hold_bits": 12,
+          "capture_bits": 12
+        }
+      ],
+      "bitstream_sha256": "3aa8b971902c6c9860d1fbdd38db2fbc45797cdfec192632eba43ac52cf6f7cc",
+      "timing_ns": {
+        "SWNS": 0.149,
+        "STNS": 0.0,
+        "HWNS": 0.011,
+        "HTNS": 0.0
+      },
+      "critical_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "reviewed_sdram_relocation_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file."
+      ]
+    }
+  ],
+  "reference_preservation": {
+    "project/vendor": {
+      "files": 17,
+      "all_files_unchanged": true
+    },
+    "project/ip": {
+      "files": 6,
+      "all_files_unchanged": true
+    },
+    "project/constraints": {
+      "files": 5,
+      "all_files_unchanged": true
+    },
+    "05_lab_ex": {
+      "files": 178,
+      "all_files_unchanged": true
+    },
+    "project/rtl/SD/sd_card_bmp.v": {
+      "unchanged": true
+    }
+  },
+  "td_strict_status": "failed",
+  "board_programmed": false,
+  "tf_card_written": false,
+  "github_uploaded": false,
+  "note": "Local implementation and evidence only. Physical board, current teammate revision and TD SP1 acceptance remain separate work."
+}

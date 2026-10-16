@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="1200" viewBox="0 0 352 400"><rect width="352" height="400" fill="#102030"/>
+<text x="16" y="12" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">成人心肺复苏  /  教程 02 · 04</text>
+<text x="16" y="32" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="25" fill="#f3f7fa">胸外按压</text>
+<text x="16" y="63" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#b6c9d5">掌根置于胸骨下半部</text>
+<rect x="16" y="86" width="320" height="120" rx="12" fill="#142b3b" stroke="#284859"/>
+<ellipse cx="112.0" cy="102.0" rx="13.0" ry="14.0" fill="#bfd4df" stroke="none"/>
+<polyline points="102,117 122,117 146,131 141,183 83,183 78,131 102,117" fill="none" stroke="#bfd4df" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="102,117 122,117 146,131 141,183 83,183 78,131" fill="#436879" stroke="#bfd4df"/>
+<polyline points="90,184 86,196" fill="none" stroke="#bfd4df" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="134,184 138,196" fill="none" stroke="#bfd4df" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="112,130 112,172" fill="none" stroke="#82a8b8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="112.0" cy="158.0" rx="12.0" ry="10.0" fill="#f4b38b" stroke="none"/>
+<rect x="101" y="152" width="22" height="8" rx="3" fill="#ffcfad" stroke="none"/>
+<polyline points="125,157 158,137 177,137" fill="none" stroke="#58e0bc" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="180" y="112" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="16" fill="#f3f7fa">胸骨下半部</text>
+<text x="180" y="148" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="23" fill="#58e0bc">100–120</text>
+<text x="180" y="181" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#b6c9d5">次 / 分</text>
+<ellipse cx="24.5" cy="230.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
+<text x="21" y="223" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">1</text>
+<text x="41" y="222" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">双手叠放，双臂伸直，垂直下压</text>
+<ellipse cx="24.5" cy="257.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
+<text x="21" y="250" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">2</text>
+<text x="41" y="249" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">成人频率：100–120 次/分</text>
+<ellipse cx="24.5" cy="284.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
+<text x="21" y="277" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">3</text>
+<text x="41" y="276" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">深度至少 5 cm，避免超过 6 cm</text>
+<ellipse cx="24.5" cy="311.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
+<text x="21" y="304" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">4</text>
+<text x="41" y="303" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">每次充分回弹，尽量减少中断</text>
+<rect x="16" y="339" width="320" height="29" rx="7" fill="#18493f" stroke="none"/>
+<text x="26" y="345" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#58e0bc">多人施救时约每 2 分钟轮换</text>
+<text x="16" y="379" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#b6c9d5">成人培训示意 · 请结合规范实操教学</text>
+</svg>

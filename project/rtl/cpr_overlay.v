@@ -3,7 +3,8 @@
 // Official 640x480 VS is negative: capture status on its falling edge.
 // Display saturation never changes the underlying training counters.
 module cpr_overlay #(parameter UNCALIBRATED_PRESSURE = 0,
-                     parameter PAGE_STATUS_ENABLE = 0)(
+                     parameter PAGE_STATUS_ENABLE = 0,
+                     parameter CHINESE_UI = 0)(
     input wire clk, rst, vs, de,
     input wire [23:0] rgb,
     input wire [1:0] mode,
@@ -45,6 +46,24 @@ scroll_text u_subtitles(
 reg [15:0] count_bcd, interval_bcd, pause_bcd;
 reg [23:0] rotate_bcd;
 reg [11:0] bpm_bcd;
+wire zh_text_pixel;
+wire [23:0] zh_text_color;
+generate if (CHINESE_UI) begin: g_chinese
+    cpr_text_zh #(.UNCALIBRATED_PRESSURE(UNCALIBRATED_PRESSURE),
+                  .PAGE_STATUS_ENABLE(PAGE_STATUS_ENABLE)) u_text(
+        .clk(clk), .rst(rst), .frame_start(last_vs && !vs), .de(de), .x(x), .y(y),
+        .mode(frame_mode), .rate(frame_rate), .depth(frame_depth),
+        .brightness(frame_brightness), .contrast(frame_contrast),
+        .auto_running(frame_auto_running), .pause_warning(frame_pause),
+        .rotate_due(frame_rotate), .fault(frame_fault), .beat(frame_beat),
+        .bpm_valid(frame_bpm_valid), .page_status(frame_page),
+        .count_bcd(count_bcd), .interval_bcd(interval_bcd), .pause_bcd(pause_bcd),
+        .rotate_bcd(rotate_bcd), .bpm_bcd(bpm_bcd),
+        .text_pixel(zh_text_pixel), .text_color(zh_text_color));
+end else begin: g_ascii
+    assign zh_text_pixel=1'b0;
+    assign zh_text_color=24'd0;
+end endgenerate
 
 // Constant-bound shift/add-3 conversion; no runtime divider is inferred.
 function [15:0] to_bcd4;
@@ -366,9 +385,10 @@ always @(*) begin
         if (y >= 448 && y < 464 && x >= 16 && x < 624 &&
             (frame_mode != 2 || x < TRAIN_SUBTITLE_RIGHT)) begin
             out_rgb = 24'h182430;
-            if (subtitle_pixel) out_rgb = 24'hffffff;
+            if (!CHINESE_UI && subtitle_pixel) out_rgb = 24'hffffff;
         end
-        if (text_pixel) out_rgb = text_color;
+        if (!CHINESE_UI && text_pixel) out_rgb = text_color;
+        if (CHINESE_UI && zh_text_pixel) out_rgb = zh_text_color;
     end
 end
 endmodule
