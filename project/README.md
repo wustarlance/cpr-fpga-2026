@@ -1,8 +1,10 @@
-> 本地整合状态（2026-10-16）：PR #3/#4 已合并到远端 main，本地缩放缓存改动已恢复且无 Git 冲突。整合版39项仿真通过，但TD建立时间仍违例，当前不能将旧位流当作整合新版上板。完整说明见[整合记录](docs/pr34-integration.md)。
+> **当前状态（2026-10-17）**：40 项 RTL 自检与 5 项运行器控制全部通过；TD 完整构建两个顶层均通过，零违例端点（`top` SWNS **+0.115 ns**、`top_adc` **+0.132 ns**），位流已生成，可上板。PR #3/#4、四槽全缓存、加载时缩放、中文界面与音频节拍器均已合入 `main`。
+>
+> 下方按日期排列的小节是各次接入时的历史记录，其中的自检数量（23/27/30/39 项）反映当时版本，**不代表当前状态**。当前数量以本节为准。
 
 # 中文提示与教程接入（2026-10-16）
 
-默认 UI_LANGUAGE_ZH=1，加入中文提示和四张教程 BMP。接线接口、素材顺序、资源和验证边界见 [中文界面与教程](docs/chinese-ui.md)。当前是基于 PR #3 的本地开发版本；队员缩放/缓存代码尚未合入，旧构建记录不代表本次版本。
+默认 UI_LANGUAGE_ZH=1，加入中文提示和四张教程 BMP。接线接口、素材顺序、资源和验证边界见 [中文界面与教程](docs/chinese-ui.md)。缩放缓存代码与中文界面已在同一个 `main` 上合入并共同验证，不再是两套分立版本。
 
 ---
 
@@ -30,7 +32,11 @@ SD读取现在包含令牌/字节超时、读CRC、取消、整图有限重试�
 
 `top` 和 `top_adc` 均提供综合期参数 `ENABLE_AUDIO`，默认 `1` 保持 HDMI 音频输出；设为 `0` 会关闭 HDMI 音频采样与 ACR 包。修改参数后需重新综合并生成位流。音频 PLL 保持运行，因为其时钟也供 ADC 采样链使用。
 
-本工程整合 PR #1 的训练、ADC、OSD、复位和自检，与本地 SDRAM 40 MHz、刷新参数及 BMP 扫描流水化修复。媒体层继续用原始扇区扫描。当前 BMP 路径支持正高度、24 位无压缩、宽≤2048/高≤1536 的图片，加载时最近邻等比缩放并居中补边到640×480；前四张会预载入四个固定 SDRAM 槽位。尚未实现 FAT32、top-down/压缩 BMP、语音/音乐、双线性插值、频谱或转场。ADC 数字链可构建，模拟输入与机械深度仍未标定。
+音频内容由 `rtl/cpr_audio_tone_i2s.v` 产生，48 kHz、24 bit、方波：教学浏览与自动展播播放 do-re-mi 音阶（每音 0.5 s 循环）；按压训练锁定 **A4 440 Hz**，每次节拍提示响 40 ms 后静音，使各拍音高一致。`I_metronome` 来自 25 MHz 视频域，模块内两级同步，首级在 `constraints/audio_metronome.sdc` 中豁免。声音只经 HDMI 输出，板上没有蜂鸣器。
+
+本工程整合 PR #1 的训练、ADC、OSD、复位和自检，与本地 SDRAM 40 MHz、刷新参数及 BMP 扫描流水化修复。媒体层继续用原始扇区扫描。当前 BMP 路径支持正高度、24 位无压缩、宽≤2048/高≤1536 的图片，加载时最近邻等比缩放并居中补边到640×480；前四张会预载入四个固定 SDRAM 槽位，四槽就绪后手动/自动切换不再访问 SD 卡。
+
+尚未实现：FAT32 目录与碎片文件、top-down/压缩 BMP、语音或音乐播放、频谱可视化、转场特效。缩放目前只有最近邻采样；面积平均与双线性插值已在 Python 中建模，并按面积平均与十二平均律参考量化过（缩小方向优于双线性 2~14 dB，放大方向与双线性持平），**RTL 尚未实现**。ADC 数字链可构建，模拟输入与机械深度仍未标定。
 
 ## 目录与依赖
 
@@ -68,6 +74,63 @@ python3 project/verify_td.py --td /usr/local/bin/td --stage full
 ```
 
 默认 GUI 的 `syn_1 / phy_1` 重建可在 project 运行 `td rebuild.tcl`。ADC 构建必须用 `CPR_TOP=top_adc td build.tcl` 加载并验证 ADC 专用约束；只在 GUI 中改顶层不等价。关闭旧工程窗口，再打开 `project/project.al`；旧 `project/td_project` 已归档，不应继续使用。
+
+`td` 指 `/usr/local/bin/td`（指向 TD 6.2.1 SP1 的启动器），不要用 `bin/td`。
+
+### 命令行构建的三种用法
+
+```bash
+cd project
+
+CPR_TOP=top     td build.tcl   # 默认演示版：板载按键模拟按压。约 90 s
+CPR_TOP=top_adc td build.tcl   # ADC 采集版：真实按压盒。约 146 s
+CPR_TOP=top CPR_STAGE=synth td build.tcl   # 只综合不布局布线，约 55 s
+```
+
+`CPR_STAGE` 未设置时等于 `full`（综合→布局→布线→时序检查→生成位流）；`synth` 只跑到 `optimize_gate`，**不生成位流**，适合快速确认代码能否综合。
+
+### 读时序结果
+
+构建结束会打印一行结论：
+
+```
+CPR_BUILD_PASS top setup=0.115 hold=0.011      ← 通过
+CPR_BUILD_FAIL top: Timing failed: setup=-0.563 hold=0.003   ← 失败，非零退出
+```
+
+明细在 `project/build/<top>/`：
+
+| 文件 | 内容 |
+|---|---|
+| `timing_status.rpt` | 全局余量，最权威的两行 |
+| `timing_summary.rpt` | 各时钟域余量 + 最差路径（约 1.5 MB）|
+| `timing_check.rpt` | 约束与 CDC 检查 |
+| `gate_area.rpt` | LUT / REG / IO 占用 |
+
+```bash
+# 过没过
+cat project/build/top/timing_status.rpt
+
+# 哪个时钟域最紧（SWNS 最小的一行就是瓶颈）
+awk '/Name *Type *Rise/,/^$/' project/build/top/timing_summary.rpt | head -10
+
+# 具体是哪条路径
+grep -A6 "Max Paths" project/build/top/timing_summary.rpt | head -40
+```
+
+**时序门禁**：`build.tcl` 在 `bitgen` **之前**检查 SWNS/STNS/HWNS/HTNS，任一为负就 `error` 退出，**不生成位流**。因此磁盘上的 `.bit` 可能来自上一次成功的构建，用 `ls -la` 核对时间戳，不要把旧位流当成本次结果。
+
+### 烧写位流
+
+`burn` 按名字**在整个仓库里模糊匹配**，而 `DEMO/` 下有 37 个厂商例程，**不要用裸名字**：
+
+```bash
+burn -n project/build/top/top.bit    # 干跑，先核对解析出的路径和字节数
+burn    project/build/top/top.bit    # 烧到 SRAM，掉电丢失，调试用
+burn -f project/build/top/top.bit    # 烧到 FLASH，掉电保留，现场固化
+```
+
+`burn top.bit` 会解析到 `DEMO/DEMO/30_LCD_ATK/top/top_Runs/phy_1/top.bit`（厂商 LCD 例程），不是本工程的位流。
 
 缓存和缩放的范围、数据流及本次验证结果见[四槽全缓存与加载时缩放](docs/image-cache-scaling.md)。
 
