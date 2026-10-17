@@ -48,7 +48,7 @@ module bmp_read_scaled #(
         FIT_START=8, DIVIDE=9, FIT_FINISH=10, WRITE_WAIT=11, WRITE_RELEASE=12,
         SECTOR=13, BYTE_FETCH=14, BYTE_USE=15, ROW_READY=16,
         OUT_FETCH=17, OUT_SEND=18, H_ADVANCE=19, V_ADVANCE=20,
-        NEXT_ROW=21, FINISH=22, CHECK_DECIDE=23, FIT_COMPARE=24;
+        NEXT_ROW=21, FINISH=22, CHECK_DECIDE=23, FIT_COMPARE=24, FIT_ALIGN=25;
     reg [4:0] state;
     reg header_is_scan;
     reg [9:0] rx_count;
@@ -125,6 +125,11 @@ module bmp_read_scaled #(
     // path. Explicit 32-bit operands and one subtract per clock bound timing.
     reg [31:0] div_bits, div_rem, div_den;
     reg [5:0] div_count;
+    // The dividend is dimension x DST_OTHER plus a rounding half. The multiply
+    // and the add are registered separately: a MULT18 feeding a 22-bit carry
+    // chain in one 100 MHz cycle was the failing setup path of this reader.
+    reg [21:0] div_prod;
+    reg [11:0] div_half;
     wire [32:0] div_trial = {div_rem, div_bits[31]};
     wire div_ge = div_trial >= {1'b0,div_den};
     wire [32:0] div_sub = div_trial - {1'b0,div_den};
@@ -161,6 +166,7 @@ module bmp_read_scaled #(
             fit_w<=0; fit_h<=0; off_x<=0; bottom_rows<=0; fit_width_limited<=0;
             out_x<=0; out_y<=0; content_y<=0; sample_x<=0; sample_y<=0;
             h_rem<=0; v_rem<=0; div_bits<=0; div_rem<=0; div_den<=1; div_count<=0;
+            div_prod<=0; div_half<=0;
             scan_done<=0; scan_found_valid<=0; scan_found_sector<=0; scan_found_total<=0;
             write_req<=0; sd_sec_read<=0; sd_sec_read_addr<=0; load_error<=0;
         end else if (!sd_init_done) begin
@@ -289,17 +295,26 @@ module bmp_read_scaled #(
                 // dimension. A minimum of one pixel handles extreme aspects.
                 // The comparison runs in its own state: two multipliers plus a
                 // 22-bit compare in series with the destination register enables
-                // was the worst path on the 100 MHz SD clock.
+                // was the worst path on the 100 MHz SD clock. For the same
+                // reason the dividend multiply (FIT_START) and its rounding add
+                // (FIT_ALIGN) are separate states; the divider only starts one
+                // clock later and the result is unchanged.
                 FIT_COMPARE: begin
                     fit_width_limited <= width[11:0]*DST_HEIGHT >= height[10:0]*DST_WIDTH;
                     state<=FIT_START;
                 end
                 FIT_START: begin
                     if(fit_width_limited) begin
-                        fit_w<=DST_WIDTH; div_bits<=height[10:0]*DST_WIDTH+(width>>1); div_den<=width;
+                        fit_w<=DST_WIDTH; div_prod<=height[10:0]*DST_WIDTH;
+                        div_half<=(width>>1); div_den<=width;
                     end else begin
-                        fit_h<=DST_HEIGHT; div_bits<=width[11:0]*DST_HEIGHT+(height>>1); div_den<=height;
+                        fit_h<=DST_HEIGHT; div_prod<=width[11:0]*DST_HEIGHT;
+                        div_half<=(height>>1); div_den<=height;
                     end
+                    state<=FIT_ALIGN;
+                end
+                FIT_ALIGN: begin
+                    div_bits<={10'd0,div_prod+div_half};
                     div_rem<=0; div_count<=32; state<=DIVIDE;
                 end
                 DIVIDE: begin
