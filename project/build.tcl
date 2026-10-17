@@ -44,6 +44,7 @@ if {[catch {
             error "ADC mailbox must bind 12 source and 12 capture registers"
         }
     }
+    read_sdc constraints/audio_metronome.sdc
     read_sdc constraints/page_status.sdc
     set cpr_page_src [get_regs {*u_page_status/u_transfer/src_hold[*]}]
     set cpr_page_dst [get_regs {*u_page_status/u_transfer/dst_data[*]}]

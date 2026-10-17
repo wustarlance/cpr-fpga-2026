@@ -548,13 +548,18 @@ sdram U3(
     .Sdr_rd_dout       (Sdr_rd_dout)
 );
 
-// ===================== 音频：内部 I2S 测试音 =====================
-hdmi_audio_tone_i2s_64fs #(
-    .PHASE_INC (32'd39370534),
-    .AMP       (24'sd2000000)
-) u_hdmi_audio_tone_i2s_64fs (
+// ===================== 音频：内部 I2S 音源 =====================
+// 教学/展播模式播放 do-re-mi 音阶作为背景音；按压训练模式锁定 A4 440 Hz，
+// 使每一次按压提示音的音高一致。修复前节拍音会跟随音阶漂移，同一组按压
+// 每拍的音高都不同，听感上不成立为节拍器。
+cpr_audio_tone_i2s #(
+    .AMP              (24'sd2000000),
+    .NOTE_HOLD_FRAMES (24000),        // 0.5 s / 音符 @ 48 kHz
+    .METRONOME_NOTE   (3'd5)          // la / A4 440 Hz
+) u_cpr_audio_tone (
     .I_mclk      (audio_mclk),
     .I_rst       (rst_audio),
+    .I_metronome (app_mode == 2'd2),
     .O_i2s_BCLK  (audio_i2s_bclk),
     .O_i2s_LRCK  (audio_i2s_lrck),
     .O_i2s_DOUT  (audio_i2s_dout)
