@@ -123,6 +123,8 @@ module cpr_control #(
         .press_fault         (press_fault)
     );
     rate_display_lut u_rate_display (
+        .clk         (clk),
+        .rst_n       (rst_n),
         .interval_ms (interval_ms),
         .rate_valid  (rate_valid),
         .bpm_approx  (bpm_approx),

@@ -1,0 +1,2083 @@
+{
+  "baseline_commit": "ad41f17721c11d0fdb459a06a418c7c1cd06ea8e",
+  "rtl_tests_passed": 41,
+  "runner_controls_passed": 5,
+  "test_evidence_selection": "Only current-source and current-fixture hashes are accepted; dependent checks re-run after final command gating.",
+  "tests": [
+    {
+      "test": "tb_adc_ctrl",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\adc_ctrl.v",
+          "sha256": "8fac64554c5ba4037cf4d69d2bdb782bdb1b3d2345969d47233a87e3188b3051"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\stubs\\eg_phy_adc_timing_model.v",
+          "sha256": "7b65b89f0d5ec98c394c7b43c2e761d8ba9b159ab859fc71c41cc24a462eba9f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_adc_ctrl.v",
+          "sha256": "5ce804b60d1985955ab3a99a1a928006e090dabf77a525a37f28b81df6c07ac3"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_pressure_normalize",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\pressure_normalize.v",
+          "sha256": "e5c2391f69c929191ce21069b1da0964b3937fec99f3fe8c1c77bf7d52cdd886"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_pressure_normalize.v",
+          "sha256": "3b113f8a7e74c32626272b26558887751cb5be1454125c21ff66d1cda7f2fd32"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_peak_detect",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\peak_detect.v",
+          "sha256": "9da7c8aeea140535ae4cbf64bc6e4af13bfe9421661c9a8546b87210df3ad198"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_peak_detect.v",
+          "sha256": "afb8b688e192753296a5304a105a647658dc20f1709303459b6678ef9f7510c3"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_sample_mailbox",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\sample_mailbox.v",
+          "sha256": "eff0bb85c9301c386bd4b2c9b775cda87c1ea63d8a8f6dcd348dcc3b65eb9f3d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sample_mailbox.v",
+          "sha256": "b3ff47b32cdb928db9d9eab401d3ee6f0c51c722b1188a05e55d6c75d007565f"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_cpr_sensor_path",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\adc_ctrl.v",
+          "sha256": "8fac64554c5ba4037cf4d69d2bdb782bdb1b3d2345969d47233a87e3188b3051"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\sample_mailbox.v",
+          "sha256": "eff0bb85c9301c386bd4b2c9b775cda87c1ea63d8a8f6dcd348dcc3b65eb9f3d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\pressure_normalize.v",
+          "sha256": "e5c2391f69c929191ce21069b1da0964b3937fec99f3fe8c1c77bf7d52cdd886"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\peak_detect.v",
+          "sha256": "9da7c8aeea140535ae4cbf64bc6e4af13bfe9421661c9a8546b87210df3ad198"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_sensor_path.v",
+          "sha256": "87cc872e403e416766bcc83426e48345f9029e46dcedd587e7b3483f6000e825"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\stubs\\eg_phy_adc_timing_model.v",
+          "sha256": "7b65b89f0d5ec98c394c7b43c2e761d8ba9b159ab859fc71c41cc24a462eba9f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_cpr_sensor_path.v",
+          "sha256": "3463549b69bf732569994cf40e189891f2156522cb3aaff27bd39e041c5fdfcf"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_training_events",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\training_core.v",
+          "sha256": "296583e31ed5a857e08a6e5726327809a3ea0277f236da54b45ac4cfe701a72c"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_training_events.v",
+          "sha256": "c1ee65f09babeea048ed4e985d2e6c416acfd8612b7e49ff8b15184cf6c5f96e"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_video_rgb_to_axis",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\video_rgb_to_axis_640x480.v",
+          "sha256": "9d87f68659e7e7a8bb4cd0cf44004e95f0005a187194add7f5f570a84e5c28e4"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_video_rgb_to_axis.v",
+          "sha256": "b8a51ec5c2f1e2cf58376a292854458a6c4541058c708e98d9401c5bf43f2bd0"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_training_core",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\training_core.v",
+          "sha256": "296583e31ed5a857e08a6e5726327809a3ea0277f236da54b45ac4cfe701a72c"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_training_core.v",
+          "sha256": "2cafafdce9c0c2246a12e7a6a0fedc539d558f928f6eeaf71d7cef6524adcf1b"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_cpr_control",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\timebase.v",
+          "sha256": "2ae4bc9d5babd088de41b2584a8ae24a631f1f9da729da09163c68524eb7cdf5"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\input_filter.v",
+          "sha256": "b2cec007b995a1d4ccefae1beb5eb89cba01d007879d1bc895fc3f0e4723cfe9"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\training_core.v",
+          "sha256": "296583e31ed5a857e08a6e5726327809a3ea0277f236da54b45ac4cfe701a72c"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\rate_display_lut.v",
+          "sha256": "af6fbff04fb7da7c232e4cb19d9c3eb443a5420a0ce0d7bfcc0d554ebc3b8ca3"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_control.v",
+          "sha256": "69e592a2677f2c5055d3bb6c9bbde48891b5d7c7d26e79f2d379ed401cba8677"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_cpr_control.v",
+          "sha256": "ad665afab54bc9c45d71c76e00ba086c199db2a5bfd428d3e45e78b34b9386c7"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_rate_display_lut",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\rate_display_lut.v",
+          "sha256": "af6fbff04fb7da7c232e4cb19d9c3eb443a5420a0ce0d7bfcc0d554ebc3b8ca3"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_rate_display_lut.v",
+          "sha256": "2471540e778bb24c20b4f44378c64784b3ca9f929a0d9a2ee541139dc338aa07"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_brightness_rgb",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\brightness_rgb.v",
+          "sha256": "8b03a1f467c1ea65e02d69e4e0b30a8ef6f4c0d0005a940a066696dbc09decb0"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_brightness_rgb.v",
+          "sha256": "a353173bfcbdcbd2b3f6cba0e10a2bb6d220e0be23ab596acd4759ef14d083c7"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_bmp_scan",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read.v",
+          "sha256": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_bmp_scan.v",
+          "sha256": "0c3f0c366d7699f9af83d4d94b8b6b3d2963ec9ff714cd94af9ef2c6fee3b5fe"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_sdram_refresh",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sdram_refresh.v",
+          "sha256": "5866e93704a0d5a3f45c80389c28b589e7dac994e7eb4172feda544cbdb6a019"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_sd_buffer_ownership",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_page_manager.v",
+          "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\frame_buffer_publish.v",
+          "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\SD\\sd_card_bmp.v",
+          "sha256": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\stubs\\sd_image_reader_model.v",
+          "sha256": "296afc73e6b1c69f37b01d5b7e644369b72642fe6bddfe261a852a4ed6f83246"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sd_buffer_ownership.v",
+          "sha256": "a1b6ca9793a4fb5f1126b12feadd6fb74f62616aab6dcdf1865cf0ec7814b007"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_cpr_overlay",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_overlay.v",
+          "sha256": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_cpr_overlay.v",
+          "sha256": "b9da773e394b326c9dd3ca661dae9ebb0d35942d09832c3d1ede96a363d257fd"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\scroll_text.v",
+          "sha256": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\font5x7_rom.v",
+          "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_subtitle_rom.v",
+          "sha256": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_reset_release",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\reset_release.v",
+          "sha256": "3b184934ef86e19115ccbfb7467145d338785ea45b0f3f054442eaa8fd68f493"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_reset_release.v",
+          "sha256": "82dbcfb3b768e4f8785b4a2edfd6a03486d9ad8f66b5087248f477a8615f49fc"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_sd_cache_ownership",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_page_manager.v",
+          "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\frame_buffer_publish.v",
+          "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\SD\\sd_card_bmp.v",
+          "sha256": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\stubs\\sd_cache_reader_model.v",
+          "sha256": "16a8d819e0a0c51f57edcf891caa18935ece6b0d8189b2edf1541680f3aa3bb1"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sd_cache_ownership.v",
+          "sha256": "2491d63f4e4b4d40a1cd1085ac9a7c1b7a413c5a6ad5aaa2ef102f2c6e2b78aa"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_audio_tone",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_audio_tone_i2s.v",
+          "sha256": "d304c159a45e72edfac7d20cb19eac1d680fa812da6cb357af26058525619de4"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_audio_tone.v",
+          "sha256": "b150742c919202b7ab8197e7f1d6c8fccb229aa86f8eb0ec1e5ea43b311430a8"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_bmp_scaled",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read_scaled.v",
+          "sha256": "45d08b9374c3b64cf491a09a0a702ab925794d49845481a2e90251e136d63b2a"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_bmp_scaled.v",
+          "sha256": "c03048350915004294c357abd787dd2ce9d2c86856e5a8f4f45e74b9c84a46d3"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_bmp_scaled_frame",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read_scaled.v",
+          "sha256": "45d08b9374c3b64cf491a09a0a702ab925794d49845481a2e90251e136d63b2a"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_bmp_scaled.v",
+          "sha256": "c03048350915004294c357abd787dd2ce9d2c86856e5a8f4f45e74b9c84a46d3"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_contrast_rgb",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\contrast_rgb.v",
+          "sha256": "6fbefe2289d7da051cac690362455f614aa3fa39412d467907a7d84013cd1cf7"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_contrast_rgb.v",
+          "sha256": "e5f07a5ab1705dc9795431ff536760de064384007c893f2d828b784cd563709b"
+        }
+      ],
+      "fixtures": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\contrast_golden.mem",
+          "sha256": "eff86075f4a8bc996321b7e284b6f19130d65e7ee171b2a6ca5cc10746eb57e5"
+        }
+      ]
+    },
+    {
+      "test": "tb_font5x7_rom",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\font5x7_rom.v",
+          "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_font5x7_rom.v",
+          "sha256": "06ec61edc15b93aeb0ae9751e45fa0c2443a9500413d15629166808e70287cc3"
+        }
+      ],
+      "fixtures": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\glyph5x7_golden.mem",
+          "sha256": "98581d4b29822da012b49ea9c327406edb69929d1c35f508e99757d8c678780d"
+        }
+      ]
+    },
+    {
+      "test": "tb_scroll_contract",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\scroll_text.v",
+          "sha256": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\font5x7_rom.v",
+          "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_scroll_contract.v",
+          "sha256": "ded7e0992ab954d18bf45cb57065a4cf3b118da619732e40f52f6d98e59c4bc6"
+        }
+      ],
+      "fixtures": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\scroll_text_ascii.mem",
+          "sha256": "9cadb99eb7d2dccff1ad12db998b2b2e002ffe199c6d88ab55b266d02be1fd4d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\glyph5x7_golden.mem",
+          "sha256": "98581d4b29822da012b49ea9c327406edb69929d1c35f508e99757d8c678780d"
+        }
+      ]
+    },
+    {
+      "test": "tb_contrast_controls",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\input_filter.v",
+          "sha256": "b2cec007b995a1d4ccefae1beb5eb89cba01d007879d1bc895fc3f0e4723cfe9"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\contrast_controls.v",
+          "sha256": "474284faf3c70a3452da56ba890b2de851a7c84ab4f659ab2575181d3ff0f2cb"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_contrast_controls.v",
+          "sha256": "5626607114c77278afe7a5922b613f7cc7a58db6230d085e431d3343cbc713ce"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_cpr_overlay_features",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_overlay.v",
+          "sha256": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\scroll_text.v",
+          "sha256": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\font5x7_rom.v",
+          "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_subtitle_rom.v",
+          "sha256": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_cpr_overlay_features.v",
+          "sha256": "1d7add5e68234d6df1f2f742648cd29342ef600e6f89fa8acd3023eea40eabb3"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_training_layout",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_overlay.v",
+          "sha256": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\scroll_text.v",
+          "sha256": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\font5x7_rom.v",
+          "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_subtitle_rom.v",
+          "sha256": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_training_layout.v",
+          "sha256": "5315bc84de75d173f8b118d24ae595366ab343363876a0de801325f567ad17a9"
+        }
+      ],
+      "fixtures": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\training_panel_golden.mem",
+          "sha256": "65fce3a8246c546ca27f8049dec46126a85157062f92127de1a024ac20827ad3"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\glyph5x7_golden.mem",
+          "sha256": "98581d4b29822da012b49ea9c327406edb69929d1c35f508e99757d8c678780d"
+        }
+      ]
+    },
+    {
+      "test": "tb_sd_cmd_recovery",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\sd_card_cmd.v",
+          "sha256": "377453c600158b40f9a0ea4912d4c42b6ab2d3916e94c053e9be16b999852e83"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sd_cmd_recovery.v",
+          "sha256": "f4b0bbbac1a829c37fa2dbb3b125cecec8c10027c1ffab59098a900270289940"
+        }
+      ],
+      "fixtures": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\sd_crc_sector.mem",
+          "sha256": "17f5c0a7e02226300ee97077d3752b52f761611175092b96b184b0ca82b90496"
+        }
+      ]
+    },
+    {
+      "test": "tb_sd_sector_recovery",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\sd_card_sec_read_write.v",
+          "sha256": "76a1b589cead19d940447862912c9fbfc5867e512edd06453cc4cdb61f97a8c4"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sd_sector_recovery.v",
+          "sha256": "c6ef68a107879157568a847a9f8c81af8c5faa85d759e2391931d7f89f872f02"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_sd_image_recovery",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\command-gate-tests",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_page_manager.v",
+          "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\SD\\sd_card_bmp.v",
+          "sha256": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read.v",
+          "sha256": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\frame_buffer_publish.v",
+          "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_write.v",
+          "sha256": "5f150c731f29e23a9b228a7418f24ae60e0296135fda0d68097e03d031b51947"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\stubs\\sd_fault_sector_model.v",
+          "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sd_image_recovery.v",
+          "sha256": "3d99c2b9efadf632c899c988b7c5f90758a2b8378b111f13174926be05bd7009"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_sd_retry_limits",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_page_manager.v",
+          "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\SD\\sd_card_bmp.v",
+          "sha256": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read.v",
+          "sha256": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\stubs\\sd_fault_sector_model.v",
+          "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sd_retry_limits.v",
+          "sha256": "944485bfa053acb7029b3e5a346a3e47e5a7a11cd08a3b278bea0762840c2754"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_page_manager",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_page_manager.v",
+          "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_page_manager.v",
+          "sha256": "8f987950f031045a59d517e4e398a4b49d3dc9521242b7dee43dc8953db4dbcd"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_page_status",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\sample_mailbox.v",
+          "sha256": "eff0bb85c9301c386bd4b2c9b775cda87c1ea63d8a8f6dcd348dcc3b65eb9f3d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\page_status_cdc.v",
+          "sha256": "6a5c566aab8e9f88be3a4fa3c3c663ae1d3f05614bc97eca2d82a3b7c3be84d2"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_overlay.v",
+          "sha256": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\scroll_text.v",
+          "sha256": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\font5x7_rom.v",
+          "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_subtitle_rom.v",
+          "sha256": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_page_status.v",
+          "sha256": "7d6fdab82815035fcaba6d98bac73814f1f03d2123a54f2efdd96e9d323f1dcf"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_training_pages",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\command-gate-tests",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_page_manager.v",
+          "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\SD\\sd_card_bmp.v",
+          "sha256": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read.v",
+          "sha256": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\frame_buffer_publish.v",
+          "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_write.v",
+          "sha256": "5f150c731f29e23a9b228a7418f24ae60e0296135fda0d68097e03d031b51947"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\stubs\\sd_fault_sector_model.v",
+          "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_training_pages.v",
+          "sha256": "81c7fe5e79ceadb17cb64644d1ed670537dcf08cced4b77ab0c98df5074e8b9e"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_sd_scaled_pages",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\command-gate-tests",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_page_manager.v",
+          "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\SD\\sd_card_bmp.v",
+          "sha256": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read_scaled.v",
+          "sha256": "45d08b9374c3b64cf491a09a0a702ab925794d49845481a2e90251e136d63b2a"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\frame_buffer_publish.v",
+          "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_write.v",
+          "sha256": "5f150c731f29e23a9b228a7418f24ae60e0296135fda0d68097e03d031b51947"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\stubs\\sd_fault_sector_model.v",
+          "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sd_scaled_pages.v",
+          "sha256": "f3e1253f8975534bc34e568bb895e1ec9ec81808b71c51165a2bc5942de62ccd"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_sd_scaled_recovery",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\command-gate-tests",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_page_manager.v",
+          "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\SD\\sd_card_bmp.v",
+          "sha256": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read_scaled.v",
+          "sha256": "45d08b9374c3b64cf491a09a0a702ab925794d49845481a2e90251e136d63b2a"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\frame_buffer_publish.v",
+          "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_write.v",
+          "sha256": "5f150c731f29e23a9b228a7418f24ae60e0296135fda0d68097e03d031b51947"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\stubs\\sd_fault_sector_model.v",
+          "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sd_scaled_recovery.v",
+          "sha256": "65e2dfd347d94338c3efbdad2aaeca093f66c6f9961025441702c735492646bd"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_chinese_rom",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_font16_rom.v",
+          "sha256": "45063f5a0d7e673deb999071db6016b55b35833313e4a752d4c903d7a390e8b1"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_zh_strings.v",
+          "sha256": "3d2044f11fdb75f37892e0e97eba3ab0654987e5608323bc206dd6fb31115a50"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_chinese_rom.v",
+          "sha256": "6f2d31400fd1bff19965bed3af980f0be5269644125da9754e8629ee5ee1775a"
+        }
+      ],
+      "fixtures": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\chinese_glyphs.mem",
+          "sha256": "cb6437262be601af68031d01ace12eba8de3fdf7cbe01ec0dba5aff2ee4a03c5"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\chinese_messages.mem",
+          "sha256": "b41da503216bcad7a28081e13fb856f5e0dfa2571e660651e41a384ed35b6fa8"
+        }
+      ]
+    },
+    {
+      "test": "tb_chinese_scroll",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_font16_rom.v",
+          "sha256": "45063f5a0d7e673deb999071db6016b55b35833313e4a752d4c903d7a390e8b1"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_zh_strings.v",
+          "sha256": "3d2044f11fdb75f37892e0e97eba3ab0654987e5608323bc206dd6fb31115a50"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_text_zh.v",
+          "sha256": "960657b5043e7e2059d79ddfee7e84acb436172e673cd3e83dc24e08eefbe924"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_chinese_scroll.v",
+          "sha256": "36cfdf7ca2189c606eb4eb302cd9de7531269a812a2610273319d757d4aca972"
+        }
+      ],
+      "fixtures": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\chinese_glyphs.mem",
+          "sha256": "cb6437262be601af68031d01ace12eba8de3fdf7cbe01ec0dba5aff2ee4a03c5"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\chinese_messages.mem",
+          "sha256": "b41da503216bcad7a28081e13fb856f5e0dfa2571e660651e41a384ed35b6fa8"
+        }
+      ]
+    },
+    {
+      "test": "tb_chinese_overlay",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\full-regression",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_overlay.v",
+          "sha256": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\scroll_text.v",
+          "sha256": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\font5x7_rom.v",
+          "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_subtitle_rom.v",
+          "sha256": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_font16_rom.v",
+          "sha256": "45063f5a0d7e673deb999071db6016b55b35833313e4a752d4c903d7a390e8b1"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_zh_strings.v",
+          "sha256": "3d2044f11fdb75f37892e0e97eba3ab0654987e5608323bc206dd6fb31115a50"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_text_zh.v",
+          "sha256": "960657b5043e7e2059d79ddfee7e84acb436172e673cd3e83dc24e08eefbe924"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_chinese_overlay.v",
+          "sha256": "7593b0138ff14625d61ff38ae3165cce5ff2be65c1d8ba8ba4463859e2ed9427"
+        }
+      ],
+      "fixtures": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\chinese_glyphs.mem",
+          "sha256": "cb6437262be601af68031d01ace12eba8de3fdf7cbe01ec0dba5aff2ee4a03c5"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\fixtures\\chinese_screen_cells.mem",
+          "sha256": "09870f675a2f27c795d77ee0e251a5de6d09c9c4a97db6010af9a595a8d72f29"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\assets\\tutorials\\bmp_training_safe\\02_compressions.bmp",
+          "sha256": "6b93918cdcefaa0c9a5ee71865375577bf52639be30fab3bbdd95251dc62a274"
+        }
+      ]
+    },
+    {
+      "test": "tb_frame_refresh_interlock",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\final-refresh-test",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_write.v",
+          "sha256": "5f150c731f29e23a9b228a7418f24ae60e0296135fda0d68097e03d031b51947"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_read.v",
+          "sha256": "805ba42eb25949163438caf5c946c390e95fcd916de2058f9bd9d2ab619c1635"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_frame_refresh_interlock.v",
+          "sha256": "ef0215071e865686e1b9795c518473562290909d4139e9e5bafa4e598a4f752d"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_sd_scaled_pipeline",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\command-gate-tests",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_page_manager.v",
+          "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\SD\\sd_card_bmp.v",
+          "sha256": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\frame_buffer_publish.v",
+          "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read_scaled.v",
+          "sha256": "45d08b9374c3b64cf491a09a0a702ab925794d49845481a2e90251e136d63b2a"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_read_write.v",
+          "sha256": "6baad569fcaed00b6db49077332813d6e98ccefc39ec7161bde6387be0a1323b"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_write.v",
+          "sha256": "5f150c731f29e23a9b228a7418f24ae60e0296135fda0d68097e03d031b51947"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_read.v",
+          "sha256": "805ba42eb25949163438caf5c946c390e95fcd916de2058f9bd9d2ab619c1635"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_sd_scaled_pipeline.v",
+          "sha256": "8fb232632b1aab018b42cc4e9061d21cf1ccb98824b36aed3a146ad690a1adef"
+        }
+      ],
+      "fixtures": []
+    },
+    {
+      "test": "tb_frame_buffer_publish",
+      "status": "passed",
+      "evidence_set": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\command-gate-tests",
+      "sources": [
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\frame_buffer_publish.v",
+          "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_read.v",
+          "sha256": "805ba42eb25949163438caf5c946c390e95fcd916de2058f9bd9d2ab619c1635"
+        },
+        {
+          "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\tests\\sim\\tb\\tb_frame_buffer_publish.v",
+          "sha256": "95c4c3c582968e6987df785c39953669316d4ffc36a6f70e242a6cf5e8e365ae"
+        }
+      ],
+      "fixtures": []
+    }
+  ],
+  "mutation_controls": [
+    {
+      "mutation": "rate_target_window_only",
+      "rejected": true,
+      "run_log": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\final-mutations\\rate_target_window_only\\tests\\sim\\tb\\tb_rate_display_lut.v:25: rate disappeared/wrong ms=235 got=0 valid=0 expected=255\n       Time: 8974000  Scope: tb_rate_display_lut\n",
+      "evidence": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\final-mutations\\rate_target_window_only\\evidence"
+    },
+    {
+      "mutation": "writer_command_ignores_refresh",
+      "rejected": true,
+      "run_log": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\final-mutations\\writer_command_ignores_refresh\\tests\\sim\\tb\\tb_frame_refresh_interlock.v:31: SDRAM request issued during active refresh: wr=1 rd=0\n       Time: 28685000  Scope: tb_frame_refresh_interlock\n",
+      "evidence": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\final-mutations\\writer_command_ignores_refresh\\evidence"
+    },
+    {
+      "mutation": "reader_command_ignores_refresh",
+      "rejected": true,
+      "run_log": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\final-mutations\\reader_command_ignores_refresh\\tests\\sim\\tb\\tb_frame_refresh_interlock.v:31: SDRAM request issued during active refresh: wr=0 rd=1\n       Time: 325000  Scope: tb_frame_refresh_interlock\n",
+      "evidence": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\display-fix-20261017\\final-mutations\\reader_command_ignores_refresh\\evidence"
+    }
+  ],
+  "project_inventory": {
+    "project": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\project.al",
+    "allowed_root": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017",
+    "project_sha256": "4e356f9400ebd35d4b9218f81211d617e2e88cfb10f89f9fec811e2f061f59f6",
+    "saved_td_version": "6.2.178840",
+    "saved_project_path": ".",
+    "device": "EG4S20BG256",
+    "top": "top",
+    "registered_file_count": 64,
+    "files": [
+      {
+        "section": "Verilog",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/I2S_receiver.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\I2S_receiver.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "1"
+        },
+        "sha256": "08904598b42c2e1a4836cd9fb3293bc6c791ea2f79e35c7663a33127dc97f47b"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/audio_arc_calculate.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\audio_arc_calculate.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "2"
+        },
+        "sha256": "552d8d86afd237666b30ae08f31247808e89eb024efde5efc670b82eb617a7dc"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_phy_warpper.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\hdmi_phy_warpper.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "3"
+        },
+        "sha256": "416b082b0987001bdbc0a7e20a557cb8fb1dca34e25dc881e6d28a8cb3cf4300"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\lane_lvds_10_1.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "4"
+        },
+        "sha256": "de9529321354f04837e051d0ec1681cf44783d4be3284703a788e081147500bc"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi1.4b_transmitter_core/hdmi_1_4b_transmitter_core_wrapper.enc.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\hdmi1.4b_transmitter_core\\hdmi_1_4b_transmitter_core_wrapper.enc.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "5"
+        },
+        "sha256": "867e0b0bdd874bc383d00918c9e1be3fe01edf41f343b6a0d73e262776596a63"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/top_tf_hdmi_audio.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\top_tf_hdmi_audio.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "6"
+        },
+        "sha256": "5d220835fbd6c6d3da381c9e97628bb347b68949c7ed94b2ebea8493546367e4"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/bmp_read.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "7"
+        },
+        "sha256": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/bmp_read_scaled.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\bmp_read_scaled.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "CompileOrder": "60",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1"
+        },
+        "sha256": "45d08b9374c3b64cf491a09a0a702ab925794d49845481a2e90251e136d63b2a"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/color_bar.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\color_bar.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "8"
+        },
+        "sha256": "afe1f56714ec58d2477ba1717e5a36c5a0da5fe5c07d70d11aa5ace710c4b152"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/frame_fifo_read.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_read.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "9"
+        },
+        "sha256": "805ba42eb25949163438caf5c946c390e95fcd916de2058f9bd9d2ab619c1635"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/frame_fifo_write.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_fifo_write.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "10"
+        },
+        "sha256": "5f150c731f29e23a9b228a7418f24ae60e0296135fda0d68097e03d031b51947"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/frame_read_write.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\frame_read_write.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "11"
+        },
+        "sha256": "6baad569fcaed00b6db49077332813d6e98ccefc39ec7161bde6387be0a1323b"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/SD/sd_card_bmp.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\SD\\sd_card_bmp.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "12"
+        },
+        "sha256": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/seg_decoder.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\seg_decoder.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "13"
+        },
+        "sha256": "4592b6e4d2e9e8b7e4ab5266d850d30e43537ab9c4157d4221e3f8dfd342decd"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/seg_scan.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\seg_scan.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "14"
+        },
+        "sha256": "08759c329c33cdb7a6070e0b46773f0a6c9c8052b51652dec29406b9a9dac1e3"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/video_delay.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\video_delay.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "15"
+        },
+        "sha256": "f47c4b63f8baa6d8874c87dca5b72dfdadd19f4a107403da98752bce98936433"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/video_timing_data.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\video_timing_data.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "16"
+        },
+        "sha256": "c6f75501e98dd5995f687aafb40455beffe45b426137b5089a73ac3a036f7282"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_audio_tone_i2s_64fs.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\hdmi_audio_tone_i2s_64fs.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "17"
+        },
+        "sha256": "729cb1635091b7630e5b68306e9f51fff4e3e06bae8ce08cc3d7323b3fb9d5cf"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/startup_pulse.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\startup_pulse.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "18"
+        },
+        "sha256": "396e1e56febb8028339e646bc2f06b83e07ab11ef840e447422fb941956741c9"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/video_rgb_to_axis_640x480.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\video_rgb_to_axis_640x480.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "19"
+        },
+        "sha256": "9d87f68659e7e7a8bb4cd0cf44004e95f0005a187194add7f5f570a84e5c28e4"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/sd_card_cmd.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\sd_card_cmd.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "20"
+        },
+        "sha256": "377453c600158b40f9a0ea4912d4c42b6ab2d3916e94c053e9be16b999852e83"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/sd_card_sec_read_write.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\sd_card_sec_read_write.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "21"
+        },
+        "sha256": "76a1b589cead19d940447862912c9fbfc5867e512edd06453cc4cdb61f97a8c4"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/sd_card_top.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\sd_card_top.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "22"
+        },
+        "sha256": "bb45573ea6cf091acd4104ba7c97a174fc84c3102ce5d30bcf9dcc63584196ad"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/SD/spi_master.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\SD\\spi_master.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "23"
+        },
+        "sha256": "37f7a21144fa5cca3cc5c3b5f68a5ad40b3108336b600e45a1367734ac61403c"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/sdram.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\sdram.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "24"
+        },
+        "sha256": "dbf4604ef28ab6402facf50696f16393ada5d9c17d7e14978d9880c55fff4513"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/sdr_as_ram.enc.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\include\\sdr_as_ram.enc.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "25"
+        },
+        "sha256": "767dbdfbd83d42223b77dfa7deab42ce8216a8fd6f6cb41b7e7593d9a345ba57"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "vendor/include/sdr_init_ref.enc.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\vendor\\include\\sdr_init_ref.enc.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "26"
+        },
+        "sha256": "367e7edf2092c153d9fb6d98376c5726a3d1d7373756e8fe7256ad9546c90da5"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/sdr_wrrd.enc.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\include\\sdr_wrrd.enc.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "27"
+        },
+        "sha256": "c7d7fe07d75f66aa88d9f986b3006319c995162434f104f9990664b374cdfdd2"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/reset_release.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\reset_release.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "28"
+        },
+        "sha256": "3b184934ef86e19115ccbfb7467145d338785ea45b0f3f054442eaa8fd68f493"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/timebase.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\timebase.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "29"
+        },
+        "sha256": "2ae4bc9d5babd088de41b2584a8ae24a631f1f9da729da09163c68524eb7cdf5"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/input_filter.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\input_filter.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "30"
+        },
+        "sha256": "b2cec007b995a1d4ccefae1beb5eb89cba01d007879d1bc895fc3f0e4723cfe9"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/training_core.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\training_core.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "31"
+        },
+        "sha256": "296583e31ed5a857e08a6e5726327809a3ea0277f236da54b45ac4cfe701a72c"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/cpr_overlay.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_overlay.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "32"
+        },
+        "sha256": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/cpr_control.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_control.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "33"
+        },
+        "sha256": "69e592a2677f2c5055d3bb6c9bbde48891b5d7c7d26e79f2d379ed401cba8677"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/rate_display_lut.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\rate_display_lut.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "34"
+        },
+        "sha256": "af6fbff04fb7da7c232e4cb19d9c3eb443a5420a0ce0d7bfcc0d554ebc3b8ca3"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/brightness_rgb.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\brightness_rgb.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "35"
+        },
+        "sha256": "8b03a1f467c1ea65e02d69e4e0b30a8ef6f4c0d0005a940a066696dbc09decb0"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/adc_ctrl.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\adc_ctrl.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "36"
+        },
+        "sha256": "8fac64554c5ba4037cf4d69d2bdb782bdb1b3d2345969d47233a87e3188b3051"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/sample_mailbox.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\sample_mailbox.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "37"
+        },
+        "sha256": "eff0bb85c9301c386bd4b2c9b775cda87c1ea63d8a8f6dcd348dcc3b65eb9f3d"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/pressure_normalize.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\pressure_normalize.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "38"
+        },
+        "sha256": "e5c2391f69c929191ce21069b1da0964b3937fec99f3fe8c1c77bf7d52cdd886"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/peak_detect.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\peak_detect.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "39"
+        },
+        "sha256": "9da7c8aeea140535ae4cbf64bc6e4af13bfe9421661c9a8546b87210df3ad198"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/cpr_sensor_path.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_sensor_path.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "40"
+        },
+        "sha256": "87cc872e403e416766bcc83426e48345f9029e46dcedd587e7b3483f6000e825"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/top_adc.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\top_adc.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "41"
+        },
+        "sha256": "1c02be20a6b2750ffceb894681c1295c73fd3ade1993c8bc8fa490746958a05f"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/frame_buffer_publish.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\frame_buffer_publish.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "43"
+        },
+        "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/contrast_rgb.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\contrast_rgb.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "48"
+        },
+        "sha256": "6fbefe2289d7da051cac690362455f614aa3fa39412d467907a7d84013cd1cf7"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/cpr_seg_scan.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_seg_scan.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "62"
+        },
+        "sha256": "50ec694ebc7f4185706d443fd523bba8762abcdcdd722a1abeac1ff9835287b1"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/cpr_audio_tone_i2s.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_audio_tone_i2s.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "61"
+        },
+        "sha256": "d304c159a45e72edfac7d20cb19eac1d680fa812da6cb357af26058525619de4"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/scroll_text.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\scroll_text.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "49"
+        },
+        "sha256": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/font5x7_rom.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\font5x7_rom.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "50"
+        },
+        "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/contrast_controls.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\contrast_controls.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "51"
+        },
+        "sha256": "474284faf3c70a3452da56ba890b2de851a7c84ab4f659ab2575181d3ff0f2cb"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/cpr_subtitle_rom.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_subtitle_rom.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "52"
+        },
+        "sha256": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/cpr_page_manager.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_page_manager.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "53"
+        },
+        "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/page_status_cdc.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\page_status_cdc.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "54"
+        },
+        "sha256": "6a5c566aab8e9f88be3a4fa3c3c663ae1d3f05614bc97eca2d82a3b7c3be84d2"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/cpr_font16_rom.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_font16_rom.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "55"
+        },
+        "sha256": "45063f5a0d7e673deb999071db6016b55b35833313e4a752d4c903d7a390e8b1"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/cpr_zh_strings.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_zh_strings.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "56"
+        },
+        "sha256": "3d2044f11fdb75f37892e0e97eba3ab0654987e5608323bc206dd6fb31115a50"
+      },
+      {
+        "section": "Verilog",
+        "declared_path": "rtl/cpr_text_zh.v",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\rtl\\cpr_text_zh.v",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "57"
+        },
+        "sha256": "960657b5043e7e2059d79ddfee7e84acb436172e673cd3e83dc24e08eefbe924"
+      },
+      {
+        "section": "ADC_FILE",
+        "declared_path": "constraints/pin.adc",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\constraints\\pin.adc",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "constraint_1",
+          "CompileOrder": "2"
+        },
+        "sha256": "db42800fd6a10708beeea287dee7bc988973d3168918b91e3be8d41bb4c0b594"
+      },
+      {
+        "section": "SDC_FILE",
+        "declared_path": "constraints/timing.sdc",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\constraints\\timing.sdc",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "constraint_1",
+          "CompileOrder": "3"
+        },
+        "sha256": "e2308d2d69cb1a81aff9072eda1cae368bbebd1294ce336e113c11c614bc7109"
+      },
+      {
+        "section": "SDC_FILE",
+        "declared_path": "constraints/reset_publish.sdc",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\constraints\\reset_publish.sdc",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "constraint_1",
+          "CompileOrder": "1"
+        },
+        "sha256": "5ba20ec676fc9de2725ebb857ed66f21137a9edd463bbc37299922620f295809"
+      },
+      {
+        "section": "SDC_FILE",
+        "declared_path": "constraints/page_status.sdc",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\constraints\\page_status.sdc",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "constraint_1",
+          "CompileOrder": "55"
+        },
+        "sha256": "987a82c84a7e1d446ace2115b38b92149dd62e73bc2722ffef6c04d51078bee6"
+      },
+      {
+        "section": "IP_FILE",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL_HDMI_AUDIO.ipc",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\td_project\\al_ip\\PLL_HDMI_AUDIO.ipc",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "42"
+        },
+        "sha256": "ce38f1b2917ef9df107be46e716767b7c8a78af079412b2988cf266b589bd645"
+      },
+      {
+        "section": "IP_FILE",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.ipc",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\IP\\afifo_16_32_256.ipc",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "44"
+        },
+        "sha256": "9df57c0b914f2f6222f88e356528947224fddb866be2468f1391c26d4e60d371"
+      },
+      {
+        "section": "IP_FILE",
+        "declared_path": "../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.ipc",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\IP\\afifo_32_16_256.ipc",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "45"
+        },
+        "sha256": "a74955dc68a02bbfb36780127008c4737ec80e0888a4648e98e6eac9f5d2c349"
+      },
+      {
+        "section": "IP_FILE",
+        "declared_path": "ip/sys_pll.ipc",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\ip\\sys_pll.ipc",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "46"
+        },
+        "sha256": "e929c8544015b0795cf1bdc76baed768fe5908efef6284e07dfd2132158c29c7"
+      },
+      {
+        "section": "IP_FILE",
+        "declared_path": "ip/video_pll.ipc",
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\cpr-fpga-2026-display-fix-20261017\\project\\ip\\video_pll.ipc",
+        "inside_root": true,
+        "exists": true,
+        "attributes": {
+          "AutoExcluded": "true",
+          "UsedInSyn": "true",
+          "UsedInP&R": "true",
+          "BelongTo": "design_1",
+          "CompileOrder": "47"
+        },
+        "sha256": "57fa31571b47057b9877705bd05cd3e60bf41b932857a861c6d489474375ed16"
+      }
+    ],
+    "errors": [],
+    "warnings": [],
+    "limit": "Static registration inventory only; no elaboration, simulation, synthesis or timing verification"
+  },
+  "td_stage": "synth",
+  "td_status": "passed",
+  "td_tops": [
+    {
+      "top": "top",
+      "status": "passed",
+      "td_version": "6.2.168116",
+      "pass_marker": true,
+      "timed_out": false,
+      "resources": {
+        "lut": {
+          "used": 9665,
+          "available": 19600,
+          "percent": 49.31
+        },
+        "reg": {
+          "used": 5151,
+          "available": 19600,
+          "percent": 26.28
+        },
+        "bram": {
+          "used": 27,
+          "available": 64,
+          "percent": 42.19
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        },
+        "adc": {
+          "used": 0,
+          "available": 1,
+          "percent": 0.0,
+          "report_row_omitted": true
+        }
+      },
+      "errors_or_critical_warnings": []
+    },
+    {
+      "top": "top_adc",
+      "status": "passed",
+      "td_version": "6.2.168116",
+      "pass_marker": true,
+      "timed_out": false,
+      "resources": {
+        "lut": {
+          "used": 9824,
+          "available": 19600,
+          "percent": 50.12
+        },
+        "reg": {
+          "used": 5297,
+          "available": 19600,
+          "percent": 27.03
+        },
+        "bram": {
+          "used": 27,
+          "available": 64,
+          "percent": 42.19
+        },
+        "adc": {
+          "used": 1,
+          "available": 1,
+          "percent": 100.0
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        }
+      },
+      "errors_or_critical_warnings": []
+    }
+  ],
+  "full_place_route_executed_for_this_revision": false,
+  "preserved_baseline_files": {
+    "project/assets/": 23,
+    "project/ip/": 6,
+    "project/constraints/": 6,
+    "05_lab_ex/": 178
+  },
+  "board_programmed": false,
+  "tf_card_written": false,
+  "github_uploaded": false,
+  "horizontal_lines_hardware_resolution_confirmed": false,
+  "note": "Frequency logic and refresh interlocks are verified in simulation. The board must be rebuilt and retested; no hardware result is inferred."
+}
