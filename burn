@@ -114,19 +114,26 @@ resolve_bit() {
         [ -n "$cand" ] && { readlink -f "$cand"; return 0; }
     fi
 
-    # 4a) 裸名字 → 仓库里任意位置的同名【目录】，取它下面最新的位流
-    d="$(find "$REPO" \( "${PRUNE[@]}" \) -prune -o \
-              -type d -name "$base" -print 2>/dev/null | head -1)"
-    if [ -n "$d" ]; then
+    # 4a) 裸名字 → 仓库里任意位置的同名【目录】，取它下面最新的位流。
+    #     同名目录常常不止一个：构建证据目录 verify_*/ 下面每个都有一份空的
+    #     top/ 或 top_adc/ 骨架。所以必须挨个看、挑真正装了位流的那个；
+    #     抓到第一个就下结论会误判成「没构建过」，从而拦住本来能用的命令。
+    local empty_dir="" hits=""
+    while IFS= read -r d; do
+        [ -n "$d" ] || continue
         # 优先 phy_1（TD 的标准构建输出目录），没有才退回「最新的那个」
-        cand="$(find "$d" -path '*/phy_1/*.bit' -printf '%T@ %p\n' 2>/dev/null \
-                | sort -rn | awk 'NR==1{print $2}')"
-        [ -z "$cand" ] && cand="$(find "$d" -name '*.bit' -printf '%T@ %p\n' 2>/dev/null \
-                | sort -rn | awk 'NR==1{print $2}')"
-        if [ -n "$cand" ]; then readlink -f "$cand"; return 0; fi
-        echo "burn: 找到目录「$base」，但里面没有 .bit —— 需要先在 TD 里构建" >&2
-        return 1
-    fi
+        local sub=""
+        sub="$(find "$d" -path '*/phy_1/*.bit' -printf '%T@ %p\n' 2>/dev/null)"
+        [ -z "$sub" ] && sub="$(find "$d" -name '*.bit' -printf '%T@ %p\n' 2>/dev/null)"
+        if [ -n "$sub" ]; then hits+="$sub"$'\n'; else
+            [ -n "$empty_dir" ] || empty_dir="$d"
+        fi
+    done < <(find "$REPO" \( "${PRUNE[@]}" \) -prune -o \
+                  -type d -name "$base" -print 2>/dev/null)
+    # 同名目录可能横跨 DEMO/（厂商例程）和 project/build/（自己的构建），
+    # 取最新的那个——否则 ./burn top 会烧成 2025 年的 LCD 例程。
+    cand="$(printf '%s' "$hits" | sort -rn | awk 'NR==1{print $2}')"
+    [ -n "$cand" ] && { readlink -f "$cand"; return 0; }
 
     # 4b) 裸名字 → 仓库里任意位置的 <名字>.bit（或正好叫 <名字> 的文件）
     cand="$(find "$REPO" \( "${PRUNE[@]}" \) -prune -o \
@@ -139,6 +146,12 @@ resolve_bit() {
                 -type f -name "*${base}*.bit" -printf '%T@ %p\n' 2>/dev/null \
             | sort -rn | awk 'NR==1{print $2}')"
     [ -n "$cand" ] && { readlink -f "$cand"; return 0; }
+
+    if [ -n "$empty_dir" ]; then
+        echo "burn: 找到目录「$empty_dir」，但里面（以及全仓库）都没有对着它的 .bit" >&2
+        echo "  需要先在 TD 里构建，或者用完整路径指定位流" >&2
+        return 1
+    fi
 
     echo "burn: 在仓库里找不到「$arg」" >&2
     echo "  支持：完整路径 / 相对仓库根路径 / 路径片段 / 工程名或位流名" >&2
@@ -207,12 +220,16 @@ DEMO="$(echo "$BIT" | sed -n "s|$DEMO_ROOT/\([^/]*\)/.*|\1|p")"
 # 例外： DEMO/ 里目录名与位流名本来就不同（如 1_breath_led -> breath_led.bit），
 #       那是正常的，不警告。
 WARN=""
+# 比对的应该是「你给的最后一个路径分量」，不是整条参数：传
+# project/build/top_adc/top_adc.bit 时，整条路径当然不会出现在文件名里，
+# 那样比就必然误报，警告一多就没人看了。
+WANT="$(basename "${ARG%.bit}")"
 case "$BIT" in
     "$DEMO_ROOT"/*) ;;                     # DEMO 内，跳过
     *)
         case "$NAME" in
-            *"${ARG%.bit}"*) ;;
-            *) WARN="⚠️ 位流文件名里不含「$ARG」—— 确认一下是不是你要的那个" ;;
+            *"$WANT"*) ;;
+            *) WARN="⚠️ 位流文件名里不含「$WANT」—— 确认一下是不是你要的那个" ;;
         esac
         ;;
 esac
