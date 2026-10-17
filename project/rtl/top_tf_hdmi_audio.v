@@ -3,6 +3,7 @@
 module top #(
     parameter USE_EXTERNAL_IO = 0,
     parameter USE_ADC = 0,
+    parameter ENABLE_AUDIO = 1,
     parameter UI_LANGUAGE_ZH = 1,
     parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
     parameter [11:0] RELEASE_BASELINE = 12'd3000,
@@ -109,9 +110,11 @@ wire        audio_i2s_bclk;
 wire        audio_i2s_lrck;
 wire        audio_i2s_dout;
 wire        audio_valid;
+wire        audio_output_valid;
 wire [23:0] audio_left_data;
 wire [23:0] audio_right_data;
 wire        acr_valid;
+wire        acr_output_valid;
 wire [19:0] acr_cts;
 wire [19:0] acr_n;
 
@@ -299,6 +302,8 @@ always @(posedge video_clk or negedge app_rst_n) begin
     else if (tick_ms && beat_hold_ms != 0) beat_hold_ms <= beat_hold_ms - 1'b1;
 end
 wire audio_gate = (app_mode != 2) || (beat_hold_ms != 0);
+assign audio_output_valid = ENABLE_AUDIO ? audio_valid : 1'b0;
+assign acr_output_valid = ENABLE_AUDIO ? acr_valid : 1'b0;
 reg [1:0] display_valid_sync;
 reg [1:0] brightness_video;
 reg brightness_vs_d;
@@ -581,7 +586,7 @@ audio_arc_calculate #(
 ) u_audio_arc_calculate (
     .I_clk         (video_clk),
     .I_rst         (rst_video),
-    .I_audio_valid (audio_valid),
+    .I_audio_valid (audio_output_valid),
     .O_acr_valid   (acr_valid),
     .O_acr_cts     (acr_cts),
     .O_acr_n       (acr_n)
@@ -640,10 +645,10 @@ hdmi_1_4b_transmitter_core_wrapper #(
     .I_axis_s_data      (axis_s_data),
     .O_axis_s_ready     (axis_s_ready),
 
-    .I_audio_valid      (audio_valid),
-    .I_audio_left_data  (audio_gate ? audio_left_data : 24'd0),
-    .I_audio_right_data (audio_gate ? audio_right_data : 24'd0),
-    .I_acr_valid        (acr_valid),
+    .I_audio_valid      (audio_output_valid),
+    .I_audio_left_data  ((ENABLE_AUDIO && audio_gate) ? audio_left_data : 24'd0),
+    .I_audio_right_data ((ENABLE_AUDIO && audio_gate) ? audio_right_data : 24'd0),
+    .I_acr_valid        (acr_output_valid),
     .I_acr_cts          (acr_cts),
     .I_acr_n            (acr_n),
 

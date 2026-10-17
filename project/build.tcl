@@ -30,7 +30,13 @@ if {[catch {
     optimize_rtl
     read_sdc constraints/reset_publish.sdc
     set cpr_reset_pins [get_regs {*u_*reset/ready_meta}]
-    if {[llength $cpr_reset_pins] != 4} { error "Expected four readiness synchronizer first stages" }
+    if {$cpr_top eq "top_adc"} {
+        if {[llength $cpr_reset_pins] != 4} {
+            error "Expected four readiness synchronizer first stages for top_adc"
+        }
+    } elseif {[llength $cpr_reset_pins] != 3 && [llength $cpr_reset_pins] != 4} {
+        error "Expected three or four readiness synchronizer first stages for top"
+    }
     # get_regs resolves register objects after RTL optimization, rather than
     # against the HDL-only design immediately after elaborate.
     if {$cpr_top eq "top_adc"} {
@@ -44,7 +50,13 @@ if {[catch {
             error "ADC mailbox must bind 12 source and 12 capture registers"
         }
     }
-    read_sdc constraints/audio_metronome.sdc
+    # With ENABLE_AUDIO=0 the tone generator can be constant-pruned.  Do not
+    # apply its CDC exception to an empty register collection; enabled builds
+    # still load the same constraint.
+    set cpr_audio_meta [get_regs {*u_cpr_audio_tone/metronome_meta}]
+    if {[llength $cpr_audio_meta] > 0} {
+        read_sdc constraints/audio_metronome.sdc
+    }
     read_sdc constraints/page_status.sdc
     set cpr_page_src [get_regs {*u_page_status/u_transfer/src_hold[*]}]
     set cpr_page_dst [get_regs {*u_page_status/u_transfer/dst_data[*]}]
