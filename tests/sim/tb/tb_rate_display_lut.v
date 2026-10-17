@@ -1,48 +1,53 @@
 `timescale 1ns/1ps
 module tb_rate_display_lut;
-    reg [15:0] interval_ms = 0;
-    reg rate_valid = 0;
+    reg clk=0, rst_n=0, rate_valid=0;
+    reg [15:0] interval_ms=0;
     wire [7:0] bpm_approx;
     wire bpm_valid;
-    integer errors = 0;
-    integer ms, reference_bpm, previous_bpm;
-    rate_display_lut dut (
-        .interval_ms(interval_ms), .rate_valid(rate_valid),
-        .bpm_approx(bpm_approx), .bpm_valid(bpm_valid)
-    );
+    integer ms, expected, previous;
+    always #1 clk=~clk;
+    rate_display_lut dut(.clk(clk),.rst_n(rst_n),.interval_ms(interval_ms),
+        .rate_valid(rate_valid),.bpm_approx(bpm_approx),.bpm_valid(bpm_valid));
+    task settle;
+        input integer value;
+        begin @(negedge clk);interval_ms=value;rate_valid=1;repeat(18)@(negedge clk);end
+    endtask
     initial begin
-        interval_ms = 16'd545; #1;
-        if (bpm_valid !== 0 || bpm_approx !== 0) begin
-            $display("FAIL: no display before a valid measured interval");
-            errors = errors + 1;
-        end
-        rate_valid = 1;
-        previous_bpm = 120;
-        // Exhaust every representable interval, including overflow/saturation.
-        for (ms = 0; ms <= 65535; ms = ms + 1) begin
-            interval_ms = ms; #1;
-            if (ms >= 500 && ms <= 600) begin
-                reference_bpm = (60000 + ms/2) / ms;
-                if (bpm_valid !== 1 || bpm_approx < 100 || bpm_approx > 120 ||
-                    bpm_approx > reference_bpm + 1 ||
-                    bpm_approx + 1 < reference_bpm ||
-                    bpm_approx > previous_bpm) begin
-                    $display("FAIL: ms=%0d bpm=%0d ref=%0d valid=%b",
-                             ms, bpm_approx, reference_bpm, bpm_valid);
-                    errors = errors + 1;
-                end
-                previous_bpm = bpm_approx;
-            end else if (bpm_valid !== 0 || bpm_approx !== 0) begin
-                $display("FAIL: out-of-range interval %0d has a number", ms);
-                errors = errors + 1;
+        repeat(3)@(negedge clk);rst_n=1;
+        previous=255;
+        for(ms=0;ms<65536;ms=ms+1)begin
+            settle(ms);
+            if(ms<235)begin
+                if(bpm_valid!==0 || bpm_approx!==0)$fatal(1,"invalid interval accepted ms=%0d",ms);
+            end else begin
+                expected=(60000+ms/2)/ms;
+                if(bpm_valid!==1 || bpm_approx!==expected || bpm_approx>previous)
+                    $fatal(1,"rate disappeared/wrong ms=%0d got=%0d valid=%b expected=%0d",ms,bpm_approx,bpm_valid,expected);
+                previous=bpm_approx;
             end
         end
-        interval_ms = 500; #1;
-        if (bpm_approx !== 120) errors = errors + 1;
-        interval_ms = 600; #1;
-        if (bpm_approx !== 100) errors = errors + 1;
-        if (errors == 0) $display("PASS: rate_display_lut exhaustive range test");
-        else $fatal(1, "rate_display_lut errors=%0d", errors);
+        settle(1000);
+        @(negedge clk);interval_ms=1096;
+        repeat(3)@(negedge clk);
+        if(!bpm_valid || bpm_approx!=60)$fatal(1,"old result blinked during recalculation");
+        repeat(15)@(negedge clk);
+        if(!bpm_valid || bpm_approx!=55)$fatal(1,"photo regression: 1096ms must show 55 BPM");
+        @(negedge clk);interval_ms=500;
+        repeat(4)@(negedge clk);interval_ms=750;
+        repeat(18)@(negedge clk);
+        if(!bpm_valid || bpm_approx!=80)$fatal(1,"in-flight input replacement failed");
+        @(negedge clk);interval_ms=545;
+        repeat(4)@(negedge clk);rate_valid=0;
+        repeat(20)@(negedge clk);
+        if(bpm_valid || bpm_approx)$fatal(1,"session clear allowed stale divider completion");
+        settle(400);
+        @(negedge clk);rst_n=0;#0.1;
+        if(bpm_valid || bpm_approx)$fatal(1,"reset did not clear display");
+        @(negedge clk);rst_n=1;rate_valid=0;
+        repeat(20)@(negedge clk);
+        if(bpm_valid)$fatal(1,"reset result reappeared");
+        $display("PASS: tb_rate_display_lut: 65536 intervals, rounding, slow/fast, hold, restart and reset");
         $finish;
     end
+    initial begin #3000000;$fatal(1,"TIMEOUT rate display");end
 endmodule

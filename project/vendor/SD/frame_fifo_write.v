@@ -79,14 +79,15 @@ reg App_wr_en_r;
 reg App_wr_en_d0;
 
 wire into_burst;
-assign into_burst = (((write_len_latch <= (rdusedw + write_cnt))||rdusedw > BURST_SIZE) && ~App_rd_busy);//当rd在突发时不会进入burst
+// APUG011: wait for automatic refresh before starting a user burst.
+assign into_burst = Sdr_init_done && !Sdr_init_ref_vld && (((write_len_latch <= (rdusedw + write_cnt))||rdusedw > BURST_SIZE) && ~App_rd_busy);//当rd在突发时不会进入burst
 
 assign App_wr_addr = {App_wr_addr_r[ADDR_BITS - 1:0]};
 //assign O_wr_busy = (state != S_IDLE || (S_IDLE && write_req_d2));
 assign O_wr_busy = (state == S_WRITE_BURST || (state == S_CHECK_FIFO && into_burst));//在突发，或者将要突发，则显示busy
 assign wr_burst_finish = (burst_cnt >= BURST_SIZE);
 assign write_finish = (state == S_END) ? 1'b1 : 1'b0;            //write finish at state 'S_END'
-assign App_wr_en = App_wr_en_d0;
+assign App_wr_en = App_wr_en_d0 && !Sdr_init_ref_vld;
 
 
 always@(posedge mem_clk or posedge rst)

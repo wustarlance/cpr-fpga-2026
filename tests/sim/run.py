@@ -86,6 +86,8 @@ TESTS["tb_chinese_overlay"] = {
                  "project/assets/tutorials/bmp_training_safe/02_compressions.bmp"],
 }
 
+TESTS["tb_frame_refresh_interlock"] = {"sources": ["project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_refresh_interlock.v"]}
+
 FAIL_PATTERN = re.compile(r"\b(?:FAIL|FATAL|TIMEOUT)\b", re.IGNORECASE)
 
 

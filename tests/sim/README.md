@@ -52,7 +52,8 @@ Linux/macOS 或 Git Bash 可执行 `bash tests/sim/run.sh --all`。`run.sh tb_na
 | `tb_video_rgb_to_axis` | 两帧 640×480 的像素、SOF、每行第 640 像素 EOL 与复位 |
 | `tb_training_core` | 接触式按压计数与节拍、持压进入或清场后必须重新释放 |
 | `tb_cpr_control` | 三模式、按键去抖、浏览控制与训练接口集成 |
-| `tb_rate_display_lut` | 频率显示有效区间和查表范围 |
+| `tb_rate_display_lut` | 全 16 位间隔、精确舍入、偏快/偏慢数字显示、更新保持与取消 |
+| `tb_frame_refresh_interlock` | 刷新与首请求临界拍互锁、3840 次请求与翻转地址完整性 |
 | `tb_brightness_rgb` | RGB 亮度档位、边界和组合输出 |
 | `tb_bmp_scan` | 格式过滤、扫描边界、文件长度取整、跨扇区像素加载 |
 | `tb_sdram_refresh` | 刷新计数和实际周期满足保持期限 |

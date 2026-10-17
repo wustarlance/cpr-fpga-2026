@@ -81,7 +81,7 @@ assign frame_start = read_req_d2 &&
 
 // Independent of App_wr_busy: including it here would form a combinational
     // loop through the writer's into_burst/O_wr_busy lookahead.
-    assign read_urgent = (state == S_CHECK_FIFO) && (wrusedw < (FIFO_DEPTH-BURST_SIZE));
+    assign read_urgent = Sdr_init_done && !Sdr_init_ref_vld && (state == S_CHECK_FIFO) && (wrusedw < (FIFO_DEPTH-BURST_SIZE));
     assign App_rd_addr = {App_rd_addr_r[ADDR_BITS - 1:0]};
 assign rd_vld = (state == S_READ_BURST && burst_cnt >= BURST_SIZE);
 
@@ -90,7 +90,7 @@ assign O_rd_busy = (state == S_READ_BURST);//读指令期间
 //但rd_burst_finish需要在发送完十个时钟后拉高，此时数据全部读出
 assign rd_burst_finish = (rd_vld && rd_delay == 4'd10);
 assign read_finish = (state == S_END) ? 1'b1 : 1'b0;             //read finish at state 'S_END'
-assign App_rd_en = App_rd_en_d0;
+assign App_rd_en = App_rd_en_d0 && !Sdr_init_ref_vld;
 always@(posedge mem_clk or posedge rst)
 begin
 	if(rst == 1'b1)
@@ -232,7 +232,8 @@ begin
 					state <= S_ACK;
 				end
 				//if the FIFO space is a burst read request, goto burst read state
-				else if(wrusedw < (FIFO_DEPTH - BURST_SIZE) && ~App_wr_busy)
+				// APUG011: no new transaction while automatic refresh is active.
+				else if(Sdr_init_done && !Sdr_init_ref_vld && wrusedw < (FIFO_DEPTH - BURST_SIZE) && ~App_wr_busy)
 				begin
 					state <= S_READ_BURST;
 					//rd_burst_len <= BURST_SIZE[BURST_BITS - 1:0];
