@@ -10,7 +10,11 @@ module top #(
     parameter [11:0] TRIGGER_LEVEL = 12'd150,
     parameter [11:0] RELEASE_LEVEL = 12'd100,
     parameter [11:0] TARGET_LOW = 12'd800,
-    parameter [11:0] TARGET_HIGH = 12'd1600
+    parameter [11:0] TARGET_HIGH = 12'd1600,
+    // 板载 4 个独立 LED 只作调试指示。实测为高电平点亮：上板时驱动值全取反后
+    // 四个灯全亮，说明引脚为 1 时点亮。这一条与数码管（共阳、低电平点亮）相反，
+    // 不要按数码管的极性类推。
+    parameter LED_ACTIVE_LOW = 0
 )(
     input                       clk,
     input                       rst_n,
@@ -21,8 +25,9 @@ module top #(
     input wire [3:0]             depth_sw_n,     // cumulative contacts, close to GND
     input                       key2,           // KEY4 (C1), mode
 
-    output [5:0]                seg_sel,
+    output [7:0]                seg_sel,      // 位号 = 物理顺序：seg_sel[0] 为左起第 1 位
     output [7:0]                seg_data,
+    output wire [3:0]           led,            // LED1..4 = A4 / A3 / C10 / B12，调试指示
 
     // HDMI TMDS
     output                      HDMI_CLK_P,
@@ -444,17 +449,65 @@ seg_decoder seg_decoder_m0(
     .seg_data          (seg_data_0)
 );
 
-seg_scan seg_scan_m0(
+// 左起第 1 位显示当前页号：1..4 为正在显示的浏览页，0 为缺页或读卡失败
+// （含尚未出图），5 为按压训练模式。数值取自已经同步到视频域的
+// page_status 完整状态字，与页眉显示的是同一份数据。
+reg [3:0] page_num;
+always @(*) begin
+    if (training_enabled)
+        page_num = 4'd5;                       // 训练模式
+    else if (page_status_video[1] || page_status_video[2])
+        page_num = 4'd0;                       // 读卡失败 / 缺页
+    else if (page_status_video[11])
+        page_num = {2'b00, page_status_video[10:9]} + 4'd1;   // 已显示页 1..4
+    else
+        page_num = 4'd0;                       // 还没有成功出图
+end
+// 左起第 1 位显示当前模式：1=教学浏览 2=自动展播 3=按压训练。
+// 特殊状态覆盖模式显示，因为此时模式本身已不重要：
+//   E = 媒体故障（读卡重试耗尽）  d = 缺页（指定页号不存在）
+reg [3:0] mode_num;
+always @(*) begin
+    if (page_status_video[1])      mode_num = 4'he;   // 媒体故障
+    else if (page_status_video[2]) mode_num = 4'hd;   // 缺页
+    else                           mode_num = {2'b00, app_mode} + 4'd1;   // 1..3
+end
+wire [6:0] seg_data_mode;
+seg_decoder seg_decoder_mode(
+    .bin_data          (mode_num),
+    .seg_data          (seg_data_mode)
+);
+
+wire [6:0] seg_data_page;
+seg_decoder seg_decoder_page(
+    .bin_data          (page_num),
+    .seg_data          (seg_data_page)
+);
+
+// 4 个板载 LED 之前完全没接，上电停在默认状态，测点信息看不到。这里把它们
+// 接成视频域的调试指示，切图/进训练/出错时不用低头看数码管。
+// 注意 page_status_video 是跨时钟域同步来的状态，比实际显示可能晚一两帧。
+wire [3:0] led_level = {
+    page_status_video[3],                      // LED4: 正在加载 / 恢复 / 等待可用目标
+    page_status_video[1] | page_status_video[2],   // LED3: 读卡失败 / 缺页
+    display_valid_sync[1],                     // LED2: 有图在显示
+    training_enabled                           // LED1: 按压训练模式
+};
+assign led = LED_ACTIVE_LOW ? ~led_level : led_level;
+
+cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan(
     .clk               (clk),
     .rst_n             (rst_n),
     .seg_sel           (seg_sel),
     .seg_data          (seg_data),
-    .seg_data_0        ({1'b1,7'b1111_111}),
-    .seg_data_1        ({1'b1,7'b1111_111}),
-    .seg_data_2        ({1'b1,7'b1111_111}),
-    .seg_data_3        ({1'b1,7'b1111_111}),
-    .seg_data_4        ({1'b1,7'b1111_111}),
-    .seg_data_5        ({1'b1,seg_data_0})
+    .digit0            ({1'b1,seg_data_mode}),   // 左起第 1 位：模式
+    .digit1            ({1'b1,7'b011_1111}),     // 左起第 2 位：'-'
+    .digit2            ({1'b1,seg_data_page}),   // 左起第 3 位：页号
+    .digit3            ({1'b1,7'b1111_111}),     // 左起第 4 位
+    .digit4            ({1'b1,7'b1111_111}),     // 左起第 5 位
+    .digit5            ({1'b1,7'b1111_111}),     // 左起第 6 位
+    .digit6            ({1'b1,7'b1111_111}),     // 左起第 7 位
+    .digit7            ({1'b1,seg_data_0})       // 左起第 8 位：SD 加载状态码
 );
 
 // ===================== 原图像时序与帧缓存 =====================
