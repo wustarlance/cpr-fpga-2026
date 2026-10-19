@@ -94,10 +94,6 @@ wire        frame_write_finish;
 reg         frame_write_toggle_mem;
 
 wire [1:0]  write_buf_idx;
-// 第一批连续 0xFF 字节所在扇区（空白扇区判据）
-wire [20:0] dbg_ff_sector;
-wire        dbg_ff_seen;
-wire [15:0] dbg_retry_count;
 // 写 FIFA 被空读的次数：这是被伪造后写进 SDRAM 的像素个数
 wire [31:0] write_empty_reads;
 // 读 FIFO 空读次数：白线像素的直接来源
@@ -458,10 +454,7 @@ sd_card_bmp #(
     .SD_nCS            (sd_ncs),
     .SD_DCLK           (sd_dclk),
     .SD_MOSI           (sd_mosi),
-    .SD_MISO           (sd_miso),
-    .dbg_ff_sector     (dbg_ff_sector),
-    .dbg_ff_seen       (dbg_ff_seen),
-    .dbg_retry_count   (dbg_retry_count)
+    .SD_MISO           (sd_miso)
 );
 
 seg_decoder seg_decoder_m0(
@@ -535,24 +528,17 @@ always @(posedge sd_card_clk or posedge rst_sd) begin
 end
 reg [15:0] pub_heartbeat;
 reg [31:0] empty_reads_pub;
-// 每 0.66 ms 发布一次，并让显示在两种视图间交替（各约 4 秒）：
-//   view_sel=0  扇区重读次数
-//   view_sel=1  首个持续空白扇区的地址
-reg        view_sel;
+
 reg        empty_tog;
 always @(posedge sd_card_clk or posedge rst_sd) begin
     if (rst_sd) begin
         pub_heartbeat   <= 16'd0;
         empty_reads_pub <= 32'd0;
-        view_sel        <= 1'b0;
         empty_tog       <= 1'b0;
     end else begin
         pub_heartbeat <= pub_heartbeat + 16'd1;
         if (pub_heartbeat == 16'hffff) begin
-            view_sel        <= ~view_sel;
-            empty_reads_pub <= view_sel
-                ? {dbg_ff_seen, 10'd0, dbg_ff_sector[20:0]}
-                : {dbg_ff_seen, 15'd0, dbg_retry_count};
+            empty_reads_pub <= {16'd0, white_pixels_sd};
             empty_tog       <= ~empty_tog;
         end
     end
@@ -570,10 +556,6 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 wire [6:0] seg_data_e0, seg_data_e1, seg_data_e2, seg_data_e3;
-// 第 2 位平常是 '-'，一旦出现过连续 0xFF（空白扇区）就变成 'F'
-wire [6:0] seg_data_flag_f;
-seg_decoder seg_decoder_flag(.bin_data(4'hf), .seg_data(seg_data_flag_f));
-wire [6:0] seg_data_flag = empty_reads_snap[31] ? seg_data_flag_f : 7'b011_1111;
 seg_decoder seg_decoder_e0(.bin_data(empty_reads_snap[15:12]), .seg_data(seg_data_e0));
 seg_decoder seg_decoder_e1(.bin_data(empty_reads_snap[11:8]),  .seg_data(seg_data_e1));
 seg_decoder seg_decoder_e2(.bin_data(empty_reads_snap[7:4]),   .seg_data(seg_data_e2));
@@ -585,7 +567,7 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan(
     .seg_sel           (seg_sel),
     .seg_data          (seg_data),
     .digit0            ({1'b1,seg_data_mode}),   // 左起第 1 位：模式
-    .digit1            ({1'b1,seg_data_flag}),   // 左起第 2 位：'-'，或 F=检出空白扇区
+    .digit1            ({1'b1,7'b011_1111}),     // 左起第 2 位：'-'
     .digit2            ({1'b1,seg_data_page}),   // 左起第 3 位：页号
     .digit3            ({1'b1,seg_data_e0}),     // 左起第 4 位：上游白色像素数 高字节
     .digit4            ({1'b1,seg_data_e1}),     // 左起第 5 位

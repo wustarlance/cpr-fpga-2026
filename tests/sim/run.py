@@ -95,7 +95,6 @@ TESTS["tb_sdram_bist"] = {"sources": ["tests/board/sdram/sdram_bist.v", TB + "tb
 TESTS["tb_frame_refresh_contiguous"] = {"sources": ["project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_refresh_contiguous.v"]}
 TESTS["tb_frame_roundtrip"] = {"sources": ["project/vendor/SD/" + x + ".v" for x in ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + ["05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/" + x + ".v" for x in ("afifo_16_32_256", "afifo_32_16_256")] + [TB + "tb_frame_roundtrip.v"]}
 TESTS["tb_frame_mixed_roundtrip"] = dict(TESTS["tb_frame_roundtrip"])
-TESTS["tb_sd_blank_sector"] = {"sources": ["project/vendor/SD/bmp_read_scaled.v", "project/vendor/SD/bmp_blur_background.v", TB + "tb_sd_blank_sector.v"]}
 TESTS["tb_frame_write_underrun"] = {"sources": ["project/vendor/SD/" + x + ".v" for x in ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + ["05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/" + x + ".v" for x in ("afifo_16_32_256", "afifo_32_16_256")] + [TB + "tb_frame_write_underrun.v"]}
 
 FAIL_PATTERN = re.compile(r"\b(?:FAIL|FATAL|TIMEOUT)\b", re.IGNORECASE)

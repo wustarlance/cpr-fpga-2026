@@ -33,14 +33,6 @@ module bmp_read_scaled #(
     input load_start,
     input [31:0] load_sector,
     input sd_init_done,
-    // Debug: first sector address that produced a long run of 0xFF bytes.
-    // A blank/erased card sector is all 0xFF and its CRC is valid, so it passes
-    // the block CRC check and turns into a run of pure-white pixels.
-    output reg [20:0] dbg_ff_sector,
-    output reg        dbg_ff_seen,
-    // Sector re-reads triggered by a long 0xFF run. Non-zero with no white
-    // pixels on screen proves both the mechanism and the recovery.
-    output reg [15:0] dbg_retry_count,
     output reg [3:0] state_code,
     input [15:0] bmp_width, bmp_height, // legacy interface; destination is parameterized
     output reg write_req,
@@ -60,7 +52,7 @@ module bmp_read_scaled #(
         SECTOR=13, BYTE_FETCH=14, BYTE_USE=15, ROW_READY=16,
         OUT_FETCH=17, OUT_SEND=18, H_ADVANCE=19, V_ADVANCE=20,
         NEXT_ROW=21, FINISH=22, CHECK_DECIDE=23, FIT_COMPARE=24, FIT_ALIGN=25,
-        BG_PREP=26, BG_WAIT=27, BG_SAMPLE_REQ=28, BG_SAMPLE_WAIT=29, SECTOR_RETRY=30;
+        BG_PREP=26, BG_WAIT=27, BG_SAMPLE_REQ=28, BG_SAMPLE_WAIT=29;
     reg [4:0] state;
     reg header_is_scan;
     reg [9:0] rx_count;
@@ -139,18 +131,6 @@ module bmp_read_scaled #(
     reg [7:0] sector_q;
     reg [23:0] row_buf[0:MAX_WIDTH-1];
     reg [23:0] row_q;
-    // Everything below is written from the state machine block only, so each
-    // register has exactly one driver.
-    reg [15:0] ff_run;
-    reg        sector_blank, retried;
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            dbg_ff_sector <= 21'd0; dbg_ff_seen <= 1'b0;
-        end else if (ff_run >= 16'd255 && retried && !dbg_ff_seen) begin
-            dbg_ff_seen   <= 1'b1;              // blank survived a re-read
-            dbg_ff_sector <= sd_sec_read_addr[20:0];
-        end
-    end
 
     reg [31:0] payload_left;
     reg first_sector, sector_exhausted;
@@ -240,7 +220,6 @@ module bmp_read_scaled #(
             rx_count<=0; proc_pos<=0; scan_sector<=0; load_base<=0;
             next_sector<=0; file_sectors<=0; scan_match<=0;
             signature0<=0; signature1<=0; file_len<=0; pixel_offset<=0;
-            ff_run<=16'd0; sector_blank<=1'b0; retried<=1'b0; dbg_retry_count<=16'd0;
             width<=0; height<=0; dib_size<=0; compression<=0; planes<=0; bpp<=0;
             row_bytes<=0; stride<=0; stride_m1<=0; pixel_end<=0; payload_left<=0;
             hdr_ok_a<=0; hdr_ok_b<=0; hdr_ok_c<=0; pixel_offset_min<=0;
@@ -479,39 +458,14 @@ module bmp_read_scaled #(
                 SECTOR: begin
                     state_code<=4; if(sd_sec_ready) sd_sec_read<=1;
                     if(sd_sec_read_data_valid_q) rx_count<=rx_count+1'b1;
-                    // 256 bytes of 0xFF = 85 consecutive white pixels, which no
-                    // tutorial image contains: treat it as an erased card sector.
-                    if (sd_sec_read_data_valid_q) begin
-                        if (rx_count==10'd0) begin ff_run<=16'd0; sector_blank<=1'b0; end
-                        if (sd_sec_read_data_q != 8'hff) ff_run<=16'd0;
-                        else begin
-                            ff_run <= ff_run + 16'd1;
-                            if (ff_run >= 16'd255) sector_blank<=1'b1;
-                        end
-                    end
-                    if (sd_sec_read_end_q) begin
+                    if(sd_sec_read_end_q) begin
                         sd_sec_read<=0; rx_count<=0;
-                        if (sector_blank && !retried) begin
-                            // A card that just failed a read often answers the same
-                            // command correctly the second time; treat an erased
-                            // sector as transient and re-read it once.
-                            retried         <= 1'b1;
-                            dbg_retry_count <= dbg_retry_count + 16'd1;
-                            // Clear the run before the detector sees the retry
-                            // flag, otherwise a transient blank looks persistent.
-                            ff_run          <= 16'd0;
-                            sector_blank    <= 1'b0;
-                            state           <= SECTOR_RETRY;
-                        end else if(rx_count+(sd_sec_read_data_valid_q?10'd1:10'd0)!=512) begin load_error<=1; operation_error<=1; error_code<=3'd4; state<=IDLE; end
+                        if(rx_count+(sd_sec_read_data_valid_q?10'd1:10'd0)!=512) begin load_error<=1; operation_error<=1; error_code<=3'd4; state<=IDLE; end
                         else begin
-                            retried<=1'b0;
                             proc_pos<=first_sector?pixel_offset[8:0]:9'd0;
                             first_sector<=0; state<=BYTE_FETCH;
                         end
                     end
-                end
-                SECTOR_RETRY: begin
-                    state_code<=4; sd_sec_read<=1'b0; state<=SECTOR;
                 end
                 BYTE_FETCH: state<=BYTE_USE;
                 BYTE_USE: begin
