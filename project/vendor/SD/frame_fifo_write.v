@@ -87,7 +87,16 @@ assign App_wr_addr = {App_wr_addr_r[ADDR_BITS - 1:0]};
 assign O_wr_busy = (state == S_WRITE_BURST || (state == S_CHECK_FIFO && into_burst));//在突发，或者将要突发，则显示busy
 assign wr_burst_finish = (burst_cnt >= BURST_SIZE);
 assign write_finish = (state == S_END) ? 1'b1 : 1'b0;            //write finish at state 'S_END'
-assign App_wr_en = App_wr_en_d0 && !Sdr_init_ref_vld;
+// The first accepted word starts a transaction. APUG011 lets the
+// controller manage refresh during ongoing reads/writes. Keep every
+// four-word group contiguous; only stall before the first word.
+reg burst_started;
+assign App_wr_en = App_wr_en_d0 && (burst_started || !Sdr_init_ref_vld);
+always @(posedge mem_clk or posedge rst) begin
+    if (rst) burst_started <= 1'b0;
+    else if (state == S_ACK || state == S_CHECK_FIFO) burst_started <= 1'b0;
+    else if (App_wr_en) burst_started <= 1'b1;
+end
 
 
 always@(posedge mem_clk or posedge rst)

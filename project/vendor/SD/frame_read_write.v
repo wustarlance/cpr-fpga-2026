@@ -72,7 +72,15 @@ module frame_read_write
 	input                            write_en,                   // data write module write request for one data
 	input[WRITE_DATA_BITS - 1:0]     write_data,                // write data
     output frame_start, // memory-domain reader frame boundary
-    output write_ready // write FIFO has space
+    output write_ready, // write FIFO has space
+    // Debug instrument: words pulled out of write_buf while it was empty.  A
+    // show-ahead FIFO repeats its previous word in that case, so this counter is
+    // exactly the number of fabricated pixels that reached SDRAM.
+    output reg [31:0] write_empty_reads,
+    // Debug instrument: reads issued while read_buf was empty.  The consumer
+    // then displays whatever dout still holds, i.e. the previous pixel repeated,
+    // which is exactly the horizontal streak seen on screen.
+    output reg [31:0] read_empty_reads
 
 );
 wire[BURST_BITS - 1:0]                           wrusedw;                    // write used words
@@ -86,7 +94,24 @@ wire                                 write_fifo_aclr;            // fifo Asynchr
 
 wire O_wr_busy;
 wire write_fifo_full;
+wire write_fifo_empty;
 assign write_ready = ~write_fifo_full;
+
+wire read_fifo_empty;
+
+always @(posedge mem_clk or posedge rst) begin
+    if (rst)
+        write_empty_reads <= 32'd0;
+    else if (App_wr_en && write_fifo_empty && write_empty_reads != 32'hffffffff)
+        write_empty_reads <= write_empty_reads + 32'd1;
+end
+
+always @(posedge read_clk or posedge rst) begin
+    if (rst)
+        read_empty_reads <= 32'd0;
+    else if (read_en && read_fifo_empty && read_empty_reads != 32'hffffffff)
+        read_empty_reads <= read_empty_reads + 32'd1;
+end
 wire O_rd_busy;
 wire read_urgent;
 
@@ -104,7 +129,7 @@ wfifo_32_32_512 write_buf
 	.we                      	(write_en                 ),          // Write Request
 	.re                      	(App_wr_en        		  ),          // Read Request
 	.di                       	(write_data               ),          // Input Data
-	.empty_flag                 (                         ),          // Read side Empty flag
+	.empty_flag                 (write_fifo_empty         ),          // Read side Empty flag
 	.full_flag                  (write_fifo_full          ),          // Write side Full flag
 	.wrusedw                	(              	  		  ),          // Read Used Words
 	.rdusedw                	(rdusedw                  ),          // Write Used Words
@@ -156,7 +181,7 @@ rfifo_32_32_512 read_buf
 	.we                     	(Sdr_rd_en       			),          // Write Request
 	.re                     	(read_en                    ),          // Read Request
 	.di                      	(Sdr_rd_dout                ),          // Input Data
-	.empty_flag					(                           ),          // Read side Empty flag
+	.empty_flag					(read_fifo_empty           ),          // Read side Empty flag
 	.full_flag					(                           ),          // Write side Full flag
 	.wrusedw                	(wrusedw         	  	  		 ),          // Read Used Words
 	.rdusedw                	(                  			 ),          // Write Used Words

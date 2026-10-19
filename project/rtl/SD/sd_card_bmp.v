@@ -12,6 +12,9 @@ module sd_card_bmp #(
     parameter [31:0]  SCAN_MAX_SECTOR   = 32'd131071,
     parameter [2:0]   SCAN_TARGET_COUNT = 3'd4,
     parameter         SCALE_ENABLE     = 1'b0,
+    parameter         BLUR_BACKGROUND  = 1'b0,
+    parameter integer BG_BRIGHTNESS_NUM = 3,
+    parameter integer BG_BRIGHTNESS_SHIFT = 2,
     parameter integer DST_WIDTH        = 640,
     parameter integer DST_HEIGHT       = 480
 )(
@@ -45,7 +48,11 @@ module sd_card_bmp #(
     output                      SD_nCS,
     output                      SD_DCLK,
     output                      SD_MOSI,
-    input                       SD_MISO
+    input                       SD_MISO,
+    // Debug: first sector that produced a long 0xFF run, and whether it happened.
+    output [20:0]               dbg_ff_sector,
+    output                      dbg_ff_seen,
+    output [15:0]               dbg_retry_count
 );
 
 wire key_next_press;
@@ -570,6 +577,9 @@ end endgenerate
 
 generate if(SCALE_ENABLE) begin : g_scaled_reader
     bmp_read_scaled #(.DST_WIDTH(DST_WIDTH),.DST_HEIGHT(DST_HEIGHT),
+        .BLUR_BACKGROUND(BLUR_BACKGROUND),
+        .BG_BRIGHTNESS_NUM(BG_BRIGHTNESS_NUM),
+        .BG_BRIGHTNESS_SHIFT(BG_BRIGHTNESS_SHIFT),
         .WAIT_TIMEOUT_CYCLES(READER_TIMEOUT_CYCLES)) bmp_read_m0(
         .cancel(cancel_load),.sd_sec_ready(sd_ready),.sd_sec_read_error(sd_read_error),
         .abort_sd(abort_sd),.operation_error(operation_error),.error_code(operation_error_code),
@@ -584,9 +594,14 @@ generate if(SCALE_ENABLE) begin : g_scaled_reader
         .sd_sec_read(sd_sec_read),.sd_sec_read_addr(sd_sec_read_addr),
         .sd_sec_read_data(sd_sec_read_data),.sd_sec_read_data_valid(sd_sec_read_data_valid),
         .sd_sec_read_end(sd_sec_read_end),.bmp_data_wr_en(bmp_data_wr_en),.bmp_data(bmp_data),
-        .pixel_ready(pixel_ready),.load_error(load_error));
+        .pixel_ready(pixel_ready),.load_error(load_error),
+        .dbg_ff_sector(dbg_ff_sector),.dbg_ff_seen(dbg_ff_seen),
+        .dbg_retry_count(dbg_retry_count));
 end else begin : g_legacy_reader
     assign load_error=1'b0;
+    assign dbg_ff_sector=21'd0;
+    assign dbg_ff_seen=1'b0;
+    assign dbg_retry_count=16'd0;
 bmp_read #(.WAIT_TIMEOUT_CYCLES(READER_TIMEOUT_CYCLES)) bmp_read_m0(
     .cancel(cancel_load), .sd_sec_ready(sd_ready),
     .sd_sec_read_error(sd_read_error), .abort_sd(abort_sd),

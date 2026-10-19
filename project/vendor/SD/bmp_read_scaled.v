@@ -11,6 +11,9 @@ module bmp_read_scaled #(
     parameter integer MAX_HEIGHT = 1536,
     parameter integer DST_WIDTH = 640,
     parameter integer DST_HEIGHT = 480,
+    parameter integer BLUR_BACKGROUND = 0,
+    parameter integer BG_BRIGHTNESS_NUM = 3,
+    parameter integer BG_BRIGHTNESS_SHIFT = 2,
     parameter integer WAIT_TIMEOUT_CYCLES = 100_000_000
 )(
     input clk, rst,
@@ -30,6 +33,14 @@ module bmp_read_scaled #(
     input load_start,
     input [31:0] load_sector,
     input sd_init_done,
+    // Debug: first sector address that produced a long run of 0xFF bytes.
+    // A blank/erased card sector is all 0xFF and its CRC is valid, so it passes
+    // the block CRC check and turns into a run of pure-white pixels.
+    output reg [20:0] dbg_ff_sector,
+    output reg        dbg_ff_seen,
+    // Sector re-reads triggered by a long 0xFF run. Non-zero with no white
+    // pixels on screen proves both the mechanism and the recovery.
+    output reg [15:0] dbg_retry_count,
     output reg [3:0] state_code,
     input [15:0] bmp_width, bmp_height, // legacy interface; destination is parameterized
     output reg write_req,
@@ -48,11 +59,17 @@ module bmp_read_scaled #(
         FIT_START=8, DIVIDE=9, FIT_FINISH=10, WRITE_WAIT=11, WRITE_RELEASE=12,
         SECTOR=13, BYTE_FETCH=14, BYTE_USE=15, ROW_READY=16,
         OUT_FETCH=17, OUT_SEND=18, H_ADVANCE=19, V_ADVANCE=20,
-        NEXT_ROW=21, FINISH=22, CHECK_DECIDE=23, FIT_COMPARE=24, FIT_ALIGN=25;
+        NEXT_ROW=21, FINISH=22, CHECK_DECIDE=23, FIT_COMPARE=24, FIT_ALIGN=25,
+        BG_PREP=26, BG_WAIT=27, BG_SAMPLE_REQ=28, BG_SAMPLE_WAIT=29, SECTOR_RETRY=30;
     reg [4:0] state;
     reg header_is_scan;
     reg [9:0] rx_count;
     reg [31:0] idle_wait;
+    // Register the SD byte protocol at the reader boundary. This keeps the
+    // SD command FSM state and the scaler's wide control cone from becoming
+    // one long 100 MHz path after optional background logic is placed.
+    reg [7:0] sd_sec_read_data_q;
+    reg sd_sec_read_data_valid_q, sd_sec_read_end_q, sd_sec_read_error_q;
     wire receiving = state==HEADER || state==SECTOR;
     wire active = state!=IDLE;
     // Only external waits time out. Compute and row-consumption states may
@@ -69,14 +86,27 @@ module bmp_read_scaled #(
         if(rst) pixel_ready_q<=1'b0;
         else pixel_ready_q<=pixel_ready;
     end
-    wire progress = (receiving && (sd_sec_read_data_valid || sd_sec_read_end)) ||
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            sd_sec_read_data_q <= 8'd0;
+            sd_sec_read_data_valid_q <= 1'b0;
+            sd_sec_read_end_q <= 1'b0;
+            sd_sec_read_error_q <= 1'b0;
+        end else begin
+            sd_sec_read_data_q <= sd_sec_read_data;
+            sd_sec_read_data_valid_q <= sd_sec_read_data_valid;
+            sd_sec_read_end_q <= sd_sec_read_end;
+            sd_sec_read_error_q <= sd_sec_read_error;
+        end
+    end
+    wire progress = (receiving && (sd_sec_read_data_valid_q || sd_sec_read_end_q)) ||
                     (state==WRITE_WAIT && write_req_ack) ||
                     (state==WRITE_RELEASE && !write_req_ack) ||
                     (state==OUT_SEND && pixel_ready_q);
     wire wait_expired = waiting && !progress && idle_wait>=WAIT_TIMEOUT_CYCLES-1;
-    wire bad_sector = receiving && sd_sec_read_end && !sd_sec_read_error &&
-        (rx_count+(sd_sec_read_data_valid?10'd1:10'd0)!=10'd512);
-    wire fail_operation = active && (cancel || sd_sec_read_error || wait_expired || bad_sector);
+    wire bad_sector = receiving && sd_sec_read_end_q && !sd_sec_read_error_q &&
+        (rx_count+(sd_sec_read_data_valid_q?10'd1:10'd0)!=10'd512);
+    wire fail_operation = active && (cancel || sd_sec_read_error_q || wait_expired || bad_sector);
     always @(posedge clk or posedge rst) begin
         if(rst) idle_wait<=0;
         else if(!waiting || progress) idle_wait<=0;
@@ -109,6 +139,18 @@ module bmp_read_scaled #(
     reg [7:0] sector_q;
     reg [23:0] row_buf[0:MAX_WIDTH-1];
     reg [23:0] row_q;
+    // Everything below is written from the state machine block only, so each
+    // register has exactly one driver.
+    reg [15:0] ff_run;
+    reg        sector_blank, retried;
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            dbg_ff_sector <= 21'd0; dbg_ff_seen <= 1'b0;
+        end else if (ff_run >= 16'd255 && retried && !dbg_ff_seen) begin
+            dbg_ff_seen   <= 1'b1;              // blank survived a re-read
+            dbg_ff_sector <= sd_sec_read_addr[20:0];
+        end
+    end
 
     reg [31:0] payload_left;
     reg first_sector, sector_exhausted;
@@ -121,6 +163,13 @@ module bmp_read_scaled #(
     reg [15:0] out_x, out_y, content_y;
     reg [15:0] sample_x, sample_y;
     reg [16:0] h_rem, v_rem;
+    // pass_mode: 0 = legacy single pass, 1 = background ingest pass,
+    // 2 = foreground/output pass after the background is complete.
+    reg [1:0] pass_mode;
+    reg bg_enabled;
+    reg bg_start_reg;
+    reg bg_cancel_reg;
+    reg [23:0] bg_pixel_q;
     // A shared restoring divider runs once per image, never in the pixel
     // path. Explicit 32-bit operands and one subtract per clock bound timing.
     reg [31:0] div_bits, div_rem, div_den;
@@ -135,15 +184,48 @@ module bmp_read_scaled #(
     wire [32:0] div_sub = div_trial - {1'b0,div_den};
     wire in_content_x = out_x>=off_x && out_x<off_x+fit_w;
     wire in_content_y = out_y>=bottom_rows && out_y<bottom_rows+fit_h;
+    wire bg_pixel_valid = (pass_mode==1) && (state==BYTE_USE) &&
+                          (row_byte<row_bytes) && (channel==2);
+    wire bg_finish = (pass_mode==1) && (state==ROW_READY) &&
+                     (payload_left==0);
+    wire bg_sample_req = (state==BG_SAMPLE_REQ);
+    wire bg_ingest_ready;
+    wire bg_done;
+    wire bg_sample_valid;
+    wire [23:0] bg_sample_rgb;
     assign ready = state==IDLE;
     assign bmp_data_wr_en = state==OUT_SEND && pixel_ready && !fail_operation;
-    assign bmp_data = (in_content_x && in_content_y) ? row_q : 24'h102030;
+    assign bmp_data = (in_content_x && in_content_y) ? row_q :
+                      ((bg_enabled && bg_done) ? bg_pixel_q : 24'h102030);
+
+    generate if (BLUR_BACKGROUND) begin : g_blur_background
+        bmp_blur_background #(
+            .DST_WIDTH(DST_WIDTH), .DST_HEIGHT(DST_HEIGHT),
+            .BRIGHTNESS_NUM(BG_BRIGHTNESS_NUM),
+            .BRIGHTNESS_SHIFT(BG_BRIGHTNESS_SHIFT)
+        ) u_bg (
+            .clk(clk), .rst(rst),
+            .cancel(cancel || bg_cancel_reg || !sd_init_done), .start(bg_start_reg),
+            .width(width[11:0]), .height(height[10:0]),
+            .ingest_ready(bg_ingest_ready), .pixel_valid(bg_pixel_valid),
+            .pixel_rgb({sector_q,green,blue}),
+            .pixel_x(source_x[11:0]), .pixel_y(source_y[10:0]),
+            .finish(bg_finish), .done(bg_done),
+            .sample_req(bg_sample_req), .sample_x(out_x), .sample_y(out_y),
+            .sample_valid(bg_sample_valid), .sample_rgb(bg_sample_rgb)
+        );
+    end else begin : g_no_blur_background
+        assign bg_ingest_ready = 1'b0;
+        assign bg_done = 1'b0;
+        assign bg_sample_valid = 1'b0;
+        assign bg_sample_rgb = 24'd0;
+    end endgenerate
 
     // Synchronous reads infer block RAM. RAM contents need no reset: only
     // complete received sectors/rows are ever made visible to the consumer.
     always @(posedge clk) begin
-        if (state==SECTOR && sd_sec_read_data_valid && rx_count<512)
-            sector_buf[rx_count[8:0]] <= sd_sec_read_data;
+        if (state==SECTOR && sd_sec_read_data_valid_q && rx_count<512)
+            sector_buf[rx_count[8:0]] <= sd_sec_read_data_q;
         if (state==BYTE_FETCH) sector_q <= sector_buf[proc_pos];
         if (state==OUT_FETCH) row_q <= row_buf[sample_x[10:0]];
         if (state==BYTE_USE && row_byte<row_bytes && channel==2)
@@ -158,6 +240,7 @@ module bmp_read_scaled #(
             rx_count<=0; proc_pos<=0; scan_sector<=0; load_base<=0;
             next_sector<=0; file_sectors<=0; scan_match<=0;
             signature0<=0; signature1<=0; file_len<=0; pixel_offset<=0;
+            ff_run<=16'd0; sector_blank<=1'b0; retried<=1'b0; dbg_retry_count<=16'd0;
             width<=0; height<=0; dib_size<=0; compression<=0; planes<=0; bpp<=0;
             row_bytes<=0; stride<=0; stride_m1<=0; pixel_end<=0; payload_left<=0;
             hdr_ok_a<=0; hdr_ok_b<=0; hdr_ok_c<=0; pixel_offset_min<=0;
@@ -167,18 +250,22 @@ module bmp_read_scaled #(
             out_x<=0; out_y<=0; content_y<=0; sample_x<=0; sample_y<=0;
             h_rem<=0; v_rem<=0; div_bits<=0; div_rem<=0; div_den<=1; div_count<=0;
             div_prod<=0; div_half<=0;
+            pass_mode<=0; bg_enabled<=0; bg_start_reg<=0; bg_cancel_reg<=0; bg_pixel_q<=0;
             scan_done<=0; scan_found_valid<=0; scan_found_sector<=0; scan_found_total<=0;
             write_req<=0; sd_sec_read<=0; sd_sec_read_addr<=0; load_error<=0;
         end else if (!sd_init_done) begin
+            bg_start_reg<=0; bg_cancel_reg<=0; bg_enabled<=0; pass_mode<=0;
             state<=IDLE; state_code<=0; scan_done<=0; scan_found_valid<=0;
             abort_sd<=0; operation_error<=active; error_code<=active?3'd1:error_code;
             scan_found_total<=0; write_req<=0; sd_sec_read<=0; load_error<=0;
         end else if(fail_operation) begin
+            bg_start_reg<=0; bg_cancel_reg<=1'b1; bg_enabled<=0; pass_mode<=0;
             state<=IDLE; state_code<=4'he;
             sd_sec_read<=0; write_req<=0; scan_found_valid<=0; scan_done<=1;
-            load_error<=1; abort_sd<=!sd_sec_read_error; operation_error<=1;
-            error_code<=sd_sec_read_error?3'd1:bad_sector?3'd4:3'd3;
+            load_error<=1; abort_sd<=!sd_sec_read_error_q; operation_error<=1;
+            error_code<=sd_sec_read_error_q?3'd1:bad_sector?3'd4:3'd3;
         end else begin
+            bg_start_reg<=1'b0; bg_cancel_reg<=1'b0;
             abort_sd<=0; operation_error<=0;
             scan_found_valid<=0;
             case(state)
@@ -202,43 +289,43 @@ module bmp_read_scaled #(
                 end
                 HEADER: begin
                     state_code<=2; if(sd_sec_ready) sd_sec_read<=1;
-                    if (sd_sec_read_data_valid) begin
+                    if (sd_sec_read_data_valid_q) begin
                         case(rx_count)
-                            0: signature0<=sd_sec_read_data;
-                            1: signature1<=sd_sec_read_data;
-                            2: file_len[7:0]<=sd_sec_read_data;
-                            3: file_len[15:8]<=sd_sec_read_data;
-                            4: file_len[23:16]<=sd_sec_read_data;
-                            5: file_len[31:24]<=sd_sec_read_data;
-                            10: pixel_offset[7:0]<=sd_sec_read_data;
-                            11: pixel_offset[15:8]<=sd_sec_read_data;
-                            12: pixel_offset[23:16]<=sd_sec_read_data;
-                            13: pixel_offset[31:24]<=sd_sec_read_data;
-                            14: dib_size[7:0]<=sd_sec_read_data;
-                            15: dib_size[15:8]<=sd_sec_read_data;
-                            16: dib_size[23:16]<=sd_sec_read_data;
-                            17: dib_size[31:24]<=sd_sec_read_data;
-                            18: width[7:0]<=sd_sec_read_data;
-                            19: width[15:8]<=sd_sec_read_data;
-                            20: width[23:16]<=sd_sec_read_data;
-                            21: width[31:24]<=sd_sec_read_data;
-                            22: height[7:0]<=sd_sec_read_data;
-                            23: height[15:8]<=sd_sec_read_data;
-                            24: height[23:16]<=sd_sec_read_data;
-                            25: height[31:24]<=sd_sec_read_data;
-                            26: planes[7:0]<=sd_sec_read_data;
-                            27: planes[15:8]<=sd_sec_read_data;
-                            28: bpp[7:0]<=sd_sec_read_data;
-                            29: bpp[15:8]<=sd_sec_read_data;
-                            30: compression[7:0]<=sd_sec_read_data;
-                            31: compression[15:8]<=sd_sec_read_data;
-                            32: compression[23:16]<=sd_sec_read_data;
-                            33: compression[31:24]<=sd_sec_read_data;
+                            0: signature0<=sd_sec_read_data_q;
+                            1: signature1<=sd_sec_read_data_q;
+                            2: file_len[7:0]<=sd_sec_read_data_q;
+                            3: file_len[15:8]<=sd_sec_read_data_q;
+                            4: file_len[23:16]<=sd_sec_read_data_q;
+                            5: file_len[31:24]<=sd_sec_read_data_q;
+                            10: pixel_offset[7:0]<=sd_sec_read_data_q;
+                            11: pixel_offset[15:8]<=sd_sec_read_data_q;
+                            12: pixel_offset[23:16]<=sd_sec_read_data_q;
+                            13: pixel_offset[31:24]<=sd_sec_read_data_q;
+                            14: dib_size[7:0]<=sd_sec_read_data_q;
+                            15: dib_size[15:8]<=sd_sec_read_data_q;
+                            16: dib_size[23:16]<=sd_sec_read_data_q;
+                            17: dib_size[31:24]<=sd_sec_read_data_q;
+                            18: width[7:0]<=sd_sec_read_data_q;
+                            19: width[15:8]<=sd_sec_read_data_q;
+                            20: width[23:16]<=sd_sec_read_data_q;
+                            21: width[31:24]<=sd_sec_read_data_q;
+                            22: height[7:0]<=sd_sec_read_data_q;
+                            23: height[15:8]<=sd_sec_read_data_q;
+                            24: height[23:16]<=sd_sec_read_data_q;
+                            25: height[31:24]<=sd_sec_read_data_q;
+                            26: planes[7:0]<=sd_sec_read_data_q;
+                            27: planes[15:8]<=sd_sec_read_data_q;
+                            28: bpp[7:0]<=sd_sec_read_data_q;
+                            29: bpp[15:8]<=sd_sec_read_data_q;
+                            30: compression[7:0]<=sd_sec_read_data_q;
+                            31: compression[15:8]<=sd_sec_read_data_q;
+                            32: compression[23:16]<=sd_sec_read_data_q;
+                            33: compression[31:24]<=sd_sec_read_data_q;
                             default: ;
                         endcase
                         rx_count<=rx_count+1'b1;
                     end
-                    if(sd_sec_read_end) begin
+                    if(sd_sec_read_end_q) begin
                         sd_sec_read<=0; state<=CHECK_SIZE;
                     end
                 end
@@ -333,7 +420,44 @@ module bmp_read_scaled #(
                         off_x<=(DST_WIDTH-(div_bits==0?1:div_bits[15:0]))>>1;
                         bottom_rows<=0;
                     end
-                    write_req<=1; state<=WRITE_WAIT;
+                    // A background-enabled load is prepared by a complete
+                    // source pass before the SDRAM writer is opened.  If the
+                    // contain result fills the whole destination, preserve
+                    // the validated one-pass path byte-for-byte.
+                    if (fit_width_limited) begin
+                        bg_enabled <= BLUR_BACKGROUND &&
+                            ((div_bits==0 ? 1 : div_bits[15:0]) != DST_HEIGHT);
+                    end else begin
+                        bg_enabled <= BLUR_BACKGROUND &&
+                            ((div_bits==0 ? 1 : div_bits[15:0]) != DST_WIDTH);
+                    end
+                    if (BLUR_BACKGROUND &&
+                        ((fit_width_limited &&
+                          ((div_bits==0 ? 1 : div_bits[15:0]) != DST_HEIGHT)) ||
+                         (!fit_width_limited &&
+                          ((div_bits==0 ? 1 : div_bits[15:0]) != DST_WIDTH)))) begin
+                        pass_mode<=1; bg_start_reg<=1'b1; state<=BG_PREP;
+                    end else begin
+                        pass_mode<=0; write_req<=1; state<=WRITE_WAIT;
+                    end
+                end
+                BG_PREP: begin
+                    // Wait for the thumbnail accumulator to finish its clear
+                    // phase before opening the first SD source pass.
+                    if (bg_ingest_ready) begin
+                        rx_count<=0; first_sector<=1;
+                        sd_sec_read_addr<=load_base+(pixel_offset>>9);
+                        payload_left<=pixel_end-pixel_offset;
+                        row_byte<=0; source_x<=0; source_y<=0; channel<=0;
+                        state<=SECTOR;
+                    end
+                end
+                BG_WAIT: begin
+                    // The helper owns the thumbnail and blur RAM while this
+                    // reader waits. No frame write request exists yet.
+                    if (bg_done) begin
+                        pass_mode<=2; write_req<=1; state<=WRITE_WAIT;
+                    end
                 end
                 WRITE_WAIT: begin
                     state_code<=3;
@@ -354,18 +478,49 @@ module bmp_read_scaled #(
                 end
                 SECTOR: begin
                     state_code<=4; if(sd_sec_ready) sd_sec_read<=1;
-                    if(sd_sec_read_data_valid) rx_count<=rx_count+1'b1;
-                    if(sd_sec_read_end) begin
-                        sd_sec_read<=0; rx_count<=0;
-                        if(rx_count+(sd_sec_read_data_valid?10'd1:10'd0)!=512) begin load_error<=1; operation_error<=1; error_code<=3'd4; state<=IDLE; end
+                    if(sd_sec_read_data_valid_q) rx_count<=rx_count+1'b1;
+                    // 256 bytes of 0xFF = 85 consecutive white pixels, which no
+                    // tutorial image contains: treat it as an erased card sector.
+                    if (sd_sec_read_data_valid_q) begin
+                        if (rx_count==10'd0) begin ff_run<=16'd0; sector_blank<=1'b0; end
+                        if (sd_sec_read_data_q != 8'hff) ff_run<=16'd0;
                         else begin
+                            ff_run <= ff_run + 16'd1;
+                            if (ff_run >= 16'd255) sector_blank<=1'b1;
+                        end
+                    end
+                    if (sd_sec_read_end_q) begin
+                        sd_sec_read<=0; rx_count<=0;
+                        if (sector_blank && !retried) begin
+                            // A card that just failed a read often answers the same
+                            // command correctly the second time; treat an erased
+                            // sector as transient and re-read it once.
+                            retried         <= 1'b1;
+                            dbg_retry_count <= dbg_retry_count + 16'd1;
+                            // Clear the run before the detector sees the retry
+                            // flag, otherwise a transient blank looks persistent.
+                            ff_run          <= 16'd0;
+                            sector_blank    <= 1'b0;
+                            state           <= SECTOR_RETRY;
+                        end else if(rx_count+(sd_sec_read_data_valid_q?10'd1:10'd0)!=512) begin load_error<=1; operation_error<=1; error_code<=3'd4; state<=IDLE; end
+                        else begin
+                            retried<=1'b0;
                             proc_pos<=first_sector?pixel_offset[8:0]:9'd0;
                             first_sector<=0; state<=BYTE_FETCH;
                         end
                     end
                 end
+                SECTOR_RETRY: begin
+                    state_code<=4; sd_sec_read<=1'b0; state<=SECTOR;
+                end
                 BYTE_FETCH: state<=BYTE_USE;
                 BYTE_USE: begin
+                    // The background ingest interface may pause at a source
+                    // pixel while it folds a thumbnail row. Hold the SD byte,
+                    // channel and source coordinates until it is ready.
+                    if (pass_mode==1 && channel==2 && !bg_ingest_ready) begin
+                        state<=BYTE_USE;
+                    end else begin
                     if(row_byte<row_bytes) begin
                         case(channel)
                             0: blue<=sector_q;
@@ -385,14 +540,30 @@ module bmp_read_scaled #(
                             sd_sec_read_addr<=sd_sec_read_addr+1'b1; state<=SECTOR;
                         end else state<=BYTE_FETCH;
                     end
+                    end
                 end
                 ROW_READY: begin
-                    if(out_y<bottom_rows || content_y==fit_h ||
+                    if (pass_mode==1) begin
+                        if (payload_left==0) state<=BG_WAIT;
+                        else state<=NEXT_ROW;
+                    end else if(out_y<bottom_rows || content_y==fit_h ||
                        (content_y<fit_h && sample_y==source_y))
                         state<=OUT_FETCH;
                     else state<=NEXT_ROW;
                 end
-                OUT_FETCH: state<=OUT_SEND;
+                OUT_FETCH: begin
+                    if (bg_enabled && bg_done &&
+                        !(in_content_x && in_content_y))
+                        state<=BG_SAMPLE_REQ;
+                    else state<=OUT_SEND;
+                end
+                BG_SAMPLE_REQ: state<=BG_SAMPLE_WAIT;
+                BG_SAMPLE_WAIT: begin
+                    if (bg_sample_valid) begin
+                        bg_pixel_q<=bg_sample_rgb;
+                        state<=OUT_SEND;
+                    end
+                end
                 OUT_SEND: if(pixel_ready) begin
                     if(out_x==DST_WIDTH-1) begin
                         out_x<=0; out_y<=out_y+1'b1; sample_x<=0; h_rem<=0;

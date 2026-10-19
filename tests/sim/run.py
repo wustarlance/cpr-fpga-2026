@@ -47,7 +47,8 @@ TESTS["tb_audio_tone"] = {"sources": [RTL + "cpr_audio_tone_i2s.v", TB + "tb_aud
                           "pass_pattern": r"(?m)^PASS: 8-note scale"}
 TESTS["tb_bmp_scaled"] = {"sources": ["project/vendor/SD/bmp_read_scaled.v", TB + "tb_bmp_scaled.v"]}
 TESTS["tb_bmp_scaled_frame"] = {"sources": ["project/vendor/SD/bmp_read_scaled.v", TB + "tb_bmp_scaled.v"]}
-TESTS["tb_sd_scaled_pipeline"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "SD/sd_card_bmp.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/bmp_read_scaled.v", "project/vendor/SD/frame_read_write.v", "project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_sd_scaled_pipeline.v"]}
+TESTS["tb_sd_scaled_pipeline"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "SD/sd_card_bmp.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/bmp_read_scaled.v", "project/vendor/SD/bmp_blur_background.v", "project/vendor/SD/frame_read_write.v", "project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_sd_scaled_pipeline.v"]}
+TESTS["tb_sd_blur_pipeline"] = {"sources": TESTS["tb_sd_scaled_pipeline"]["sources"]}
 TESTS.update({
     "tb_contrast_rgb": {"sources": [RTL + "contrast_rgb.v", TB + "tb_contrast_rgb.v"], "plusargs": ["+golden=fixtures/contrast_golden.mem"], "pass_pattern": r"(?m)^PASS: contrast_rgb\b"},
     "tb_font5x7_rom": {"sources": [RTL + "font5x7_rom.v", TB + "tb_font5x7_rom.v"], "plusargs": ["+glyph=fixtures/glyph5x7_golden.mem"], "pass_pattern": r"(?m)^PASS: font5x7_rom\b"},
@@ -87,6 +88,15 @@ TESTS["tb_chinese_overlay"] = {
 }
 
 TESTS["tb_frame_refresh_interlock"] = {"sources": ["project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_refresh_interlock.v"]}
+TESTS["tb_bmp_blur_fill"] = {"sources": ["project/vendor/SD/bmp_blur_background.v", "project/vendor/SD/bmp_read_scaled.v", TB + "tb_bmp_blur_fill.v"]}
+TESTS["tb_bmp_blur_fill_frame"] = {"sources": TESTS["tb_bmp_blur_fill"]["sources"][:]}
+
+TESTS["tb_sdram_bist"] = {"sources": ["tests/board/sdram/sdram_bist.v", TB + "tb_sdram_bist.v"]}
+TESTS["tb_frame_refresh_contiguous"] = {"sources": ["project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_refresh_contiguous.v"]}
+TESTS["tb_frame_roundtrip"] = {"sources": ["project/vendor/SD/" + x + ".v" for x in ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + ["05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/" + x + ".v" for x in ("afifo_16_32_256", "afifo_32_16_256")] + [TB + "tb_frame_roundtrip.v"]}
+TESTS["tb_frame_mixed_roundtrip"] = dict(TESTS["tb_frame_roundtrip"])
+TESTS["tb_sd_blank_sector"] = {"sources": ["project/vendor/SD/bmp_read_scaled.v", "project/vendor/SD/bmp_blur_background.v", TB + "tb_sd_blank_sector.v"]}
+TESTS["tb_frame_write_underrun"] = {"sources": ["project/vendor/SD/" + x + ".v" for x in ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + ["05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/" + x + ".v" for x in ("afifo_16_32_256", "afifo_32_16_256")] + [TB + "tb_frame_write_underrun.v"]}
 
 FAIL_PATTERN = re.compile(r"\b(?:FAIL|FATAL|TIMEOUT)\b", re.IGNORECASE)
 
