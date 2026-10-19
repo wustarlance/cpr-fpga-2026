@@ -535,16 +535,24 @@ always @(posedge sd_card_clk or posedge rst_sd) begin
 end
 reg [15:0] pub_heartbeat;
 reg [31:0] empty_reads_pub;
+// 每 0.66 ms 发布一次，并让显示在两种视图间交替（各约 4 秒）：
+//   view_sel=0  扇区重读次数
+//   view_sel=1  首个持续空白扇区的地址
+reg        view_sel;
 reg        empty_tog;
 always @(posedge sd_card_clk or posedge rst_sd) begin
     if (rst_sd) begin
         pub_heartbeat   <= 16'd0;
         empty_reads_pub <= 32'd0;
+        view_sel        <= 1'b0;
         empty_tog       <= 1'b0;
     end else begin
         pub_heartbeat <= pub_heartbeat + 16'd1;
         if (pub_heartbeat == 16'hffff) begin
-            empty_reads_pub <= {15'd0, dbg_ff_seen, dbg_retry_count};
+            view_sel        <= ~view_sel;
+            empty_reads_pub <= view_sel
+                ? {dbg_ff_seen, 10'd0, dbg_ff_sector[20:0]}
+                : {dbg_ff_seen, 15'd0, dbg_retry_count};
             empty_tog       <= ~empty_tog;
         end
     end
@@ -565,7 +573,7 @@ wire [6:0] seg_data_e0, seg_data_e1, seg_data_e2, seg_data_e3;
 // 第 2 位平常是 '-'，一旦出现过连续 0xFF（空白扇区）就变成 'F'
 wire [6:0] seg_data_flag_f;
 seg_decoder seg_decoder_flag(.bin_data(4'hf), .seg_data(seg_data_flag_f));
-wire [6:0] seg_data_flag = empty_reads_snap[16] ? seg_data_flag_f : 7'b011_1111;
+wire [6:0] seg_data_flag = empty_reads_snap[31] ? seg_data_flag_f : 7'b011_1111;
 seg_decoder seg_decoder_e0(.bin_data(empty_reads_snap[15:12]), .seg_data(seg_data_e0));
 seg_decoder seg_decoder_e1(.bin_data(empty_reads_snap[11:8]),  .seg_data(seg_data_e1));
 seg_decoder seg_decoder_e2(.bin_data(empty_reads_snap[7:4]),   .seg_data(seg_data_e2));
