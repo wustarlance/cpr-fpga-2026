@@ -7,11 +7,15 @@ module frame_read_write
 	parameter WRITE_DATA_BITS        = 32,
 	parameter ADDR_BITS              = 21,
 	parameter BURST_BITS             = 9,//
-	parameter BURST_SIZE             = 256,
+	parameter BURST_SIZE             = 256, // read burst and backwards-compatible write default
+    parameter WRITE_BURST_SIZE       = BURST_SIZE,
+    parameter WRITE_TO_READ_GAP      = 0,
+    parameter WRITE_RESTART_GAP      = 0,
 	parameter WRITE_V_FLIP           = 1,      // 1: vertical flip when writing TF/BMP frame into SDRAM
 	parameter FRAME_WIDTH            = 640,
 	parameter FRAME_HEIGHT           = 480,
-    parameter READ_INDEX_SYNCHRONOUS = 0
+    parameter READ_INDEX_SYNCHRONOUS = 0,
+    parameter DIAGNOSTIC_PAUSE_ENABLE = 0
 ) 
 (
 	input                            rst,                  
@@ -73,14 +77,9 @@ module frame_read_write
 	input[WRITE_DATA_BITS - 1:0]     write_data,                // write data
     output frame_start, // memory-domain reader frame boundary
     output write_ready, // write FIFO has space
-    // Debug instrument: words pulled out of write_buf while it was empty.  A
-    // show-ahead FIFO repeats its previous word in that case, so this counter is
-    // exactly the number of fabricated pixels that reached SDRAM.
-    output reg [31:0] write_empty_reads,
-    // Debug instrument: reads issued while read_buf was empty.  The consumer
-    // then displays whatever dout still holds, i.e. the previous pixel repeated,
-    // which is exactly the horizontal streak seen on screen.
-    output reg [31:0] read_empty_reads
+    // Passive diagnostic taps: flags retain their native FIFO clock domain.
+    input diagnostic_pause,
+    output probe_write_full, probe_write_empty, probe_read_full, probe_read_empty, probe_write_clear
 
 );
 wire[BURST_BITS - 1:0]                           wrusedw;                    // write used words
@@ -91,33 +90,28 @@ wire								 App_wr_busy;
 
 wire                                 read_fifo_aclr;             // fifo Asynchronous clear
 wire                                 write_fifo_aclr;            // fifo Asynchronous clear
+assign probe_write_clear=write_fifo_aclr;
 
 wire O_wr_busy;
 wire write_fifo_full;
-wire write_fifo_empty;
+assign probe_write_full = write_fifo_full;
 assign write_ready = ~write_fifo_full;
-
-wire read_fifo_empty;
-
-always @(posedge mem_clk or posedge rst) begin
-    if (rst)
-        write_empty_reads <= 32'd0;
-    else if (App_wr_en && write_fifo_empty && write_empty_reads != 32'hffffffff)
-        write_empty_reads <= write_empty_reads + 32'd1;
-end
-
-always @(posedge read_clk or posedge rst) begin
-    if (rst)
-        read_empty_reads <= 32'd0;
-    else if (read_en && read_fifo_empty && read_empty_reads != 32'hffffffff)
-        read_empty_reads <= read_empty_reads + 32'd1;
-end
 wire O_rd_busy;
 wire read_urgent;
 
-assign App_wr_busy = O_wr_busy;//下个时钟写指令拉高
+// D115 exploratory tail guard: it blocks only NEW read transactions.
+// It does not interrupt a write or a four-word group. Default0 is bypass.
+localparam WRITE_GAP_BITS = (WRITE_TO_READ_GAP<1) ? 1 : $clog2(WRITE_TO_READ_GAP+1);
+reg [WRITE_GAP_BITS-1:0] write_tail;
+always @(posedge mem_clk or posedge rst) begin
+    if(rst) write_tail<=0;
+    else if(App_wr_en) write_tail<=WRITE_TO_READ_GAP;
+    else if(write_tail!=0) write_tail<=write_tail-1'b1;
+end
+wire pause_admission=DIAGNOSTIC_PAUSE_ENABLE ? diagnostic_pause : 1'b0;
+assign App_wr_busy = O_wr_busy | (write_tail!=0) | pause_admission;
 // Give a low display FIFO priority before starting another write burst.
-assign App_rd_busy = O_rd_busy | read_urgent;
+assign App_rd_busy = O_rd_busy | read_urgent | pause_admission;
 assign App_wr_dm = 4'b0000;
 
 //instantiate an asynchronous FIFO 
@@ -129,7 +123,7 @@ wfifo_32_32_512 write_buf
 	.we                      	(write_en                 ),          // Write Request
 	.re                      	(App_wr_en        		  ),          // Read Request
 	.di                       	(write_data               ),          // Input Data
-	.empty_flag                 (write_fifo_empty         ),          // Read side Empty flag
+	.empty_flag                 (probe_write_empty        ),          // Read side Empty flag
 	.full_flag                  (write_fifo_full          ),          // Write side Full flag
 	.wrusedw                	(              	  		  ),          // Read Used Words
 	.rdusedw                	(rdusedw                  ),          // Write Used Words
@@ -142,7 +136,8 @@ frame_fifo_write
 	.MEM_DATA_BITS              (MEM_DATA_BITS            ),
 	.ADDR_BITS                  (ADDR_BITS                ),
 	.BURST_BITS                 (BURST_BITS               ),
-	.BURST_SIZE                 (BURST_SIZE               ),
+	.BURST_SIZE                 (WRITE_BURST_SIZE         ),
+    .WRITE_RESTART_GAP          (WRITE_RESTART_GAP        ),
 	.WRITE_V_FLIP               (WRITE_V_FLIP             ),
 	.FRAME_WIDTH                (FRAME_WIDTH              ),
 	.FRAME_HEIGHT               (FRAME_HEIGHT             )
@@ -181,8 +176,8 @@ rfifo_32_32_512 read_buf
 	.we                     	(Sdr_rd_en       			),          // Write Request
 	.re                     	(read_en                    ),          // Read Request
 	.di                      	(Sdr_rd_dout                ),          // Input Data
-	.empty_flag					(read_fifo_empty           ),          // Read side Empty flag
-	.full_flag					(                           ),          // Write side Full flag
+	.empty_flag                 (probe_read_empty         ),          // Read side Empty flag
+	.full_flag                  (probe_read_full          ),          // Write side Full flag
 	.wrusedw                	(wrusedw         	  	  		 ),          // Read Used Words
 	.rdusedw                	(                  			 ),          // Write Used Words
 	.dout						(read_data                  )

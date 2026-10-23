@@ -9,7 +9,12 @@
 
 `include "include/global_def.v"
 
-module sdram(
+// Opt-in for the measured HX4S20C 40MHz configuration only. Default retains
+// the vendor wrapper interface; revalidate with any controller/clock revision.
+module sdram #(
+    parameter REGISTER_READ_DATA = 0
+)(
+
     `ifdef SIMULATION
 	output					SDRAM_CLK,
 	output					SDR_CKE,
@@ -53,6 +58,22 @@ wire  [`DATA_WIDTH-1:0]	SDR_DQ ;
 wire  [`DM_WIDTH-1:0]	SDR_DM; 
 `endif
 
+wire [`DATA_WIDTH-1:0] raw_sdr_rd_dout;
+generate
+    if (REGISTER_READ_DATA != 0) begin : g_read_data_pipeline
+        reg [`DATA_WIDTH-1:0] previous_data;
+        always @(posedge Clk or posedge Rst) begin
+            if (Rst) previous_data <= 0;
+            else previous_data <= raw_sdr_rd_dout;
+        end
+        // D110 measured data one clock before the corresponding valid cycle.
+        // Sample every clock, including the cycle before the first valid word.
+        assign Sdr_rd_dout = previous_data;
+    end else begin : g_read_data_bypass
+        assign Sdr_rd_dout = raw_sdr_rd_dout;
+    end
+endgenerate
+
 sdr_as_ram  #( .self_refresh_open(1'b1))
 	u2_ram( 
 		.Sdr_clk(Clk),
@@ -73,7 +94,7 @@ sdr_as_ram  #( .self_refresh_open(1'b1))
 		.App_rd_en(App_rd_en),
 		.App_rd_addr(App_rd_addr),
 		.Sdr_rd_en	(Sdr_rd_en),
-		.Sdr_rd_dout(Sdr_rd_dout),
+		.Sdr_rd_dout(raw_sdr_rd_dout),
 	
 		.SDRAM_CLK(SDRAM_CLK),
 		.SDR_RAS(SDR_RAS),

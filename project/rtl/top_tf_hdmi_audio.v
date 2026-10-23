@@ -4,10 +4,6 @@ module top #(
     parameter USE_EXTERNAL_IO = 0,
     parameter USE_ADC = 0,
     parameter ENABLE_AUDIO = 1,
-    // Load-side blurred cover background for contain-scaling borders.
-    parameter BLUR_BACKGROUND = 1,
-    parameter integer BG_BRIGHTNESS_NUM = 3,
-    parameter integer BG_BRIGHTNESS_SHIFT = 2,
     parameter UI_LANGUAGE_ZH = 1,
     parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
     parameter [11:0] RELEASE_BASELINE = 12'd3000,
@@ -94,10 +90,6 @@ wire        frame_write_finish;
 reg         frame_write_toggle_mem;
 
 wire [1:0]  write_buf_idx;
-// 写 FIFA 被空读的次数：这是被伪造后写进 SDRAM 的像素个数
-wire [31:0] write_empty_reads;
-// 读 FIFO 空读次数：白线像素的直接来源
-wire [31:0] read_empty_reads;
 wire [1:0]  disp_buf_idx;
 wire [1:0] active_read_idx;
 wire publish_req, publish_done, read_frame_start;
@@ -417,12 +409,7 @@ sd_card_bmp #(
     .SCAN_START_SECTOR (32'd0),
     .SCAN_MAX_SECTOR   (32'd131071),
     .SCAN_TARGET_COUNT (3'd4),
-    .SCALE_ENABLE      (1'b1),
-    .BLUR_BACKGROUND   (BLUR_BACKGROUND),
-    .BG_BRIGHTNESS_NUM (BG_BRIGHTNESS_NUM),
-    .BG_BRIGHTNESS_SHIFT(BG_BRIGHTNESS_SHIFT),
-    // Covers two maximum-size BMP reads plus thumbnail/filter processing.
-    .LOAD_TIMEOUT_CYCLES(BLUR_BACKGROUND ? 1_200_000_000 : 300_000_000)
+    .SCALE_ENABLE      (1'b1)
 ) sd_card_bmp_m0(
     .clk               (sd_card_clk),
     .rst               (rst_sd),
@@ -508,59 +495,12 @@ wire [3:0] led_level = {
 };
 assign led = LED_ACTIVE_LOW ? ~led_level : led_level;
 
-// 调试仪表：统计上游（BMP 解码/缩放）交给写通路的纯白像素个数。
-// 上一版是"计数一变就翻 toggle"，装载期间 toggle 接近 100 MHz，
-// 50 MHz 的 clk 域会漏掉绝大部分边沿，最后冻结在装载中途的某个值上
-// （四张图读数完全相同就是这个症状）。这里改成固定节拍发布：
-// 每 65536 个 sd_card_clk 周期发布一次（约 0.66 ms），边沿间隔远大于
-// clk 域采样能力，消费端一定能拿到最新值。
-reg white_hit_sd;
-always @(posedge sd_card_clk or posedge rst_sd) begin
-    if (rst_sd) white_hit_sd <= 1'b0;
-    else        white_hit_sd <= sd_card_write_en && (sd_card_write_data[31:8] == 24'hffffff);
-end
-reg [15:0] white_pixels_sd;
-always @(posedge sd_card_clk or posedge rst_sd) begin
-    if (rst_sd)
-        white_pixels_sd <= 16'd0;
-    else if (white_hit_sd && white_pixels_sd != 16'hffff)
-        white_pixels_sd <= white_pixels_sd + 16'd1;
-end
-reg [15:0] pub_heartbeat;
-reg [31:0] empty_reads_pub;
-
-reg        empty_tog;
-always @(posedge sd_card_clk or posedge rst_sd) begin
-    if (rst_sd) begin
-        pub_heartbeat   <= 16'd0;
-        empty_reads_pub <= 32'd0;
-        empty_tog       <= 1'b0;
-    end else begin
-        pub_heartbeat <= pub_heartbeat + 16'd1;
-        if (pub_heartbeat == 16'hffff) begin
-            empty_reads_pub <= {16'd0, white_pixels_sd};
-            empty_tog       <= ~empty_tog;
-        end
-    end
-end
-reg [1:0]  empty_tog_sync;
-reg [31:0] empty_reads_snap;
-always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        empty_tog_sync   <= 2'b00;
-        empty_reads_snap <= 32'd0;
-    end else begin
-        empty_tog_sync <= {empty_tog_sync[0], empty_tog};
-        if (empty_tog_sync[0] ^ empty_tog_sync[1])
-            empty_reads_snap <= empty_reads_pub;
-    end
-end
-wire [6:0] seg_data_e0, seg_data_e1, seg_data_e2, seg_data_e3;
-seg_decoder seg_decoder_e0(.bin_data(empty_reads_snap[15:12]), .seg_data(seg_data_e0));
-seg_decoder seg_decoder_e1(.bin_data(empty_reads_snap[11:8]),  .seg_data(seg_data_e1));
-seg_decoder seg_decoder_e2(.bin_data(empty_reads_snap[7:4]),   .seg_data(seg_data_e2));
-seg_decoder seg_decoder_e3(.bin_data(empty_reads_snap[3:0]),   .seg_data(seg_data_e3));
-
+// Temporary candidate identity d123; preserves mode/page/SD-state digits.
+wire [6:0] candidate_d,candidate_1,candidate_2,candidate_3;
+seg_decoder u_candidate_d(.bin_data(4'hd),.seg_data(candidate_d));
+seg_decoder u_candidate_1(.bin_data(4'h1),.seg_data(candidate_1));
+seg_decoder u_candidate_2(.bin_data(4'h2),.seg_data(candidate_2));
+seg_decoder u_candidate_3(.bin_data(4'h3),.seg_data(candidate_3));
 cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan(
     .clk               (clk),
     .rst_n             (rst_n),
@@ -569,10 +509,10 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan(
     .digit0            ({1'b1,seg_data_mode}),   // 左起第 1 位：模式
     .digit1            ({1'b1,7'b011_1111}),     // 左起第 2 位：'-'
     .digit2            ({1'b1,seg_data_page}),   // 左起第 3 位：页号
-    .digit3            ({1'b1,seg_data_e0}),     // 左起第 4 位：上游白色像素数 高字节
-    .digit4            ({1'b1,seg_data_e1}),     // 左起第 5 位
-    .digit5            ({1'b1,seg_data_e2}),     // 左起第 6 位
-    .digit6            ({1'b1,seg_data_e3}),     // 左起第 7 位：上游白色像素数 低字节
+    .digit3            ({1'b1,candidate_d}),     // 左起第 4 位
+    .digit4            ({1'b1,candidate_1}),     // 左起第 5 位
+    .digit5            ({1'b1,candidate_2}),     // 左起第 6 位
+    .digit6            ({1'b1,candidate_3}),     // 左起第 7 位
     .digit7            ({1'b1,seg_data_0})       // 左起第 8 位：SD 加载状态码
 );
 
@@ -602,19 +542,19 @@ video_delay video_delay_m0(
 );
 
 // 首图提交前黑屏；提交后一直显示当前显示缓冲区内容
-// 调试二分开关（SW4，正常浏览时无副作用）：
-//   SW4=0 正常输出（底图 + 亮度对比 + OSD 合成）
-//   SW4=1 只输出底图层（绕过 cpr_overlay）
-// 用来定位白线是在合成里画出来的，还是在底图通路里就有的。
-wire dbg_base_only = dip_sw[3];
-assign vout_data = dbg_base_only ? contrasted_rgb : app_rgb; // status UI is visible while SD scans or is absent
+assign vout_data = app_rgb; // status UI is visible while SD scans or is absent
 
 frame_read_write #(
+    // D123 exploratory real-image verification: D122-backed writer cadence.
+    .WRITE_BURST_SIZE(128),
+    .WRITE_TO_READ_GAP(16),
+    .WRITE_RESTART_GAP(64),
     .WRITE_V_FLIP     (1),
     .FRAME_WIDTH      (640),
     .FRAME_HEIGHT     (480),
     .READ_INDEX_SYNCHRONOUS (1)
 ) frame_read_write_m0(
+    .diagnostic_pause (1'b0),
     .mem_clk           (ext_mem_clk),
     .rst               (rst_mem),
     .Sdr_init_done     (Sdr_init_done),
@@ -657,12 +597,11 @@ frame_read_write #(
     .write_addr_index  (write_buf_idx),
     .write_len         (FRAME_PIXELS[ADDR_BITS-1:0]),
     .write_en          (sd_card_write_en),
-    .write_data        (sd_card_write_data),
-    .write_empty_reads (write_empty_reads),
-    .read_empty_reads  (read_empty_reads)
+    .write_data        (sd_card_write_data)
 );
 
-sdram U3(
+// D110-backed opt-in: align early read data to the unchanged valid cycle.
+sdram #(.REGISTER_READ_DATA(1)) U3(
     .Clk               (ext_mem_clk),
     .Clk_sft           (ext_mem_clk_sft),
     .Rst               (rst_mem),

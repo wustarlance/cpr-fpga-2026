@@ -22,11 +22,19 @@ module tb_frame_roundtrip #(parameter MIXED=0);
     reg pending=0;
     reg first_ready=0, all_loaded=0, reading_done=0, reader_active=0;
     integer overlap_writes=0;
-    frame_read_write #(.FRAME_WIDTH(640), .FRAME_HEIGHT(2), .READ_INDEX_SYNCHRONOUS(1)) dut(
-        .rst(rst), .mem_clk(mem_clk), .Sdr_init_done(!rst), .Sdr_init_ref_vld(refresh), .Sdr_busy(1'b0),
+    wire aligned_return_valid, controller_init;
+    wire [31:0] aligned_return_data;
+    sdram #(.REGISTER_READ_DATA(1)) actual_wrapper(
+        .Clk(mem_clk),.Clk_sft(!mem_clk),.Rst(rst),.Sdr_init_done(controller_init),
+        .Sdr_init_ref_vld(),.Sdr_busy(),.App_wr_en(wr_en),.App_wr_addr(wr_addr),
+        .App_wr_dm(dm),.App_wr_din(wr_data),.App_rd_en(rd_en),.App_rd_addr(rd_addr),
+        .Sdr_rd_en(aligned_return_valid),.Sdr_rd_dout(aligned_return_data));
+    defparam actual_wrapper.u2_ram.EARLY_DATA=1;
+    frame_read_write #(.WRITE_BURST_SIZE(128),.WRITE_TO_READ_GAP(16),.WRITE_RESTART_GAP(64),.FRAME_WIDTH(640), .FRAME_HEIGHT(2), .READ_INDEX_SYNCHRONOUS(1)) dut(
+        .diagnostic_pause(1'b0), .rst(rst), .mem_clk(mem_clk), .Sdr_init_done(controller_init), .Sdr_init_ref_vld(refresh), .Sdr_busy(1'b0),
         .App_wr_en(wr_en), .App_wr_addr(wr_addr), .App_wr_din(wr_data), .App_wr_dm(dm),
-        .App_rd_en(rd_en), .App_rd_addr(rd_addr), .Sdr_rd_en(response_pipe[9]),
-        .Sdr_rd_dout(memory[address_pipe[9]]),
+        .App_rd_en(rd_en), .App_rd_addr(rd_addr), .Sdr_rd_en(aligned_return_valid),
+        .Sdr_rd_dout(aligned_return_data),
         .write_clk(write_clk), .write_req(write_req), .write_req_ack(write_ack),
         .write_finish(write_finish), .write_addr_0(21'd0), .write_addr_1(21'd1280),
         .write_addr_2(21'd2560), .write_addr_3(21'd3840), .write_addr_index(write_index),
