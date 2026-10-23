@@ -97,3 +97,11 @@ Linux/macOS 或 Git Bash 可执行 `bash tests/sim/run.sh --all`。`run.sh tb_na
 路径相对仓库根目录，每项只编译明确列出的源码。未知测试、缺失文件和工具缺失返回非零。旧 `tb_adc.v`、`tb_eg_phy_adc_stub.v` 是行为桩练习，不列入产品通过清单。
 
 这些测试证明所列抽象接口的 RTL 功能，未证明模拟输入精度、跨时钟亚稳态可靠性、TD 布局布线/静态时序、引脚电气条件或实板行为。ADC 行为模型依据官方 16 拍转换/4 拍采样/EOC 一拍契约，未解密官方模型，也不模拟真实压力传感器。
+
+## D123写入间隔与数据对齐回归（2026-10-23）
+
+新增`tb_frame_roundtrip`、`tb_frame_mixed_roundtrip`、`tb_frame_write_spacing`、`tb_frame_refresh_contiguous`、`tb_sd_scaled_pipeline_spacing`。前两个使用仓库真实生成FIFO和显式早数据控制器模型；SD缩放用例使用公开FIFO模型以强制回压。模型不代表保护控制器或物理SDRAM。
+
+运行`python tests/sim/check_white_line_mutations.py --output /path/to/new-directory`可验证三种故意错误会被拒绝：取消写间隔、活动突发逐字刷新门控、旁路早数据对齐。源文件只复制到输出目录再修改，产品RTL不被更改。Windows工具参数与`run.py`相同。
+
+本次精确执行范围、硬件观察及TD严格验收未通过的边界见[白线修正说明](../../project/docs/white-lines-20261023.md)。

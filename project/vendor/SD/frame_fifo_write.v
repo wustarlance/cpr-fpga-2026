@@ -6,6 +6,7 @@ module frame_fifo_write
 	parameter ADDR_BITS              = 21,
 	parameter BURST_BITS             = 9,
 	parameter BURST_SIZE             = 128,
+    parameter WRITE_RESTART_GAP      = 0,
 	parameter WRITE_V_FLIP           = 1,      // 1: write image rows upside-down to cancel BMP bottom-up storage
 	parameter FRAME_WIDTH            = 640,
 	parameter FRAME_HEIGHT           = 480
@@ -78,16 +79,34 @@ wire								wr_burst_finish;
 reg App_wr_en_r;
 reg App_wr_en_d0;
 
+// Experimental D122 write-to-write spacing. Only delays NEW burst admission.
+// Original FIFO, address progression and in-progress four-word groups unchanged.
+localparam RESTART_BITS=(WRITE_RESTART_GAP<1)?1:$clog2(WRITE_RESTART_GAP+1);
+reg [RESTART_BITS-1:0] restart_count;
+always @(posedge mem_clk or posedge rst)begin
+ if(rst)restart_count<=0;
+ else if(App_wr_en)restart_count<=WRITE_RESTART_GAP;
+ else if(restart_count!=0)restart_count<=restart_count-1'b1;
+end
 wire into_burst;
 // APUG011: wait for automatic refresh before starting a user burst.
-assign into_burst = Sdr_init_done && !Sdr_init_ref_vld && (((write_len_latch <= (rdusedw + write_cnt))||rdusedw > BURST_SIZE) && ~App_rd_busy);//当rd在突发时不会进入burst
+assign into_burst = Sdr_init_done && !Sdr_init_ref_vld && (restart_count==0) && (((write_len_latch <= (rdusedw + write_cnt))||rdusedw > BURST_SIZE) && ~App_rd_busy);//当rd在突发时不会进入burst
 
 assign App_wr_addr = {App_wr_addr_r[ADDR_BITS - 1:0]};
 //assign O_wr_busy = (state != S_IDLE || (S_IDLE && write_req_d2));
 assign O_wr_busy = (state == S_WRITE_BURST || (state == S_CHECK_FIFO && into_burst));//在突发，或者将要突发，则显示busy
 assign wr_burst_finish = (burst_cnt >= BURST_SIZE);
 assign write_finish = (state == S_END) ? 1'b1 : 1'b0;            //write finish at state 'S_END'
-assign App_wr_en = App_wr_en_d0 && !Sdr_init_ref_vld;
+// The first accepted word starts a transaction. APUG011 lets the
+// controller manage refresh during ongoing reads/writes. Keep every
+// four-word group contiguous; only stall before the first word.
+reg burst_started;
+assign App_wr_en = App_wr_en_d0 && (burst_started || !Sdr_init_ref_vld);
+always @(posedge mem_clk or posedge rst) begin
+    if (rst) burst_started <= 1'b0;
+    else if (state == S_ACK || state == S_CHECK_FIFO) burst_started <= 1'b0;
+    else if (App_wr_en) burst_started <= 1'b1;
+end
 
 
 always@(posedge mem_clk or posedge rst)

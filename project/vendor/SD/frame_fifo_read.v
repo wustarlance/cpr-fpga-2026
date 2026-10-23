@@ -79,9 +79,12 @@ assign frame_start = read_req_d2 &&
     (((state == S_IDLE) && Sdr_init_done) ||
      (state == S_CHECK_FIFO) || (state == S_READ_BURST_END));
 
+// Reserve low-watermark priority through the burst-end handoff. Otherwise
+// the writer can take a whole burst before S_CHECK_FIFO becomes visible,
+// even when the display FIFO cannot cover that write interval.
 // Independent of App_wr_busy: including it here would form a combinational
     // loop through the writer's into_burst/O_wr_busy lookahead.
-    assign read_urgent = Sdr_init_done && !Sdr_init_ref_vld && (state == S_CHECK_FIFO) && (wrusedw < (FIFO_DEPTH-BURST_SIZE));
+    assign read_urgent = Sdr_init_done && !Sdr_init_ref_vld && ((state == S_CHECK_FIFO) || (state == S_READ_BURST_END)) && (wrusedw < (FIFO_DEPTH-BURST_SIZE));
     assign App_rd_addr = {App_rd_addr_r[ADDR_BITS - 1:0]};
 assign rd_vld = (state == S_READ_BURST && burst_cnt >= BURST_SIZE);
 
@@ -90,7 +93,16 @@ assign O_rd_busy = (state == S_READ_BURST);//读指令期间
 //但rd_burst_finish需要在发送完十个时钟后拉高，此时数据全部读出
 assign rd_burst_finish = (rd_vld && rd_delay == 4'd10);
 assign read_finish = (state == S_END) ? 1'b1 : 1'b0;             //read finish at state 'S_END'
-assign App_rd_en = App_rd_en_d0 && !Sdr_init_ref_vld;
+// The first accepted word starts a transaction. APUG011 lets the
+// controller manage refresh during ongoing reads/writes. Keep every
+// four-word group contiguous; only stall before the first word.
+reg burst_started;
+assign App_rd_en = App_rd_en_d0 && (burst_started || !Sdr_init_ref_vld);
+always @(posedge mem_clk or posedge rst) begin
+    if (rst) burst_started <= 1'b0;
+    else if (state == S_ACK || state == S_CHECK_FIFO) burst_started <= 1'b0;
+    else if (App_rd_en) burst_started <= 1'b1;
+end
 always@(posedge mem_clk or posedge rst)
 begin
 	if(rst == 1'b1)

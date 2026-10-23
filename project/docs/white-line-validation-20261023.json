@@ -1,0 +1,287 @@
+{
+  "date": "2026-10-23",
+  "base_commit": "c8f2ab93601ccbea23d1418084333b3680622100",
+  "target": "HX4S20C V1.0 / EG4S20BG256",
+  "top": "top",
+  "top_adc_validated": false,
+  "td": {
+    "installed_version": "6.2.168116",
+    "project_saved_version": "6.2.178840",
+    "setup_wns_ns": 0.103,
+    "hold_wns_ns": 0.004,
+    "strict_status": "failed",
+    "critical_warning_codes": [
+      "PHY-7002",
+      "PHY-5079",
+      "USR-6135"
+    ]
+  },
+  "parameters": {
+    "memory_mhz": 40,
+    "WRITE_BURST_SIZE": 128,
+    "read_burst": 256,
+    "WRITE_TO_READ_GAP": 16,
+    "WRITE_RESTART_GAP": 64,
+    "REGISTER_READ_DATA": 1
+  },
+  "bit_sha256": "469e20326ea1b0c894b172bbe28497520efc36ea07aea9db6a5faf7340b49f90",
+  "design_input_match": {
+    "count": 137,
+    "byte_identical_count": 136,
+    "line_ending_only": [
+      {
+        "path": "project/vendor/SD/frame_read_write.v",
+        "built_sha256": "ccc70c63b5c545c1ab9ed302d8474618e945e06e5da453303aea7a5d3fb27b20",
+        "published_sha256": "430cb721e68eb7e456f4af03e56a18dbfacddde45763d062aeb0dd33065d2fbb",
+        "reason": "Preserve main LF endings; HDL text unchanged"
+      }
+    ],
+    "comparison": "All HDL text matches D123; one wrapper retains main LF endings; tests/docs outside design inputs",
+    "built_sha256": {
+      "05_lab_ex/lab_ex5_i2s/src/td_project/HDMI1.4b_Transmitter_v1.0.al": "577825e53c3f894a3ee824542b1449ef73212d2561a3f78ce2857f1d0e7db6a1",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/AUDIO_SAMPLE_ROM.ipc": "650ab6133bd5b35260d34e3e984d15f0bfb45b74b8a88d323d46bb4ceab6aacc",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/AUDIO_SAMPLE_ROM.v": "0bc4a18dfd8d598103faea82e9f02a85beaba5a3e21047a4e6baab063ca005bd",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/AUDIO_SAMPLE_ROM.vhd": "4c3d4ea17939b4d07a8d95c006174f94ced027b91daae5fd065e094d1e8071af",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL.ipc": "8cb6df3a1bb99cf2f95f9a535d7f33213b837207b36e336848a6ed0db29ab8b5",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL.v": "4e873eef9499fa93508d8cf2cac90eea0e16c6f649ae29502cdc4c5886cd32aa",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL.vhd": "e46792bb3d2b72621b18b323c472213fd5880eb29e5e85f0b7d50e5117e47494",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL_HDMI_AUDIO.ipc": "ce38f1b2917ef9df107be46e716767b7c8a78af079412b2988cf266b589bd645",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL_HDMI_AUDIO.v": "1e174c1dc4edbce9c61d6b390aca3b7b94022b60995a92981d5278247b7f5867",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL_HDMI_AUDIO.vhd": "1b5025b3fe29d4428c6aa58ef99e7c5d7c5d697e74dacd8ac8f2d068290e0e2f",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/build_sdram40.tcl": "e2f72af344b526c8adadebd1f265db4a689adb24a546b33f10836160ed9b7317",
+      "05_lab_ex/lab_ex5_i2s/src/td_project/rebuild_sdram40.tcl": "f4dc88dcee7f20b2a67b466266ed79bd26826f0f6f9c32f057ebc19b8e986312",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/constraints_source/pin.adc": "bfec796ee0ebf506293d5d317fc9e3868197bcdd4c5c376ab9ba1061a4982ec8",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/constraints_source/timing.sdc": "e29457c47c245063ba1b19475e098a42c75f84a9072d299bb83f4435867f21b3",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/I2S_receiver.v": "08904598b42c2e1a4836cd9fb3293bc6c791ea2f79e35c7663a33127dc97f47b",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_256.tcl": "5807155b00f2f749328339e01a85b4bb836f91598286dd167513836b60af33db",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_256.v": "dab43a76a35e21df4064a25edb940699b041427d70bae89cc03c5280b7bf4bf8",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_256.vhd": "50d6d10017b63e1ce5a77bad4a80e9a3de81402909d30ca0818674a1887eb46d",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_256_sim.v": "55b81ab3aa699902b6f11fe766658b852e0740844879a942dca81cd57b40f729",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.ipc": "9df57c0b914f2f6222f88e356528947224fddb866be2468f1391c26d4e60d371",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.tcl": "5807155b00f2f749328339e01a85b4bb836f91598286dd167513836b60af33db",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.v": "3d29b06655482184a9ad157b9bd71b79032debe3199168d3b4d9570fdac31835",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.ipc": "a74955dc68a02bbfb36780127008c4737ec80e0888a4648e98e6eac9f5d2c349",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.tcl": "5807155b00f2f749328339e01a85b4bb836f91598286dd167513836b60af33db",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.v": "7c3ee41f30be75ae686c9abff3a840fc5439209cda077e4aa275eac0dab9f564",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sdram.ipc": "c3092876d4a66739dfc52cbda4fe84eab75099218f65db7e7d922c41dee1c201",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sdram.v": "1487e8583bbf52fe6d079a2854c10ebff2e569a3872a9088c1c9717ba14d17fe",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sdram.vhd": "853170e99291fb6b2b1bf3f5f20cd1dd0cc723052864147810b674e18cd70705",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sys_pll.ipc": "5b1cca631f0b6d2ddb06c4233fe5c4d628ee4d46242c6b51ae556abc2f0f4bd6",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sys_pll.v": "2efb6b09f82d4e981ea7734991dcee934c6cb4f65c4d84850adda3850f662f86",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sys_pll.vhd": "405ffc800c075f9ec76d598c605ee79c51da1996b368891d5e1a6e35aa7711d1",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/video_pll.ipc": "b717f646067025a69b4021ed85adeeb6531fad881bce5a49fcb2171ccf401076",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/video_pll.v": "d5a2b3d3d0618d19619c36af0143f8bf9338415eef2eadd22456510ade9c6092",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/video_pll.vhd": "4c23a8a81b28c81bed4834e1e9a757db01eebd360c7fe3a7066f8f8f7b6a36c4",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/ax_debounce.v": "93aa6dd38051250cc7f777c88466ac180afe9bcdce7838b9ea506455d8cbc9b8",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/bmp_read.v": "6029cbf618172a166e7e05554c5d7516db1bab94a8a018eb0fc278fd1e94bf5f",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/color_bar.v": "afe1f56714ec58d2477ba1717e5a36c5a0da5fe5c07d70d11aa5ace710c4b152",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/frame_fifo_read.v": "5952075b213ec638f5c9bb238d4d4162685f9e9b5e752674f0e68a92dbec83ac",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/frame_fifo_write.v": "ef0f46443b6f79ebb9fbba8f39b11dca90ee7e9ae4637c1d45786744d964e540",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/frame_read_write.v": "f9d7d04d81a8c8a3e226f855387971cf2308421bdd4c08c0ab465e9e40aa5cbd",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_bmp.v": "5319465074e1eb7da1f29d8454b81054bf7e633dd5cc6d7b40f232eeb9c1dadc",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_cmd.v": "388692b7e026805fc8f800c3768108bd813a819ef47a0758ee4a14751b5af176",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_sec_read_write.v": "c245c07e3b0056808d86e06aad74348494e2a7050d493a3d4141d97ccf115203",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_top.v": "d5031b5b809a8df0a2c8cca194a511c5f74236e810cbe5e8436359f9e5f26a39",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sdram.v": "2d985c2477384e677c25714241e1a50206def8916aa03189a5b313b2d22dfc99",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/seg_decoder.v": "4592b6e4d2e9e8b7e4ab5266d850d30e43537ab9c4157d4221e3f8dfd342decd",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/seg_scan.v": "08759c329c33cdb7a6070e0b46773f0a6c9c8052b51652dec29406b9a9dac1e3",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/spi_master.v": "37f7a21144fa5cca3cc5c3b5f68a5ad40b3108336b600e45a1367734ac61403c",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/video_define.v": "77748966850a8f5af0d77f2cdb08006088ba5e1a31b98391fba6cc61c5247da2",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/video_delay.v": "f47c4b63f8baa6d8874c87dca5b72dfdadd19f4a107403da98752bce98936433",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/video_timing_data.v": "c6f75501e98dd5995f687aafb40455beffe45b426137b5089a73ac3a036f7282",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/audio_arc_calculate.v": "552d8d86afd237666b30ae08f31247808e89eb024efde5efc670b82eb617a7dc",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi1.4b_transmitter_core/hdmi_1_4b_transmitter_core_wrapper.enc.v": "867e0b0bdd874bc383d00918c9e1be3fe01edf41f343b6a0d73e262776596a63",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_audio_tone_i2s_64fs.v": "729cb1635091b7630e5b68306e9f51fff4e3e06bae8ce08cc3d7323b3fb9d5cf",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_audio_tone_pcm_scale.v": "0ff1ab2b39e1294c3aae814bf5a252c47c284c2cdb9568adf02d3c6cfd8ddd0b",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_phy_warpper.v": "416b082b0987001bdbc0a7e20a557cb8fb1dca34e25dc881e6d28a8cb3cf4300",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/global_def.v": "73b82ea06af8a9e8abc36c2f3eb4b72491988022d44a0cd7e993abe1d5fb9e68",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/sdr_as_ram.enc.v": "767dbdfbd83d42223b77dfa7deab42ce8216a8fd6f6cb41b7e7593d9a345ba57",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/sdr_init_ref.enc.v": "6da5945f4af793610d0d64c65c7e5d2d1c86ed4c11bc5fdeacd27eb03178b9f6",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/sdr_wrrd.enc.v": "c7d7fe07d75f66aa88d9f986b3006319c995162434f104f9990664b374cdfdd2",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/key_remove_shakes.v": "8832f59e7ba94bfb8cf31e4f5a772ef7177d5257a5a2532d53cbfa1d9b7f5cd9",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v": "de9529321354f04837e051d0ec1681cf44783d4be3284703a788e081147500bc",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/python/audio_1khz_24bit_48deep.mif": "dcc918e3b442485a933831368567962bb39dc1060b1bcfada16033e050be34ed",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/python/audio_sine_24bit_48deep_scale8.mif": "aa20e68905fc41a094cf37e218489d3745eb6e46c62dabe772547961a7db64cf",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/rom/i2s_rom_player_single_pll_fix64_rom_ip.v": "f8e7c9c56c6a21154580e030dada604572d89a1e75e8945125b2ea0dd4b3094b",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/startup_pulse.v": "396e1e56febb8028339e646bc2f06b83e07ab11ef840e447422fb941956741c9",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/test/design_top_i2s_test_pll.v": "b6396c3e90c67d7e8aad8c83bfa8a1aa0b826db8f74a26936549cae57e86668c",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/test/i2s_test_tone_gen_pll.v": "7614d4ca84c007a568e798b7c8cbc31eadd8a064bee53101194df13edb71e02f",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/top_tf_hdmi_audio.v": "9dd5befa87d128be39ec7a70eab0f04c78440d11d8a6a18a789ccd535f90f3ab",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/video_rgb_to_axis_640x480.v": "1c8fc26c789f87227036bea034f1ab6fc5633f2ab2684be422c54687a290fb96",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/video_source_test.v": "39cc05c9684a594d4254d11e66e97344053ab75bdb00f3f5a301643fd7aadbfc",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/ip_source/pll.ipc": "5d632bad332785258c35ca41ce2b4a2a550e6bfd75be0b63a3f72403ca2ce11e",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/ip_source/pll.v": "202799f886f12cfc1d837afa932328b636c6c3dee70167be68c084133647b39c",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/ip_source/pll.vhd": "a8166865b5aef9caaee525d4633aa1dec4172244a7bbff239e0d658c0ca775e4",
+      "project/build.tcl": "fcf38fdf3b9f62a82099ef40a6a2127678b85b4e83530dc07589360cb886b439",
+      "project/constraints/adc_mailbox.sdc": "d3b98831a1b565290e613f03946c2d150ca01fc3b8fe4923e07e9c9b8595a020",
+      "project/constraints/audio_metronome.sdc": "788c932ad42be7bd58d7c15e5f02ed3484d634cd526fa0e48efc053683446d40",
+      "project/constraints/page_status.sdc": "987a82c84a7e1d446ace2115b38b92149dd62e73bc2722ffef6c04d51078bee6",
+      "project/constraints/pin.adc": "db42800fd6a10708beeea287dee7bc988973d3168918b91e3be8d41bb4c0b594",
+      "project/constraints/reset_publish.sdc": "5ba20ec676fc9de2725ebb857ed66f21137a9edd463bbc37299922620f295809",
+      "project/constraints/timing.sdc": "e2308d2d69cb1a81aff9072eda1cae368bbebd1294ce336e113c11c614bc7109",
+      "project/ip/sys_pll.ipc": "e929c8544015b0795cf1bdc76baed768fe5908efef6284e07dfd2132158c29c7",
+      "project/ip/sys_pll.v": "9a1a2be0004be8e83d94bb9cce49a8a6a61b2dbf0250f12799f2e30bf0db248a",
+      "project/ip/sys_pll.vhd": "dee7b3b884dff19a5df32f0fb21397ea3fcc1677551405af438eef23872b2ddb",
+      "project/ip/video_pll.ipc": "57fa31571b47057b9877705bd05cd3e60bf41b932857a861c6d489474375ed16",
+      "project/ip/video_pll.v": "57e45a062814673e97773cf6c58ff1629fa45895e30de9d2c2b6bdd30bd9bb13",
+      "project/ip/video_pll.vhd": "8c1dba84a773c75e0c6c5db22ecd99c1cf3e2d203a78c4fda9ca43f4d2497dca",
+      "project/project.al": "4e356f9400ebd35d4b9218f81211d617e2e88cfb10f89f9fec811e2f061f59f6",
+      "project/rebuild.tcl": "a300d314fd1e23fb321fcb86dd126b149515cd2e5348925afddb122e3edda214",
+      "project/rtl/SD/sd_card_bmp.v": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f",
+      "project/rtl/adc_ctrl.v": "8fac64554c5ba4037cf4d69d2bdb782bdb1b3d2345969d47233a87e3188b3051",
+      "project/rtl/brightness_rgb.v": "8b03a1f467c1ea65e02d69e4e0b30a8ef6f4c0d0005a940a066696dbc09decb0",
+      "project/rtl/contrast_controls.v": "474284faf3c70a3452da56ba890b2de851a7c84ab4f659ab2575181d3ff0f2cb",
+      "project/rtl/contrast_rgb.v": "6fbefe2289d7da051cac690362455f614aa3fa39412d467907a7d84013cd1cf7",
+      "project/rtl/cpr_audio_tone_i2s.v": "d304c159a45e72edfac7d20cb19eac1d680fa812da6cb357af26058525619de4",
+      "project/rtl/cpr_control.v": "69e592a2677f2c5055d3bb6c9bbde48891b5d7c7d26e79f2d379ed401cba8677",
+      "project/rtl/cpr_font16_rom.v": "45063f5a0d7e673deb999071db6016b55b35833313e4a752d4c903d7a390e8b1",
+      "project/rtl/cpr_overlay.v": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654",
+      "project/rtl/cpr_page_manager.v": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528",
+      "project/rtl/cpr_seg_scan.v": "50ec694ebc7f4185706d443fd523bba8762abcdcdd722a1abeac1ff9835287b1",
+      "project/rtl/cpr_sensor_path.v": "87cc872e403e416766bcc83426e48345f9029e46dcedd587e7b3483f6000e825",
+      "project/rtl/cpr_subtitle_rom.v": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468",
+      "project/rtl/cpr_text_zh.v": "960657b5043e7e2059d79ddfee7e84acb436172e673cd3e83dc24e08eefbe924",
+      "project/rtl/cpr_zh_strings.v": "3d2044f11fdb75f37892e0e97eba3ab0654987e5608323bc206dd6fb31115a50",
+      "project/rtl/font5x7_rom.v": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d",
+      "project/rtl/frame_buffer_publish.v": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f",
+      "project/rtl/input_filter.v": "b2cec007b995a1d4ccefae1beb5eb89cba01d007879d1bc895fc3f0e4723cfe9",
+      "project/rtl/page_status_cdc.v": "6a5c566aab8e9f88be3a4fa3c3c663ae1d3f05614bc97eca2d82a3b7c3be84d2",
+      "project/rtl/peak_detect.v": "9da7c8aeea140535ae4cbf64bc6e4af13bfe9421661c9a8546b87210df3ad198",
+      "project/rtl/pressure_normalize.v": "e5c2391f69c929191ce21069b1da0964b3937fec99f3fe8c1c77bf7d52cdd886",
+      "project/rtl/rate_display_lut.v": "af6fbff04fb7da7c232e4cb19d9c3eb443a5420a0ce0d7bfcc0d554ebc3b8ca3",
+      "project/rtl/reset_release.v": "3b184934ef86e19115ccbfb7467145d338785ea45b0f3f054442eaa8fd68f493",
+      "project/rtl/sample_mailbox.v": "eff0bb85c9301c386bd4b2c9b775cda87c1ea63d8a8f6dcd348dcc3b65eb9f3d",
+      "project/rtl/scroll_text.v": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f",
+      "project/rtl/timebase.v": "2ae4bc9d5babd088de41b2584a8ae24a631f1f9da729da09163c68524eb7cdf5",
+      "project/rtl/top_adc.v": "1c02be20a6b2750ffceb894681c1295c73fd3ade1993c8bc8fa490746958a05f",
+      "project/rtl/top_tf_hdmi_audio.v": "aaae94f6d3169b7e49f43ebc055b16642c8638e9b4bb2ea31a20611f7ae75ef0",
+      "project/rtl/training_core.v": "296583e31ed5a857e08a6e5726327809a3ea0277f236da54b45ac4cfe701a72c",
+      "project/rtl/video_rgb_to_axis_640x480.v": "9d87f68659e7e7a8bb4cd0cf44004e95f0005a187194add7f5f570a84e5c28e4",
+      "project/vendor/SD/bmp_read.v": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65",
+      "project/vendor/SD/bmp_read_scaled.v": "b99c70127a7d86c1826a793a99bd90ec173cd9d9dfb3040c7645a8a8f90cda7e",
+      "project/vendor/SD/color_bar.v": "afe1f56714ec58d2477ba1717e5a36c5a0da5fe5c07d70d11aa5ace710c4b152",
+      "project/vendor/SD/frame_fifo_read.v": "8a0c2e6d3a18f2a7d0fa21854bcabbc4f268fd2bcd511c7fef3a9c3877ada4a2",
+      "project/vendor/SD/frame_fifo_write.v": "e242c75760838eb6c0766c23889d760655508f1036d96db3c874c339209eeecc",
+      "project/vendor/SD/frame_read_write.v": "ccc70c63b5c545c1ab9ed302d8474618e945e06e5da453303aea7a5d3fb27b20",
+      "project/vendor/SD/sd_card_cmd.v": "377453c600158b40f9a0ea4912d4c42b6ab2d3916e94c053e9be16b999852e83",
+      "project/vendor/SD/sd_card_sec_read_write.v": "76a1b589cead19d940447862912c9fbfc5867e512edd06453cc4cdb61f97a8c4",
+      "project/vendor/SD/sd_card_top.v": "bb45573ea6cf091acd4104ba7c97a174fc84c3102ce5d30bcf9dcc63584196ad",
+      "project/vendor/SD/seg_decoder.v": "4592b6e4d2e9e8b7e4ab5266d850d30e43537ab9c4157d4221e3f8dfd342decd",
+      "project/vendor/SD/seg_scan.v": "08759c329c33cdb7a6070e0b46773f0a6c9c8052b51652dec29406b9a9dac1e3",
+      "project/vendor/SD/spi_master.v": "37f7a21144fa5cca3cc5c3b5f68a5ad40b3108336b600e45a1367734ac61403c",
+      "project/vendor/SD/video_define.v": "77748966850a8f5af0d77f2cdb08006088ba5e1a31b98391fba6cc61c5247da2",
+      "project/vendor/SD/video_delay.v": "f47c4b63f8baa6d8874c87dca5b72dfdadd19f4a107403da98752bce98936433",
+      "project/vendor/SD/video_timing_data.v": "c6f75501e98dd5995f687aafb40455beffe45b426137b5089a73ac3a036f7282",
+      "project/vendor/include/global_def.v": "73b82ea06af8a9e8abc36c2f3eb4b72491988022d44a0cd7e993abe1d5fb9e68",
+      "project/vendor/include/sdr_init_ref.enc.v": "367e7edf2092c153d9fb6d98376c5726a3d1d7373756e8fe7256ad9546c90da5",
+      "project/vendor/sdram.v": "355b23a008108e733fcee2e180b9d66f390fda135c6157a5ed8a37e691021993"
+    }
+  },
+  "rtl_regressions": [
+    {
+      "test": "tb_frame_roundtrip",
+      "status": "passed"
+    },
+    {
+      "test": "tb_frame_mixed_roundtrip",
+      "status": "passed"
+    },
+    {
+      "test": "tb_frame_write_spacing",
+      "status": "passed"
+    },
+    {
+      "test": "tb_frame_refresh_contiguous",
+      "status": "passed"
+    },
+    {
+      "test": "tb_frame_refresh_interlock",
+      "status": "passed"
+    },
+    {
+      "test": "tb_sd_scaled_pipeline",
+      "status": "passed"
+    },
+    {
+      "test": "tb_sd_scaled_pipeline_spacing",
+      "status": "passed"
+    },
+    {
+      "test": "tb_sd_scaled_pages",
+      "status": "passed"
+    },
+    {
+      "test": "tb_sd_scaled_recovery",
+      "status": "passed"
+    },
+    {
+      "test": "tb_training_pages",
+      "status": "passed"
+    }
+  ],
+  "controlled_mutations": [
+    {
+      "test": "no_write_gap",
+      "expected_failure": "gap too short",
+      "rejected": true
+    },
+    {
+      "test": "gate_active_refresh",
+      "expected_failure": "broken burst 17",
+      "rejected": true
+    },
+    {
+      "test": "bypass_read_alignment",
+      "expected_failure": "pixel mismatch",
+      "rejected": true
+    }
+  ],
+  "hardware": {
+    "evidence_kind": "operator visual reports and programmer completion records; no direct machine screen capture",
+    "initial_trial": {
+      "identity_physical_positions_1based": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "identity": "D123",
+      "tutorial_pages_white_line_free": 4,
+      "training_white_line_free": true,
+      "navigation_normal": true
+    },
+    "power_off_reconnect_trial": {
+      "same_bit_reloaded_to_sram": true,
+      "tutorial_pages_white_line_free": 4,
+      "training_white_line_free": true,
+      "key4_mode_entry_confirmed": true,
+      "initial_entry_issue": "Resolved by using physical KEY4; no training-logic change"
+    },
+    "d122_prerequisite": {
+      "words_per_pass": 307200,
+      "read_pass_error_counts": [
+        0,
+        0
+      ],
+      "original_write_words": 1228800,
+      "observer_status_hex": "00010000"
+    },
+    "flash_written": false,
+    "sd_written": false,
+    "current_state": "D123 SRAM candidate retained after successful reload observation"
+  },
+  "limits": [
+    "Two SRAM trials, only one reported power-off/reconnect and subsequent re-download; no Flash-autoload acceptance",
+    "No long-duration/environment/temperature robustness or ADC/external-top hardware acceptance",
+    "Exact protected-controller/PHY failure mechanism remains unproven; layouts and diagnostic trigger timing differ",
+    "Known critical warnings and continuous-write >=64MHz applicability to finite bursts at40MHz remain unresolved"
+  ],
+  "historical_full_sequence_coverage": {
+    "words": 1228800,
+    "burst_words": 128,
+    "bursts": 9600,
+    "min_idle_clocks": 66,
+    "original_case_terminal_assertion": "failed only because periodic stimulus had0 refresh/active-write intersections; original log retained locally",
+    "complementary_directed_case": "298 ongoing-refresh words checked, plus three rejected fault mutations; composite coverage, not a clean pass of the original case"
+  }
+}

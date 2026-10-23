@@ -88,6 +88,18 @@ TESTS["tb_chinese_overlay"] = {
 
 TESTS["tb_frame_refresh_interlock"] = {"sources": ["project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_refresh_interlock.v"]}
 
+# Actual generated FIFOs and measured early-data wrapper contract; no physical SDRAM model.
+FRAME_FIFO_SOURCES = ["project/vendor/SD/" + n + ".v" for n in
+                      ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + [
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.v",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.v"]
+ROUNDTRIP_SOURCES = ["project/vendor/sdram.v", "tests/sim/stubs/sdr_as_ram_early_data_model.v"] + FRAME_FIFO_SOURCES + [TB + "tb_frame_roundtrip.v"]
+for name in ("tb_frame_roundtrip", "tb_frame_mixed_roundtrip"):
+    TESTS[name] = {"sources": ROUNDTRIP_SOURCES, "include_dirs": ["project/vendor"]}
+TESTS["tb_frame_write_spacing"] = {"sources": FRAME_FIFO_SOURCES + [TB + "tb_frame_write_spacing.v"]}
+TESTS["tb_frame_refresh_contiguous"] = {"sources": ["project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_refresh_contiguous.v"]}
+TESTS["tb_sd_scaled_pipeline_spacing"] = {"sources": TESTS["tb_sd_scaled_pipeline"]["sources"][:-1] + [TB + "tb_sd_scaled_pipeline_spacing.v"]}
+
 FAIL_PATTERN = re.compile(r"\b(?:FAIL|FATAL|TIMEOUT)\b", re.IGNORECASE)
 
 
