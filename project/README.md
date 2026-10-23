@@ -1,4 +1,6 @@
-> 2026-10-23：D123白线修正、按键映射、两轮SRAM观察和本次TD限制见[白线修正说明](docs/white-lines-20261023.md)。本次未验收ADC/外接输入顶层，未写Flash。
+> 2026-10-23：TD 6.2.168116 已完成两个顶层的新一轮布局布线，修复页面/ADC邮箱的SDC回放绑定，并增加约束覆盖门禁；严重告警和接口审查仍未完成，严格验收为failed。见[本轮TD验收记录](docs/td-acceptance-20261023.md)。下方旧版本通过记录不能替代本轮结论。
+>
+> D123白线修正、按键映射及两轮SRAM观察见[白线修正说明](docs/white-lines-20261023.md)。本轮TD候选未下载上板，未写Flash。
 
 > 本地修复版（2026-10-17）：频率与刷新互锁改动见 [修复说明](docs/display-fixes-20261017.md)。41 项 RTL 及 5 项运行器检查通过；本次尚未完成 SP1 布局布线及实板复验。下方构建状态属于修复前的主分支基线。
 
@@ -98,7 +100,7 @@ CPR_TOP=top CPR_STAGE=synth td build.tcl   # 只综合不布局布线，约 55 s
 构建结束会打印一行结论：
 
 ```
-CPR_BUILD_PASS top setup=0.115 hold=0.011      ← 通过
+CPR_BUILD_PASS top setup=0.115 hold=0.011      ← 构建和时序摘要检查完成，仍需运行verify_td.py审查告警与覆盖
 CPR_BUILD_FAIL top: Timing failed: setup=-0.563 hold=0.003   ← 失败，非零退出
 ```
 
@@ -106,9 +108,9 @@ CPR_BUILD_FAIL top: Timing failed: setup=-0.563 hold=0.003   ← 失败，非零
 
 | 文件 | 内容 |
 |---|---|
-| `timing_status.rpt` | 全局余量，最权威的两行 |
+| `timing_status.rpt` | 全局setup/hold余量摘要，须结合约束覆盖和告警 |
 | `timing_summary.rpt` | 各时钟域余量 + 最差路径（约 1.5 MB）|
-| `timing_check.rpt` | 约束与 CDC 检查 |
+| `timing_check.rpt` | 时钟与约束覆盖检查；不替代CDC协议审查 |
 | `gate_area.rpt` | LUT / REG / IO 占用 |
 
 ```bash
@@ -162,6 +164,6 @@ ADC 模式使用 CH1（M10，J1 第16脚），复用约12.295 MHz音频 PLL。�
 
 ## 已知限制
 
-缩放缓存专项仿真覆盖 640×480 逐像素直通、任意宽高比例、非4字节对齐行、BMP像素偏移跨扇区、SDRAM写 FIFO 满时停顿和四槽并发显示读。数字测试、完整构建和静态时序通过不等于实际显示/ADC/机械已通过。加密 SDRAM 刷新时的请求行为、长时间读写、板级 I/O 和 HDMI 接收端仍需上板验收。TD 可能报告内置 SDRAM 宏在中间 ECO 布局重新定位；验证脚本只在完整 route/bitgen 成功时单独记录这个精确诊断，其他错误或严重告警仍拒绝。
+缩放缓存专项仿真覆盖 640×480 逐像素直通、任意宽高比例、非4字节对齐行、BMP像素偏移跨扇区、SDRAM写 FIFO 满时停顿和四槽并发显示读。数字测试、完整构建和静态时序通过不等于实际显示/ADC/机械已通过。加密 SDRAM 刷新时的请求行为、长时间读写、板级 I/O 和 HDMI 接收端仍需上板验收。TD 可能报告内置 SDRAM 宏在中间 ECO 布局重新定位；当前验证脚本会保留并拒绝所有错误或严重告警，route/bitgen 成功不自动豁免该诊断。
 
 本次结果见 [integration-verification.md](docs/integration-verification.md)。位流、日志及工具不进 Git。

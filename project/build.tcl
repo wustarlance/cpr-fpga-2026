@@ -71,16 +71,39 @@ if {[catch {
     commit_param -step gate
     optimize_gate -packarea $cpr_reports/gate.area
     legalize_phy_inst
+    # SWUG105 single-run flow: rebuild user/IP timing objects after the
+    # logical-to-physical netlist transition, before placement and routing.
+    read_sdc constraints/timing.sdc
+    read_sdc constraints/reset_publish.sdc
+    if {$cpr_top eq "top_adc"} {
+        read_sdc constraints/adc_mailbox.sdc
+    }
+    if {[llength $cpr_audio_meta] > 0} {
+        read_sdc constraints/audio_metronome.sdc
+    }
+    read_sdc constraints/page_status.sdc
+    read_sdc -ip rfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.tcl
+    read_sdc -ip wfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.tcl
     report_area -file $cpr_reports/gate_area.rpt
     if {$cpr_stage eq "full"} {
+        export_db $cpr_reports/gate.db
+        report_qor -step gate -file $cpr_reports/gate.qor
         commit_param -step place
         place
+        report_qor -step place -file $cpr_reports/place.qor
         commit_param -step route
         route
+        export_db $cpr_reports/route.db
+        report_qor -step route -file $cpr_reports/route.qor
         update_timing -mode final
         report_timing_status -file $cpr_reports/timing_status.rpt
         report_timing_summary -file $cpr_reports/timing_summary.rpt
         check_timing -verbose -file $cpr_reports/timing_check.rpt
+        report_clock_summary -file $cpr_reports/clock_summary.rpt
+        report_clock_intersection -file $cpr_reports/clock_intersection.rpt
+        # EG4/TD 6.2.168116 does not support report_clock_utilization. The
+        # routed log's CTS Local Wire Summary records its actual clock routes.
+        report_timing_exception -file $cpr_reports/timing_exception.rpt
 
         foreach {clock period} {sd_card_clk 10 ext_mem_clk 25 ext_mem_clk_sft 25 video_clk 40 hdmi_5x_clk 8} {
             set actual [get_property -max PERIOD [get_clocks $clock]]
