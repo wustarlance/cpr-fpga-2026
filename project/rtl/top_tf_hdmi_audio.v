@@ -3,6 +3,10 @@
 module top #(
     parameter USE_EXTERNAL_IO = 0,
     parameter USE_ADC = 0,
+    // 非 4:3 源图的模糊背景：缩略图面积平均 + 3x3 盒式模糊 + 双线性放大
+    parameter BLUR_BACKGROUND = 1,
+    parameter integer BG_BRIGHTNESS_NUM = 3,
+    parameter integer BG_BRIGHTNESS_SHIFT = 2,
     parameter ENABLE_AUDIO = 1,
     parameter UI_LANGUAGE_ZH = 1,
     parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
@@ -409,7 +413,12 @@ sd_card_bmp #(
     .SCAN_START_SECTOR (32'd0),
     .SCAN_MAX_SECTOR   (32'd131071),
     .SCAN_TARGET_COUNT (3'd4),
-    .SCALE_ENABLE      (1'b1)
+    .SCALE_ENABLE      (1'b1),
+    .BLUR_BACKGROUND   (BLUR_BACKGROUND),
+    .BG_BRIGHTNESS_NUM (BG_BRIGHTNESS_NUM),
+    .BG_BRIGHTNESS_SHIFT(BG_BRIGHTNESS_SHIFT),
+    // 模糊背景需要完整跑一遍源图取缩略图，超时按两倍源图读取放宽
+    .LOAD_TIMEOUT_CYCLES(BLUR_BACKGROUND ? 1_200_000_000 : 300_000_000)
 ) sd_card_bmp_m0(
     .clk               (sd_card_clk),
     .rst               (rst_sd),
