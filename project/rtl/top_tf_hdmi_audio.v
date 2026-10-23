@@ -517,12 +517,6 @@ wire [3:0] led_level = {
 };
 assign led = LED_ACTIVE_LOW ? ~led_level : led_level;
 
-// Temporary candidate identity d123; preserves mode/page/SD-state digits.
-wire [6:0] candidate_d,candidate_1,candidate_2,candidate_3;
-seg_decoder u_candidate_d(.bin_data(4'hd),.seg_data(candidate_d));
-seg_decoder u_candidate_1(.bin_data(4'h1),.seg_data(candidate_1));
-seg_decoder u_candidate_2(.bin_data(4'h2),.seg_data(candidate_2));
-seg_decoder u_candidate_3(.bin_data(4'h3),.seg_data(candidate_3));
 cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan(
     .clk               (clk),
     .rst_n             (rst_n),
@@ -531,10 +525,10 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan(
     .digit0            ({1'b1,seg_data_mode}),   // 左起第 1 位：模式
     .digit1            ({1'b1,7'b011_1111}),     // 左起第 2 位：'-'
     .digit2            ({1'b1,seg_data_page}),   // 左起第 3 位：页号
-    .digit3            ({1'b1,candidate_d}),     // 左起第 4 位
-    .digit4            ({1'b1,candidate_1}),     // 左起第 5 位
-    .digit5            ({1'b1,candidate_2}),     // 左起第 6 位
-    .digit6            ({1'b1,candidate_3}),     // 左起第 7 位
+    .digit3            ({1'b1,7'b1111_111}),     // 左起第 4 位
+    .digit4            ({1'b1,7'b1111_111}),     // 左起第 5 位
+    .digit5            ({1'b1,7'b1111_111}),     // 左起第 6 位
+    .digit6            ({1'b1,7'b1111_111}),     // 左起第 7 位
     .digit7            ({1'b1,seg_data_0})       // 左起第 8 位：SD 加载状态码
 );
 
