@@ -415,6 +415,14 @@
                     <Attr Name="CompileOrder" Val="48"/>
                 </FileInfo>
             </File>
+            <File Path="rtl/key_source_merge.v">
+                <FileInfo>
+                    <Attr Name="UsedInSyn" Val="true"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="design_1"/>
+                    <Attr Name="CompileOrder" Val="63"/>
+                </FileInfo>
+            </File>
             <File Path="rtl/cpr_seg_scan.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true"/>

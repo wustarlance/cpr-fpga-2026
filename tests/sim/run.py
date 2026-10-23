@@ -54,6 +54,7 @@ TESTS.update({
     "tb_font5x7_rom": {"sources": [RTL + "font5x7_rom.v", TB + "tb_font5x7_rom.v"], "plusargs": ["+glyph=fixtures/glyph5x7_golden.mem"], "pass_pattern": r"(?m)^PASS: font5x7_rom\b"},
     "tb_scroll_contract": {"sources": [RTL + "scroll_text.v", RTL + "font5x7_rom.v", TB + "tb_scroll_contract.v"]},
     "tb_contrast_controls": {"sources": [RTL + "input_filter.v", RTL + "contrast_controls.v", TB + "tb_contrast_controls.v"]},
+    "tb_key_source_merge": {"sources": [RTL + "key_source_merge.v", TB + "tb_key_source_merge.v"]},
     "tb_cpr_overlay_features": {"sources": [RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_cpr_overlay_features.v"]},
 })
 TESTS["tb_contrast_rgb"]["fixtures"] = ["tests/sim/fixtures/contrast_golden.mem"]

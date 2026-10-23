@@ -1,7 +1,7 @@
 
 // Default top is the board-button demo. top_adc selects the internal ADC path.
 module top #(
-    parameter USE_EXTERNAL_IO = 0,
+    parameter USE_EXTERNAL_IO = 1,
     parameter USE_ADC = 0,
     // 非 4:3 源图的模糊背景：缩略图面积平均 + 3x3 盒式模糊 + 双线性放大
     parameter BLUR_BACKGROUND = 1,
@@ -26,6 +26,9 @@ module top #(
     input                       key3,           // KEY3 (B1), previous
     input wire [3:0]             dip_sw,         // SW1..4, active high; DEMO ONLY
     input wire [4:0]             ext_keys_n,     // mode/prev/next/brightness/session clear
+    // 外接八位按键面板（J1 奇数行 13~23）。模块自带上拉，按下为低电平。
+    // K1~K5 与板载 KEY 并存；K6 留给对比度按键；K7/K8 暂未使用。
+    input wire [5:0]             key_panel_n,
     input wire [3:0]             depth_sw_n,     // cumulative contacts, close to GND
     input                       key2,           // KEY4 (C1), mode
 
@@ -209,7 +212,15 @@ wire [11:0] page_status_sd, page_status_video;
 page_status_cdc u_page_status(
     .src_clk(sd_card_clk), .src_rst_n(sd_rst_n), .status(page_status_sd),
     .dst_clk(video_clk), .dst_rst_n(app_rst_n), .video_status(page_status_video));
-wire [4:0] app_keys_raw = USE_EXTERNAL_IO ? ~ext_keys_n : {2'b00,~key1,~key3,~key2};
+// 三条来源并存：板载 KEY、扩展口 ext_keys_n、外接八位面板。
+// 全部先反相成高有效，再按位相或——任何一处的按键都能操作，互不屏蔽。
+wire [4:0] onboard_keys = {2'b00, ~key1, ~key3, ~key2};
+wire [4:0] panel_keys   = ~key_panel_n[4:0];
+wire [4:0] app_keys_raw;
+key_source_merge u_key_merge(
+    .onboard_keys (USE_EXTERNAL_IO ? 5'b00000 : onboard_keys),
+    .panel_keys   ((USE_EXTERNAL_IO ? ~ext_keys_n : 5'b00000) | panel_keys),
+    .keys         (app_keys_raw));
 // Board demo: KEY2 generates a press; dips select a contact pattern, zero selects target.
 // External mode observes real contacts directly; calibration remains a mechanical task.
 wire [3:0] app_depth_raw = USE_EXTERNAL_IO ? ~depth_sw_n :
@@ -327,7 +338,9 @@ wire [2:0] contrast_level;
 reg [2:0] contrast_video;
 contrast_controls #(.HOLD_DURING_TRAINING(!(USE_ADC || USE_EXTERNAL_IO))) u_contrast_controls(
     .clk(video_clk), .rst_n(app_rst_n), .tick_ms(tick_ms),
-    .raw_switches(dip_sw[2:0]), .training_enabled(training_enabled),
+    .raw_switches(dip_sw[2:0]),
+    .raw_key     (~key_panel_n[5]),          // K6：对比度，按下为低电平
+    .training_enabled(training_enabled),
     .contrast_level(contrast_level));
 always @(posedge video_clk or posedge rst_video) begin
     if (rst_video) contrast_video <= 3'd2;

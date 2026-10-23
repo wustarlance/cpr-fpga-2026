@@ -139,6 +139,10 @@ module bmp_read_scaled #(
     reg [1:0] channel;
     reg [7:0] blue, green;
     reg [15:0] fit_w, fit_h, off_x, bottom_rows;
+    // 内容区上边界是整帧常量（off_x+fit_w、bottom_rows+fit_h），原来每像素重新
+    // 相加，4 个加法器串进 bmp_data 的选择锥，构成 top_adc 的建立时序违例。
+    // 预先存成寄存器后比较只剩两个比较器，行为逐位相同。
+    reg [15:0] content_x_hi, content_y_hi;
     reg fit_width_limited;
     reg [15:0] out_x, out_y, content_y;
     reg [15:0] sample_x, sample_y;
@@ -162,8 +166,8 @@ module bmp_read_scaled #(
     wire [32:0] div_trial = {div_rem, div_bits[31]};
     wire div_ge = div_trial >= {1'b0,div_den};
     wire [32:0] div_sub = div_trial - {1'b0,div_den};
-    wire in_content_x = out_x>=off_x && out_x<off_x+fit_w;
-    wire in_content_y = out_y>=bottom_rows && out_y<bottom_rows+fit_h;
+    wire in_content_x = out_x>=off_x && out_x<content_x_hi;
+    wire in_content_y = out_y>=bottom_rows && out_y<content_y_hi;
     wire bg_pixel_valid = (pass_mode==1) && (state==BYTE_USE) &&
                           (row_byte<row_bytes) && (channel==2);
     wire bg_finish = (pass_mode==1) && (state==ROW_READY) &&
@@ -226,6 +230,7 @@ module bmp_read_scaled #(
             first_sector<=0; sector_exhausted<=0; row_byte<=0;
             source_x<=0; source_y<=0; channel<=0; blue<=0; green<=0;
             fit_w<=0; fit_h<=0; off_x<=0; bottom_rows<=0; fit_width_limited<=0;
+            content_x_hi<=0; content_y_hi<=0;
             out_x<=0; out_y<=0; content_y<=0; sample_x<=0; sample_y<=0;
             h_rem<=0; v_rem<=0; div_bits<=0; div_rem<=0; div_den<=1; div_count<=0;
             div_prod<=0; div_half<=0;
@@ -394,10 +399,16 @@ module bmp_read_scaled #(
                         fit_h<=div_bits==0?1:div_bits[15:0];
                         bottom_rows<=(DST_HEIGHT-(div_bits==0?1:div_bits[15:0])+1)>>1;
                         off_x<=0;
+                        content_x_hi<=DST_WIDTH;
+                        content_y_hi<=((DST_HEIGHT-(div_bits==0?1:div_bits[15:0])+1)>>1)
+                                      + (div_bits==0?1:div_bits[15:0]);
                     end else begin
                         fit_w<=div_bits==0?1:div_bits[15:0];
                         off_x<=(DST_WIDTH-(div_bits==0?1:div_bits[15:0]))>>1;
                         bottom_rows<=0;
+                        content_x_hi<=((DST_WIDTH-(div_bits==0?1:div_bits[15:0]))>>1)
+                                      + (div_bits==0?1:div_bits[15:0]);
+                        content_y_hi<=DST_HEIGHT;
                     end
                     // A background-enabled load is prepared by a complete
                     // source pass before the SDRAM writer is opened.  If the

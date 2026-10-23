@@ -86,3 +86,11 @@ set_pin_assignment { ext_keys_n[1] } { LOCATION = H14; IOSTANDARD = LVCMOS33; PU
 set_pin_assignment { ext_keys_n[2] } { LOCATION = J14; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }
 set_pin_assignment { ext_keys_n[3] } { LOCATION = J13; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }
 set_pin_assignment { ext_keys_n[4] } { LOCATION = K12; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }
+# 外接八位按键面板（模块自带上拉，按下=低电平）。只用 K1~K6，K7/K8 暂未使用。
+# VCC 接 J1 pin 29（3.3V，严禁接 pin 11 的 VCC5V），GND 接 J1 pin 30。
+set_pin_assignment	{ key_panel_n[0] }	{ LOCATION = M14; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }	# J1 pin 13 GPIOA_10 K1 模式
+set_pin_assignment	{ key_panel_n[1] }	{ LOCATION = L10; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }	# J1 pin 15 GPIOA_12 K2 上一页
+set_pin_assignment	{ key_panel_n[2] }	{ LOCATION = D16; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }	# J1 pin 17 GPIOA_14 K3 下一页
+set_pin_assignment	{ key_panel_n[3] }	{ LOCATION = F14; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }	# J1 pin 19 GPIOA_16 K4 亮度
+set_pin_assignment	{ key_panel_n[4] }	{ LOCATION = G16; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }	# J1 pin 21 GPIOA_18 K5 清除训练
+set_pin_assignment	{ key_panel_n[5] }	{ LOCATION = K15; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }	# J1 pin 23 GPIOA_20 K6 对比度

@@ -1,6 +1,6 @@
 // Internal ADC variant of the same board top. All board pin names are shared.
 // Defaults are test pressure codes, not calibrated physical depth thresholds.
-module top_adc #(parameter USE_EXTERNAL_IO=0,
+module top_adc #(parameter USE_EXTERNAL_IO=1,
                  parameter ENABLE_AUDIO=1,
                  parameter BLUR_BACKGROUND=1,
                  parameter integer BG_BRIGHTNESS_NUM=3,
@@ -11,6 +11,7 @@ module top_adc #(parameter USE_EXTERNAL_IO=0,
     input wire clk, rst_n, key1, key3, key2,
     input wire [3:0] dip_sw,
     input wire [4:0] ext_keys_n,
+    input wire [5:0] key_panel_n,   // 外接八位按键面板 K1~K6
     input wire [3:0] depth_sw_n,
     output wire [7:0] seg_sel,
     output wire [7:0] seg_data,
@@ -34,6 +35,7 @@ module top_adc #(parameter USE_EXTERNAL_IO=0,
         .key2         (key2),
         .dip_sw       (dip_sw),
         .ext_keys_n   (ext_keys_n),
+        .key_panel_n  (key_panel_n),
         .depth_sw_n   (depth_sw_n),
         .seg_sel      (seg_sel),
         .seg_data     (seg_data),
