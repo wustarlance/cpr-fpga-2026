@@ -214,11 +214,15 @@ page_status_cdc u_page_status(
     .dst_clk(video_clk), .dst_rst_n(app_rst_n), .video_status(page_status_video));
 // 三条来源并存：板载 KEY、扩展口 ext_keys_n、外接八位面板。
 // 全部先反相成高有效，再按位相或——任何一处的按键都能操作，互不屏蔽。
+//
+// 板载 KEY 不再受 USE_EXTERNAL_IO 屏蔽：原实现 USE_EXTERNAL_IO=1 时直接丢弃
+// 板载键，接了外接控制盒就按不动板载键了。现在两者始终并存。
+// 已量产的按压盒仍可用板载 KEY2/KEY3/KEY4 临时操作，KEY1 始终是复位。
 wire [4:0] onboard_keys = {2'b00, ~key1, ~key3, ~key2};
 wire [4:0] panel_keys   = ~key_panel_n[4:0];
 wire [4:0] app_keys_raw;
 key_source_merge u_key_merge(
-    .onboard_keys (USE_EXTERNAL_IO ? 5'b00000 : onboard_keys),
+    .onboard_keys (onboard_keys),
     .panel_keys   ((USE_EXTERNAL_IO ? ~ext_keys_n : 5'b00000) | panel_keys),
     .keys         (app_keys_raw));
 // Board demo: KEY2 generates a press; dips select a contact pattern, zero selects target.
