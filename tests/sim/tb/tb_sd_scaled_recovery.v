@@ -2,7 +2,7 @@
 module tb_sd_scaled_recovery;
  reg training=0,train_next=0,train_prev=0,hold_publish=0,auto_run=0;
  wire [11:0] page_status;
- defparam dut.sd_card_top_m0.PAGE_COLOR=1;
+ defparam sd_card_top_m0.PAGE_COLOR=1;
 
  reg clk=0,mem_clk=0,rst_n=0,key_next=1;
  reg hold_ack=0,hold_finish=0,frozen_toggle=0;
@@ -21,6 +21,11 @@ module tb_sd_scaled_recovery;
  wire[31:0]fifo_word=fifo[rp%512];
  always #5 clk=~clk;
  always #12.5 mem_clk=~mem_clk;
+ wire sd_sec_ready,sd_sec_read_error,sd_init_done;
+ wire [7:0] sd_sec_read_data;
+ wire sd_sec_read_data_valid,sd_sec_read_end,sd_sec_read;
+ wire [31:0] sd_sec_read_addr;
+ wire sd_read_cancel,SD_nCS,SD_DCLK,SD_MOSI;
  sd_card_bmp #(.CLK_FREQ_HZ(1000),.SCALE_ENABLE(1),.DST_WIDTH(8),.DST_HEIGHT(4),.READER_TIMEOUT_CYCLES(80),
   .LOAD_TIMEOUT_CYCLES(5000),.SCAN_MAX_SECTOR(3),.SCAN_TARGET_COUNT(4)) dut(
   .clk(clk),.rst(!rst_n),.key_next(key_next),.key_prev(1'b1),
@@ -31,7 +36,22 @@ module tb_sd_scaled_recovery;
   .write_buf_idx(write_index),.disp_buf_idx(pending_index),
   .publish_req(publish),.publish_done(done),.write_req(write_req),
   .write_req_ack(writer_ack&&!hold_ack),.pixel_ready(1'b1),.write_en(write_en),.write_data(write_data),
-  .SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
+  .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),.sd_init_done(sd_init_done),
+  .sd_sec_read_data(sd_sec_read_data),.sd_sec_read_data_valid(sd_sec_read_data_valid),
+  .sd_sec_read_end(sd_sec_read_end),.sd_sec_read(sd_sec_read),
+  .sd_sec_read_addr(sd_sec_read_addr),.sd_read_cancel(sd_read_cancel));
+
+  // sd_card_top now lives at the top level and is shared with WAV playback,
+  // so the bench supplies the sector model through the sd_sec_* slave port.
+  sd_card_top #(.TOKEN_TIMEOUT_CYCLES(10000000),.SPI_TIMEOUT_CYCLES(1000000)) sd_card_top_m0(
+   .clk(clk),.rst(!rst_n),.read_cancel(sd_read_cancel),
+   .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),
+   .sd_init_done(sd_init_done),.sd_sec_read(sd_sec_read),
+   .sd_sec_read_addr(sd_sec_read_addr),.sd_sec_read_data(sd_sec_read_data),
+   .sd_sec_read_data_valid(sd_sec_read_data_valid),.sd_sec_read_end(sd_sec_read_end),
+   .SD_nCS(SD_nCS),.SD_DCLK(SD_DCLK),.SD_MOSI(SD_MOSI),.SD_MISO(1'b1),
+   .sd_sec_write(1'b0),.sd_sec_write_addr(32'd0),.sd_sec_write_data(8'd0),
+   .sd_sec_write_data_req(),.sd_sec_write_end());
  frame_buffer_publish swap(clk,rst_n,publish,pending_index,,done,
                            mem_clk,rst_n,frame_start,active_index);
  frame_fifo_write #(.BURST_SIZE(4),.FRAME_WIDTH(8),.FRAME_HEIGHT(4)) writer(
@@ -106,9 +126,9 @@ module tb_sd_scaled_recovery;
   begin
    rst_n=0;training=in_training;train_next=0;train_prev=0;key_next=1;
    hold_ack=0;hold_finish=0;hold_publish=0;auto_run=0;
-   dut.sd_card_top_m0.image_count=pictures;
-   dut.sd_card_top_m0.fail_budget=0;dut.sd_card_top_m0.fault_kind=0;
-   dut.sd_card_top_m0.fail_sector=1;dut.sd_card_top_m0.only_transaction=0;
+   sd_card_top_m0.image_count=pictures;
+   sd_card_top_m0.fail_budget=0;sd_card_top_m0.fault_kind=0;
+   sd_card_top_m0.fail_sector=1;sd_card_top_m0.only_transaction=0;
    for(j=0;j<256;j=j+1)memory[j]=32'hbadc0ffe;
    repeat(5)tick;rst_n=1;
   end
@@ -125,16 +145,16 @@ module tb_sd_scaled_recovery;
  initial begin
   for(scenario=1;scenario<=7;scenario=scenario+1)begin
    test_case=scenario;boot(2,0);wait(dut.scan_done);
-   dut.sd_card_top_m0.fail_budget=scenario==1||scenario==4?1:-1;
+   sd_card_top_m0.fail_budget=scenario==1||scenario==4?1:-1;
    case(scenario)
-    1,2:dut.sd_card_top_m0.fault_kind=1;
-    3:dut.sd_card_top_m0.fault_kind=2;
-    4:begin dut.sd_card_top_m0.fault_kind=3;
+    1,2:sd_card_top_m0.fault_kind=1;
+    3:sd_card_top_m0.fault_kind=2;
+    4:begin sd_card_top_m0.fault_kind=3;
       // Catalogue scan has completed; first and target each read a header
       // and payload sector, so corrupt only the fourth upcoming transfer.
-      dut.sd_card_top_m0.only_transaction=dut.sd_card_top_m0.transactions+4;end
-    5:dut.sd_card_top_m0.fault_kind=4;
-    default:dut.sd_card_top_m0.fail_budget=0;
+      sd_card_top_m0.only_transaction=sd_card_top_m0.transactions+4;end
+    5:sd_card_top_m0.fault_kind=4;
+    default:sd_card_top_m0.fail_budget=0;
    endcase
    wait_image(0);frozen_toggle=write_toggle;
    if(scenario==6)hold_ack=1;
@@ -150,17 +170,17 @@ module tb_sd_scaled_recovery;
     if(media_error!=expected_error)$fatal(1,"scaled failure reason scenario=%0d code=%0d expected=%0d",scenario,media_error,expected_error);
     wait_image(0);repeat(200)tick;
     if(loads!=3||publications!=1)$fatal(1,"scaled failure retried indefinitely");
-    dut.sd_card_top_m0.fail_budget=0;hold_ack=0;hold_finish=0;
+    sd_card_top_m0.fail_budget=0;hold_ack=0;hold_finish=0;
     press;wait_image(1);
     if(loads!=4||media_error!=0)$fatal(1,"scaled explicit retry failed");
    end
    $display("CHECK scaled recovery scenario %0d",scenario);
   end
   test_case=8;boot(2,0);
-  dut.sd_card_top_m0.fail_sector=0;dut.sd_card_top_m0.fault_kind=1;dut.sd_card_top_m0.fail_budget=-1;
+  sd_card_top_m0.fail_sector=0;sd_card_top_m0.fault_kind=1;sd_card_top_m0.fail_budget=-1;
   w=0;while(!dut.media_fault)begin tick;w=w+1;if(w>1000)$fatal(1,"scaled scan retry bound never reached");end
-  if(display_valid||publications!=0||dut.sd_card_top_m0.transactions!=2)$fatal(1,"scaled scan error published or retried indefinitely");
-  dut.sd_card_top_m0.fail_budget=0;press;wait_image(0);wait_cache(3);
+  if(display_valid||publications!=0||sd_card_top_m0.transactions!=2)$fatal(1,"scaled scan error published or retried indefinitely");
+  sd_card_top_m0.fail_budget=0;press;wait_image(0);wait_cache(3);
   $display("PASS: tb_sd_scaled_recovery: transport/short-sector/stall/header/ACK/writer faults, bounded retries and scan restart");$finish;
  end
  initial begin #4000000;$fatal(1,"TIMEOUT scaled recovery");end
