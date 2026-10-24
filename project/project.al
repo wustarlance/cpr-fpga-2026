@@ -455,7 +455,7 @@
                     <Attr Name="CompileOrder" Val="56"/>
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/video_rgb_to_axis_640x480.v">
+            <File Path="rtl/video_rgb_to_axis_640x480.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
