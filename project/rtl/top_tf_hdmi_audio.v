@@ -423,6 +423,24 @@ always @(posedge ext_mem_clk or posedge rst_mem) begin
         frame_write_toggle_mem <= ~frame_write_toggle_mem;
 end
 
+/* ==========================================================================
+ * SD 侧跨模块信号：先声明，后使用
+ *   sd_card_bmp 的端口直接连到这些网络上，若把声明留在下面的 SD 控制器一节，
+ *   Verilog 会先把它们隐式声明成 1 bit wire（TD 报 HDL-7225 CRITICAL-WARNING），
+ *   多位总线（sd_bmp_data 8 bit / sd_arb_bmp_addr 32 bit）表面上看不出问题，
+ *   但一旦谁改了位宽却漏改这里，就会静默截断而不是报错。所以统一提到使用点之前。
+ * ========================================================================== */
+wire        sd_init_done;
+wire        sd_read_error;
+wire        sd_bmp_cancel;
+
+wire        sd_arb_bmp_ready, sd_arb_wav_ready;
+wire        sd_arb_bmp_read,  sd_arb_wav_read;
+wire [31:0] sd_arb_bmp_addr,  sd_arb_wav_addr;
+wire [7:0]  sd_bmp_data,      sd_wav_data;
+wire        sd_bmp_valid,     sd_wav_valid;
+wire        sd_bmp_end,       sd_wav_end;
+
 // ===================== TF 多图扫描、缩放与四槽全缓存 =====================
 sd_card_bmp #(
     .TRAINING_PAGE_INDEX(TRAINING_PAGE_INDEX),
@@ -486,16 +504,6 @@ wire [31:0] sd_addr_raw;
 wire [7:0]  sd_byte_data;
 wire        sd_byte_valid;
 wire        sd_byte_end;
-wire        sd_init_done;
-wire        sd_read_error;
-wire        sd_bmp_cancel;
-
-wire        sd_arb_bmp_ready, sd_arb_wav_ready;
-wire        sd_arb_bmp_read,  sd_arb_wav_read;
-wire [31:0] sd_arb_bmp_addr,  sd_arb_wav_addr;
-wire [7:0]  sd_bmp_data,      sd_wav_data;
-wire        sd_bmp_valid,     sd_wav_valid;
-wire        sd_bmp_end,       sd_wav_end;
 
 sd_card_top #(
     .TOKEN_TIMEOUT_CYCLES (10_000_000),   // 100 MHz 下 100 ms
