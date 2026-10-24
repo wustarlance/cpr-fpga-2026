@@ -18,6 +18,8 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 RTL, TB = "project/rtl/", "tests/sim/tb/"
 TESTS = {
+    "tb_audio_visualizer": {"sources": [RTL + "cpr_audio_visualizer.v", RTL + "video_rgb_to_axis_640x480.v", TB + "tb_audio_visualizer.v"]},
+    "tb_slide_transition": {"sources": [RTL + "cpr_slide_fade.v", RTL + "cpr_transition_publish.v", RTL + "frame_buffer_publish.v", TB + "tb_slide_transition.v"]},
     "tb_spi_io_timing": {"sources": ["project/vendor/SD/spi_master.v", TB + "tb_spi_io_timing.v"]},
     "tb_hdmi_lane_timing": {"sources": ["05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v", "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_phy_warpper.v", TB + "tb_hdmi_lane_timing.v"]},
     "tb_adc_ctrl": {"sources": [RTL + "adc_ctrl.v", "tests/sim/stubs/eg_phy_adc_timing_model.v", TB + "tb_adc_ctrl.v"]},
@@ -90,6 +92,10 @@ TESTS["tb_chinese_overlay"] = {
     "sources": TESTS["tb_training_layout"]["sources"][:-1] + ZH + [TB + "tb_chinese_overlay.v"],
     "fixtures": ["tests/sim/fixtures/chinese_glyphs.mem", "tests/sim/fixtures/chinese_screen_cells.mem",
                  "project/assets/tutorials/bmp_training_safe/02_compressions.bmp"],
+}
+TESTS["tb_presentation_pipeline"] = {
+    "sources": [RTL+"cpr_slide_fade.v", RTL+"cpr_audio_visualizer.v", RTL+"video_rgb_to_axis_640x480.v"] + TESTS["tb_chinese_overlay"]["sources"][:-1] + [TB+"tb_presentation_pipeline.v"],
+    "fixtures": ["project/assets/tutorials/bmp_training_safe/02_compressions.bmp"],
 }
 
 TESTS["tb_frame_refresh_interlock"] = {"sources": ["project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_refresh_interlock.v"]}

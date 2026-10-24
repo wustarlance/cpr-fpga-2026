@@ -7,6 +7,9 @@ module tb_sd_scaled_pages;
  reg clk=0,mem_clk=0,rst_n=0,key_next=1;
  reg hold_ack=0,hold_finish=0,frozen_toggle=0;
  wire display_valid,publish,done,write_req,write_en,writer_ack,writer_finish;
+ wire publish_fade;
+ reg expect_auto_tag=0;
+ integer tagged_publications=0;
  wire[1:0]write_index,pending_index,active_index;
  wire[31:0]write_data;
  wire[3:0]state_code;
@@ -29,7 +32,7 @@ module tb_sd_scaled_pages;
   .bmp_width(16'd4),.bmp_height(16'd2),.display_valid(display_valid),
   .write_finish_toggle(hold_finish?frozen_toggle:write_toggle),
   .write_buf_idx(write_index),.disp_buf_idx(pending_index),
-  .publish_req(publish),.publish_done(done),.write_req(write_req),
+  .publish_req(publish),.publish_fade(publish_fade),.publish_done(done),.write_req(write_req),
   .write_req_ack(writer_ack&&!hold_ack),.pixel_ready(1'b1),.write_en(write_en),.write_data(write_data),
   .SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
  frame_buffer_publish swap(clk,rst_n,publish,pending_index,,done,
@@ -70,6 +73,8 @@ module tb_sd_scaled_pages;
    if(dut.load_start_pulse)loads<=loads+1;
    if(publish)begin
     publications<=publications+1;
+    if(publish_fade!==expect_auto_tag)$fatal(1,"publication fade tag is wrong case=%0d tag=%b expected=%b",test_case,publish_fade,expect_auto_tag);
+    if(publish_fade)tagged_publications=tagged_publications+1;
     if(!dut.cache_valid[pending_index])$fatal(1,"bad/partial cache slot published");
    end
   end
@@ -164,6 +169,15 @@ module tb_sd_scaled_pages;
   wait_cache(15);leave;wait_image(0);
   test_case=6;boot(0,1);repeat(4000)tick;
   if(!dut.page_missing||loads!=0||display_valid)$fatal(1,"empty catalogue loaded a page");
+  test_case=7;boot(4,0);wait_image(0);wait_cache(15);
+  expect_auto_tag=1;auto_run=1;wait_image(1);
+  auto_run=0;repeat(12)tick;expect_auto_tag=0;
+  if(tagged_publications!=1)$fatal(1,"automatic next page did not get one fade tag");
+  press;wait_image(2);
+  // A one-image catalogue must not fade to the same image on each timer.
+  test_case=8;boot(1,0);wait_image(0);auto_run=1;
+  w=0;while(publications<2)begin tick;w=w+1;if(w>3000)$fatal(1,"single-page auto timer");end
+  auto_run=0;repeat(100)tick;
   $display("PASS: tb_sd_scaled_pages: scaled four-slot pixels, cached training policy, recovery, missing pages and boot request");$finish;
  end
  initial begin #4000000;$fatal(1,"TIMEOUT scaled training pages");end
