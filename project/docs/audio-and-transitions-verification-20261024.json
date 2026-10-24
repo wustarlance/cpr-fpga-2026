@@ -1,0 +1,1275 @@
+{
+  "scope": "Audio waveform/VU and fade-through-black autoplay, default parameters on both tops",
+  "task_date": "2026-10-24",
+  "upstream_base_commit": "5ff4f49dbadc07b83bfa7395994d6938cd2e66ee",
+  "design_commit": "1876660785c7b68b625f0cab43ee849e82597e2c",
+  "tool_version": "6.2.168116",
+  "tool_sha256": "e2e04ada5e256dccd017240c0f4dcface7f96dca67cde0e56e606ac0e02f827a",
+  "tool_unchanged": true,
+  "sources_unchanged_during_build": true,
+  "full_build_manifest_sha256": "50199ee62b631ebc2fa75609d76b1f74d96b5061fd9fe6eec1d3ae4e9f5af9f1",
+  "functional_evidence_manifest_sha256": "b9643daef312b249f99464284aab9688eacf01178bc9c06c1e0dec9064b2619e",
+  "functional_verification": {
+    "stage": "RTL functional simulation",
+    "tests": [
+      {
+        "test": "tb_audio_visualizer",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_audio_visualizer.v",
+            "sha256": "ddf4e8b834827f6b55ec8a1f1e4f55aa7b15ae4a3ee95b8d0dbf8fc907ef63b2"
+          },
+          {
+            "path": "project/rtl/video_rgb_to_axis_640x480.v",
+            "sha256": "9d87f68659e7e7a8bb4cd0cf44004e95f0005a187194add7f5f570a84e5c28e4"
+          },
+          {
+            "path": "tests/sim/tb/tb_audio_visualizer.v",
+            "sha256": "5778fd3fc32df66eecce696bbeca651cd1fa28874ca4e8eed3b0857caeffe2b6"
+          }
+        ],
+        "compiled_image_sha256": "186427da178e063d5507112d7d8d5b7c5d7d92d1ea484dc15d0c04400e8e5a18",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "000019d4fd6d8adcc41d3c6a04ed7f069cf174592ae17b9f6856730801451e7f",
+        "run_log_sha256": "fecf8e075568c8d9ceba408a65480fb475ba5615cb8b0e0775b54410f2ca36b1"
+      },
+      {
+        "test": "tb_slide_transition",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_slide_fade.v",
+            "sha256": "e3669d55ea48c57323899051fa75569f64fb48ba1e51c2288736ee73ee381f02"
+          },
+          {
+            "path": "project/rtl/cpr_transition_publish.v",
+            "sha256": "213b8b5d8afecf5f4fee1eea29fe8b790f342d26aead410fb0fc378eac5714b2"
+          },
+          {
+            "path": "project/rtl/frame_buffer_publish.v",
+            "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+          },
+          {
+            "path": "tests/sim/tb/tb_slide_transition.v",
+            "sha256": "23e688869fd3600f0fc86fd6790c5426ddd053b9c24fefee11f577df8a9db1bb"
+          }
+        ],
+        "compiled_image_sha256": "03cba5a0a633851a20c47fb2ed9f480058edf802a37df5f315b341b5f276737e",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "000019d4fd6d8adcc41d3c6a04ed7f069cf174592ae17b9f6856730801451e7f",
+        "run_log_sha256": "cec4937e42d595f5402af146c031ed3eafbe5e833430d583f4f55fc84c910e5c"
+      },
+      {
+        "test": "tb_sd_scaled_pages",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_page_manager.v",
+            "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+          },
+          {
+            "path": "project/rtl/SD/sd_card_bmp.v",
+            "sha256": "a0ec251c80be9689a772ed3b1ac4ac2ce5f8cb2fb413758a259926ecff6f76ed"
+          },
+          {
+            "path": "project/vendor/SD/bmp_read_scaled.v",
+            "sha256": "0ca137d94050902e27ef83cc4ba7ecd5f70b7473ec87930a517afa8c76dffcec"
+          },
+          {
+            "path": "project/rtl/frame_buffer_publish.v",
+            "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+          },
+          {
+            "path": "project/vendor/SD/frame_fifo_write.v",
+            "sha256": "e242c75760838eb6c0766c23889d760655508f1036d96db3c874c339209eeecc"
+          },
+          {
+            "path": "tests/sim/stubs/sd_fault_sector_model.v",
+            "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+          },
+          {
+            "path": "tests/sim/tb/tb_sd_scaled_pages.v",
+            "sha256": "0b3059461a9f17bdec1157e9fbcd3228d4ccfd23890e78a13c375e3728ae95d7"
+          }
+        ],
+        "compiled_image_sha256": "1e1d2e6c27939501605ea97aa0ebc0afd87ef51f635be79965f5c4b0b46abee4",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "4170fa01734576e2fa907d2e3112257d34bcbd7a3df293e7ff3f45e2204f36de",
+        "run_log_sha256": "ddc84c2649687387da6f57eab0f83620dad0ab7b32a47618c301210c698f8b6f"
+      },
+      {
+        "test": "tb_sd_scaled_recovery",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_page_manager.v",
+            "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+          },
+          {
+            "path": "project/rtl/SD/sd_card_bmp.v",
+            "sha256": "a0ec251c80be9689a772ed3b1ac4ac2ce5f8cb2fb413758a259926ecff6f76ed"
+          },
+          {
+            "path": "project/vendor/SD/bmp_read_scaled.v",
+            "sha256": "0ca137d94050902e27ef83cc4ba7ecd5f70b7473ec87930a517afa8c76dffcec"
+          },
+          {
+            "path": "project/rtl/frame_buffer_publish.v",
+            "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+          },
+          {
+            "path": "project/vendor/SD/frame_fifo_write.v",
+            "sha256": "e242c75760838eb6c0766c23889d760655508f1036d96db3c874c339209eeecc"
+          },
+          {
+            "path": "tests/sim/stubs/sd_fault_sector_model.v",
+            "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+          },
+          {
+            "path": "tests/sim/tb/tb_sd_scaled_recovery.v",
+            "sha256": "65e2dfd347d94338c3efbdad2aaeca093f66c6f9961025441702c735492646bd"
+          }
+        ],
+        "compiled_image_sha256": "37a2d1e8ce646c8ed2c9dbd6c2084ede8d0f3b77147662bf59fdda944a3cdb7c",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "4170fa01734576e2fa907d2e3112257d34bcbd7a3df293e7ff3f45e2204f36de",
+        "run_log_sha256": "2f6bb8149c6010ae82dde983ace6638c0801b95293b0401b1f92c563b7f033e9"
+      },
+      {
+        "test": "tb_sd_image_recovery",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_page_manager.v",
+            "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+          },
+          {
+            "path": "project/rtl/SD/sd_card_bmp.v",
+            "sha256": "a0ec251c80be9689a772ed3b1ac4ac2ce5f8cb2fb413758a259926ecff6f76ed"
+          },
+          {
+            "path": "project/vendor/SD/bmp_read.v",
+            "sha256": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65"
+          },
+          {
+            "path": "project/rtl/frame_buffer_publish.v",
+            "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+          },
+          {
+            "path": "project/vendor/SD/frame_fifo_write.v",
+            "sha256": "e242c75760838eb6c0766c23889d760655508f1036d96db3c874c339209eeecc"
+          },
+          {
+            "path": "tests/sim/stubs/sd_fault_sector_model.v",
+            "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+          },
+          {
+            "path": "tests/sim/tb/tb_sd_image_recovery.v",
+            "sha256": "3d99c2b9efadf632c899c988b7c5f90758a2b8378b111f13174926be05bd7009"
+          }
+        ],
+        "compiled_image_sha256": "01fdd8a8a7144100f1b76a0fa2730d147147e9f7a07d310aba5cf169e6de3003",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "4170fa01734576e2fa907d2e3112257d34bcbd7a3df293e7ff3f45e2204f36de",
+        "run_log_sha256": "57016c565c5e2baf88e54f44660e35a5c862fbcb465f7c8c606454b15db3d1e2"
+      },
+      {
+        "test": "tb_training_pages",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_page_manager.v",
+            "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+          },
+          {
+            "path": "project/rtl/SD/sd_card_bmp.v",
+            "sha256": "a0ec251c80be9689a772ed3b1ac4ac2ce5f8cb2fb413758a259926ecff6f76ed"
+          },
+          {
+            "path": "project/vendor/SD/bmp_read.v",
+            "sha256": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65"
+          },
+          {
+            "path": "project/rtl/frame_buffer_publish.v",
+            "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+          },
+          {
+            "path": "project/vendor/SD/frame_fifo_write.v",
+            "sha256": "e242c75760838eb6c0766c23889d760655508f1036d96db3c874c339209eeecc"
+          },
+          {
+            "path": "tests/sim/stubs/sd_fault_sector_model.v",
+            "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+          },
+          {
+            "path": "tests/sim/tb/tb_training_pages.v",
+            "sha256": "81c7fe5e79ceadb17cb64644d1ed670537dcf08cced4b77ab0c98df5074e8b9e"
+          }
+        ],
+        "compiled_image_sha256": "0f5faf7c5cf4f13643af8b0f515e1a73535f52caf7f563010fac8c1e4367ff7f",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "4170fa01734576e2fa907d2e3112257d34bcbd7a3df293e7ff3f45e2204f36de",
+        "run_log_sha256": "87582479fa3e70c0aeeb4e0982d69cdaf8a6e795226bab9d356edbd68091c3da"
+      },
+      {
+        "test": "tb_audio_tone",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_audio_tone_i2s.v",
+            "sha256": "d304c159a45e72edfac7d20cb19eac1d680fa812da6cb357af26058525619de4"
+          },
+          {
+            "path": "tests/sim/tb/tb_audio_tone.v",
+            "sha256": "b150742c919202b7ab8197e7f1d6c8fccb229aa86f8eb0ec1e5ea43b311430a8"
+          }
+        ],
+        "compiled_image_sha256": "c4818bc8a0d7909167cf14a3b3f295b37bd064378590c46b94c34859b3eaf123",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "4170fa01734576e2fa907d2e3112257d34bcbd7a3df293e7ff3f45e2204f36de",
+        "run_log_sha256": "50e3cd63dc1b9f81e0e45ca5121ff712913df7678718ba91f7b73f74efa800c8"
+      },
+      {
+        "test": "tb_input_filter",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/input_filter.v",
+            "sha256": "134e84c49948b6139316cc1d7d646995ae8cea262b3062751c54a43dc8ece008"
+          },
+          {
+            "path": "tests/sim/tb/tb_input_filter.v",
+            "sha256": "977de09fff72ca07128021fe730be8de1686e052f2c61523e3eabef130e7a712"
+          }
+        ],
+        "compiled_image_sha256": "6b3c40580a7f067f00a56232d5adef8001dd69b31ced1242c367dfbdb66220e5",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "4170fa01734576e2fa907d2e3112257d34bcbd7a3df293e7ff3f45e2204f36de",
+        "run_log_sha256": "80e2c030124a22670a9409ec247c56e46628120c848b295377479d187cba4011"
+      },
+      {
+        "test": "tb_presentation_pipeline",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_slide_fade.v",
+            "sha256": "e3669d55ea48c57323899051fa75569f64fb48ba1e51c2288736ee73ee381f02"
+          },
+          {
+            "path": "project/rtl/cpr_audio_visualizer.v",
+            "sha256": "ddf4e8b834827f6b55ec8a1f1e4f55aa7b15ae4a3ee95b8d0dbf8fc907ef63b2"
+          },
+          {
+            "path": "project/rtl/video_rgb_to_axis_640x480.v",
+            "sha256": "9d87f68659e7e7a8bb4cd0cf44004e95f0005a187194add7f5f570a84e5c28e4"
+          },
+          {
+            "path": "project/rtl/cpr_overlay.v",
+            "sha256": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654"
+          },
+          {
+            "path": "project/rtl/scroll_text.v",
+            "sha256": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f"
+          },
+          {
+            "path": "project/rtl/font5x7_rom.v",
+            "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+          },
+          {
+            "path": "project/rtl/cpr_subtitle_rom.v",
+            "sha256": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468"
+          },
+          {
+            "path": "project/rtl/cpr_font16_rom.v",
+            "sha256": "45063f5a0d7e673deb999071db6016b55b35833313e4a752d4c903d7a390e8b1"
+          },
+          {
+            "path": "project/rtl/cpr_zh_strings.v",
+            "sha256": "3d2044f11fdb75f37892e0e97eba3ab0654987e5608323bc206dd6fb31115a50"
+          },
+          {
+            "path": "project/rtl/cpr_text_zh.v",
+            "sha256": "960657b5043e7e2059d79ddfee7e84acb436172e673cd3e83dc24e08eefbe924"
+          },
+          {
+            "path": "tests/sim/tb/tb_presentation_pipeline.v",
+            "sha256": "5c0c9b41ab6218dc32d3978a639a9b72261ba2402b83cb8fdd73b862328515c3"
+          }
+        ],
+        "compiled_image_sha256": "b0a9d4e7c5f4be468f8461996d33ae6246cefaf73a0a2412f0237301ef9f598c",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "53a6ac1b8265bda273539989116810a48b6fb8c79328e0bb09c0e2f62d811462",
+        "run_log_sha256": "cfe8f5f651a5ecbbb69442bdc38142a7013c21a31678210ec52ac4ccaea8009b"
+      },
+      {
+        "test": "tb_frame_buffer_publish",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/frame_buffer_publish.v",
+            "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+          },
+          {
+            "path": "project/vendor/SD/frame_fifo_read.v",
+            "sha256": "8a0c2e6d3a18f2a7d0fa21854bcabbc4f268fd2bcd511c7fef3a9c3877ada4a2"
+          },
+          {
+            "path": "tests/sim/tb/tb_frame_buffer_publish.v",
+            "sha256": "95c4c3c582968e6987df785c39953669316d4ffc36a6f70e242a6cf5e8e365ae"
+          }
+        ],
+        "compiled_image_sha256": "ca396e8f3fcd95b3abb0f60c54559cf4ef0e4b53b60c8bdab95937f5cfc6dfe3",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "e6dd12926030a5fa2977ed3613abcbaa585c8aad17c6a73190aa8ebe268fe445",
+        "run_log_sha256": "8b226784103db151b495e3ad0dd766c4e168061d311e0db1f65dbf4a57473dcd"
+      },
+      {
+        "test": "tb_training_layout",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_overlay.v",
+            "sha256": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654"
+          },
+          {
+            "path": "project/rtl/scroll_text.v",
+            "sha256": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f"
+          },
+          {
+            "path": "project/rtl/font5x7_rom.v",
+            "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+          },
+          {
+            "path": "project/rtl/cpr_subtitle_rom.v",
+            "sha256": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468"
+          },
+          {
+            "path": "tests/sim/tb/tb_training_layout.v",
+            "sha256": "5315bc84de75d173f8b118d24ae595366ab343363876a0de801325f567ad17a9"
+          }
+        ],
+        "compiled_image_sha256": "8b288ef6255cdeab6867accd0fd3ca184ab1c3dccc58d5c4c71f7856d90b4e73",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "e6dd12926030a5fa2977ed3613abcbaa585c8aad17c6a73190aa8ebe268fe445",
+        "run_log_sha256": "907b4812e5c03063a3dd77a1c80113ff9b748cd2fb9915a932b51a9a55885831"
+      },
+      {
+        "test": "tb_cpr_overlay_features",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_overlay.v",
+            "sha256": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654"
+          },
+          {
+            "path": "project/rtl/scroll_text.v",
+            "sha256": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f"
+          },
+          {
+            "path": "project/rtl/font5x7_rom.v",
+            "sha256": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d"
+          },
+          {
+            "path": "project/rtl/cpr_subtitle_rom.v",
+            "sha256": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468"
+          },
+          {
+            "path": "tests/sim/tb/tb_cpr_overlay_features.v",
+            "sha256": "1d7add5e68234d6df1f2f742648cd29342ef600e6f89fa8acd3023eea40eabb3"
+          }
+        ],
+        "compiled_image_sha256": "2504235fccd7fa31a23c8e4fb2274ced0997d03ac22a55e8ece1f75be9f23517",
+        "compile_returncode": 0,
+        "run_returncode": 0,
+        "result_manifest_sha256": "e6dd12926030a5fa2977ed3613abcbaa585c8aad17c6a73190aa8ebe268fe445",
+        "run_log_sha256": "2b6568f7b53ca43794b93d0223d77cfcf61e502e12f771956e407e8d38ddd7e1"
+      }
+    ],
+    "test_count": 12,
+    "negative_controls": [
+      {
+        "test": "tb_audio_visualizer",
+        "expected_failure_observed": true,
+        "expected_diagnostic": "pixel/sideband mismatch",
+        "sources": [
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\audio-fade-20261024\\mutations\\flat_wave.v",
+            "sha256": "b1dd2c94efa38eade062e66cd8ead29a8ac2a75095174e60cf61a3e8daf51d10"
+          },
+          {
+            "path": "project/rtl/video_rgb_to_axis_640x480.v",
+            "sha256": "9d87f68659e7e7a8bb4cd0cf44004e95f0005a187194add7f5f570a84e5c28e4"
+          },
+          {
+            "path": "tests/sim/tb/tb_audio_visualizer.v",
+            "sha256": "5778fd3fc32df66eecce696bbeca651cd1fa28874ca4e8eed3b0857caeffe2b6"
+          }
+        ],
+        "compile_returncode": 0,
+        "run_returncode": 1,
+        "log_sha256": "fa3f98e9eca305169c09dafbaa2af6601515114f18480263a4fa4cd504436fee",
+        "compiled_image_sha256": "78f3155108b2774666fcdf6ec2b1dc14c688b5e87304f7671c57e2a16c6349eb"
+      },
+      {
+        "test": "tb_slide_transition",
+        "expected_failure_observed": true,
+        "expected_diagnostic": "automatic page published before black",
+        "sources": [
+          {
+            "path": "project/rtl/cpr_slide_fade.v",
+            "sha256": "e3669d55ea48c57323899051fa75569f64fb48ba1e51c2288736ee73ee381f02"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\outputs\\audio-fade-20261024\\mutations\\early_publish.v",
+            "sha256": "672e112f4b59d08742aae1041cbd1838d6d0de7192aaa35ea30f9fa33b9f854a"
+          },
+          {
+            "path": "project/rtl/frame_buffer_publish.v",
+            "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+          },
+          {
+            "path": "tests/sim/tb/tb_slide_transition.v",
+            "sha256": "23e688869fd3600f0fc86fd6790c5426ddd053b9c24fefee11f577df8a9db1bb"
+          }
+        ],
+        "compile_returncode": 0,
+        "run_returncode": 1,
+        "log_sha256": "865709929894d5ba18322e8f1f79bd8d90aa86cbb500ceb2dd7e1e03e6a6a25b",
+        "compiled_image_sha256": "6a55e524e4bcbb24df6e917a49d42db81070f2676a393b3483ac6d932921dd5a"
+      }
+    ],
+    "initial_integration_timeout": {
+      "seconds": 90,
+      "retained_directory": "presentation-first",
+      "successful_rerun_directory": "presentation-v2",
+      "successful_bound_seconds": 420
+    },
+    "hardware_programmed": false
+  },
+  "sources_and_previews_sha256": {
+    "project/build.tcl": "58e91447d8c716a0d8639e1755eb6fb01dfca6fcc48c275c825c770b4c782c80",
+    "project/constraints/pin.adc": "165b4ee060a79bb8a7372709c19c05159b69218f3e1585eb54ca0a4af05f5fd4",
+    "project/constraints/timing.sdc": "e2308d2d69cb1a81aff9072eda1cae368bbebd1294ce336e113c11c614bc7109",
+    "project/docs/audio-black-rtl.png": "f4b3fe7922a2af537fc5a8569b4dd030f763bc2a2c431eb824ca2b1c7e628a7a",
+    "project/docs/audio-teaching-rtl.png": "cdbca220e30e5f12c5ffe0234c15e60e57ef8314e1bb4c289abebbf7502b1687",
+    "project/docs/audio-training-rtl.png": "a4f11fdee02ca0cfec54bc7fdeb83dd51875ce8222edf375e62a3a023ec0938c",
+    "project/project.al": "9f1660f522d9f2cddb5157b7cfa5d6f81869ca668c1de4d158c6608b6b25a8ca",
+    "project/rtl/SD/sd_card_bmp.v": "a0ec251c80be9689a772ed3b1ac4ac2ce5f8cb2fb413758a259926ecff6f76ed",
+    "project/rtl/cpr_audio_visualizer.v": "ddf4e8b834827f6b55ec8a1f1e4f55aa7b15ae4a3ee95b8d0dbf8fc907ef63b2",
+    "project/rtl/cpr_slide_fade.v": "e3669d55ea48c57323899051fa75569f64fb48ba1e51c2288736ee73ee381f02",
+    "project/rtl/cpr_transition_publish.v": "213b8b5d8afecf5f4fee1eea29fe8b790f342d26aead410fb0fc378eac5714b2",
+    "project/rtl/top_adc.v": "bca7d8391e26490cb5d3116af7a05c22f922cd28a9471aff74a1a3c516710b33",
+    "project/rtl/top_tf_hdmi_audio.v": "f71c7b811a06d4d6f8447b6544ef4a633f8aaa440353ff8d3b59502122c000fe",
+    "tests/sim/run.py": "5c9e28ad1d060068debe468cc866635477c09aba22771583928edb60d509496b",
+    "tests/sim/tb/tb_audio_visualizer.v": "5778fd3fc32df66eecce696bbeca651cd1fa28874ca4e8eed3b0857caeffe2b6",
+    "tests/sim/tb/tb_presentation_pipeline.v": "5c0c9b41ab6218dc32d3978a639a9b72261ba2402b83cb8fdd73b862328515c3",
+    "tests/sim/tb/tb_sd_scaled_pages.v": "0b3059461a9f17bdec1157e9fbcd3228d4ccfd23890e78a13c375e3728ae95d7",
+    "tests/sim/tb/tb_slide_transition.v": "23e688869fd3600f0fc86fd6790c5426ddd053b9c24fefee11f577df8a9db1bb"
+  },
+  "hardware_programmed": false,
+  "flash_written": false,
+  "sd_card_written": false,
+  "physical_signoff": false,
+  "tops": [
+    {
+      "top": "top",
+      "tool_returncode": 0,
+      "bitgen_complete": true,
+      "slacks_ns": {
+        "SWNS": 0.109,
+        "STNS": 0.0,
+        "HWNS": 0.011,
+        "HTNS": 0.0
+      },
+      "bitstream_sha256": "85599913404ca6c39761f59c2a7c7ccd8c5a85c76d4c1a899fb095e49bacb170",
+      "resources": {
+        "lut": {
+          "used": 12756,
+          "available": 19600,
+          "percent": 65.08
+        },
+        "reg": {
+          "used": 6353,
+          "available": 19600,
+          "percent": 32.41
+        },
+        "bram": {
+          "used": 40,
+          "available": 64,
+          "percent": 62.5
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        },
+        "adc": {
+          "used": 0,
+          "available": 1,
+          "percent": 0.0,
+          "report_row_omitted": true
+        }
+      },
+      "dsp": {
+        "used": 12,
+        "available": 29
+      },
+      "strict_status": "failed",
+      "critical_warning_count": 7,
+      "critical_diagnostics": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "coverage_review": {
+        "status": "needs_review",
+        "blocking_findings": [],
+        "review_findings": [
+          "dummy node: 3",
+          "no input delay: 25",
+          "no output delay: 29",
+          "abnormal input delay: 32"
+        ],
+        "checks": {
+          "1": {
+            "name": "no clock",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "2": {
+            "name": "clock definition",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "3": {
+            "name": "dummy node",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "4": {
+            "name": "invalid constraint",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "5": {
+            "name": "pll/clock buffer clock constraints",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "6": {
+            "name": "combinational loops",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "7": {
+            "name": "soft fifo timing exception constraints",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "8": {
+            "name": "no path constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "9": {
+            "name": "shadowed/ignored timing exception constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "10": {
+            "name": "no input delay",
+            "count": 25,
+            "severity": "MEDIUM"
+          },
+          "11": {
+            "name": "no output delay",
+            "count": 29,
+            "severity": "MEDIUM"
+          },
+          "12": {
+            "name": "partial input delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "13": {
+            "name": "partial output delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "14": {
+            "name": "abnormal input delay",
+            "count": 32,
+            "severity": "MEDIUM"
+          }
+        },
+        "max_delay_rows": [
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_page_status/u_transfer/src_hold[*]}] -to [get_regs {*u_page_status/u_transfer/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 0,
+            "dominated": 0,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_frame_publish/held_index[*]}] -to [get_regs {*u_frame_publish/pending_index[*]}] 25 -datapath_only"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 24.700"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 9.700"
+          }
+        ],
+        "scope": "report coverage only; manual interface, CDC and physical review still required"
+      },
+      "interface_review": {
+        "status": "needs_review",
+        "classification_counts": {
+          "input": {
+            "hdmi_ddc_ip_timing_open": 1,
+            "configured_external_inputs_cdc_review": 9,
+            "asynchronous_controls_cdc_review": 7,
+            "key_panel_configuration_cdc_review": 6,
+            "asynchronous_reset_release_review": 1,
+            "sd_spi_interface_timing_open": 1
+          },
+          "output": {
+            "hdmi_tmds_serial_interface_timing_open": 4,
+            "hdmi_ddc_ip_timing_open": 2,
+            "human_visible_output_no_capture_clock": 20,
+            "sd_spi_interface_timing_open": 3
+          }
+        },
+        "default_use_external_io": 1,
+        "unique_missing_delay_port_count": 53,
+        "dummy_summary_count": 3,
+        "dummy_summary_unit": "model_groups_in_this_TD_report",
+        "dummy_listed_pin_count": 620
+      },
+      "io_budget": {
+        "top": "top",
+        "checkpoint_sha256": "4fbb91b63c9fe8857714860cb18ad88b11ec27205dafae9522638d948815d9b6",
+        "checkpoint_unchanged": true,
+        "budget": {
+          "status": "conditional",
+          "missing": [],
+          "physical_signoff": false,
+          "card": {
+            "brand": "Netac",
+            "capacity_gb": 16,
+            "series": null,
+            "electrical_timing_verified": false
+          },
+          "scope": "Routed FPGA delay budget plus protocol requirements; connector/PCB/card verification remains separate",
+          "hdmi_requirements": {
+            "character_ns": 40.0,
+            "ui_ns": 4.0,
+            "source_intrapair_limit_ns": 0.6,
+            "source_interpair_limit_ns": 8.0
+          },
+          "ddc_requirements": {
+            "mode": "Standard-mode",
+            "f_scl_max_hz": 100000,
+            "scl_low_min_ns": 4700,
+            "scl_high_min_ns": 4000,
+            "sda_setup_min_ns": 250,
+            "sda_hold_min_ns": 0,
+            "rise_max_ns": 1000,
+            "fall_max_ns": 300,
+            "actual_scl_waveform_verified": false,
+            "actual_bus_capacitance_pf": null
+          },
+          "output_path_envelopes_ns": {
+            "sd_dclk": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "sd_mosi": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "sd_ncs": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_CLK_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D0_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D1_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D2_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            }
+          },
+          "sd_fpga_terms_ns": {
+            "input_path_max": 4.344,
+            "sck_output_max": 4.62,
+            "capture_clock_min": 3.232,
+            "sck_launch_clock_max": 3.513,
+            "setup_max": 0.116,
+            "uncertainty": 0.1,
+            "reported_virtual_clock_uncertainty": 0.0,
+            "minimum_budget_uncertainty_from_product_sta": 0.1
+          },
+          "sd_modes": {
+            "initialization": {
+              "divider": 248,
+              "half_period_ns": 2500.0,
+              "frequency_hz": 200000.0,
+              "reference_card_tco_ns": 50,
+              "card_tco_plus_pcb_roundtrip_max_ns": 2490.539,
+              "pcb_roundtrip_remaining_after_reference_card_ns": 2440.539,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 2492.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 2492.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 2505.34
+            },
+            "transfer": {
+              "divider": 1,
+              "half_period_ns": 30.0,
+              "frequency_hz": 16666666.666666666,
+              "reference_card_tco_ns": 14,
+              "card_tco_plus_pcb_roundtrip_max_ns": 20.539,
+              "pcb_roundtrip_remaining_after_reference_card_ns": 6.539,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 22.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 22.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 35.34
+            },
+            "legacy_25mhz": {
+              "divider": 0,
+              "half_period_ns": 20.0,
+              "frequency_hz": 25000000.0,
+              "reference_card_tco_ns": 14,
+              "card_tco_plus_pcb_roundtrip_max_ns": 10.539,
+              "pcb_roundtrip_remaining_after_reference_card_ns": -3.461,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 12.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 12.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 25.34
+            }
+          },
+          "hdmi_reported_paths": {
+            "clock_plus_output_max_delay_ns": {
+              "HDMI_CLK_P": 4.404,
+              "HDMI_D0_P": 4.404,
+              "HDMI_D1_P": 4.404,
+              "HDMI_D2_P": 4.404
+            },
+            "interpair_spread_ns": 0.0,
+            "pcb_interpair_remaining_ns": 8.0,
+            "intrapair_skew_and_eye_verified": false,
+            "limit": "Reported maximum digital paths only; process labels are in the envelopes. Not measured skew or an analog eye check."
+          }
+        },
+        "analysis_profile_sha256": "edba504976c2b303faca1c2415727a95be28f9dafa4d53e175cbd20a1942025c",
+        "artifacts_sha256": {
+          "all-paths.rpt": "558a8db28caae880155c5da4962cb2b9f9dea5cbc4fd4968bd1091a8ef09b52c",
+          "budget.json": "4e7666082fd405594ca7cb7345ea113e70b6fa6df6badabc7acfe68fd5b3399e",
+          "console.log": "a3a5afe3b2bc0984b788393e0866d1c6ed34b633249172c58ff368ab62f87c3d",
+          "coordinate-check.rpt": "886113bbb42aa818751fb8a0e352e95bb82df7f820337f1dcf944306105b711e",
+          "extract.tcl": "c75e5bf9fdd5710e0fbe3270be59848d32b0d943a952ece43ba8ad54f576c471",
+          "miso-paths.rpt": "25b404ef35f0dfeb9a6122e0ac6c1e293ef857f519142186be7620f98d53a1f9",
+          "td_20261024_234716.log": "823a1e02db1cc77e6f0534da10a201c8cb6094818ff6eb6cb65db9c2b967bdbe",
+          "td_20261024_234716.logw": "45faa7118b6d05c759fee211be0496c7301ea130f0a7020ccd171d9645a799af"
+        }
+      },
+      "reports_sha256": {
+        "clock_intersection.rpt": "31bcf33eeded225c10abe395c784a9c325539e7974da12d95cc37502cef31f2d",
+        "clock_summary.rpt": "3ca5666733d8f6b77a99e4ca8ce1b85a7ea1d70a0dc59e659244bb77ed50c9bd",
+        "gate_area.rpt": "f78eb0fec129ff2007e0510fc3a232f4a0017839fd600512b6dacd35afdb1c54",
+        "rtl_area.rpt": "da3b499cbbee92adbfe8d795f0b3f92941baf300ea01d102d6039214750da599",
+        "timing_check.rpt": "bf1333bd2d5c692a2f7631f5874c10b4154d90bbbbe140b4a7c8a73ce21e0ecb",
+        "timing_exception.rpt": "8e6339058c02668eab8f34f84c3530460d2aaeb5ecbb675af00a9995eec9d8d1",
+        "timing_status.rpt": "9c31a0d65016a95f0acce7882f56a803ff36ee6912890eab2b5ef26c3bda34e6",
+        "timing_summary.rpt": "3b8547a6812aa80b91712ecb6befab1401aaac784a6438acd643f3c12793ce89"
+      }
+    },
+    {
+      "top": "top_adc",
+      "tool_returncode": 0,
+      "bitgen_complete": true,
+      "slacks_ns": {
+        "SWNS": 0.117,
+        "STNS": 0.0,
+        "HWNS": 0.011,
+        "HTNS": 0.0
+      },
+      "bitstream_sha256": "e27b80f6091337639b184eb7eb58cb068b2504e0a2286a4e88911ec92f4b712e",
+      "resources": {
+        "lut": {
+          "used": 12806,
+          "available": 19600,
+          "percent": 65.34
+        },
+        "reg": {
+          "used": 6425,
+          "available": 19600,
+          "percent": 32.78
+        },
+        "bram": {
+          "used": 40,
+          "available": 64,
+          "percent": 62.5
+        },
+        "adc": {
+          "used": 1,
+          "available": 1,
+          "percent": 100.0
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        }
+      },
+      "dsp": {
+        "used": 12,
+        "available": 29
+      },
+      "strict_status": "failed",
+      "critical_warning_count": 7,
+      "critical_diagnostics": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "coverage_review": {
+        "status": "needs_review",
+        "blocking_findings": [],
+        "review_findings": [
+          "dummy node: 4",
+          "no input delay: 25",
+          "no output delay: 29",
+          "abnormal input delay: 32"
+        ],
+        "checks": {
+          "1": {
+            "name": "no clock",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "2": {
+            "name": "clock definition",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "3": {
+            "name": "dummy node",
+            "count": 4,
+            "severity": "HIGH"
+          },
+          "4": {
+            "name": "invalid constraint",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "5": {
+            "name": "pll/clock buffer clock constraints",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "6": {
+            "name": "combinational loops",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "7": {
+            "name": "soft fifo timing exception constraints",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "8": {
+            "name": "no path constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "9": {
+            "name": "shadowed/ignored timing exception constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "10": {
+            "name": "no input delay",
+            "count": 25,
+            "severity": "MEDIUM"
+          },
+          "11": {
+            "name": "no output delay",
+            "count": 29,
+            "severity": "MEDIUM"
+          },
+          "12": {
+            "name": "partial input delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "13": {
+            "name": "partial output delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "14": {
+            "name": "abnormal input delay",
+            "count": 32,
+            "severity": "MEDIUM"
+          }
+        },
+        "max_delay_rows": [
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_mailbox/src_hold[*]}] -to [get_regs {*u_mailbox/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_page_status/u_transfer/src_hold[*]}] -to [get_regs {*u_page_status/u_transfer/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 0,
+            "dominated": 0,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_frame_publish/held_index[*]}] -to [get_regs {*u_frame_publish/pending_index[*]}] 25 -datapath_only"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 24.700"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 9.700"
+          }
+        ],
+        "scope": "report coverage only; manual interface, CDC and physical review still required"
+      },
+      "interface_review": {
+        "status": "needs_review",
+        "classification_counts": {
+          "input": {
+            "hdmi_ddc_ip_timing_open": 1,
+            "configured_external_inputs_cdc_review": 9,
+            "inactive_demo_contact_in_adc": 1,
+            "asynchronous_controls_cdc_review": 6,
+            "key_panel_configuration_cdc_review": 6,
+            "asynchronous_reset_release_review": 1,
+            "sd_spi_interface_timing_open": 1
+          },
+          "output": {
+            "hdmi_tmds_serial_interface_timing_open": 4,
+            "hdmi_ddc_ip_timing_open": 2,
+            "human_visible_output_no_capture_clock": 20,
+            "sd_spi_interface_timing_open": 3
+          }
+        },
+        "default_use_external_io": 1,
+        "unique_missing_delay_port_count": 53,
+        "dummy_summary_count": 4,
+        "dummy_summary_unit": "model_groups_in_this_TD_report",
+        "dummy_listed_pin_count": 529
+      },
+      "io_budget": {
+        "top": "top_adc",
+        "checkpoint_sha256": "1785e6382fbdb9db2fea9e10a7161e4893a090bf7b601e4b182b44049a352d7b",
+        "checkpoint_unchanged": true,
+        "budget": {
+          "status": "conditional",
+          "missing": [],
+          "physical_signoff": false,
+          "card": {
+            "brand": "Netac",
+            "capacity_gb": 16,
+            "series": null,
+            "electrical_timing_verified": false
+          },
+          "scope": "Routed FPGA delay budget plus protocol requirements; connector/PCB/card verification remains separate",
+          "hdmi_requirements": {
+            "character_ns": 40.0,
+            "ui_ns": 4.0,
+            "source_intrapair_limit_ns": 0.6,
+            "source_interpair_limit_ns": 8.0
+          },
+          "ddc_requirements": {
+            "mode": "Standard-mode",
+            "f_scl_max_hz": 100000,
+            "scl_low_min_ns": 4700,
+            "scl_high_min_ns": 4000,
+            "sda_setup_min_ns": 250,
+            "sda_hold_min_ns": 0,
+            "rise_max_ns": 1000,
+            "fall_max_ns": 300,
+            "actual_scl_waveform_verified": false,
+            "actual_bus_capacitance_pf": null
+          },
+          "output_path_envelopes_ns": {
+            "sd_dclk": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "sd_mosi": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "sd_ncs": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_CLK_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D0_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D1_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D2_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            }
+          },
+          "sd_fpga_terms_ns": {
+            "input_path_max": 3.934,
+            "sck_output_max": 4.62,
+            "capture_clock_min": 3.232,
+            "sck_launch_clock_max": 3.513,
+            "setup_max": 0.116,
+            "uncertainty": 0.1,
+            "reported_virtual_clock_uncertainty": 0.0,
+            "minimum_budget_uncertainty_from_product_sta": 0.1
+          },
+          "sd_modes": {
+            "initialization": {
+              "divider": 248,
+              "half_period_ns": 2500.0,
+              "frequency_hz": 200000.0,
+              "reference_card_tco_ns": 50,
+              "card_tco_plus_pcb_roundtrip_max_ns": 2490.949,
+              "pcb_roundtrip_remaining_after_reference_card_ns": 2440.949,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 2492.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 2492.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 2505.036
+            },
+            "transfer": {
+              "divider": 1,
+              "half_period_ns": 30.0,
+              "frequency_hz": 16666666.666666666,
+              "reference_card_tco_ns": 14,
+              "card_tco_plus_pcb_roundtrip_max_ns": 20.949,
+              "pcb_roundtrip_remaining_after_reference_card_ns": 6.949,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 22.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 22.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 35.036
+            },
+            "legacy_25mhz": {
+              "divider": 0,
+              "half_period_ns": 20.0,
+              "frequency_hz": 25000000.0,
+              "reference_card_tco_ns": 14,
+              "card_tco_plus_pcb_roundtrip_max_ns": 10.949,
+              "pcb_roundtrip_remaining_after_reference_card_ns": -3.051,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 12.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 12.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 25.036
+            }
+          },
+          "hdmi_reported_paths": {
+            "clock_plus_output_max_delay_ns": {
+              "HDMI_CLK_P": 4.404,
+              "HDMI_D0_P": 4.404,
+              "HDMI_D1_P": 4.404,
+              "HDMI_D2_P": 4.404
+            },
+            "interpair_spread_ns": 0.0,
+            "pcb_interpair_remaining_ns": 8.0,
+            "intrapair_skew_and_eye_verified": false,
+            "limit": "Reported maximum digital paths only; process labels are in the envelopes. Not measured skew or an analog eye check."
+          }
+        },
+        "analysis_profile_sha256": "edba504976c2b303faca1c2415727a95be28f9dafa4d53e175cbd20a1942025c",
+        "artifacts_sha256": {
+          "all-paths.rpt": "86eab0d318632680f484fa28264d85d94a1fd25259b52f954e8471973d2fde0b",
+          "budget.json": "cd415ecf447e64c820e2b6a8275a85b9af522a806a2269edb193c3cd3f0b8c86",
+          "console.log": "525c371d69fe07ff94d9c0a368a449c14ac98ea6acef0fbdcb9b654a57d82e0a",
+          "coordinate-check.rpt": "8bb461f61243ccd3809d8915dd7cf357e3ada5c0db499a8d4d8e2e9e78f5514a",
+          "extract.tcl": "42b8afa49f656d21b95d549405f0c29a911dd3da4407e6590ea482af5ee82619",
+          "miso-paths.rpt": "95483c1bb6ecbfd44afdec62b878c906bfedbac74caa880dda1bda855aa955e7",
+          "td_20261024_234735.log": "63d2bdf7ef8179e13c2f8aa96d90c214e04de96d73e7f7879006fd0f5d683a14",
+          "td_20261024_234735.logw": "13de72abf4fb3e779e796e9ee160c37087684a6b168aaabc0eabca6eed52911e"
+        }
+      },
+      "reports_sha256": {
+        "clock_intersection.rpt": "8da30275a20c509ce1418188413c5c9cf3b8df0ca0bb65fd0a7cda09389a89ec",
+        "clock_summary.rpt": "e3b1e66f309b34b5dd8fb30a673c9ad10f153dfb1c7b1eb1aabb46e9c0a8f689",
+        "gate_area.rpt": "7750c63fe3e2e921588ca77830322a300a19bc335b08b93323cf51b6c534a21e",
+        "rtl_area.rpt": "b56ba5a4b36a80d9a27cf03bbe99b87b6fcec2b270e75284056ad26e77c9d6a1",
+        "timing_check.rpt": "71156aeef8e651fb4d1ffa29d436ecded74012902de496bbab5a76114012a4af",
+        "timing_exception.rpt": "458773bab85ac3fd1f0254c49a480ba277e29333707361e498d4b8912de602d0",
+        "timing_status.rpt": "dfdb3724505bf9f81648e06d7a0055e349bc02ea896e379ee84c0baecde2132d",
+        "timing_summary.rpt": "e599f113c1b53a3536ba39b658e7254ff29ba645642231d57ae1c48648fac581"
+      }
+    }
+  ],
+  "pipeline_contract": {
+    "pixel_clock_hz": 25000000,
+    "extra_pixel_register_stages": 4,
+    "extra_latency_ns": 160,
+    "scope_pcm_domain": "video_clk",
+    "waveform_samples": 256,
+    "valid_sample_decimation": 4,
+    "waveform_snapshot_banks": 2,
+    "footer_y_inclusive": [
+      464,
+      479
+    ],
+    "fade_gain_range": [
+      0,
+      16
+    ],
+    "fade_steps_each_way": 16,
+    "new_sdram_image_reads": 0,
+    "new_timing_exceptions": 0
+  },
+  "remaining_hardware_checks": [
+    "Four pages and no white lines on the new bitstream",
+    "Audible audio and visual waveform/VU agree; training silence and 40 ms beats",
+    "Autoplay fade, pause, mode change during a pending transition, manual navigation and reset",
+    "Cold start and long run; Flash deployment remains separate",
+    "Physical SD/HDMI/DDC requirements and inherited vendor diagnostic review remain open"
+  ]
+}

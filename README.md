@@ -1,3 +1,5 @@
+> **2026-10-24 音频可视化与轮播转场**：基于 main `5ff4f49` 保留最新按键修正，加入实际 PCM 波形/VU 与自动轮播淡出淡入。12 项功能自检通过，2 个错误变体被拒绝；现有 TD 两顶层生成位流，setup +0.109/+0.117 ns、hold 均 +0.011 ns。原有关键告警保留，严格检查仍 failed；本次未上板。见[功能、预览与验证](project/docs/audio-and-transitions.md)。
+>
 > **2026-10-24 SD/HDMI 离线时序预算**：同步最新主分支，SD 传输改为约 16.67 MHz，补齐布线后 min/max 抽取与自检。现有 TD 6.2.168116 两顶层生成位流、内部 setup/hold 均为正；6 项 RTL、27 项 Python 检查通过，2 项错误注入按预期失败。严格检查仍 failed，板级 I/O 结论仍为 conditional，本次未上板。见[预算与实际结果](project/docs/io-timing-budget.md)。
 >
 > **2026-10-23 TD验收排查**：按本机TD6.2.168116完成两个顶层布局布线，修复页面/ADC邮箱约束绑定，增加覆盖检查及10项门禁自检。setup/hold为正，PLL与SDRAM严重告警仍未解决，严格验收failed。见[本轮验收记录](project/docs/td-acceptance-20261023.md)。本轮未下载新位流。
