@@ -15,6 +15,13 @@ set_pin_assignment	{ key_n[5] }	{ LOCATION = K15; IOSTANDARD = LVCMOS33; PULLTYP
 set_pin_assignment	{ key_n[6] }	{ LOCATION = H15; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # J1 pin 25 GPIOA_22  K7
 set_pin_assignment	{ key_n[7] }	{ LOCATION = K16; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # J1 pin 27 GPIOA_24  K8
 
+# ---- 板载按键（手册 ⑯：KEY1=A2 KEY2=B2 KEY3=B1 KEY4=C1，按下为低电平）----
+# KEY1(A2) 是产品的复位脚，本测试不接。这三颗与面板按键走同一套显示，
+# 用来分清"板载键按不动"到底是按键本身还是面板接线的问题。
+set_pin_assignment	{ key_b_n[0] }	{ LOCATION = B2; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # KEY2
+set_pin_assignment	{ key_b_n[1] }	{ LOCATION = B1; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # KEY3
+set_pin_assignment	{ key_b_n[2] }	{ LOCATION = C1; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # KEY4 = 产品里的模式键
+
 # ---- 以下为按键测试顶层用到的其余引脚，取自产品 pin.adc ----
 set_pin_assignment	{ clk }	{ LOCATION = R7; IOSTANDARD = LVCMOS33; PULLTYPE = NONE; }
 set_pin_assignment	{ seg_data[0] }	{ LOCATION = C15; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
