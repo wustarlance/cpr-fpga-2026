@@ -42,10 +42,22 @@ module sd_card_bmp #(
     input                       pixel_ready,
     output                      write_en,
     output [31:0]               write_data,
-    output                      SD_nCS,
-    output                      SD_DCLK,
-    output                      SD_MOSI,
-    input                       SD_MISO
+
+    /* ------------------------------------------------------------------
+     * SD 扇区读从接口
+     *   原来本模块内部缩着一份 sd_card_top 独占 SD 引脚，WAV 播放没有通道。
+     *   现改为：sd_card_top 提到顶层，本模块与 wav_audio_sd_top 通过
+     *   sd_sec_arbiter 分时共享同一条扇区读通道（BMP 优先、WAV 让路）。
+     * ------------------------------------------------------------------ */
+    input                       sd_sec_ready,          // 总线空闲可接受请求
+    input                       sd_sec_read_error,     // 扇区读错误
+    input                       sd_init_done,          // SD 卡初始化完成
+    input  [7:0]                sd_sec_read_data,      // 扇区数据
+    input                       sd_sec_read_data_valid,// 数据有效
+    input                       sd_sec_read_end,       // 本扇区结束
+    output                      sd_sec_read,           // 发起读请求（单拍）
+    output [31:0]               sd_sec_read_addr,      // 扇区地址 LBA
+    output                      sd_read_cancel         // 中止当前读（abort_sd）
 );
 
 wire key_next_press;
@@ -58,16 +70,16 @@ always @(posedge clk or posedge rst) begin
     else auto_sync <= {auto_sync[0],external_auto};
 end
 
-wire             sd_sec_read;
-wire [31:0]      sd_sec_read_addr;
-wire [7:0]       sd_sec_read_data;
-wire             sd_sec_read_data_valid;
-wire             sd_sec_read_end;
 wire             bmp_data_wr_en;
 wire [23:0]      bmp_data;
-wire             sd_init_done;
 wire             bmp_ready;
 wire sd_ready, sd_read_error, abort_sd, operation_error;
+
+/* 从接口 → 内部原有信号名（保持后续逻辑一字不改） */
+assign sd_ready       = sd_sec_ready;
+assign sd_read_error  = sd_sec_read_error;
+assign sd_read_cancel = abort_sd;
+
 wire [2:0] operation_error_code;
 wire [3:0] bmp_state_code;
 reg cancel_load;
@@ -624,28 +636,7 @@ bmp_read #(.WAIT_TIMEOUT_CYCLES(READER_TIMEOUT_CYCLES)) bmp_read_m0(
 
 end endgenerate
 
-sd_card_top #(.TOKEN_TIMEOUT_CYCLES(TOKEN_TIMEOUT_CYCLES),
-              .SPI_TIMEOUT_CYCLES(SPI_TIMEOUT_CYCLES)) sd_card_top_m0(
-    .read_cancel(abort_sd), .sd_sec_ready(sd_ready),
-    .sd_sec_read_error(sd_read_error),
-    .clk                    (clk),
-    .rst                    (rst),
-    .SD_nCS                 (SD_nCS),
-    .SD_DCLK                (SD_DCLK),
-    .SD_MOSI                (SD_MOSI),
-    .SD_MISO                (SD_MISO),
-    .sd_init_done           (sd_init_done),
-    .sd_sec_read            (sd_sec_read),
-    .sd_sec_read_addr       (sd_sec_read_addr),
-    .sd_sec_read_data       (sd_sec_read_data),
-    .sd_sec_read_data_valid (sd_sec_read_data_valid),
-    .sd_sec_read_end        (sd_sec_read_end),
-    .sd_sec_write           (1'b0),
-    .sd_sec_write_addr      (32'd0),
-    .sd_sec_write_data      (8'd0),
-    .sd_sec_write_data_req  (),
-    .sd_sec_write_end       ()
-);
+/* sd_card_top 已提到顶层（与 WAV 共享），本模块只保留扇区读从接口 */
 
 endmodule
 

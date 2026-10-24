@@ -53,6 +53,13 @@ project/ip/**     -text
 DEMO/**           -text
 99_归档/**        -text
 
+#    加密 RTL（IEEE-1735，`pragma protect` + AES）—— 任何换行符转换
+#    都会改写密文字节，导致解密失败（TD 报 HDL-8007 non-printable
+#    character 或直接出现乱码）。这类文件必须按二进制处理。
+#    2026-10-24：project/rtl/HDMI/ 下那份就因为在 05_lab_ex/ 保护范围之外，
+#    被 `*.v text eol=lf` 转坏过；密文本来不是给人看的文本。
+*.enc.v           -text
+
 #    以下是【我们改过的厂商文件】—— 故意保留 CRLF，这样可以直接
 #    和 05_lab_ex/ 下的原始例程 diff，不需要 --strip-trailing-cr。
 #    这对"区分参考依赖与自研部分"这件事有实际用处。

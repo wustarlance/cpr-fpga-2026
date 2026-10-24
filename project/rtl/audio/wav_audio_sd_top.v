@@ -76,6 +76,7 @@ module wav_audio_sd_top #(
 
     /* ---- SD 扇区读从接口（接框架里唯一那份 sd_card_top，只读不写） ---- */
     input  wire        I_sd_init_done,
+    input  wire        I_sd_sec_ready,      // 总线空闲可发请求（来自 sd_sec_arbiter）
     output wire [31:0] O_sd_sec_addr,
     output wire        O_sd_sec_read,
     input  wire [7:0]  I_sd_sec_data,
@@ -121,7 +122,7 @@ wav_audio_path #(
     .I_sd_clk        (I_sd_clk),
     .I_sd_rst        (I_sd_rst),
     .I_sd_init_done  (I_sd_init_done),
-    .I_sd_sec_ready  (1'b1),          // 厂商控制器无 ready，恒 1（bmp_read 也是立即发请求）
+    .I_sd_sec_ready  (I_sd_sec_ready),  // 由顶层仲裁器给出：BMP 占用时拉低，WAV 自动等
     .I_sd_sec_data   (I_sd_sec_data),
     .I_sd_sec_valid  (I_sd_sec_valid),
     .I_sd_sec_end    (I_sd_sec_end),

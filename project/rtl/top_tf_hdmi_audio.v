@@ -438,10 +438,91 @@ sd_card_bmp #(
     .pixel_ready       (sd_card_pixel_ready),
     .write_en          (sd_card_write_en),
     .write_data        (sd_card_write_data),
-    .SD_nCS            (sd_ncs),
-    .SD_DCLK           (sd_dclk),
-    .SD_MOSI           (sd_mosi),
-    .SD_MISO           (sd_miso)
+
+    /* ---- SD 扇区读从接口（与 WAV 共享顶层唯一那份 sd_card_top） ---- */
+    .sd_sec_ready          (sd_arb_bmp_ready),
+    .sd_sec_read_error     (sd_read_error),
+    .sd_init_done          (sd_init_done),
+    .sd_sec_read_data      (sd_bmp_data),
+    .sd_sec_read_data_valid(sd_bmp_valid),
+    .sd_sec_read_end       (sd_bmp_end),
+    .sd_sec_read           (sd_arb_bmp_read),
+    .sd_sec_read_addr      (sd_arb_bmp_addr),
+    .sd_read_cancel        (sd_bmp_cancel)
+);
+
+/* ========================================================================== */
+/* SD 控制器：顶层唯一一份，BMP 画面与 WAV 音频经仲裁器分时共享                */
+/* ========================================================================== */
+wire        sd_ready_raw;
+wire        sd_read_raw;
+wire [31:0] sd_addr_raw;
+wire [7:0]  sd_byte_data;
+wire        sd_byte_valid;
+wire        sd_byte_end;
+wire        sd_init_done;
+wire        sd_read_error;
+wire        sd_bmp_cancel;
+
+wire        sd_arb_bmp_ready, sd_arb_wav_ready;
+wire        sd_arb_bmp_read,  sd_arb_wav_read;
+wire [31:0] sd_arb_bmp_addr,  sd_arb_wav_addr;
+wire [7:0]  sd_bmp_data,      sd_wav_data;
+wire        sd_bmp_valid,     sd_wav_valid;
+wire        sd_bmp_end,       sd_wav_end;
+
+sd_card_top #(
+    .TOKEN_TIMEOUT_CYCLES (10_000_000),   // 100 MHz 下 100 ms
+    .SPI_TIMEOUT_CYCLES   ( 1_000_000)    // 100 MHz 下 10 ms
+) u_sd_card_top (
+    .clk                    (sd_card_clk),
+    .rst                    (rst_sd),
+    .read_cancel            (sd_bmp_cancel),
+    .sd_sec_ready           (sd_ready_raw),
+    .sd_sec_read_error      (sd_read_error),
+    .SD_nCS                 (sd_ncs),
+    .SD_DCLK                (sd_dclk),
+    .SD_MOSI                (sd_mosi),
+    .SD_MISO                (sd_miso),
+    .sd_init_done           (sd_init_done),
+    .sd_sec_read            (sd_read_raw),
+    .sd_sec_read_addr       (sd_addr_raw),
+    .sd_sec_read_data       (sd_byte_data),
+    .sd_sec_read_data_valid (sd_byte_valid),
+    .sd_sec_read_end        (sd_byte_end),
+    .sd_sec_write           (1'b0),
+    .sd_sec_write_addr      (32'd0),
+    .sd_sec_write_data      (8'd0),
+    .sd_sec_write_data_req  (),
+    .sd_sec_write_end       ()
+);
+
+sd_sec_arbiter u_sd_sec_arbiter (
+    .clk        (sd_card_clk),
+    .rst        (rst_sd),
+
+    .I_sd_ready (sd_ready_raw),
+    .O_sd_read  (sd_read_raw),
+    .O_sd_addr  (sd_addr_raw),
+    .I_sd_data  (sd_byte_data),
+    .I_sd_valid (sd_byte_valid),
+    .I_sd_end   (sd_byte_end),
+
+    /* ch0：BMP —— 绝对优先，永不丢请求 */
+    .O_ch0_ready(sd_arb_bmp_ready),
+    .I_ch0_read (sd_arb_bmp_read),
+    .I_ch0_addr (sd_arb_bmp_addr),
+    .O_ch0_data (sd_bmp_data),
+    .O_ch0_valid(sd_bmp_valid),
+    .O_ch0_end  (sd_bmp_end),
+
+    /* ch1：WAV —— 请求被吸收，BMP 空闲时补发 */
+    .O_ch1_ready(sd_arb_wav_ready),
+    .I_ch1_read (sd_arb_wav_read),
+    .I_ch1_addr (sd_arb_wav_addr),
+    .O_ch1_data (sd_wav_data),
+    .O_ch1_valid(sd_wav_valid),
+    .O_ch1_end  (sd_wav_end)
 );
 
 seg_decoder seg_decoder_m0(
@@ -606,43 +687,116 @@ sdram U3(
     .Sdr_rd_dout       (Sdr_rd_dout)
 );
 
-// ===================== 音频：内部 I2S 音源 =====================
-// 教学/展播模式播放 do-re-mi 音阶作为背景音；按压训练模式锁定 A4 440 Hz，
-// 使每一次按压提示音的音高一致。修复前节拍音会跟随音阶漂移，同一组按压
-// 每拍的音高都不同，听感上不成立为节拍器。
-cpr_audio_tone_i2s #(
-    .AMP              (24'sd2000000),
-    .NOTE_HOLD_FRAMES (24000),        // 0.5 s / 音符 @ 48 kHz
-    .METRONOME_NOTE   (3'd5)          // la / A4 440 Hz
-) u_cpr_audio_tone (
-    .I_mclk      (audio_mclk),
-    .I_rst       (rst_audio),
-    .I_metronome (app_mode == 2'd2),
-    .O_i2s_BCLK  (audio_i2s_bclk),
-    .O_i2s_LRCK  (audio_i2s_lrck),
-    .O_i2s_DOUT  (audio_i2s_dout)
+// ===================== 音频：SD 卡 WAV 播放 → HDMI 数据岛 =====================
+// 变更说明（2026-10-24）：
+//   原先是内部 do-re-mi 音调发生器 → I2S 三线 → I2S_receiver 解码 → HDMI 核。
+//   现改为直接播 SD 卡里的 WAV 文件：PCM 24bit 直连 HDMI 核的音频口，
+//   ACR（N/CTS）包由本模块内部按 48 kHz 生成，因此
+//   I2S_receiver 与 audio_arc_calculate 两级全部省去。
+//
+// SD 卡与 BMP 共用顶层唯一那份 sd_card_top，经 sd_sec_arbiter 分时仲裁：
+//   BMP 优先（画面不能花），WAV 让路（FIFO 约 21 ms 缓冲，切页瞬间可能欠载）。
+//
+// 播放控制（2026-10-24 新增 SW4）：
+//   SW1 (C8, dip_sw[0]) = 循环播放，1 = 单文件循环
+//   SW4 (C5, dip_sw[3]) = 播放 / 停止开关：**拨动一次切换一次**
+//   SW2/SW3 已被对比度（contrast_controls）占用，不做播放控制。
+//
+// 为什么用"拨动切换"而不是"拨上=停、拨下=播"：
+//   板卡 DEMO（2_Example/.../8_key_sw/key_sw.adc）把 C8/C7/C6/C5 这四位拨码和
+//   A2/B2/B1/C1 四个按键接在同一组带上拉的输入里，注释写 "when the keydown,
+//   the value is 0"，即闭合 = 低。但拨码"拨上"到底是闭合还是断开，资料里没有
+//   唯一结论（本工程旧注释写 active high，与上拉电路矛盾）。若按固定极性判，
+//   极性一旦判反，上电就是静音。改成边沿切换后，开关停在哪个位置都不影响
+//   上电播放，两种极性都能用。
+//
+// 上电 50 ms 内不响应拨动：input_filter 要 20 ms 才稳定，这段时间的边沿是
+// 上电建立过程，必须忽略，否则开关停在某个位置会在开机瞬间把状态翻掉。
+wire        sw4_lvl;
+
+input_filter #(.WIDTH(1), .STABLE_MS(20)) u_wav_sw4 (
+    .clk   (video_clk),
+    .rst_n (app_rst_n),
+    .tick_ms (tick_ms),
+    .raw   (dip_sw[3:3]),
+    .level (sw4_lvl),
+    .rise  ()
 );
 
-I2S_receiver u_I2S_receiver(
-    .I_clk              (video_clk),
-    .I_rst              (rst_video),
-    .I_i2s_BCLK         (audio_i2s_bclk),
-    .I_i2s_LRCK         (audio_i2s_lrck),
-    .I_i2s_DOUT         (audio_i2s_dout),
+reg        sw4_lvl_d;
+reg  [6:0] wav_init_ms;
+reg        wav_play_en;
+
+wire wav_ctrl_ready;
+
+always @(posedge video_clk or negedge app_rst_n) begin
+    if (!app_rst_n) begin
+        sw4_lvl_d   <= 1'b0;
+        wav_init_ms <= 7'd0;
+        wav_play_en <= 1'b1;              // 上电默认播放
+    end
+    else begin
+        sw4_lvl_d <= sw4_lvl;             // 已消抖电平，延迟一拍做边沿检测
+        if (tick_ms && (wav_init_ms < 7'd60))
+            wav_init_ms <= wav_init_ms + 1'b1;
+        // 拨动一次切换一次；上电 50 ms 内的边沿属于建立过程，被 ready 挡掉
+        if (wav_ctrl_ready && (sw4_lvl ^ sw4_lvl_d))
+            wav_play_en <= ~wav_play_en;
+    end
+end
+
+assign wav_ctrl_ready = (wav_init_ms >= 7'd50);
+wire wav_sw4_edge = wav_ctrl_ready && (sw4_lvl ^ sw4_lvl_d);
+
+wire        wav_ready;
+wire        wav_error;
+wire [3:0]  wav_error_code;
+wire [3:0]  wav_state;
+
+wav_audio_sd_top #(
+    .START_SECTOR (32'd12000),   // WAV 首扇区，必须与烧卡工具 --lba 一致
+    .ACR_N        (6144)         // 48 kHz
+) u_audio_wav (
+    .I_sd_clk        (sd_card_clk),
+    .I_mclk          (audio_mclk),
+    .I_video_clk     (video_clk),
+    .I_sd_rst        (rst_sd),
+    .I_mclk_rst      (rst_audio),
+    .I_video_rst     (rst_video),
+
+    .I_play          (wav_play_en),    // SW4 拨动一次切换；上电 = 播放
+    .I_stop          (wav_sw4_edge),   // 每次拨动回到文件开头（单拍）
+    .I_mute          (~wav_play_en),   // 停止时静音（帧节拍照常走，HDMI 流不断）
+    .I_loop          (dip_sw[0]),      // SW1 = 循环
+
+    .I_sd_init_done  (sd_init_done),
+    .I_sd_sec_ready  (sd_arb_wav_ready),
+    .O_sd_sec_addr   (sd_arb_wav_addr),
+    .O_sd_sec_read   (sd_arb_wav_read),
+    .I_sd_sec_data   (sd_wav_data),
+    .I_sd_sec_valid  (sd_wav_valid),
+    .I_sd_sec_end    (sd_wav_end),
+
     .O_audio_valid      (audio_valid),
     .O_audio_left_data  (audio_left_data),
-    .O_audio_right_data (audio_right_data)
-);
+    .O_audio_right_data (audio_right_data),
+    .O_acr_valid        (acr_valid),
+    .O_acr_cts          (acr_cts),
+    .O_acr_n            (acr_n),
 
-audio_arc_calculate #(
-    .ACR_N         (6144)
-) u_audio_arc_calculate (
-    .I_clk         (video_clk),
-    .I_rst         (rst_video),
-    .I_audio_valid (audio_output_valid),
-    .O_acr_valid   (acr_valid),
-    .O_acr_cts     (acr_cts),
-    .O_acr_n       (acr_n)
+    .O_wav_ready      (wav_ready),
+    .O_wav_error      (wav_error),
+    .O_wav_error_code (wav_error_code),
+    .O_wav_state      (wav_state),
+    .O_file_size      (),
+    .O_sample_rate    (),
+    .O_channels       (),
+    .O_bits           (),
+    .O_frame_total    (),
+    .O_play_pos       (),
+    .O_play_end       (),
+    .O_buf_level      (),
+    .O_underrun       ()
 );
 
 // ===================== RGB/DE 转 AXIS 视频 =====================
