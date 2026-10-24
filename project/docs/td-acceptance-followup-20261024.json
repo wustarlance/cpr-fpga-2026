@@ -1,0 +1,2248 @@
+{
+  "recorded_utc": "2026-10-24T10:06:58.892358+00:00",
+  "device": "EG4S20BG256",
+  "tool_version": "6.2.168116",
+  "tool": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\anlu\\td\\bin\\td_commands_prompt.exe",
+  "tool_sha256": "e2e04ada5e256dccd017240c0f4dcface7f96dca67cde0e56e606ac0e02f827a",
+  "base_commit": "9b1a5feaeeef664f11cad37c7aa69414135cf565",
+  "strict_acceptance_status": "failed",
+  "requested_items": {
+    "pll_feedback": {
+      "offline_audit_executed": true,
+      "closure": "open",
+      "reason": "Global-net classification and USR-6135 disagree; supported physical feedback path not yet established"
+    },
+    "sdram_clock_and_placement": {
+      "offline_audit_executed": true,
+      "closure": "open",
+      "reason": "PHY-5079/PHY-7002 and 40 MHz operating condition require vendor-specific evidence"
+    },
+    "interface_timing": {
+      "offline_audit_executed": true,
+      "closure": "open",
+      "reason": "Port/pin inventory completed; actual SD/board/HDMI/DDC timing budgets missing"
+    }
+  },
+  "new_runner_full_two_top_build_executed": true,
+  "runner_sha256": "b4dee1e8fb5b07ed06c7ac3fbbcb08c93ff7c604d6fd7b96f460f8dc8c33a5b3",
+  "build_results_sha256": "a2bc54b68971b676929e4cf3878997f055bdaba493ef45a9cf4da2c1c76cd544",
+  "build_inputs_still_match_all_137_recorded_files": true,
+  "build_source_manifest": {
+    "05_lab_ex/lab_ex5_i2s/src/td_project/HDMI1.4b_Transmitter_v1.0.al": "577825e53c3f894a3ee824542b1449ef73212d2561a3f78ce2857f1d0e7db6a1",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/AUDIO_SAMPLE_ROM.ipc": "650ab6133bd5b35260d34e3e984d15f0bfb45b74b8a88d323d46bb4ceab6aacc",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/AUDIO_SAMPLE_ROM.v": "0bc4a18dfd8d598103faea82e9f02a85beaba5a3e21047a4e6baab063ca005bd",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/AUDIO_SAMPLE_ROM.vhd": "4c3d4ea17939b4d07a8d95c006174f94ced027b91daae5fd065e094d1e8071af",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL.ipc": "8cb6df3a1bb99cf2f95f9a535d7f33213b837207b36e336848a6ed0db29ab8b5",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL.v": "4e873eef9499fa93508d8cf2cac90eea0e16c6f649ae29502cdc4c5886cd32aa",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL.vhd": "e46792bb3d2b72621b18b323c472213fd5880eb29e5e85f0b7d50e5117e47494",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL_HDMI_AUDIO.ipc": "ce38f1b2917ef9df107be46e716767b7c8a78af079412b2988cf266b589bd645",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL_HDMI_AUDIO.v": "1e174c1dc4edbce9c61d6b390aca3b7b94022b60995a92981d5278247b7f5867",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL_HDMI_AUDIO.vhd": "1b5025b3fe29d4428c6aa58ef99e7c5d7c5d697e74dacd8ac8f2d068290e0e2f",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/build_sdram40.tcl": "e2f72af344b526c8adadebd1f265db4a689adb24a546b33f10836160ed9b7317",
+    "05_lab_ex/lab_ex5_i2s/src/td_project/rebuild_sdram40.tcl": "f4dc88dcee7f20b2a67b466266ed79bd26826f0f6f9c32f057ebc19b8e986312",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/constraints_source/pin.adc": "bfec796ee0ebf506293d5d317fc9e3868197bcdd4c5c376ab9ba1061a4982ec8",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/constraints_source/timing.sdc": "e29457c47c245063ba1b19475e098a42c75f84a9072d299bb83f4435867f21b3",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/I2S_receiver.v": "08904598b42c2e1a4836cd9fb3293bc6c791ea2f79e35c7663a33127dc97f47b",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_256.tcl": "5807155b00f2f749328339e01a85b4bb836f91598286dd167513836b60af33db",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_256.v": "dab43a76a35e21df4064a25edb940699b041427d70bae89cc03c5280b7bf4bf8",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_256.vhd": "50d6d10017b63e1ce5a77bad4a80e9a3de81402909d30ca0818674a1887eb46d",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_256_sim.v": "55b81ab3aa699902b6f11fe766658b852e0740844879a942dca81cd57b40f729",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.ipc": "9df57c0b914f2f6222f88e356528947224fddb866be2468f1391c26d4e60d371",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.tcl": "5807155b00f2f749328339e01a85b4bb836f91598286dd167513836b60af33db",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.v": "3d29b06655482184a9ad157b9bd71b79032debe3199168d3b4d9570fdac31835",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.ipc": "a74955dc68a02bbfb36780127008c4737ec80e0888a4648e98e6eac9f5d2c349",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.tcl": "5807155b00f2f749328339e01a85b4bb836f91598286dd167513836b60af33db",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.v": "7c3ee41f30be75ae686c9abff3a840fc5439209cda077e4aa275eac0dab9f564",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sdram.ipc": "c3092876d4a66739dfc52cbda4fe84eab75099218f65db7e7d922c41dee1c201",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sdram.v": "1487e8583bbf52fe6d079a2854c10ebff2e569a3872a9088c1c9717ba14d17fe",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sdram.vhd": "853170e99291fb6b2b1bf3f5f20cd1dd0cc723052864147810b674e18cd70705",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sys_pll.ipc": "5b1cca631f0b6d2ddb06c4233fe5c4d628ee4d46242c6b51ae556abc2f0f4bd6",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sys_pll.v": "2efb6b09f82d4e981ea7734991dcee934c6cb4f65c4d84850adda3850f662f86",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/sys_pll.vhd": "405ffc800c075f9ec76d598c605ee79c51da1996b368891d5e1a6e35aa7711d1",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/video_pll.ipc": "b717f646067025a69b4021ed85adeeb6531fad881bce5a49fcb2171ccf401076",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/video_pll.v": "d5a2b3d3d0618d19619c36af0143f8bf9338415eef2eadd22456510ade9c6092",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/video_pll.vhd": "4c23a8a81b28c81bed4834e1e9a757db01eebd360c7fe3a7066f8f8f7b6a36c4",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/ax_debounce.v": "93aa6dd38051250cc7f777c88466ac180afe9bcdce7838b9ea506455d8cbc9b8",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/bmp_read.v": "6029cbf618172a166e7e05554c5d7516db1bab94a8a018eb0fc278fd1e94bf5f",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/color_bar.v": "afe1f56714ec58d2477ba1717e5a36c5a0da5fe5c07d70d11aa5ace710c4b152",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/frame_fifo_read.v": "5952075b213ec638f5c9bb238d4d4162685f9e9b5e752674f0e68a92dbec83ac",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/frame_fifo_write.v": "ef0f46443b6f79ebb9fbba8f39b11dca90ee7e9ae4637c1d45786744d964e540",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/frame_read_write.v": "f9d7d04d81a8c8a3e226f855387971cf2308421bdd4c08c0ab465e9e40aa5cbd",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_bmp.v": "5319465074e1eb7da1f29d8454b81054bf7e633dd5cc6d7b40f232eeb9c1dadc",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_cmd.v": "388692b7e026805fc8f800c3768108bd813a819ef47a0758ee4a14751b5af176",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_sec_read_write.v": "c245c07e3b0056808d86e06aad74348494e2a7050d493a3d4141d97ccf115203",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sd_card_top.v": "d5031b5b809a8df0a2c8cca194a511c5f74236e810cbe5e8436359f9e5f26a39",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/sdram.v": "2d985c2477384e677c25714241e1a50206def8916aa03189a5b313b2d22dfc99",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/seg_decoder.v": "4592b6e4d2e9e8b7e4ab5266d850d30e43537ab9c4157d4221e3f8dfd342decd",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/seg_scan.v": "08759c329c33cdb7a6070e0b46773f0a6c9c8052b51652dec29406b9a9dac1e3",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/spi_master.v": "37f7a21144fa5cca3cc5c3b5f68a5ad40b3108336b600e45a1367734ac61403c",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/video_define.v": "77748966850a8f5af0d77f2cdb08006088ba5e1a31b98391fba6cc61c5247da2",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/video_delay.v": "f47c4b63f8baa6d8874c87dca5b72dfdadd19f4a107403da98752bce98936433",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD/video_timing_data.v": "c6f75501e98dd5995f687aafb40455beffe45b426137b5089a73ac3a036f7282",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/audio_arc_calculate.v": "552d8d86afd237666b30ae08f31247808e89eb024efde5efc670b82eb617a7dc",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi1.4b_transmitter_core/hdmi_1_4b_transmitter_core_wrapper.enc.v": "867e0b0bdd874bc383d00918c9e1be3fe01edf41f343b6a0d73e262776596a63",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_audio_tone_i2s_64fs.v": "729cb1635091b7630e5b68306e9f51fff4e3e06bae8ce08cc3d7323b3fb9d5cf",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_audio_tone_pcm_scale.v": "0ff1ab2b39e1294c3aae814bf5a252c47c284c2cdb9568adf02d3c6cfd8ddd0b",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_phy_warpper.v": "416b082b0987001bdbc0a7e20a557cb8fb1dca34e25dc881e6d28a8cb3cf4300",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/global_def.v": "73b82ea06af8a9e8abc36c2f3eb4b72491988022d44a0cd7e993abe1d5fb9e68",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/sdr_as_ram.enc.v": "767dbdfbd83d42223b77dfa7deab42ce8216a8fd6f6cb41b7e7593d9a345ba57",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/sdr_init_ref.enc.v": "6da5945f4af793610d0d64c65c7e5d2d1c86ed4c11bc5fdeacd27eb03178b9f6",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/sdr_wrrd.enc.v": "c7d7fe07d75f66aa88d9f986b3006319c995162434f104f9990664b374cdfdd2",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/key_remove_shakes.v": "8832f59e7ba94bfb8cf31e4f5a772ef7177d5257a5a2532d53cbfa1d9b7f5cd9",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v": "de9529321354f04837e051d0ec1681cf44783d4be3284703a788e081147500bc",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/python/audio_1khz_24bit_48deep.mif": "dcc918e3b442485a933831368567962bb39dc1060b1bcfada16033e050be34ed",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/python/audio_sine_24bit_48deep_scale8.mif": "aa20e68905fc41a094cf37e218489d3745eb6e46c62dabe772547961a7db64cf",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/rom/i2s_rom_player_single_pll_fix64_rom_ip.v": "f8e7c9c56c6a21154580e030dada604572d89a1e75e8945125b2ea0dd4b3094b",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/startup_pulse.v": "396e1e56febb8028339e646bc2f06b83e07ab11ef840e447422fb941956741c9",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/test/design_top_i2s_test_pll.v": "b6396c3e90c67d7e8aad8c83bfa8a1aa0b826db8f74a26936549cae57e86668c",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/test/i2s_test_tone_gen_pll.v": "7614d4ca84c007a568e798b7c8cbc31eadd8a064bee53101194df13edb71e02f",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/top_tf_hdmi_audio.v": "9dd5befa87d128be39ec7a70eab0f04c78440d11d8a6a18a789ccd535f90f3ab",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/video_rgb_to_axis_640x480.v": "1c8fc26c789f87227036bea034f1ab6fc5633f2ab2684be422c54687a290fb96",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/video_source_test.v": "39cc05c9684a594d4254d11e66e97344053ab75bdb00f3f5a301643fd7aadbfc",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/ip_source/pll.ipc": "5d632bad332785258c35ca41ce2b4a2a550e6bfd75be0b63a3f72403ca2ce11e",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/ip_source/pll.v": "202799f886f12cfc1d837afa932328b636c6c3dee70167be68c084133647b39c",
+    "05_lab_ex/lab_ex5_i2s/src/user_source/ip_source/pll.vhd": "a8166865b5aef9caaee525d4633aa1dec4172244a7bbff239e0d658c0ca775e4",
+    "project/build.tcl": "ed3dc4a6cedbf95a64309f4d25ee9efdd7155969e607d949b30cdd8c88d582a6",
+    "project/constraints/adc_mailbox.sdc": "026fd4b167a821e6e5bfcc94218c3e234df991e1639ed1bd935bb6f38e8ad67b",
+    "project/constraints/audio_metronome.sdc": "788c932ad42be7bd58d7c15e5f02ed3484d634cd526fa0e48efc053683446d40",
+    "project/constraints/page_status.sdc": "671cb216053dfcfed6d867f24cefc64df7a26d07c78adfc0b1937498b07a07a4",
+    "project/constraints/pin.adc": "db42800fd6a10708beeea287dee7bc988973d3168918b91e3be8d41bb4c0b594",
+    "project/constraints/reset_publish.sdc": "5ba20ec676fc9de2725ebb857ed66f21137a9edd463bbc37299922620f295809",
+    "project/constraints/timing.sdc": "e2308d2d69cb1a81aff9072eda1cae368bbebd1294ce336e113c11c614bc7109",
+    "project/ip/sys_pll.ipc": "e929c8544015b0795cf1bdc76baed768fe5908efef6284e07dfd2132158c29c7",
+    "project/ip/sys_pll.v": "9a1a2be0004be8e83d94bb9cce49a8a6a61b2dbf0250f12799f2e30bf0db248a",
+    "project/ip/sys_pll.vhd": "dee7b3b884dff19a5df32f0fb21397ea3fcc1677551405af438eef23872b2ddb",
+    "project/ip/video_pll.ipc": "57fa31571b47057b9877705bd05cd3e60bf41b932857a861c6d489474375ed16",
+    "project/ip/video_pll.v": "57e45a062814673e97773cf6c58ff1629fa45895e30de9d2c2b6bdd30bd9bb13",
+    "project/ip/video_pll.vhd": "8c1dba84a773c75e0c6c5db22ecd99c1cf3e2d203a78c4fda9ca43f4d2497dca",
+    "project/project.al": "4e356f9400ebd35d4b9218f81211d617e2e88cfb10f89f9fec811e2f061f59f6",
+    "project/rebuild.tcl": "a300d314fd1e23fb321fcb86dd126b149515cd2e5348925afddb122e3edda214",
+    "project/rtl/SD/sd_card_bmp.v": "341ed4ee1b1f829cf715f0a1a297895b0ff596178f560ceeffa371ca4986543f",
+    "project/rtl/adc_ctrl.v": "8fac64554c5ba4037cf4d69d2bdb782bdb1b3d2345969d47233a87e3188b3051",
+    "project/rtl/brightness_rgb.v": "8b03a1f467c1ea65e02d69e4e0b30a8ef6f4c0d0005a940a066696dbc09decb0",
+    "project/rtl/contrast_controls.v": "474284faf3c70a3452da56ba890b2de851a7c84ab4f659ab2575181d3ff0f2cb",
+    "project/rtl/contrast_rgb.v": "6fbefe2289d7da051cac690362455f614aa3fa39412d467907a7d84013cd1cf7",
+    "project/rtl/cpr_audio_tone_i2s.v": "d304c159a45e72edfac7d20cb19eac1d680fa812da6cb357af26058525619de4",
+    "project/rtl/cpr_control.v": "69e592a2677f2c5055d3bb6c9bbde48891b5d7c7d26e79f2d379ed401cba8677",
+    "project/rtl/cpr_font16_rom.v": "45063f5a0d7e673deb999071db6016b55b35833313e4a752d4c903d7a390e8b1",
+    "project/rtl/cpr_overlay.v": "5b0a4526041f8b1a085878ba551cf39bb77d04a2bbbe1db3099912e50aeb2654",
+    "project/rtl/cpr_page_manager.v": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528",
+    "project/rtl/cpr_seg_scan.v": "50ec694ebc7f4185706d443fd523bba8762abcdcdd722a1abeac1ff9835287b1",
+    "project/rtl/cpr_sensor_path.v": "87cc872e403e416766bcc83426e48345f9029e46dcedd587e7b3483f6000e825",
+    "project/rtl/cpr_subtitle_rom.v": "b8a78731cfb0ffd241214edcc501501c62ef23a0670217167cca5f2b275f9468",
+    "project/rtl/cpr_text_zh.v": "960657b5043e7e2059d79ddfee7e84acb436172e673cd3e83dc24e08eefbe924",
+    "project/rtl/cpr_zh_strings.v": "3d2044f11fdb75f37892e0e97eba3ab0654987e5608323bc206dd6fb31115a50",
+    "project/rtl/font5x7_rom.v": "9dbddde603102ad2b31fa342ff765c58b838e9bab296d39d24dd0f790696bd0d",
+    "project/rtl/frame_buffer_publish.v": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f",
+    "project/rtl/input_filter.v": "b2cec007b995a1d4ccefae1beb5eb89cba01d007879d1bc895fc3f0e4723cfe9",
+    "project/rtl/page_status_cdc.v": "6a5c566aab8e9f88be3a4fa3c3c663ae1d3f05614bc97eca2d82a3b7c3be84d2",
+    "project/rtl/peak_detect.v": "9da7c8aeea140535ae4cbf64bc6e4af13bfe9421661c9a8546b87210df3ad198",
+    "project/rtl/pressure_normalize.v": "e5c2391f69c929191ce21069b1da0964b3937fec99f3fe8c1c77bf7d52cdd886",
+    "project/rtl/rate_display_lut.v": "af6fbff04fb7da7c232e4cb19d9c3eb443a5420a0ce0d7bfcc0d554ebc3b8ca3",
+    "project/rtl/reset_release.v": "3b184934ef86e19115ccbfb7467145d338785ea45b0f3f054442eaa8fd68f493",
+    "project/rtl/sample_mailbox.v": "eff0bb85c9301c386bd4b2c9b775cda87c1ea63d8a8f6dcd348dcc3b65eb9f3d",
+    "project/rtl/scroll_text.v": "dcd85f833f74434198a3821385b9d50da1fb25fc4f62d7c7a2b7518482a1073f",
+    "project/rtl/timebase.v": "2ae4bc9d5babd088de41b2584a8ae24a631f1f9da729da09163c68524eb7cdf5",
+    "project/rtl/top_adc.v": "1c02be20a6b2750ffceb894681c1295c73fd3ade1993c8bc8fa490746958a05f",
+    "project/rtl/top_tf_hdmi_audio.v": "aaae94f6d3169b7e49f43ebc055b16642c8638e9b4bb2ea31a20611f7ae75ef0",
+    "project/rtl/training_core.v": "296583e31ed5a857e08a6e5726327809a3ea0277f236da54b45ac4cfe701a72c",
+    "project/rtl/video_rgb_to_axis_640x480.v": "9d87f68659e7e7a8bb4cd0cf44004e95f0005a187194add7f5f570a84e5c28e4",
+    "project/vendor/SD/bmp_read.v": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65",
+    "project/vendor/SD/bmp_read_scaled.v": "b99c70127a7d86c1826a793a99bd90ec173cd9d9dfb3040c7645a8a8f90cda7e",
+    "project/vendor/SD/color_bar.v": "afe1f56714ec58d2477ba1717e5a36c5a0da5fe5c07d70d11aa5ace710c4b152",
+    "project/vendor/SD/frame_fifo_read.v": "8a0c2e6d3a18f2a7d0fa21854bcabbc4f268fd2bcd511c7fef3a9c3877ada4a2",
+    "project/vendor/SD/frame_fifo_write.v": "e242c75760838eb6c0766c23889d760655508f1036d96db3c874c339209eeecc",
+    "project/vendor/SD/frame_read_write.v": "430cb721e68eb7e456f4af03e56a18dbfacddde45763d062aeb0dd33065d2fbb",
+    "project/vendor/SD/sd_card_cmd.v": "377453c600158b40f9a0ea4912d4c42b6ab2d3916e94c053e9be16b999852e83",
+    "project/vendor/SD/sd_card_sec_read_write.v": "76a1b589cead19d940447862912c9fbfc5867e512edd06453cc4cdb61f97a8c4",
+    "project/vendor/SD/sd_card_top.v": "bb45573ea6cf091acd4104ba7c97a174fc84c3102ce5d30bcf9dcc63584196ad",
+    "project/vendor/SD/seg_decoder.v": "4592b6e4d2e9e8b7e4ab5266d850d30e43537ab9c4157d4221e3f8dfd342decd",
+    "project/vendor/SD/seg_scan.v": "08759c329c33cdb7a6070e0b46773f0a6c9c8052b51652dec29406b9a9dac1e3",
+    "project/vendor/SD/spi_master.v": "37f7a21144fa5cca3cc5c3b5f68a5ad40b3108336b600e45a1367734ac61403c",
+    "project/vendor/SD/video_define.v": "77748966850a8f5af0d77f2cdb08006088ba5e1a31b98391fba6cc61c5247da2",
+    "project/vendor/SD/video_delay.v": "f47c4b63f8baa6d8874c87dca5b72dfdadd19f4a107403da98752bce98936433",
+    "project/vendor/SD/video_timing_data.v": "c6f75501e98dd5995f687aafb40455beffe45b426137b5089a73ac3a036f7282",
+    "project/vendor/include/global_def.v": "73b82ea06af8a9e8abc36c2f3eb4b72491988022d44a0cd7e993abe1d5fb9e68",
+    "project/vendor/include/sdr_init_ref.enc.v": "367e7edf2092c153d9fb6d98376c5726a3d1d7373756e8fe7256ad9546c90da5",
+    "project/vendor/sdram.v": "355b23a008108e733fcee2e180b9d66f390fda135c6157a5ed8a37e691021993"
+  },
+  "hardware_programmed": false,
+  "rtl_pll_pins_buttons_changed": false,
+  "retained_board_verified_d123_sha256": "469e20326ea1b0c894b172bbe28497520efc36ea07aea9db6a5faf7340b49f90",
+  "physical_audit_manifest_sha256": "eeece428ae6eea276313b2acacf42cffd747af8fe276a2cdf9e56206bf1ae89f",
+  "interfaces_sha256": "6e360729898c7124a58d3abe968c69cf96b23fa91a15ef4a693cceb1b74f1eec",
+  "python_checks": {
+    "command": "python -m unittest discover -s tests -p \"test_td*.py\" -v",
+    "executed": true,
+    "count": 15,
+    "passed": true,
+    "test_sources_sha256": {
+      "tests/test_td_interface_audit.py": "641f489adf9d5c89b7895e7b3a9dbdc90dd0be4c0d4fa15c60e38be9b2412289",
+      "tests/test_td_report_checks.py": "817a195b76e99a9fef63ce8ff102cdc5244b856a5adc1599405a2731ccaf8a06"
+    }
+  },
+  "tops": [
+    {
+      "top": "top",
+      "status": "failed",
+      "returncode": 0,
+      "td_version": "6.2.168116",
+      "elapsed_seconds": 249.831,
+      "pass_marker": true,
+      "bitstream_sha256": "eb1e58596844dc47a695277c69e2dc470cefe3d2f1ac1f479f73a94912549f0b",
+      "resources": {
+        "lut": {
+          "used": 9580,
+          "available": 19600,
+          "percent": 48.88
+        },
+        "reg": {
+          "used": 5215,
+          "available": 19600,
+          "percent": 26.61
+        },
+        "bram": {
+          "used": 27,
+          "available": 64,
+          "percent": 42.19
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        },
+        "adc": {
+          "used": 0,
+          "available": 1,
+          "percent": 0.0,
+          "report_row_omitted": true
+        }
+      },
+      "errors_or_critical_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "timing_coverage_review": {
+        "status": "needs_review",
+        "blocking_findings": [],
+        "review_findings": [
+          "dummy node: 3",
+          "no input delay: 19",
+          "no output delay: 29",
+          "abnormal input delay: 32"
+        ],
+        "checks": {
+          "1": {
+            "name": "no clock",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "2": {
+            "name": "clock definition",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "3": {
+            "name": "dummy node",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "4": {
+            "name": "invalid constraint",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "5": {
+            "name": "pll/clock buffer clock constraints",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "6": {
+            "name": "combinational loops",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "7": {
+            "name": "soft fifo timing exception constraints",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "8": {
+            "name": "no path constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "9": {
+            "name": "shadowed/ignored timing exception constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "10": {
+            "name": "no input delay",
+            "count": 19,
+            "severity": "MEDIUM"
+          },
+          "11": {
+            "name": "no output delay",
+            "count": 29,
+            "severity": "MEDIUM"
+          },
+          "12": {
+            "name": "partial input delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "13": {
+            "name": "partial output delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "14": {
+            "name": "abnormal input delay",
+            "count": 32,
+            "severity": "MEDIUM"
+          }
+        },
+        "max_delay_rows": [
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_page_status/u_transfer/src_hold[*]}] -to [get_regs {*u_page_status/u_transfer/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 0,
+            "dominated": 0,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_frame_publish/held_index[*]}] -to [get_regs {*u_frame_publish/pending_index[*]}] 25 -datapath_only"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 24.700"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 9.700"
+          }
+        ],
+        "scope": "report coverage only; manual interface, CDC and physical review still required"
+      },
+      "slacks_ns": {
+        "SWNS": 0.103,
+        "STNS": 0.0,
+        "HWNS": 0.004,
+        "HTNS": 0.0
+      },
+      "reports_sha256": {
+        "clock_intersection.rpt": "4e81035c0f3cb0e9b339edf5d99611bd487e4883127fa1607dfa0bcf94c3819b",
+        "clock_summary.rpt": "00341edf77ee9b9dfd79ca51baa138c7bc9095024ab1d68921787d247f929823",
+        "gate.qor": "060fb6e66321db06808a531f91ccdaff20d723f7d313f923bddfdfc4b17bfe97",
+        "gate_area.rpt": "a7efe2144727aa7289754cbf75ec83465b63edd5f0ae5d146cda175e7acc8233",
+        "place.qor": "a490ba19363bc96f91f1a78c94a98284e4bde11335e63c2d7c744ceca51e5518",
+        "route.qor": "33864e4f2aee9c9a57e65dd614dc128227cc78ec3a9b0f83e4e1d55f224bdf90",
+        "rtl_area.rpt": "b1daabb110bff553d514a5f919d3d4050747ca975aa6eb7b43d5a9154be7165b",
+        "td.log": "a61c8e6e2b11af16538169e99f94d75b9ab5da88651c94e24c2d59bcd7812ab1",
+        "timing_check.rpt": "c814b6e96bf375951f691ba1fdac2228854d81fb8cf4cc50e2bed2a949aafefa",
+        "timing_exception.rpt": "4078fd05e4041588ff63c4f8dcf84e7a9e7550f4d10ede9df8acfd819fec23a4",
+        "timing_status.rpt": "2378225910a7b86d5adb1fa18cb30ad818e87215f90d546fd6abcb06d5287a45",
+        "timing_summary.rpt": "c23b76ad49e6b2f54d265796082eeb03763a2e32648fd364231001ce1f2906ec"
+      }
+    },
+    {
+      "top": "top_adc",
+      "status": "failed",
+      "returncode": 0,
+      "td_version": "6.2.168116",
+      "elapsed_seconds": 352.494,
+      "pass_marker": true,
+      "bitstream_sha256": "664a7e98c6868bf41c9f6fd5d8485589e64575b79955d6e26f77c4c9e999b719",
+      "resources": {
+        "lut": {
+          "used": 9879,
+          "available": 19600,
+          "percent": 50.4
+        },
+        "reg": {
+          "used": 5361,
+          "available": 19600,
+          "percent": 27.35
+        },
+        "bram": {
+          "used": 27,
+          "available": 64,
+          "percent": 42.19
+        },
+        "adc": {
+          "used": 1,
+          "available": 1,
+          "percent": 100.0
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        }
+      },
+      "errors_or_critical_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "timing_coverage_review": {
+        "status": "needs_review",
+        "blocking_findings": [],
+        "review_findings": [
+          "dummy node: 4",
+          "no input delay: 19",
+          "no output delay: 29",
+          "abnormal input delay: 32"
+        ],
+        "checks": {
+          "1": {
+            "name": "no clock",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "2": {
+            "name": "clock definition",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "3": {
+            "name": "dummy node",
+            "count": 4,
+            "severity": "HIGH"
+          },
+          "4": {
+            "name": "invalid constraint",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "5": {
+            "name": "pll/clock buffer clock constraints",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "6": {
+            "name": "combinational loops",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "7": {
+            "name": "soft fifo timing exception constraints",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "8": {
+            "name": "no path constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "9": {
+            "name": "shadowed/ignored timing exception constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "10": {
+            "name": "no input delay",
+            "count": 19,
+            "severity": "MEDIUM"
+          },
+          "11": {
+            "name": "no output delay",
+            "count": 29,
+            "severity": "MEDIUM"
+          },
+          "12": {
+            "name": "partial input delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "13": {
+            "name": "partial output delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "14": {
+            "name": "abnormal input delay",
+            "count": 32,
+            "severity": "MEDIUM"
+          }
+        },
+        "max_delay_rows": [
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_mailbox/src_hold[*]}] -to [get_regs {*u_mailbox/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_page_status/u_transfer/src_hold[*]}] -to [get_regs {*u_page_status/u_transfer/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 0,
+            "dominated": 0,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_frame_publish/held_index[*]}] -to [get_regs {*u_frame_publish/pending_index[*]}] 25 -datapath_only"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 24.700"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 9.700"
+          }
+        ],
+        "scope": "report coverage only; manual interface, CDC and physical review still required"
+      },
+      "slacks_ns": {
+        "SWNS": 0.141,
+        "STNS": 0.0,
+        "HWNS": 0.011,
+        "HTNS": 0.0
+      },
+      "reports_sha256": {
+        "clock_intersection.rpt": "3edc86566d4dfebf7000a5321b98976e87c84e8bed5e8d7ef5526498bd8fc76e",
+        "clock_summary.rpt": "457e82aa6266221cb1eab3d87a4d4c45bc097e51b437e40272089c4421b365ec",
+        "gate.qor": "845246dbd41b3a529c7ffaef0511fe2c9eb6390b30e60f5a313bac4e3a7f26a3",
+        "gate_area.rpt": "1130bb4eade0527dd91f30059f690943e686eb6e75609817a670ea6dcf7ecf25",
+        "place.qor": "6f7b84dd43b04c4ba2316c027e1e0f035df75e0537ad0ebb0639b2c93fe691a8",
+        "route.qor": "8f776a211058f3fb780c67270f9b3c26c27494989f68b9a402a1d77366f4751f",
+        "rtl_area.rpt": "e9895d181af8b6bc39b4fca6b77ee86e0401e92897953a1e6263cb61354ad967",
+        "td.log": "8505a2f6bbb17b3d86317ecef8a919fcaad05646956ac12f323e510ae0a39912",
+        "timing_check.rpt": "1d127bdb2cc94484caea9a38bd63ede70178c835c05d8b6ff0509a0ea73689d0",
+        "timing_exception.rpt": "8e9c7843878fafa7a2a8c9846aebb412a358ae172f293f4d4ca3d7a4535a8576",
+        "timing_status.rpt": "8f1db33f802bead5775616ce403eb428b094e74900f93c3c864104399a4cd459",
+        "timing_summary.rpt": "6f2b548976f2a12dbc1f2c625371f00f74804be11bb36755a043cff83494777c"
+      }
+    }
+  ],
+  "physical_details": {
+    "top": {
+      "nets": {
+        "sys_pll_m0/clk0_out": {
+          "route_type": "global",
+          "printed_load_limit": 8,
+          "selected_connection_rows": [
+            "RUN-1001 :   1      |  sys_pll_m0/bufg_feedback.clko  |  EG_PHY_GCLK (GCLK)  |  [  1   1]  |  inf    |  0",
+            "RUN-1001 :   1      |  sys_pll_m0/pll_inst.fbclk                                                  |  EG_PHY_PLL (PLL)       |  [  0   0]  |  inf    |  2099"
+          ]
+        },
+        "video_pll_m0/clk0_out": {
+          "route_type": "global",
+          "printed_load_limit": 8,
+          "selected_connection_rows": [
+            "RUN-1001 :   1      |  video_pll_m0/bufg_feedback.clko  |  EG_PHY_GCLK (GCLK)  |  [ 39  70]  |  inf    |  0"
+          ]
+        },
+        "u_audio_pll/clk0_out": {
+          "route_type": "global",
+          "printed_load_limit": 8,
+          "selected_connection_rows": [
+            "RUN-1001 :   1      |  u_audio_pll/bufg_feedback.clko  |  EG_PHY_GCLK (GCLK)  |  [  1  70]  |  inf    |  0",
+            "RUN-1001 :   1      |  u_audio_pll/pll_inst.fbclk  |  EG_PHY_PLL (PLL)  |  [  0  71]  |  inf    |  2099"
+          ]
+        },
+        "U3/u2_ram/SDRAM_CLK": {
+          "route_type": "global",
+          "printed_load_limit": 8,
+          "selected_connection_rows": [
+            "RUN-1001 :   1      |  U3/sdram_syn_45.do[0]  |  EG_PHY_PAD (PAD)  |  [ 40  41]  |  inf    |  2581"
+          ]
+        }
+      },
+      "sdram_pnl_grid_location": "x20y36_0",
+      "sdram_clock_local_wire_count": 1,
+      "checkpoint_sha256": "8b2ed15ffcd3eabd8d3966f40643bb329ccdd7488e2fa5c6b7504045f0ae71c6"
+    },
+    "top_adc": {
+      "nets": {
+        "u_board/sys_pll_m0/clk0_out": {
+          "route_type": "global",
+          "printed_load_limit": 8,
+          "selected_connection_rows": [
+            "RUN-1001 :   1      |  u_board/sys_pll_m0/bufg_feedback.clko  |  EG_PHY_GCLK (GCLK)  |  [  1   1]  |  inf    |  0",
+            "RUN-1001 :   1      |  u_board/sys_pll_m0/pll_inst.fbclk                                                |  EG_PHY_PLL (PLL)       |  [  0   0]  |  inf    |  2099"
+          ]
+        },
+        "u_board/video_pll_m0/clk0_out": {
+          "route_type": "global",
+          "printed_load_limit": 8,
+          "selected_connection_rows": [
+            "RUN-1001 :   1      |  u_board/video_pll_m0/bufg_feedback.clko  |  EG_PHY_GCLK (GCLK)  |  [ 39  70]  |  inf    |  0"
+          ]
+        },
+        "u_board/u_audio_pll/clk0_out": {
+          "route_type": "global",
+          "printed_load_limit": 8,
+          "selected_connection_rows": [
+            "RUN-1001 :   1      |  u_board/u_audio_pll/bufg_feedback.clko  |  EG_PHY_GCLK (GCLK)  |  [  1  70]  |  inf    |  0",
+            "RUN-1001 :   1      |  u_board/u_audio_pll/pll_inst.fbclk  |  EG_PHY_PLL (PLL)  |  [  0  71]  |  inf    |  2099"
+          ]
+        },
+        "u_board/U3/u2_ram/SDRAM_CLK": {
+          "route_type": "global",
+          "printed_load_limit": 8,
+          "selected_connection_rows": [
+            "RUN-1001 :   1      |  u_board/U3/sdram_syn_45.do[0]  |  EG_PHY_PAD (PAD)  |  [ 40  41]  |  inf    |  2581"
+          ]
+        }
+      },
+      "sdram_pnl_grid_location": "x20y36_0",
+      "sdram_clock_local_wire_count": 1,
+      "checkpoint_sha256": "a304079650ce2cba000bff72b55a625edadfde56f00e463de3b794ae4f233cfb"
+    }
+  },
+  "interfaces": {
+    "scope": "Default top/top_adc USE_EXTERNAL_IO=0 only; classification is not timing signoff",
+    "evidence": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\build\\verify_20261023T154510.336090Z",
+    "pin_file_sha256": "db42800fd6a10708beeea287dee7bc988973d3168918b91e3be8d41bb4c0b594",
+    "auditor_sha256": "3d31b20dfa1d32faf7ca6db391ace4451a85135f257c3d85dce003df9ea66a29",
+    "reports": {
+      "top": {
+        "missing_delay_ports": {
+          "input": [
+            {
+              "port": "HDMI_DDC_SDA",
+              "pin": "R2",
+              "classification": "hdmi_ddc_ip_timing_open"
+            },
+            {
+              "port": "depth_sw_n[3]",
+              "pin": "F13",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "depth_sw_n[2]",
+              "pin": "G12",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "depth_sw_n[1]",
+              "pin": "G11",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "depth_sw_n[0]",
+              "pin": "D14",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "dip_sw[3]",
+              "pin": "C5",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "dip_sw[2]",
+              "pin": "C6",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "dip_sw[1]",
+              "pin": "C7",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "dip_sw[0]",
+              "pin": "C8",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "ext_keys_n[4]",
+              "pin": "K12",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "ext_keys_n[3]",
+              "pin": "J13",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "ext_keys_n[2]",
+              "pin": "J14",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "ext_keys_n[1]",
+              "pin": "H14",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "ext_keys_n[0]",
+              "pin": "H13",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "key1",
+              "pin": "B2",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "key2",
+              "pin": "C1",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "key3",
+              "pin": "B1",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "rst_n",
+              "pin": "A2",
+              "classification": "asynchronous_reset_release_review"
+            },
+            {
+              "port": "sd_miso",
+              "pin": "B14",
+              "classification": "sd_spi_interface_timing_open"
+            }
+          ],
+          "output": [
+            {
+              "port": "HDMI_CLK_P",
+              "pin": "C3",
+              "classification": "hdmi_tmds_serial_interface_timing_open"
+            },
+            {
+              "port": "HDMI_D0_P",
+              "pin": "G5",
+              "classification": "hdmi_tmds_serial_interface_timing_open"
+            },
+            {
+              "port": "HDMI_D1_P",
+              "pin": "F1",
+              "classification": "hdmi_tmds_serial_interface_timing_open"
+            },
+            {
+              "port": "HDMI_D2_P",
+              "pin": "E1",
+              "classification": "hdmi_tmds_serial_interface_timing_open"
+            },
+            {
+              "port": "HDMI_DDC_SCL",
+              "pin": "P2",
+              "classification": "hdmi_ddc_ip_timing_open"
+            },
+            {
+              "port": "HDMI_DDC_SDA",
+              "pin": "R2",
+              "classification": "hdmi_ddc_ip_timing_open"
+            },
+            {
+              "port": "led[3]",
+              "pin": "B12",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "led[2]",
+              "pin": "C10",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "led[1]",
+              "pin": "A3",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "led[0]",
+              "pin": "A4",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "sd_dclk",
+              "pin": "A14",
+              "classification": "sd_spi_interface_timing_open"
+            },
+            {
+              "port": "sd_mosi",
+              "pin": "A13",
+              "classification": "sd_spi_interface_timing_open"
+            },
+            {
+              "port": "sd_ncs",
+              "pin": "A12",
+              "classification": "sd_spi_interface_timing_open"
+            },
+            {
+              "port": "seg_data[7]",
+              "pin": "A6",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[6]",
+              "pin": "A7",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[5]",
+              "pin": "A8",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[4]",
+              "pin": "B5",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[3]",
+              "pin": "A5",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[2]",
+              "pin": "B6",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[1]",
+              "pin": "C16",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[0]",
+              "pin": "C15",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[7]",
+              "pin": "D11",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[6]",
+              "pin": "E11",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[5]",
+              "pin": "F10",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[4]",
+              "pin": "C13",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[3]",
+              "pin": "E10",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[2]",
+              "pin": "E12",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[1]",
+              "pin": "E16",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[0]",
+              "pin": "F16",
+              "classification": "human_visible_output_no_capture_clock"
+            }
+          ]
+        },
+        "dummy_models": {
+          "EG_PHY_LSLICE": {
+            "listed_pin_count": 368,
+            "pins": [
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3465.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4425.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4317.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4384.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4285.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4841.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4842.c[0]",
+              "sd_card_bmp_m0/img_sector1_reg[17]_syn_4.d[0]",
+              "sd_card_bmp_m0/img_sector1_reg[17]_syn_4.c[0]",
+              "sd_card_bmp_m0/img_sector3_reg[14]_syn_4.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux254_syn_79.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux254_syn_81.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_49.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_51.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/pixel_offset_reg[16]_syn_4.b[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_134.d[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_135.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_48.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_47.c[1]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_4.a[1]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_4.a[0]",
+              "sd_card_bmp_m0/img_sector3_reg[17]_syn_4.a[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_5.a[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_6.a[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_4.c[1]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_4.c[0]",
+              "sd_card_bmp_m0/img_sector3_reg[17]_syn_4.c[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_5.c[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_6.c[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_4.b[1]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_4.b[0]",
+              "sd_card_bmp_m0/img_sector3_reg[17]_syn_4.b[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_5.b[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_6.b[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_4.d[1]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_4.d[0]",
+              "sd_card_bmp_m0/img_sector3_reg[17]_syn_4.d[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_5.d[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_6.d[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_4.e[1]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_4.e[0]",
+              "sd_card_bmp_m0/img_sector3_reg[17]_syn_4.e[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_5.e[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_6.e[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/pixel_offset_reg[16]_syn_4.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_99.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_100.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_101.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_27.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_29.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_99.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_100.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_101.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/state_reg[11]_syn_10.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux254_syn_79.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux254_syn_81.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_47.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_48.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_49.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_51.b[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_134.b[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_135.b[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_99.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_100.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_101.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_99.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_100.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_101.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_27.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_29.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_27.e[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_51.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_29.e[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_47.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_48.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_49.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_27.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_29.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_27.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_29.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_125.d[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_94.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_29.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_95.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_27.e[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/hdr_ok_a_n2_syn_100.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/signature0_reg[2]_syn_4.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_29.e[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_27.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/signature0_reg[2]_syn_4.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/hdr_ok_a_n2_syn_100.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_47.e[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_135.c[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_134.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/pixel_offset_reg[16]_syn_4.e[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_95.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_125.c[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_94.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_48.e[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux254_syn_79.e[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux254_syn_81.e[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_49.e[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_51.e[1]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_5.mi[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_6.mi[0]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_5.mi[1]",
+              "sd_card_bmp_m0/img_sector2_reg[26]_syn_6.mi[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_27.b[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_29.b[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/stride_b2[13]_syn_5.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/stride_b2[13]_syn_6.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/stride_b2[13]_syn_7.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/stride_b2[13]_syn_8.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/stride_b2[13]_syn_8.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/stride_b2[13]_syn_5.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/stride_b2[13]_syn_6.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/stride_b2[13]_syn_7.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/pixel_offset_reg[16]_syn_4.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux254_syn_79.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux254_syn_81.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_47.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_48.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_49.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_51.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/pixel_offset_reg[16]_syn_4.a[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux254_syn_79.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux254_syn_81.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_47.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_48.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_49.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_51.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_47.b[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_48.b[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_49.b[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_51.b[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_125.a[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/hdr_ok_a_n2_syn_100.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_95.a[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/signature0_reg[2]_syn_4.a[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_94.a[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_125.b[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/hdr_ok_a_n2_syn_100.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_95.b[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/signature0_reg[2]_syn_4.b[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_94.b[0]",
+              "sd_card_bmp_m0/img_sector3_reg[14]_syn_4.d[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_131.c[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_132.c[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_133.c[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_131.a[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_132.a[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_133.a[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/load_error_reg_syn_48.mi[0]",
+              "sd_card_bmp_m0/publish_wait_reg_syn_83.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_99.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_100.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_27.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_101.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_29.c[1]",
+              "u_I2S_receiver/S_i2s_lrck_2d_reg_syn_5.d[0]",
+              "u_I2S_receiver/S_left_data_lock_reg[45]_syn_4.d[0]",
+              "u_I2S_receiver/S_i2s_lrck_2d_reg_syn_5.c[0]",
+              "u_I2S_receiver/S_left_data_lock_reg[45]_syn_4.c[0]",
+              "u_hdmi_1_4b_transmitter_core_wrapper/u0_reset_sync/O_sync_reset_reg_syn_59.mi[0]",
+              "u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_tx_controller_wrapper/u_hdmi_island_data_gen/sel1_syn_969.mi[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4806.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4807.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4808.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4809.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4810.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4811.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4801.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4802.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4803.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4804.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4805.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4033.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4147.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4201.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3434.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3470.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3437.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3455.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4850.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4849.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3478.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3488.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3447.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3452.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3535.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3525.e[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3434.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4033.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3535.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3478.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3437.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4147.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4201.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3488.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3447.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3452.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3525.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3470.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3455.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4849.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4850.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3478.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3488.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3447.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3452.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3434.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3470.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3437.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3455.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4850.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4849.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3535.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3525.d[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_115.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux171_syn_3142.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/stride_b2[11]_syn_4.mi[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_84.mi[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_84.mi[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_102.mi[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_94.mi[0]",
+              "frame_read_write_m0/write_data[10]_syn_5.mi[0]",
+              "sd_card_bmp_m0/cache_failed_reg[0]_syn_21.mi[0]",
+              "sd_card_bmp_m0/writer_started_reg_syn_112.mi[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_89.mi[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_278.mi[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_94.mi[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_125.mi[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_115.mi[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_131.mi[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_132.mi[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_133.mi[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4033.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4147.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4201.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3478.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3434.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3488.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3447.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3452.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3470.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3437.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3455.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4850.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4849.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4033.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4147.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4201.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3535.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3525.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3535.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3525.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3478.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3488.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3447.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3452.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3434.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3470.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3437.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3455.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4850.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4849.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4384.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3465.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4425.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4317.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4841.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4842.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4384.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3465.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4425.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4317.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4841.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4842.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4285.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4285.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4812.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4813.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4814.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4815.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4812.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4813.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4814.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4815.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4840.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4839.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4801.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4802.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4803.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4804.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4805.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4801.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4802.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4803.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4804.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4805.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4801.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4802.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4803.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4804.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4805.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4824.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4825.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4826.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4827.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4828.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4829.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4840.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4839.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4840.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4839.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4840.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4839.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4824.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4825.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4826.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4827.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4828.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4829.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4824.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4825.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4826.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4827.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4828.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4829.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4806.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4807.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4808.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4809.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4810.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4811.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4806.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4807.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4808.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4809.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4810.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4811.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4806.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4807.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4808.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4809.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4810.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4811.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_47.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_48.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_49.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_51.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_27.a[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux271_syn_29.a[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_131.b[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_131.b[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_132.b[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_132.b[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_133.b[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_133.b[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_131.d[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_132.d[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_133.d[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_131.c[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_131.d[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_132.c[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_132.d[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_133.c[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_133.d[0]"
+            ]
+          },
+          "EG_PHY_MSLICE": {
+            "listed_pin_count": 78,
+            "pins": [
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4117.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4270.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4299.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3958.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4834.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4835.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4836.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4837.c[1]",
+              "u_overlay/g_chinese$u_text/mux121_syn_445.d[0]",
+              "u_overlay/g_chinese$u_text/mux121_syn_445.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/state_reg[0]_syn_17.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/scan_match_reg_syn_11.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_46.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/state_reg[18]_syn_12.mi[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_144.c[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_143.c[1]",
+              "frame_read_write_m0/write_en_syn_50.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_131.d[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/hdr_ok_a_n2_syn_108.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/hdr_ok_a_n2_syn_108.c[1]",
+              "frame_read_write_m0/write_en_syn_50.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_131.c[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_143.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_144.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_143.d[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_144.d[1]",
+              "frame_read_write_m0/write_en_syn_50.a[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/hdr_ok_a_n2_syn_108.a[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_131.a[0]",
+              "frame_read_write_m0/write_en_syn_50.b[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/hdr_ok_a_n2_syn_108.b[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux299_syn_131.b[0]",
+              "u_I2S_receiver/S_i2s_dout_3d_reg_syn_5.d[1]",
+              "u_I2S_receiver/S_i2s_dout_3d_reg_syn_5.c[1]",
+              "u_app_reset/release_pipe_reg[1]_syn_62.mi[0]",
+              "u_overlay/g_chinese$u_text/d_index[0]_syn_21.mi[0]",
+              "u_hdmi_1_4b_transmitter_core_wrapper/u0_reset_sync/O_sync_reset_reg_syn_41.mi[1]",
+              "u_hdmi_1_4b_transmitter_core_wrapper/u0_reset_sync/O_sync_reset_reg_syn_41.mi[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4108.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4279.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4093.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4027.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4108.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4279.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4093.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4027.c[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3958.b[1]",
+              "u_sd_reset/release_pipe_reg[1]_syn_91.mi[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_122.mi[0]",
+              "u_sd_reset/release_pipe_reg[1]_syn_122.mi[1]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/load_error_reg_syn_50.mi[0]",
+              "sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/hdr_ok_a_n2_syn_104.mi[0]",
+              "frame_read_write_m0/write_en_syn_50.mi[0]",
+              "sd_card_bmp_m0/sd_card_top_m0/sd_card_sec_read_write_m0/cmd_req_reg_syn_24.mi[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4108.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4279.a[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4093.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4027.a[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3958.c[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4108.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4279.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4093.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4027.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4117.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4117.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4270.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4299.d[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4834.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4835.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4836.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4837.d[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4270.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4299.b[0]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4834.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4835.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4836.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4837.b[1]",
+              "u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3958.a[1]"
+            ]
+          },
+          "EG_PHY_PAD": {
+            "listed_pin_count": 12,
+            "pins": [
+              "depth_sw_n[3]_syn_2.ipad",
+              "depth_sw_n[2]_syn_2.ipad",
+              "depth_sw_n[1]_syn_2.ipad",
+              "depth_sw_n[0]_syn_2.ipad",
+              "ext_keys_n[4]_syn_2.ipad",
+              "ext_keys_n[3]_syn_2.ipad",
+              "ext_keys_n[2]_syn_2.ipad",
+              "ext_keys_n[1]_syn_2.ipad",
+              "ext_keys_n[0]_syn_2.ipad",
+              "seg_data[7]_syn_1.opad",
+              "U3/sdram_syn_5.opad",
+              "U3/sdram_syn_10.opad"
+            ]
+          }
+        },
+        "dummy_summary_count": 3,
+        "dummy_summary_unit": "model_groups_in_this_TD_report",
+        "dummy_listed_pin_count": 458,
+        "classification_counts": {
+          "input": {
+            "hdmi_ddc_ip_timing_open": 1,
+            "inactive_external_io_default": 9,
+            "asynchronous_controls_cdc_review": 7,
+            "asynchronous_reset_release_review": 1,
+            "sd_spi_interface_timing_open": 1
+          },
+          "output": {
+            "hdmi_tmds_serial_interface_timing_open": 4,
+            "hdmi_ddc_ip_timing_open": 2,
+            "human_visible_output_no_capture_clock": 20,
+            "sd_spi_interface_timing_open": 3
+          }
+        },
+        "unique_missing_delay_port_count": 47,
+        "status": "needs_review",
+        "report_sha256": "c814b6e96bf375951f691ba1fdac2228854d81fb8cf4cc50e2bed2a949aafefa"
+      },
+      "top_adc": {
+        "missing_delay_ports": {
+          "input": [
+            {
+              "port": "HDMI_DDC_SDA",
+              "pin": "R2",
+              "classification": "hdmi_ddc_ip_timing_open"
+            },
+            {
+              "port": "depth_sw_n[3]",
+              "pin": "F13",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "depth_sw_n[2]",
+              "pin": "G12",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "depth_sw_n[1]",
+              "pin": "G11",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "depth_sw_n[0]",
+              "pin": "D14",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "dip_sw[3]",
+              "pin": "C5",
+              "classification": "inactive_demo_contact_in_adc"
+            },
+            {
+              "port": "dip_sw[2]",
+              "pin": "C6",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "dip_sw[1]",
+              "pin": "C7",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "dip_sw[0]",
+              "pin": "C8",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "ext_keys_n[4]",
+              "pin": "K12",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "ext_keys_n[3]",
+              "pin": "J13",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "ext_keys_n[2]",
+              "pin": "J14",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "ext_keys_n[1]",
+              "pin": "H14",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "ext_keys_n[0]",
+              "pin": "H13",
+              "classification": "inactive_external_io_default"
+            },
+            {
+              "port": "key1",
+              "pin": "B2",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "key2",
+              "pin": "C1",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "key3",
+              "pin": "B1",
+              "classification": "asynchronous_controls_cdc_review"
+            },
+            {
+              "port": "rst_n",
+              "pin": "A2",
+              "classification": "asynchronous_reset_release_review"
+            },
+            {
+              "port": "sd_miso",
+              "pin": "B14",
+              "classification": "sd_spi_interface_timing_open"
+            }
+          ],
+          "output": [
+            {
+              "port": "HDMI_CLK_P",
+              "pin": "C3",
+              "classification": "hdmi_tmds_serial_interface_timing_open"
+            },
+            {
+              "port": "HDMI_D0_P",
+              "pin": "G5",
+              "classification": "hdmi_tmds_serial_interface_timing_open"
+            },
+            {
+              "port": "HDMI_D1_P",
+              "pin": "F1",
+              "classification": "hdmi_tmds_serial_interface_timing_open"
+            },
+            {
+              "port": "HDMI_D2_P",
+              "pin": "E1",
+              "classification": "hdmi_tmds_serial_interface_timing_open"
+            },
+            {
+              "port": "HDMI_DDC_SCL",
+              "pin": "P2",
+              "classification": "hdmi_ddc_ip_timing_open"
+            },
+            {
+              "port": "HDMI_DDC_SDA",
+              "pin": "R2",
+              "classification": "hdmi_ddc_ip_timing_open"
+            },
+            {
+              "port": "led[3]",
+              "pin": "B12",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "led[2]",
+              "pin": "C10",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "led[1]",
+              "pin": "A3",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "led[0]",
+              "pin": "A4",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "sd_dclk",
+              "pin": "A14",
+              "classification": "sd_spi_interface_timing_open"
+            },
+            {
+              "port": "sd_mosi",
+              "pin": "A13",
+              "classification": "sd_spi_interface_timing_open"
+            },
+            {
+              "port": "sd_ncs",
+              "pin": "A12",
+              "classification": "sd_spi_interface_timing_open"
+            },
+            {
+              "port": "seg_data[7]",
+              "pin": "A6",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[6]",
+              "pin": "A7",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[5]",
+              "pin": "A8",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[4]",
+              "pin": "B5",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[3]",
+              "pin": "A5",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[2]",
+              "pin": "B6",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[1]",
+              "pin": "C16",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_data[0]",
+              "pin": "C15",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[7]",
+              "pin": "D11",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[6]",
+              "pin": "E11",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[5]",
+              "pin": "F10",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[4]",
+              "pin": "C13",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[3]",
+              "pin": "E10",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[2]",
+              "pin": "E12",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[1]",
+              "pin": "E16",
+              "classification": "human_visible_output_no_capture_clock"
+            },
+            {
+              "port": "seg_sel[0]",
+              "pin": "F16",
+              "classification": "human_visible_output_no_capture_clock"
+            }
+          ]
+        },
+        "dummy_models": {
+          "EG_PHY_ADC": {
+            "listed_pin_count": 1,
+            "pins": [
+              "u_board/g_adc$u_adc.pd"
+            ]
+          },
+          "EG_PHY_LSLICE": {
+            "listed_pin_count": 374,
+            "pins": [
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4045.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3427.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3875.d[0]",
+              "u_board/u_overlay/mux5_syn_78.d[1]",
+              "u_board/u_overlay/mux5_syn_78.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/sd_sec_read_reg_syn_32.e[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_252.e[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/blue_reg[6]_syn_4.e[0]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_11.b[1]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_11.b[0]",
+              "u_board/sd_card_bmp_m0/mux149_syn_74.b[0]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_14.b[0]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_11.c[1]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_11.c[0]",
+              "u_board/sd_card_bmp_m0/mux149_syn_74.c[0]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_14.c[0]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_11.d[1]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_11.d[0]",
+              "u_board/sd_card_bmp_m0/mux149_syn_74.d[0]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_14.d[0]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_11.e[1]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_11.e[0]",
+              "u_board/sd_card_bmp_m0/mux149_syn_74.e[0]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_14.e[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_293.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_294.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_295.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_296.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_293.e[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_294.e[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_295.e[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_296.e[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_293.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_294.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_295.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_296.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_5.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_8.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_7.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_5.mi[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_8.mi[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_7.mi[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux258_syn_83.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/scan_match_reg_syn_51.mi[0]",
+              "u_board/frame_read_write_m0/write_data[25]_syn_5.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux259_syn_45.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/state_reg[11]_syn_11.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_5.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_8.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_7.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_26.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_27.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_28.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_29.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_26.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_27.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_28.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_29.c[1]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[21]_syn_4.b[1]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[20]_syn_4.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_4.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[2]_syn_4.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/bpp_reg[13]_syn_4.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_4.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[2]_syn_4.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/bpp_reg[13]_syn_4.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_4.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[2]_syn_4.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/bpp_reg[13]_syn_4.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_4.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[2]_syn_4.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/bpp_reg[13]_syn_4.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/sd_sec_read_reg_syn_32.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_252.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/blue_reg[6]_syn_4.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_293.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_294.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_295.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_296.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/sd_sec_read_reg_syn_32.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_252.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/blue_reg[6]_syn_4.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_293.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_294.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_295.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_296.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_27.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_27.a[0]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[20]_syn_4.a[1]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[21]_syn_4.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_26.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_26.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_28.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_28.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_8.a[1]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[6]_syn_4.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_7.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_5.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_29.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_29.a[1]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[6]_syn_4.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_5.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_26.e[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_26.e[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_27.e[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_27.e[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_7.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_28.e[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_28.e[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_8.d[1]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[6]_syn_4.c[1]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[20]_syn_4.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_29.e[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_29.e[1]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[21]_syn_4.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/sd_sec_read_reg_syn_32.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_252.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/blue_reg[6]_syn_4.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_26.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_26.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_27.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_27.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_28.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_28.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_29.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_29.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/sd_sec_read_reg_syn_32.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_252.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/blue_reg[6]_syn_4.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux250_syn_252.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/scan_match_reg_syn_53.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/state_code_reg[0]_syn_11.mi[0]",
+              "u_board/frame_read_write_m0/write_en_syn_57.mi[0]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[20]_syn_4.c[1]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[21]_syn_4.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_29.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_29.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_26.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_26.d[1]",
+              "u_board/U3/u2_ram/u2_wrrd/app_wr_din_1d_reg[6]_syn_4.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_8.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_28.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_28.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_7.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/compression_reg[3]_syn_5.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_27.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux268_syn_27.d[1]",
+              "u_board/u_I2S_receiver/S_left_shift_data_reg[61]_syn_4.d[1]",
+              "u_board/u_I2S_receiver/S_left_data_valid_n1_syn_10.d[1]",
+              "u_board/u_I2S_receiver/S_left_shift_data_reg[61]_syn_4.c[1]",
+              "u_board/u_I2S_receiver/S_left_data_valid_n1_syn_10.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[11]_syn_49.mi[0]",
+              "u_board/u_control/u_rate_display/remaining_reg[3]_syn_48.mi[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_tx_controller_wrapper/u_hdmi_island_data_gen/sel1_syn_977.mi[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u0_reset_sync/O_sync_reset_reg_syn_48.mi[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/S_scl_clk_div_cnt_b[7]_syn_5.mi[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_56.a[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_57.a[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_56.b[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_57.b[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_56.d[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_57.d[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_56.c[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_56.c[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_57.c[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_57.c[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_56.a[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_56.b[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_57.a[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_57.b[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_56.e[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_57.e[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_56.d[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_57.d[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_56.e[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_bit_tx_ready_reg_syn_57.e[1]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/S_stop_bit_tx_en_reg_syn_11.mi[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4734.e[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4735.e[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4736.e[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4737.e[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4734.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4735.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4736.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4737.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4726.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4727.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4728.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4729.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4730.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4731.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3983.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4111.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4707.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4708.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4709.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4710.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4714.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4715.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4716.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4717.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4718.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4719.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4720.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4722.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4099.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3954.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4732.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3954.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4111.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4099.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3983.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4707.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4708.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4709.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4710.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4714.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4715.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4716.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4717.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4718.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4719.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4720.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4722.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4732.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4734.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4735.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4736.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4737.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4723.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4725.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4704.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4705.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4703.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4724.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4705.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4704.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4703.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4703.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4704.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4705.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4704.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4703.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4705.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3948.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3932.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4017.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4123.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3357.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3412.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3275.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3383.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux295_syn_105.mi[0]",
+              "u_board/frame_read_write_m0/write_en_syn_51.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/next_sector_b5[20]_syn_4.mi[0]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_14.mi[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3357.e[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3932.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4123.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3948.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4017.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4045.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3427.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3875.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3412.e[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3275.e[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3383.e[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3357.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3412.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3275.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3383.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4383.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3440.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3983.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4111.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4707.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4708.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4709.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4710.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4714.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4715.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4716.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4717.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4718.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4719.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4720.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4722.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3983.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4111.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4707.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4708.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4709.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4710.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4714.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4715.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4716.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4717.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4718.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4719.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4720.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4722.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4099.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3954.a[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4732.a[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4099.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3954.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4732.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3948.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3932.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4017.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4123.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3357.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3412.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3275.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3383.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3357.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3412.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3275.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3383.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4045.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3427.a[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3875.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4045.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3427.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3875.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4383.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3440.a[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4383.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3440.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4383.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3440.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4726.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4727.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4728.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4729.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4730.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4731.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4723.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4724.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4725.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4738.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4739.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4740.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4723.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4724.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4725.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4723.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4724.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4725.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4738.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4739.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4740.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4738.a[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4739.a[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4740.a[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4741.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4741.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4738.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4739.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4740.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4734.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4735.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4736.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4737.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4734.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4735.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4736.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4737.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4741.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4741.a[1]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_11.a[1]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_11.a[0]",
+              "u_board/sd_card_bmp_m0/mux149_syn_74.a[0]",
+              "u_board/sd_card_bmp_m0/load_sector_b7[31]_syn_14.a[0]"
+            ]
+          },
+          "EG_PHY_MSLICE": {
+            "listed_pin_count": 149,
+            "pins": [
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4096.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3872.d[0]",
+              "u_board/u_overlay/g_chinese$u_text/mux120_syn_487.d[0]",
+              "u_board/u_overlay/g_chinese$u_text/mux120_syn_487.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_5.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_6.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_7.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_8.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_5.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_6.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_7.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_8.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_5.mi[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_6.mi[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_7.mi[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_8.mi[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/load_error_reg_syn_49.mi[0]",
+              "u_board/frame_read_write_m0/write_data[26]_syn_6.d[1]",
+              "u_board/frame_read_write_m0/write_data[26]_syn_7.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_5.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_6.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_7.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_8.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_5.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_6.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_7.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_8.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_4.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/pixel_offset_reg[2]_syn_4.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[2]_syn_4.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux295_syn_107.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux297_syn_61.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/planes_reg[7]_syn_4.a[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[11]_syn_4.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_4.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/pixel_offset_reg[2]_syn_4.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[2]_syn_4.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux295_syn_107.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux297_syn_61.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/planes_reg[7]_syn_4.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[11]_syn_4.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_4.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/pixel_offset_reg[2]_syn_4.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[2]_syn_4.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux295_syn_107.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux297_syn_61.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/planes_reg[7]_syn_4.b[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[11]_syn_4.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[6]_syn_4.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/pixel_offset_reg[2]_syn_4.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[2]_syn_4.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux295_syn_107.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux297_syn_61.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/planes_reg[7]_syn_4.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/file_len_reg[11]_syn_4.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_53.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_54.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_55.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_56.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_57.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_58.d[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_53.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_54.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_55.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_56.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_57.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_58.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_53.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_54.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_55.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_56.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_57.d[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_58.d[1]",
+              "u_board/frame_read_write_m0/write_data[26]_syn_6.c[1]",
+              "u_board/frame_read_write_m0/write_data[26]_syn_7.c[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_53.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_54.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_55.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_56.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_57.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_58.c[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_53.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_54.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_55.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_56.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_57.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_58.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_41.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_37.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux296_syn_94.mi[0]",
+              "u_board/u_overlay/g_chinese$u_text/d_message_id[2]_syn_10.mi[0]",
+              "u_board/u_control/u_keys/rise_b[0]_syn_16.mi[0]",
+              "u_board/u_control/u_rate_display/remaining_reg[3]_syn_50.mi[0]",
+              "u_board/u_control/u_keys/stable_count[0]_b1[4]_syn_5.mi[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_edid_wrapper/u_iic_master_wrapper/u_iic_bit_transmitter/O_iic_sda_i_syn_26.mi[0]",
+              "u_board/u_hdmi_1_4b_transmitter_core_wrapper/u_hdmi_tx_controller_wrapper/u1_hdmi_tmds_encode/S_q_m_reg[0]_syn_3.mi[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4711.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4712.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4713.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4711.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4712.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4713.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3960.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3791.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3920.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4283.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3960.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3920.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4283.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3791.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3806.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3863.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3980.b[0]",
+              "u_board/u_sd_reset/release_pipe_reg[1]_syn_84.mi[1]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux265_syn_70.mi[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/mux266_syn_43.mi[0]",
+              "u_board/u_sd_reset/release_pipe_reg[1]_syn_100.mi[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4096.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3863.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3980.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3806.c[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3872.c[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3960.a[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3960.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3791.a[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3920.a[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4283.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3791.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3920.b[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4283.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3806.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3863.d[1]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3980.d[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4096.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3872.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4096.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_3872.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4711.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4712.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4713.a[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4711.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4712.b[0]",
+              "u_board/u_video_rgb_to_axis_640x480/I_rgb[19]_syn_4713.b[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_53.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_54.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_55.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_56.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_57.a[0]",
+              "u_board/sd_card_bmp_m0/g_scaled_reader$bmp_read_m0/channel_reg[1]_syn_58.a[0]"
+            ]
+          },
+          "EG_PHY_PAD": {
+            "listed_pin_count": 13,
+            "pins": [
+              "depth_sw_n[3]_syn_2.ipad",
+              "depth_sw_n[2]_syn_2.ipad",
+              "depth_sw_n[1]_syn_2.ipad",
+              "depth_sw_n[0]_syn_2.ipad",
+              "dip_sw[3]_syn_2.ipad",
+              "ext_keys_n[4]_syn_2.ipad",
+              "ext_keys_n[3]_syn_2.ipad",
+              "ext_keys_n[2]_syn_2.ipad",
+              "ext_keys_n[1]_syn_2.ipad",
+              "ext_keys_n[0]_syn_2.ipad",
+              "seg_data[7]_syn_1.opad",
+              "u_board/U3/sdram_syn_5.opad",
+              "u_board/U3/sdram_syn_10.opad"
+            ]
+          }
+        },
+        "dummy_summary_count": 4,
+        "dummy_summary_unit": "model_groups_in_this_TD_report",
+        "dummy_listed_pin_count": 537,
+        "classification_counts": {
+          "input": {
+            "hdmi_ddc_ip_timing_open": 1,
+            "inactive_external_io_default": 9,
+            "inactive_demo_contact_in_adc": 1,
+            "asynchronous_controls_cdc_review": 6,
+            "asynchronous_reset_release_review": 1,
+            "sd_spi_interface_timing_open": 1
+          },
+          "output": {
+            "hdmi_tmds_serial_interface_timing_open": 4,
+            "hdmi_ddc_ip_timing_open": 2,
+            "human_visible_output_no_capture_clock": 20,
+            "sd_spi_interface_timing_open": 3
+          }
+        },
+        "unique_missing_delay_port_count": 47,
+        "status": "needs_review",
+        "report_sha256": "1d127bdb2cc94484caea9a38bd63ede70178c835c05d8b6ff0509a0ea73689d0"
+      }
+    },
+    "source_sha256": {
+      "project/rtl/top_tf_hdmi_audio.v": "aaae94f6d3169b7e49f43ebc055b16642c8638e9b4bb2ea31a20611f7ae75ef0",
+      "project/rtl/top_adc.v": "1c02be20a6b2750ffceb894681c1295c73fd3ade1993c8bc8fa490746958a05f",
+      "project/rtl/input_filter.v": "b2cec007b995a1d4ccefae1beb5eb89cba01d007879d1bc895fc3f0e4723cfe9",
+      "project/rtl/cpr_control.v": "69e592a2677f2c5055d3bb6c9bbde48891b5d7c7d26e79f2d379ed401cba8677",
+      "project/rtl/contrast_controls.v": "474284faf3c70a3452da56ba890b2de851a7c84ab4f659ab2575181d3ff0f2cb",
+      "project/rtl/reset_release.v": "3b184934ef86e19115ccbfb7467145d338785ea45b0f3f054442eaa8fd68f493",
+      "project/rtl/cpr_seg_scan.v": "50ec694ebc7f4185706d443fd523bba8762abcdcdd722a1abeac1ff9835287b1",
+      "project/vendor/SD/spi_master.v": "37f7a21144fa5cca3cc5c3b5f68a5ad40b3108336b600e45a1367734ac61403c",
+      "project/vendor/SD/sd_card_top.v": "bb45573ea6cf091acd4104ba7c97a174fc84c3102ce5d30bcf9dcc63584196ad",
+      "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v": "de9529321354f04837e051d0ec1681cf44783d4be3284703a788e081147500bc"
+    },
+    "status": "needs_review"
+  },
+  "local_reference_sha256": {
+    "pll": {
+      "path": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\6_EG4S20数据手册\\PLL用户指南.pdf",
+      "sha256": "986a81cb332dac6d6bb178f31d7f75cb27517a0e382cec3980473794bd7cb4e1"
+    },
+    "sdram": {
+      "path": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\6_EG4S20数据手册\\APUG011_基于ERAM接口实现的高性能SDRAM读写v1.2.pdf",
+      "sha256": "e20d565e0776bf91eddfd0062df6cb03ec6f6b4dc4a255b7fe57bad05d4e2294"
+    },
+    "sdram_reference": {
+      "path": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\6_EG4S20数据手册\\APUG011_high_performance_sdram_read_write_reference_design_v1.2.zip",
+      "sha256": "41e0d9361e222a91265923c65ced09e405ec43b1adf90d22837f712e56ad6c19"
+    },
+    "sd_card_2003_specific_products": {
+      "path": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\4_芯片手册\\SD Card\\SDSDv17.pdf",
+      "sha256": "19540f72baabe4357ede489006b05ac800e68ac02f8c5fd12679f7cdc2ba4496"
+    },
+    "td_tcl": {
+      "path": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\anlu\\td\\doc\\SWUG\\SWUG105_TCL_Command_User_Guide.pdf",
+      "sha256": "c6d97356cb930eab5b5613e4e9cf670a9a0cfec11dc04b678367f0e7d2431380"
+    },
+    "td_timing": {
+      "path": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\anlu\\td\\doc\\SWUG\\SWUG200_Timing_Constraints_User_Guide.pdf",
+      "sha256": "0865a98f86198b7d3c7837d52399041a505156a91e4c8cbb87631804527c361c"
+    }
+  },
+  "review_tool_sha256": {
+    "audit_physical.py": "28ea524507c24001515e3fa4f08f99b42bc407f503ffbd8c792f5e928f7be056",
+    "audit_physical.tcl": "4d84fdeed7d8c2b77fc0c678788a35293c43ef6aa1206871b1242c830b8400c6",
+    "audit_interfaces.py": "3d31b20dfa1d32faf7ca6db391ace4451a85135f257c3d85dce003df9ea66a29"
+  }
+}
