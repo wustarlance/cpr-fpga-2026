@@ -68,6 +68,15 @@
                     <Attr Name="CompileOrder" Val="7"/>
                 </FileInfo>
             </File>
+            <File Path="vendor/SD/bmp_blur_background.v">
+                <FileInfo>
+                    <Attr Name="AutoExcluded" Val="true"/>
+                    <Attr Name="CompileOrder" Val="62"/>
+                    <Attr Name="UsedInSyn" Val="true"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="design_1"/>
+                </FileInfo>
+            </File>
             <File Path="vendor/SD/bmp_read_scaled.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -357,6 +366,14 @@
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
                     <Attr Name="CompileOrder" Val="47"/>
+                </FileInfo>
+            </File>
+            <File Path="rtl/key_source_merge.v">
+                <FileInfo>
+                    <Attr Name="UsedInSyn" Val="true"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="design_1"/>
+                    <Attr Name="CompileOrder" Val="63"/>
                 </FileInfo>
             </File>
             <File Path="rtl/cpr_seg_scan.v">

@@ -1,0 +1,39 @@
+# 八位按键模块接线自检（J1 奇数行 pin 13..27）
+#
+# 模块资料：内部带上拉，按下输出低电平、松开输出高电平；工作电压 3.3-5V。
+# VCC 必须接 J1 pin 29（3.3V），不得接 pin 11（VCC5V）——手册明确 3.3V IO
+# 不能直连 5V 设备。GND 接 J1 pin 30（与 pin 29 正对）。
+#
+# 内部上拉与模块自带上拉并联，不冲突；即使某根线松了也会读成"松开"而不是悬空。
+
+set_pin_assignment	{ key_n[0] }	{ LOCATION = M14; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # J1 pin 13 GPIOA_10  K1
+set_pin_assignment	{ key_n[1] }	{ LOCATION = L10; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # J1 pin 15 GPIOA_12  K2
+set_pin_assignment	{ key_n[2] }	{ LOCATION = D16; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # J1 pin 17 GPIOA_14  K3
+set_pin_assignment	{ key_n[3] }	{ LOCATION = F14; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # J1 pin 19 GPIOA_16  K4
+set_pin_assignment	{ key_n[4] }	{ LOCATION = G16; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # J1 pin 21 GPIOA_18  K5
+set_pin_assignment	{ key_n[5] }	{ LOCATION = K15; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # J1 pin 23 GPIOA_20  K6
+set_pin_assignment	{ key_n[6] }	{ LOCATION = H15; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # J1 pin 25 GPIOA_22  K7
+set_pin_assignment	{ key_n[7] }	{ LOCATION = K16; IOSTANDARD = LVCMOS33; PULLTYPE = PULLUP; }   # J1 pin 27 GPIOA_24  K8
+
+# ---- 以下为按键测试顶层用到的其余引脚，取自产品 pin.adc ----
+set_pin_assignment	{ clk }	{ LOCATION = R7; IOSTANDARD = LVCMOS33; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_data[0] }	{ LOCATION = C15; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_data[1] }	{ LOCATION = C16; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_data[2] }	{ LOCATION = B6; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_data[3] }	{ LOCATION = A5; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_data[4] }	{ LOCATION = B5; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_data[5] }	{ LOCATION = A8; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_data[6] }	{ LOCATION = A7; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_data[7] }	{ LOCATION = A6; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_sel[0] }	{ LOCATION = F16; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_sel[1] }	{ LOCATION = E16; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_sel[2] }	{ LOCATION = E12; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_sel[3] }	{ LOCATION = E10; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_sel[4] }	{ LOCATION = C13; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_sel[5] }	{ LOCATION = F10; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_sel[6] }	{ LOCATION = E11; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ seg_sel[7] }	{ LOCATION = D11; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ led[0] }	{ LOCATION = A4; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ led[1] }	{ LOCATION = A3; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ led[2] }	{ LOCATION = C10; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }
+set_pin_assignment	{ led[3] }	{ LOCATION = B12; IOSTANDARD = LVCMOS33; DRIVESTRENGTH = 8; PULLTYPE = NONE; }

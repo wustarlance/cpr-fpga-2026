@@ -12,6 +12,9 @@ module sd_card_bmp #(
     parameter [31:0]  SCAN_MAX_SECTOR   = 32'd131071,
     parameter [2:0]   SCAN_TARGET_COUNT = 3'd4,
     parameter         SCALE_ENABLE     = 1'b0,
+    parameter         BLUR_BACKGROUND  = 1'b0,
+    parameter integer BG_BRIGHTNESS_NUM = 3,
+    parameter integer BG_BRIGHTNESS_SHIFT = 2,
     parameter integer DST_WIDTH        = 640,
     parameter integer DST_HEIGHT       = 480
 )(
@@ -582,6 +585,9 @@ end endgenerate
 
 generate if(SCALE_ENABLE) begin : g_scaled_reader
     bmp_read_scaled #(.DST_WIDTH(DST_WIDTH),.DST_HEIGHT(DST_HEIGHT),
+        .BLUR_BACKGROUND(BLUR_BACKGROUND),
+        .BG_BRIGHTNESS_NUM(BG_BRIGHTNESS_NUM),
+        .BG_BRIGHTNESS_SHIFT(BG_BRIGHTNESS_SHIFT),
         .WAIT_TIMEOUT_CYCLES(READER_TIMEOUT_CYCLES)) bmp_read_m0(
         .cancel(cancel_load),.sd_sec_ready(sd_ready),.sd_sec_read_error(sd_read_error),
         .abort_sd(abort_sd),.operation_error(operation_error),.error_code(operation_error_code),

@@ -2,7 +2,8 @@
 // Byte transport is tested separately. This model controls catalogue/load
 // completion timing so the scheduler's buffer ownership can be stressed.
 module bmp_read_scaled #(parameter WAIT_TIMEOUT_CYCLES=100000000,
- parameter MAX_WIDTH=2048,MAX_HEIGHT=1536,DST_WIDTH=640,DST_HEIGHT=480)(
+ parameter MAX_WIDTH=2048,MAX_HEIGHT=1536,DST_WIDTH=640,DST_HEIGHT=480,
+ parameter BLUR_BACKGROUND=0,BG_BRIGHTNESS_NUM=3,BG_BRIGHTNESS_SHIFT=2)(
  input cancel,sd_sec_ready,sd_sec_read_error,
  output abort_sd,operation_error,output[2:0]error_code,
  input clk,rst, output reg ready,
@@ -14,7 +15,12 @@ module bmp_read_scaled #(parameter WAIT_TIMEOUT_CYCLES=100000000,
  output write_req,input write_req_ack,output sd_sec_read,
  output [31:0] sd_sec_read_addr,input [7:0] sd_sec_read_data,
  input sd_sec_read_data_valid,sd_sec_read_end,
- output bmp_data_wr_en,output [23:0] bmp_data, input pixel_ready,output load_error);
+ output bmp_data_wr_en,output [23:0] bmp_data, input pixel_ready,output load_error,
+ // Diagnostics added to the real reader; unused by this scheduler model.
+ output [20:0] dbg_ff_sector,output dbg_ff_seen,output [15:0] dbg_retry_count);
+ assign dbg_ff_sector=21'd0;
+ assign dbg_ff_seen=1'b0;
+ assign dbg_retry_count=16'd0;
  reg [9:0] remaining;
  reg [3:0] scan_step;
  assign state_code=ready?1:4;assign load_error=0;

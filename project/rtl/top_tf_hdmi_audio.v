@@ -1,8 +1,12 @@
 
 // Default top is the board-button demo. top_adc selects the internal ADC path.
 module top #(
-    parameter USE_EXTERNAL_IO = 0,
+    parameter USE_EXTERNAL_IO = 1,
     parameter USE_ADC = 0,
+    // 非 4:3 源图的模糊背景：缩略图面积平均 + 3x3 盒式模糊 + 双线性放大
+    parameter BLUR_BACKGROUND = 1,
+    parameter integer BG_BRIGHTNESS_NUM = 3,
+    parameter integer BG_BRIGHTNESS_SHIFT = 2,
     parameter ENABLE_AUDIO = 1,
     parameter UI_LANGUAGE_ZH = 1,
     parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
@@ -22,6 +26,9 @@ module top #(
     input                       key3,           // KEY3 (B1), previous
     input wire [3:0]             dip_sw,         // SW1..4, active high; DEMO ONLY
     input wire [4:0]             ext_keys_n,     // mode/prev/next/brightness/session clear
+    // 外接八位按键面板（J1 奇数行 13~23）。模块自带上拉，按下为低电平。
+    // K1~K5 与板载 KEY 并存；K6 留给对比度按键；K7/K8 暂未使用。
+    input wire [5:0]             key_panel_n,
     input wire [3:0]             depth_sw_n,     // cumulative contacts, close to GND
     input                       key2,           // KEY4 (C1), mode
 
@@ -205,7 +212,15 @@ wire [11:0] page_status_sd, page_status_video;
 page_status_cdc u_page_status(
     .src_clk(sd_card_clk), .src_rst_n(sd_rst_n), .status(page_status_sd),
     .dst_clk(video_clk), .dst_rst_n(app_rst_n), .video_status(page_status_video));
-wire [4:0] app_keys_raw = USE_EXTERNAL_IO ? ~ext_keys_n : {2'b00,~key1,~key3,~key2};
+// 三条来源并存：板载 KEY、扩展口 ext_keys_n、外接八位面板。
+// 全部先反相成高有效，再按位相或——任何一处的按键都能操作，互不屏蔽。
+wire [4:0] onboard_keys = {2'b00, ~key1, ~key3, ~key2};
+wire [4:0] panel_keys   = ~key_panel_n[4:0];
+wire [4:0] app_keys_raw;
+key_source_merge u_key_merge(
+    .onboard_keys (USE_EXTERNAL_IO ? 5'b00000 : onboard_keys),
+    .panel_keys   ((USE_EXTERNAL_IO ? ~ext_keys_n : 5'b00000) | panel_keys),
+    .keys         (app_keys_raw));
 // Board demo: KEY2 generates a press; dips select a contact pattern, zero selects target.
 // External mode observes real contacts directly; calibration remains a mechanical task.
 wire [3:0] app_depth_raw = USE_EXTERNAL_IO ? ~depth_sw_n :
@@ -323,7 +338,9 @@ wire [2:0] contrast_level;
 reg [2:0] contrast_video;
 contrast_controls #(.HOLD_DURING_TRAINING(!(USE_ADC || USE_EXTERNAL_IO))) u_contrast_controls(
     .clk(video_clk), .rst_n(app_rst_n), .tick_ms(tick_ms),
-    .raw_switches(dip_sw[2:0]), .training_enabled(training_enabled),
+    .raw_switches(dip_sw[2:0]),
+    .raw_key     (~key_panel_n[5]),          // K6：对比度，按下为低电平
+    .training_enabled(training_enabled),
     .contrast_level(contrast_level));
 always @(posedge video_clk or posedge rst_video) begin
     if (rst_video) contrast_video <= 3'd2;
@@ -409,7 +426,12 @@ sd_card_bmp #(
     .SCAN_START_SECTOR (32'd0),
     .SCAN_MAX_SECTOR   (32'd131071),
     .SCAN_TARGET_COUNT (3'd4),
-    .SCALE_ENABLE      (1'b1)
+    .SCALE_ENABLE      (1'b1),
+    .BLUR_BACKGROUND   (BLUR_BACKGROUND),
+    .BG_BRIGHTNESS_NUM (BG_BRIGHTNESS_NUM),
+    .BG_BRIGHTNESS_SHIFT(BG_BRIGHTNESS_SHIFT),
+    // 模糊背景需要完整跑一遍源图取缩略图，超时按两倍源图读取放宽
+    .LOAD_TIMEOUT_CYCLES(BLUR_BACKGROUND ? 1_200_000_000 : 300_000_000)
 ) sd_card_bmp_m0(
     .clk               (sd_card_clk),
     .rst               (rst_sd),
@@ -576,6 +598,12 @@ wire [3:0] led_level = {
 };
 assign led = LED_ACTIVE_LOW ? ~led_level : led_level;
 
+// Temporary candidate identity d123; preserves mode/page/SD-state digits.
+wire [6:0] candidate_d,candidate_1,candidate_2,candidate_3;
+seg_decoder u_candidate_d(.bin_data(4'hd),.seg_data(candidate_d));
+seg_decoder u_candidate_1(.bin_data(4'h1),.seg_data(candidate_1));
+seg_decoder u_candidate_2(.bin_data(4'h2),.seg_data(candidate_2));
+seg_decoder u_candidate_3(.bin_data(4'h3),.seg_data(candidate_3));
 cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan(
     .clk               (clk),
     .rst_n             (rst_n),
@@ -584,10 +612,10 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan(
     .digit0            ({1'b1,seg_data_mode}),   // 左起第 1 位：模式
     .digit1            ({1'b1,7'b011_1111}),     // 左起第 2 位：'-'
     .digit2            ({1'b1,seg_data_page}),   // 左起第 3 位：页号
-    .digit3            ({1'b1,7'b1111_111}),     // 左起第 4 位
-    .digit4            ({1'b1,7'b1111_111}),     // 左起第 5 位
-    .digit5            ({1'b1,7'b1111_111}),     // 左起第 6 位
-    .digit6            ({1'b1,7'b1111_111}),     // 左起第 7 位
+    .digit3            ({1'b1,candidate_d}),     // 左起第 4 位
+    .digit4            ({1'b1,candidate_1}),     // 左起第 5 位
+    .digit5            ({1'b1,candidate_2}),     // 左起第 6 位
+    .digit6            ({1'b1,candidate_3}),     // 左起第 7 位
     .digit7            ({1'b1,seg_data_0})       // 左起第 8 位：SD 加载状态码
 );
 
@@ -620,11 +648,16 @@ video_delay video_delay_m0(
 assign vout_data = app_rgb; // status UI is visible while SD scans or is absent
 
 frame_read_write #(
+    // D123 exploratory real-image verification: D122-backed writer cadence.
+    .WRITE_BURST_SIZE(128),
+    .WRITE_TO_READ_GAP(16),
+    .WRITE_RESTART_GAP(64),
     .WRITE_V_FLIP     (1),
     .FRAME_WIDTH      (640),
     .FRAME_HEIGHT     (480),
     .READ_INDEX_SYNCHRONOUS (1)
 ) frame_read_write_m0(
+    .diagnostic_pause (1'b0),
     .mem_clk           (ext_mem_clk),
     .rst               (rst_mem),
     .Sdr_init_done     (Sdr_init_done),
@@ -670,7 +703,8 @@ frame_read_write #(
     .write_data        (sd_card_write_data)
 );
 
-sdram U3(
+// D110-backed opt-in: align early read data to the unchanged valid cycle.
+sdram #(.REGISTER_READ_DATA(1)) U3(
     .Clk               (ext_mem_clk),
     .Clk_sft           (ext_mem_clk_sft),
     .Rst               (rst_mem),
