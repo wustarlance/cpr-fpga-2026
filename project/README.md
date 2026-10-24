@@ -40,7 +40,7 @@ SD读取现在包含令牌/字节超时、读CRC、取消、整图有限重试�
 
 `top` 和 `top_adc` 均提供综合期参数 `ENABLE_AUDIO`，默认 `1` 保持 HDMI 音频输出；设为 `0` 会关闭 HDMI 音频采样与 ACR 包。修改参数后需重新综合并生成位流。音频 PLL 保持运行，因为其时钟也供 ADC 采样链使用。
 
-音频内容由 `rtl/cpr_audio_tone_i2s.v` 产生，48 kHz、24 bit、方波：教学浏览与自动展播播放 do-re-mi 音阶（每音 0.5 s 循环）；按压训练锁定 **A4 440 Hz**，每次节拍提示响 40 ms 后静音，使各拍音高一致。`I_metronome` 来自 25 MHz 视频域，模块内两级同步，首级在 `constraints/audio_metronome.sdc` 中豁免。声音只经 HDMI 输出，板上没有蜂鸣器。
+音频内容改为从 SD 卡播放 WAV：`rtl/audio/wav_audio_sd_top.v` 经 `rtl/SD/sd_sec_arbiter.v` 与 BMP 画面分时复用顶层唯一那份 `sd_card_top`（BMP 优先、WAV 让路），从 LBA 12000 起读 48 kHz / 24 bit WAV，经 `pcm_fifo` 跨到 12.295082 MHz 音频域后由 `pcm_player` 直接送 HDMI 数据岛（ACR 随流输出）。按压训练的 40 ms 节拍窗口仍由 `beat_hold_ms` 与 `audio_gate` 控制，但**声源来自卡上的 WAV**：未插卡或读卡失败时，训练模式的节拍提示音没有声音；片上音阶发生器 `rtl/cpr_audio_tone_i2s.v` 已随本分支移除，给它的 `metronome_meta` 做 CDC 豁免的 `constraints/audio_metronome.sdc` 也一并删除（豁免集合恒为空，留着只会误导）。声音只经 HDMI 输出，板上没有蜂鸣器。
 
 本工程整合 PR #1 的训练、ADC、OSD、复位和自检，与本地 SDRAM 40 MHz、刷新参数及 BMP 扫描流水化修复。媒体层继续用原始扇区扫描。当前 BMP 路径支持正高度、24 位无压缩、宽≤2048/高≤1536 的图片，加载时最近邻等比缩放并居中。需要补边的图片在加载阶段额外读取一遍源图，生成 32×24 cover 裁切背景，经区域均值降采样、三遍3×3盒式模糊、双线性放大并保留75%亮度，再盖上清晰前景写入 SDRAM；无补边图片仍走原来的单遍缩放。前四张会预载入四个固定 SDRAM 槽位，四槽就绪后手动/自动切换不再访问 SD 卡或重新计算模糊背景。设置顶层参数 `BLUR_BACKGROUND=0` 可恢复固定深蓝灰补边并取消双遍加载。
 

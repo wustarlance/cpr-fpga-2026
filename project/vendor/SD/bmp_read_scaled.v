@@ -133,6 +133,11 @@ module bmp_read_scaled #(
     reg [23:0] row_q;
 
     reg [31:0] payload_left;
+    // payload_left 递减到零的时刻原来在 ROW_READY 里现算：32 位归约比较直接
+    // 串进 blur 的 finish -> state 次态锥，是 sd_card_clk 域最差的一条路径
+    // （9.750ns，逻辑 10 级）。这里与 payload_left 同拍维护零标志，四个赋值点
+    // 一起更新，判定结果与 payload_left==0 逐位相同。
+    reg payload_zero_q;
     reg first_sector, sector_exhausted;
     reg [13:0] row_byte;
     reg [15:0] source_x, source_y;
@@ -171,7 +176,7 @@ module bmp_read_scaled #(
     wire bg_pixel_valid = (pass_mode==1) && (state==BYTE_USE) &&
                           (row_byte<row_bytes) && (channel==2);
     wire bg_finish = (pass_mode==1) && (state==ROW_READY) &&
-                     (payload_left==0);
+                     payload_zero_q;
     wire bg_sample_req = (state==BG_SAMPLE_REQ);
     wire bg_ingest_ready;
     wire bg_done;
@@ -226,6 +231,7 @@ module bmp_read_scaled #(
             signature0<=0; signature1<=0; file_len<=0; pixel_offset<=0;
             width<=0; height<=0; dib_size<=0; compression<=0; planes<=0; bpp<=0;
             row_bytes<=0; stride<=0; stride_m1<=0; pixel_end<=0; payload_left<=0;
+            payload_zero_q<=0;
             hdr_ok_a<=0; hdr_ok_b<=0; hdr_ok_c<=0; pixel_offset_min<=0;
             first_sector<=0; sector_exhausted<=0; row_byte<=0;
             source_x<=0; source_y<=0; channel<=0; blue<=0; green<=0;
@@ -438,6 +444,7 @@ module bmp_read_scaled #(
                         rx_count<=0; first_sector<=1;
                         sd_sec_read_addr<=load_base+(pixel_offset>>9);
                         payload_left<=pixel_end-pixel_offset;
+                        payload_zero_q<=(pixel_end==pixel_offset);
                         row_byte<=0; source_x<=0; source_y<=0; channel<=0;
                         state<=SECTOR;
                     end
@@ -456,6 +463,7 @@ module bmp_read_scaled #(
                         rx_count<=0; first_sector<=1;
                         sd_sec_read_addr<=load_base+(pixel_offset>>9);
                         payload_left<=pixel_end-pixel_offset;
+                        payload_zero_q<=(pixel_end==pixel_offset);
                         row_byte<=0; source_x<=0; source_y<=0; channel<=0;
                         out_x<=0; out_y<=0; content_y<=0;
                         sample_x<=0; sample_y<=0; h_rem<=0; v_rem<=0;
@@ -495,6 +503,7 @@ module bmp_read_scaled #(
                         channel<=channel==2?0:channel+1'b1;
                     end
                     payload_left<=payload_left-1'b1;
+                    payload_zero_q<=(payload_left==32'd1);
                     proc_pos<=proc_pos+1'b1;
                     sector_exhausted<=proc_pos==511;
                     if(row_byte==stride_m1) begin
@@ -509,7 +518,7 @@ module bmp_read_scaled #(
                 end
                 ROW_READY: begin
                     if (pass_mode==1) begin
-                        if (payload_left==0) state<=BG_WAIT;
+                        if (payload_zero_q) state<=BG_WAIT;
                         else state<=NEXT_ROW;
                     end else if(out_y<bottom_rows || content_y==fit_h ||
                        (content_y<fit_h && sample_y==source_y))
@@ -557,7 +566,7 @@ module bmp_read_scaled #(
                 end
                 NEXT_ROW: begin
                     source_y<=source_y+1'b1;
-                    if(payload_left==0) begin load_error<=1; operation_error<=1; error_code<=3'd2; state<=IDLE; end
+                    if(payload_zero_q) begin load_error<=1; operation_error<=1; error_code<=3'd2; state<=IDLE; end
                     else if(sector_exhausted) begin
                         sd_sec_read_addr<=sd_sec_read_addr+1'b1; state<=SECTOR;
                     end else state<=BYTE_FETCH;

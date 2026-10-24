@@ -8,7 +8,7 @@
 
 `define signle_bit 0
 
-`include "global_def.v"
+`include "../user_source/hdl_source/include/global_def.v"
 
 module sdr_init_ref #( parameter self_refresh_open=1
 			)
