@@ -38,7 +38,8 @@ module frame_fifo_read
 	input[1:0]                       read_addr_index,            // select valid base address from read_addr_0 read_addr_1 read_addr_2 read_addr_3
 	input[ADDR_BITS - 1:0]           read_len,                   // data read module read request data length
 	output reg                       fifo_aclr,                  // to fifo asynchronous clear
-	input[9:0]                      wrusedw,                    // from fifo write used words
+	// rfifo_32_32_512 的 wrusedw 是 ADDR_WIDTH_W(=9) 位，与 frame_fifo_write 同一处位宽错误。
+	input[BURST_BITS - 1:0]          wrusedw,                    // from fifo write used words
     output frame_start, // enters S_ACK; address is captured next cycle
     output read_urgent // low read FIFO must win arbitration over background writes
 
