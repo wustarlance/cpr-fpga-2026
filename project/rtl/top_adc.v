@@ -1,13 +1,17 @@
 // Internal ADC variant of the same board top. All board pin names are shared.
 // Defaults are test pressure codes, not calibrated physical depth thresholds.
-module top_adc #(parameter USE_EXTERNAL_IO=0,
+module top_adc #(parameter USE_EXTERNAL_IO=1,
                  parameter ENABLE_AUDIO=1,
+                 parameter BLUR_BACKGROUND=1,
+                 parameter integer BG_BRIGHTNESS_NUM=3,
+                 parameter integer BG_BRIGHTNESS_SHIFT=2,
                  parameter UI_LANGUAGE_ZH=1,
                  parameter LED_ACTIVE_LOW=0,
                  parameter [1:0] TRAINING_PAGE_INDEX=2'd1)(
     input wire clk, rst_n, key1, key3, key2,
     input wire [3:0] dip_sw,
     input wire [4:0] ext_keys_n,
+    input wire [5:0] key_panel_n,   // 外接八位按键面板 K1~K6
     input wire [3:0] depth_sw_n,
     output wire [7:0] seg_sel,
     output wire [7:0] seg_data,
@@ -20,6 +24,9 @@ module top_adc #(parameter USE_EXTERNAL_IO=0,
 );
     top #(.USE_ADC(1), .USE_EXTERNAL_IO(USE_EXTERNAL_IO),
           .ENABLE_AUDIO(ENABLE_AUDIO), .LED_ACTIVE_LOW(LED_ACTIVE_LOW),
+          .BLUR_BACKGROUND(BLUR_BACKGROUND),
+          .BG_BRIGHTNESS_NUM(BG_BRIGHTNESS_NUM),
+          .BG_BRIGHTNESS_SHIFT(BG_BRIGHTNESS_SHIFT),
           .TRAINING_PAGE_INDEX(TRAINING_PAGE_INDEX), .UI_LANGUAGE_ZH(UI_LANGUAGE_ZH)) u_board (
         .clk          (clk),
         .rst_n        (rst_n),
@@ -28,6 +35,7 @@ module top_adc #(parameter USE_EXTERNAL_IO=0,
         .key2         (key2),
         .dip_sw       (dip_sw),
         .ext_keys_n   (ext_keys_n),
+        .key_panel_n  (key_panel_n),
         .depth_sw_n   (depth_sw_n),
         .seg_sel      (seg_sel),
         .seg_data     (seg_data),
