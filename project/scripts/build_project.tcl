@@ -3,7 +3,7 @@
 #-----------------------------------------------------------------------------
 # 运行方式（CWD 必须是 project 目录，project.al 内相对路径以 CWD 为基准）：
 #     cd D:/ANLU/code/cpr-fpga-2026/project
-#     set BP_STAGE=gate    && td_commands_prompt.exe workbuddy_change/scripts/build_project.tcl
+#     set BP_STAGE=gate    && td_commands_prompt.exe scripts/build_project.tcl
 #     set BP_STAGE=place   && ...
 #     set BP_STAGE=route   && ...
 #     set BP_STAGE=bit     && ...
@@ -13,13 +13,13 @@
 #   gate  : elaborate + 读 SDC + optimize_rtl/gate，出面积与时序报告（最快，先看资源）
 #   place : 追加布局
 #   route : 追加布线 + 最终时序
-#   bit   : 追加位流生成 → workbuddy_change/build_project/top.bit
+#   bit   : 追加位流生成 → build_project/top.bit
 #=============================================================================
 set stage "gate"
 if {[info exists ::env(BP_STAGE)]} { set stage $::env(BP_STAGE) }
 
 set proj [pwd]
-set out  "$proj/workbuddy_change/build_project"
+set out  "$proj/build_project"
 file mkdir $out
 
 set top "top"
@@ -58,7 +58,7 @@ if {[catch {read_adc constraints/pin.adc} m]} {
 } else {
     puts "  ADC constraints/pin.adc OK"
 }
-foreach s {constraints/timing.sdc constraints/reset_publish.sdc constraints/page_status.sdc workbuddy_change/constraints/project_cdc.sdc} {
+foreach s {constraints/timing.sdc constraints/reset_publish.sdc constraints/page_status.sdc constraints/project_cdc.sdc} {
     if {[catch {read_sdc $s} m]} {
         puts "  SDC $s FAIL: $m"
     } else {

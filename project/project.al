@@ -70,11 +70,10 @@
             </File>
             <File Path="vendor/SD/bmp_blur_background.v">
                 <FileInfo>
-                    <Attr Name="AutoExcluded" Val="true"/>
-                    <Attr Name="CompileOrder" Val="62"/>
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
+                    <Attr Name="CompileOrder" Val="63"/>
                 </FileInfo>
             </File>
             <File Path="vendor/SD/bmp_read_scaled.v">
@@ -373,7 +372,7 @@
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
-                    <Attr Name="CompileOrder" Val="63"/>
+                    <Attr Name="CompileOrder" Val="65"/>
                 </FileInfo>
             </File>
             <File Path="rtl/cpr_seg_scan.v">
@@ -464,7 +463,7 @@
                     <Attr Name="CompileOrder" Val="57"/>
                 </FileInfo>
             </File>
-            <File Path="workbuddy_change/rtl/sd_sec_arbiter.v">
+            <File Path="rtl/SD/sd_sec_arbiter.v">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
@@ -493,7 +492,7 @@
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
-                    <Attr Name="CompileOrder" Val="63"/>
+                    <Attr Name="CompileOrder" Val="64"/>
                 </FileInfo>
             </File>
             <File Path="rtl/audio/wav_reader.v">
@@ -501,7 +500,7 @@
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
-                    <Attr Name="CompileOrder" Val="64"/>
+                    <Attr Name="CompileOrder" Val="66"/>
                 </FileInfo>
             </File>
             <File Path="rtl/audio/wav_audio_path.v">
@@ -509,7 +508,7 @@
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
-                    <Attr Name="CompileOrder" Val="65"/>
+                    <Attr Name="CompileOrder" Val="67"/>
                 </FileInfo>
             </File>
             <File Path="rtl/audio/wav_audio_sd_top.v">
@@ -517,7 +516,7 @@
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
-                    <Attr Name="CompileOrder" Val="66"/>
+                    <Attr Name="CompileOrder" Val="68"/>
                 </FileInfo>
             </File>
         </Verilog>
@@ -556,7 +555,7 @@
                     <Attr Name="CompileOrder" Val="4"/>
                 </FileInfo>
             </File>
-            <File Path="workbuddy_change/constraints/project_cdc.sdc">
+            <File Path="constraints/project_cdc.sdc">
                 <FileInfo>
                     <Attr Name="UsedInSyn" Val="true"/>
                     <Attr Name="UsedInP&R" Val="true"/>
@@ -615,7 +614,7 @@
         </FileSet>
     </FileSets>
     <TOP_MODULE>
-        <LABEL>top_adc/u_board</LABEL>
+        <LABEL>top</LABEL>
         <MODULE>top</MODULE>
         <CREATEINDEX>user</CREATEINDEX>
     </TOP_MODULE>

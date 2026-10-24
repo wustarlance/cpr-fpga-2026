@@ -122,8 +122,31 @@ Thumbs.db
 *.bak
 *.bak2*
 *.bak3*
-project/workbuddy_change/backup/
-project/workbuddy_change/sim/work/
 
 # 仿真/构建过程日志（*.log 已在第 ③ 节挡掉，这里补 txt 形式）
 *_log.txt
+
+# ---------- ⑧ 本机验证载体：project/workbuddy_change/ ----------
+# 这个目录是最初做音频链路验证时的工作区，里面有：
+#   audio_board.al / audio_bringup.al / audio_tmg.al   三个独立试验工程
+#   rtl/audio_*_top.v、wave_painter.v                  验证用顶层
+#   constraints/audio_*.adc|sdc                        验证工程的约束
+#   scripts/、build*.bat、sim/、tb/、doc/               试验脚本与排查记录
+#
+# 为什么不进仓库：
+#   1. 参赛工程 project.al 已经不再引用这里的任何文件——
+#      原先唯一被引用的两个（sd_sec_arbiter.v、project_cdc.sdc）
+#      已分别移到 rtl/SD/ 和 constraints/，工程可独立编译；
+#   2. 三个 .al 是并行试验工程，队友 clone 后不会去跑，
+#      留着反而让人误以为它们是正式工程；
+#   3. 目录里混有 backdoor 级临时物（build_*.log、td_*.logw、_Runs/），
+#      体积大且每次编译都变。
+# 判据：clone 下来只跑 project.build_project.bat 就能出 bit，
+#       不需要本目录任何内容。
+project/workbuddy_change/
+
+# ---------- ⑨ 本机构建输出 ----------
+# build_project.bat / scripts/build_project.tcl 的输出目录。
+# 里面的 .bit 已被第 ③ 节 *.bit 挡掉，但 .db/.area/.txt 会漏网，
+# 所以整目录排除。需要位流时本地跑一次构建即重新生成。
+/project/build_project/

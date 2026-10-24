@@ -12,7 +12,7 @@ REM    build_project.bat place    synthesis + place
 REM    build_project.bat route    synthesis + place + route + final timing
 REM    build_project.bat bit      full flow, generates top.bit
 REM
-REM  Output: workbuddy_change\build_project\top.bit
+REM  Output: build_project\top.bit
 REM ============================================================================
 setlocal enabledelayedexpansion
 
@@ -45,11 +45,11 @@ if not exist "project.al" (
 set BP_STAGE=%STAGE%
 REM Use forward slashes: TD's Tcl accepts them, and they survive being launched
 REM from Git Bash where backslashes get eaten as escape sequences.
-set BITFILE=workbuddy_change/build_project/top.bit
+set BITFILE=build_project/top.bit
 set BITTIME=
 if exist "%BITFILE%" for %%F in ("%BITFILE%") do set BITTIME=%%~tF
 
-"%TD_BIN%" "workbuddy_change/scripts/build_project.tcl"
+"%TD_BIN%" "scripts/build_project.tcl"
 set RC=%errorlevel%
 
 echo.
@@ -70,7 +70,7 @@ if /i not "%STAGE%"=="bit" (
 echo ============================================================
 echo.
 echo If timing is violated, inspect:
-echo   workbuddy_change/build_project/route_timing_status.rpt
+echo   build_project/route_timing_status.rpt
 echo.
 
 REM Double-click keeps the window open; set BV_NO_PAUSE=1 to skip in scripts.
