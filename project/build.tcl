@@ -50,13 +50,6 @@ if {[catch {
             error "ADC mailbox must bind 12 source and 12 capture registers"
         }
     }
-    # With ENABLE_AUDIO=0 the tone generator can be constant-pruned.  Do not
-    # apply its CDC exception to an empty register collection; enabled builds
-    # still load the same constraint.
-    set cpr_audio_meta [get_regs {*u_cpr_audio_tone/metronome_meta}]
-    if {[llength $cpr_audio_meta] > 0} {
-        read_sdc constraints/audio_metronome.sdc
-    }
     read_sdc constraints/page_status.sdc
     set cpr_page_src [get_regs {*u_page_status/u_transfer/src_hold[*]}]
     set cpr_page_dst [get_regs {*u_page_status/u_transfer/dst_data[*]}]
@@ -83,9 +76,6 @@ if {[catch {
     read_sdc constraints/reset_publish.sdc
     if {$cpr_top eq "top_adc"} {
         read_sdc constraints/adc_mailbox.sdc
-    }
-    if {[llength $cpr_audio_meta] > 0} {
-        read_sdc constraints/audio_metronome.sdc
     }
     read_sdc constraints/page_status.sdc
     read_sdc constraints/project_cdc.sdc
