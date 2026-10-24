@@ -68,8 +68,14 @@ reg  [15:0] S_note_frame_cnt;
 // a real metastability exposure.
 reg metronome_meta, metronome_sync;
 always @(posedge I_mclk or posedge I_rst) begin
-    if (I_rst) begin metronome_meta <= 1'b0; metronome_sync <= 1'b0; end
-    else begin metronome_meta <= I_metronome; metronome_sync <= metronome_meta; end
+    if (I_rst) begin 
+        metronome_meta <= 1'b0;
+        metronome_sync <= 1'b0;
+    end
+    else begin 
+        metronome_meta <= I_metronome; 
+        metronome_sync <= metronome_meta; 
+    end
 end
 
 // While the metronome is selected the scale position is ignored, so every

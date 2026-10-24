@@ -19,7 +19,9 @@
 # 仿真编译输出（iverilog/verilator 的工作目录）与波形，每次跑都重新生成。
 # 注意：这里不能用行内注释 —— 见下面第 ③ 节末尾的说明。
 build/
+build_msim/
 waves/
+transcript
 **/__pycache__/
 *.pyc
 
