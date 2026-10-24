@@ -65,11 +65,19 @@ reg  [31:0] wav_addr_q;
 wire idle = (owner == OWN_NONE);
 
 /* --------------------------------------------------------------------------
+ * BMP 直接透传（绝对优先）
+ *   必须先声明：wav_fire 要拿它做屏蔽，否则两者同拍为 1 时地址取 BMP 的，
+ *   但 wav_pend 仍会被下面的 else-if 清掉 —— WAV 那次请求就凭空消失了。
+ *   WAV 侧进 S_RECV 后只等 valid/end、没有超时，丢一次就永久卡死。
+ * -------------------------------------------------------------------------- */
+wire bmp_fire = I_ch0_read && I_sd_ready && idle;
+
+/* --------------------------------------------------------------------------
  * WAV 请求吸收
  *   I_ch1_read 可能是"BMP 正占用"时发出的，必须锁存，否则这次请求永久丢失，
  *   WAV 侧会卡在接收态等不到 end。地址同时锁存，保证补发时地址仍然正确。
  * -------------------------------------------------------------------------- */
-wire wav_fire = wav_pend && I_sd_ready && idle;
+wire wav_fire = wav_pend && I_sd_ready && idle && !bmp_fire;
 
 always @(posedge clk or posedge rst) begin
     if (rst) begin
@@ -87,12 +95,7 @@ always @(posedge clk or posedge rst) begin
     end
 end
 
-/* --------------------------------------------------------------------------
- * BMP 直接透传（绝对优先）
- * -------------------------------------------------------------------------- */
-wire bmp_fire = I_ch0_read && I_sd_ready && idle;
-
-assign O_sd_read = bmp_fire | (wav_fire && !bmp_fire);
+assign O_sd_read = bmp_fire | wav_fire;
 assign O_sd_addr = bmp_fire ? I_ch0_addr : wav_addr_q;
 
 /* --------------------------------------------------------------------------

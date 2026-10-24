@@ -113,3 +113,17 @@ Thumbs.db
 # 临时 TD 试验工程（自己练手用，不是参赛产物）。
 # 上次 387d1ee 误提交就是因为它是未跟踪状态、被 git add -A 顺手带进去了。
 /test/
+
+# ---------- ⑦ 本地备份 / 损坏样本 / 仿真库 ----------
+# 这几类都是「本机排障的中间物」，对队友没有任何价值，且会大幅膨胀仓库：
+#   backup/     加密核损坏样本 + 源码 .bak，约 1.2 MB
+#   sim/work/   ModelSim 编译库（_info / *.qdb / *.qpg），约 2.1 MB，每次 vlog 重新生成
+# 注意：*.bak 用通配是为了连 project.al.bak2_xxx / .bak3_xxx 一起挡住。
+*.bak
+*.bak2*
+*.bak3*
+project/workbuddy_change/backup/
+project/workbuddy_change/sim/work/
+
+# 仿真/构建过程日志（*.log 已在第 ③ 节挡掉，这里补 txt 形式）
+*_log.txt
