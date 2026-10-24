@@ -1,4 +1,8 @@
-> 2026-10-23：D123白线修正、按键映射、两轮SRAM观察和本次TD限制见[白线修正说明](docs/white-lines-20261023.md)。本次未验收ADC/外接输入顶层，未写Flash。
+> 2026-10-24：完成 [SD/HDMI 离线时序预算与自检](docs/io-timing-budget.md)，SD 正常传输改为约 16.67 MHz；现有 TD 6.2.168116 完整生成两顶层位流、内部 setup/hold 为正。6 项 RTL、27 项 Python 检查通过，2 项故障注入按预期失败。严格检查仍 failed、板级 I/O 为 conditional；未上板，下方历史通过记录不替代本次结果。
+>
+> 2026-10-23：TD 6.2.168116 已完成两个顶层的新一轮布局布线，修复页面/ADC邮箱的SDC回放绑定，并增加约束覆盖门禁；严重告警和接口审查仍未完成，严格验收为failed。见[本轮TD验收记录](docs/td-acceptance-20261023.md)。
+>
+> D123白线修正、按键映射及两轮SRAM观察见[白线修正说明](docs/white-lines-20261023.md)。本轮TD候选未下载上板，未写Flash。
 
 > 本地修复版（2026-10-17）：频率与刷新互锁改动见 [修复说明](docs/display-fixes-20261017.md)。41 项 RTL 及 5 项运行器检查通过；本次尚未完成 SP1 布局布线及实板复验。下方构建状态属于修复前的主分支基线。
 
@@ -32,7 +36,7 @@ SD读取现在包含令牌/字节超时、读CRC、取消、整图有限重试�
 
 # HX4S20C 心肺复苏训练终端：整合工程
 
-主工程入口为 `project/project.al`，顶层 `top`（按键演示）或 `top_adc`（未标定压力输入）。工具为安路 TD 6.2.1 SP1 / 6.2.178840，器件 EG4S20BG256，HDMI_B 输出。
+主工程入口为 `project/project.al`，顶层 `top`（按键演示）或 `top_adc`（未标定压力输入），器件 EG4S20BG256，HDMI_B 输出。团队历史工程元数据为 TD 6.2.1 SP1 / 6.2.178840；本次使用用户现有官方 TD 6.2.168116 完整构建，工具版本与结论见上方当日记录，升级 SP1 不是本次前提。
 
 `top` 和 `top_adc` 均提供综合期参数 `ENABLE_AUDIO`，默认 `1` 保持 HDMI 音频输出；设为 `0` 会关闭 HDMI 音频采样与 ACR 包。修改参数后需重新综合并生成位流。音频 PLL 保持运行，因为其时钟也供 ADC 采样链使用。
 
@@ -98,7 +102,7 @@ CPR_TOP=top CPR_STAGE=synth td build.tcl   # 只综合不布局布线，约 55 s
 构建结束会打印一行结论：
 
 ```
-CPR_BUILD_PASS top setup=0.115 hold=0.011      ← 通过
+CPR_BUILD_PASS top setup=0.115 hold=0.011      ← 构建和时序摘要检查完成，仍需运行verify_td.py审查告警与覆盖
 CPR_BUILD_FAIL top: Timing failed: setup=-0.563 hold=0.003   ← 失败，非零退出
 ```
 
@@ -106,9 +110,9 @@ CPR_BUILD_FAIL top: Timing failed: setup=-0.563 hold=0.003   ← 失败，非零
 
 | 文件 | 内容 |
 |---|---|
-| `timing_status.rpt` | 全局余量，最权威的两行 |
+| `timing_status.rpt` | 全局setup/hold余量摘要，须结合约束覆盖和告警 |
 | `timing_summary.rpt` | 各时钟域余量 + 最差路径（约 1.5 MB）|
-| `timing_check.rpt` | 约束与 CDC 检查 |
+| `timing_check.rpt` | 时钟与约束覆盖检查；不替代CDC协议审查 |
 | `gate_area.rpt` | LUT / REG / IO 占用 |
 
 ```bash
@@ -162,6 +166,8 @@ ADC 模式使用 CH1（M10，J1 第16脚），复用约12.295 MHz音频 PLL。�
 
 ## 已知限制
 
-缩放缓存专项仿真覆盖 640×480 逐像素直通、任意宽高比例、非4字节对齐行、BMP像素偏移跨扇区、SDRAM写 FIFO 满时停顿和四槽并发显示读。数字测试、完整构建和静态时序通过不等于实际显示/ADC/机械已通过。加密 SDRAM 刷新时的请求行为、长时间读写、板级 I/O 和 HDMI 接收端仍需上板验收。TD 可能报告内置 SDRAM 宏在中间 ECO 布局重新定位；验证脚本只在完整 route/bitgen 成功时单独记录这个精确诊断，其他错误或严重告警仍拒绝。
+SD/HDMI 的离线预算、正常传输 SPI 调整为约16.667 MHz的原因及复现方法，见[接口时序预算](docs/io-timing-budget.md)。板级电气签核与新位流上板结果单独记录。
+
+缩放缓存专项仿真覆盖 640×480 逐像素直通、任意宽高比例、非4字节对齐行、BMP像素偏移跨扇区、SDRAM写 FIFO 满时停顿和四槽并发显示读。数字测试、完整构建和静态时序通过不等于实际显示/ADC/机械已通过。加密 SDRAM 刷新时的请求行为、长时间读写、板级 I/O 和 HDMI 接收端仍需上板验收。TD 可能报告内置 SDRAM 宏在中间 ECO 布局重新定位；当前验证脚本会保留并拒绝所有错误或严重告警，route/bitgen 成功不自动豁免该诊断。
 
 本次结果见 [integration-verification.md](docs/integration-verification.md)。位流、日志及工具不进 Git。

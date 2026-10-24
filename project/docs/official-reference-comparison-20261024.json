@@ -1,0 +1,397 @@
+{
+  "scope": "Reference compatibility and finding provenance, not signoff or a warning waiver",
+  "official_project_declared_td_version": "6.2.168116",
+  "installed_td_version": "6.2.168116",
+  "official_design_modified_for_comparison": false,
+  "product_modified_this_comparison": false,
+  "hardware_programmed": false,
+  "source_comparison": {
+    "system_pll": {
+      "official_file": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\7_lab_ex_2026_nosoft\\lab_ex5_i2s\\src\\user_source\\hdl_source\\IP\\sys_pll.v",
+      "product_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\ip\\sys_pll.v",
+      "official_sha256": "ea4ed09b2ff026b7b31eb76f51ef5afa388aa552e538e02d013cc8e7464ba563",
+      "product_sha256": "9a1a2be0004be8e83d94bb9cce49a8a6a61b2dbf0250f12799f2e30bf0db248a",
+      "byte_identical": false,
+      "official_parameters": {
+        "FIN": "\"50.000000\"",
+        "FEEDBK_MODE": "\"NORMAL\"",
+        "FEEDBK_PATH": "\"CLKC0_EXT\"",
+        "CLKC0_DIV": "10",
+        "CLKC0_CPHASE": "9",
+        "CLKC0_FPHASE": "0",
+        "CLKC1_DIV": "8",
+        "CLKC1_CPHASE": "7",
+        "CLKC1_FPHASE": "0",
+        "CLKC2_DIV": "8",
+        "CLKC2_CPHASE": "3",
+        "CLKC2_FPHASE": "0"
+      },
+      "product_parameters": {
+        "FIN": "\"50.000000\"",
+        "FEEDBK_MODE": "\"NORMAL\"",
+        "FEEDBK_PATH": "\"CLKC0_EXT\"",
+        "CLKC0_DIV": "10",
+        "CLKC0_CPHASE": "9",
+        "CLKC0_FPHASE": "0",
+        "CLKC1_DIV": "25",
+        "CLKC1_CPHASE": "24",
+        "CLKC1_FPHASE": "0",
+        "CLKC2_DIV": "25",
+        "CLKC2_CPHASE": "11",
+        "CLKC2_FPHASE": "4"
+      },
+      "changed_parameters": {
+        "CLKC2_DIV": {
+          "official": "8",
+          "product": "25"
+        },
+        "CLKC2_CPHASE": {
+          "official": "3",
+          "product": "11"
+        },
+        "CLKC1_CPHASE": {
+          "official": "7",
+          "product": "24"
+        },
+        "CLKC1_DIV": {
+          "official": "8",
+          "product": "25"
+        },
+        "CLKC2_FPHASE": {
+          "official": "0",
+          "product": "4"
+        }
+      }
+    },
+    "video_pll": {
+      "official_file": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\7_lab_ex_2026_nosoft\\lab_ex5_i2s\\src\\user_source\\hdl_source\\IP\\video_pll.v",
+      "product_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\ip\\video_pll.v",
+      "official_sha256": "d5a2b3d3d0618d19619c36af0143f8bf9338415eef2eadd22456510ade9c6092",
+      "product_sha256": "57e45a062814673e97773cf6c58ff1629fa45895e30de9d2c2b6bdd30bd9bb13",
+      "byte_identical": false,
+      "official_parameters": {
+        "FIN": "\"50.000000\"",
+        "FEEDBK_MODE": "\"NORMAL\"",
+        "FEEDBK_PATH": "\"CLKC0_EXT\"",
+        "CLKC0_DIV": "40",
+        "CLKC0_CPHASE": "39",
+        "CLKC0_FPHASE": "0",
+        "CLKC1_DIV": "8",
+        "CLKC1_CPHASE": "7",
+        "CLKC1_FPHASE": "0"
+      },
+      "product_parameters": {
+        "FIN": "\"50.000000\"",
+        "FEEDBK_MODE": "\"NORMAL\"",
+        "FEEDBK_PATH": "\"CLKC0_EXT\"",
+        "CLKC0_DIV": "40",
+        "CLKC0_CPHASE": "39",
+        "CLKC0_FPHASE": "0",
+        "CLKC1_DIV": "8",
+        "CLKC1_CPHASE": "7",
+        "CLKC1_FPHASE": "0"
+      },
+      "changed_parameters": {}
+    },
+    "audio_pll": {
+      "official_file": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\7_lab_ex_2026_nosoft\\lab_ex5_i2s\\src\\td_project\\al_ip\\PLL_HDMI_AUDIO.v",
+      "product_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\05_lab_ex\\lab_ex5_i2s\\src\\td_project\\al_ip\\PLL_HDMI_AUDIO.v",
+      "official_sha256": "1e174c1dc4edbce9c61d6b390aca3b7b94022b60995a92981d5278247b7f5867",
+      "product_sha256": "1e174c1dc4edbce9c61d6b390aca3b7b94022b60995a92981d5278247b7f5867",
+      "byte_identical": true,
+      "official_parameters": {
+        "FIN": "\"50.000000\"",
+        "FEEDBK_MODE": "\"NORMAL\"",
+        "FEEDBK_PATH": "\"CLKC0_EXT\"",
+        "CLKC0_DIV": "10",
+        "CLKC0_CPHASE": "9",
+        "CLKC0_FPHASE": "0",
+        "CLKC1_DIV": "2",
+        "CLKC1_CPHASE": "1",
+        "CLKC1_FPHASE": "4",
+        "CLKC2_DIV": "61",
+        "CLKC2_CPHASE": "60",
+        "CLKC2_FPHASE": "0"
+      },
+      "product_parameters": {
+        "FIN": "\"50.000000\"",
+        "FEEDBK_MODE": "\"NORMAL\"",
+        "FEEDBK_PATH": "\"CLKC0_EXT\"",
+        "CLKC0_DIV": "10",
+        "CLKC0_CPHASE": "9",
+        "CLKC0_FPHASE": "0",
+        "CLKC1_DIV": "2",
+        "CLKC1_CPHASE": "1",
+        "CLKC1_FPHASE": "4",
+        "CLKC2_DIV": "61",
+        "CLKC2_CPHASE": "60",
+        "CLKC2_FPHASE": "0"
+      },
+      "changed_parameters": {}
+    },
+    "sdram_parameters": {
+      "official_file": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\7_lab_ex_2026_nosoft\\lab_ex5_i2s\\src\\user_source\\hdl_source\\include\\global_def.v",
+      "product_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\vendor\\include\\global_def.v",
+      "official_sha256": "04f854d7fe2f7816705b988ec59822fc258e4ed3a13529e36d0b9e6233a2682f",
+      "product_sha256": "73b82ea06af8a9e8abc36c2f3eb4b72491988022d44a0cd7e993abe1d5fb9e68",
+      "byte_identical": false
+    },
+    "sdram_wrapper": {
+      "official_file": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\7_lab_ex_2026_nosoft\\lab_ex5_i2s\\src\\user_source\\hdl_source\\SD\\sdram.v",
+      "product_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\vendor\\sdram.v",
+      "official_sha256": "2d985c2477384e677c25714241e1a50206def8916aa03189a5b313b2d22dfc99",
+      "product_sha256": "355b23a008108e733fcee2e180b9d66f390fda135c6157a5ed8a37e691021993",
+      "byte_identical": false
+    },
+    "sdram_encrypted_controller": {
+      "official_file": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\7_lab_ex_2026_nosoft\\lab_ex5_i2s\\src\\user_source\\hdl_source\\include\\sdr_wrrd.enc.v",
+      "product_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\include\\sdr_wrrd.enc.v",
+      "official_sha256": "c7d7fe07d75f66aa88d9f986b3006319c995162434f104f9990664b374cdfdd2",
+      "product_sha256": "c7d7fe07d75f66aa88d9f986b3006319c995162434f104f9990664b374cdfdd2",
+      "byte_identical": true
+    },
+    "sdram_initialization": {
+      "official_file": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\7_lab_ex_2026_nosoft\\lab_ex5_i2s\\src\\user_source\\hdl_source\\include\\sdr_init_ref.enc.v",
+      "product_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\vendor\\include\\sdr_init_ref.enc.v",
+      "official_sha256": "6da5945f4af793610d0d64c65c7e5d2d1c86ed4c11bc5fdeacd27eb03178b9f6",
+      "product_sha256": "367e7edf2092c153d9fb6d98376c5726a3d1d7373756e8fe7256ad9546c90da5",
+      "byte_identical": false
+    },
+    "hdmi_lane": {
+      "official_file": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\7_lab_ex_2026_nosoft\\lab_ex5_i2s\\src\\user_source\\hdl_source\\lane_lvds_10_1.v",
+      "product_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\lane_lvds_10_1.v",
+      "official_sha256": "de9529321354f04837e051d0ec1681cf44783d4be3284703a788e081147500bc",
+      "product_sha256": "de9529321354f04837e051d0ec1681cf44783d4be3284703a788e081147500bc",
+      "byte_identical": true
+    },
+    "timing_sdc": {
+      "official_file": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\7_lab_ex_2026_nosoft\\lab_ex5_i2s\\src\\user_source\\constraints_source\\timing.sdc",
+      "product_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\constraints\\timing.sdc",
+      "official_sha256": "4a6aefbaa2ee7522274402d00f67b230f7b002a6e7def5013e0c234522b192bf",
+      "product_sha256": "e2308d2d69cb1a81aff9072eda1cae368bbebd1294ce336e113c11c614bc7109",
+      "byte_identical": false
+    },
+    "pins": {
+      "official_file": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\7_lab_ex_2026_nosoft\\lab_ex5_i2s\\src\\user_source\\constraints_source\\pin.adc",
+      "product_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\constraints\\pin.adc",
+      "official_sha256": "bfec796ee0ebf506293d5d317fc9e3868197bcdd4c5c376ab9ba1061a4982ec8",
+      "product_sha256": "db42800fd6a10708beeea287dee7bc988973d3168918b91e3be8d41bb4c0b594",
+      "byte_identical": false
+    }
+  },
+  "official_baseline": {
+    "results_sha256": "85b3ce5ff99f40c24c8154c26c2f33a1113ca13885be6724461019a1984e5485",
+    "slacks_ns": {
+      "SWNS": -6.699,
+      "STNS": -293.216,
+      "HWNS": 0.003,
+      "HTNS": 0.0
+    },
+    "critical_diagnostics": [
+      "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+      "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+      "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+      "USR-6135 CRITICAL-WARNING: The feedback path of PLL sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+      "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+      "USR-6135 CRITICAL-WARNING: The feedback path of PLL video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+    ],
+    "flow_completed": true,
+    "source_inputs_unchanged": true,
+    "source_input_file_count": 80,
+    "missing_delay_ports": {
+      "input": [
+        "HDMI_DDC_SDA",
+        "key1",
+        "key2",
+        "rst_n",
+        "sd_miso"
+      ],
+      "output": [
+        "HDMI_CLK_P",
+        "HDMI_D0_P",
+        "HDMI_D1_P",
+        "HDMI_D2_P",
+        "HDMI_DDC_SCL",
+        "HDMI_DDC_SDA",
+        "sd_dclk",
+        "sd_mosi",
+        "sd_ncs",
+        "seg_data[7]",
+        "seg_data[6]",
+        "seg_data[5]",
+        "seg_data[4]",
+        "seg_data[3]",
+        "seg_data[2]",
+        "seg_data[1]",
+        "seg_data[0]",
+        "seg_sel[5]",
+        "seg_sel[4]",
+        "seg_sel[3]",
+        "seg_sel[2]",
+        "seg_sel[1]",
+        "seg_sel[0]"
+      ]
+    }
+  },
+  "product": {
+    "top": {
+      "findings_also_reproduced_in_reference": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "findings_not_reproduced_in_reference": [],
+      "all_normalized_critical_messages_reproduced": true,
+      "missing_delay_port_changes": {
+        "input": {
+          "also_in_reference": [
+            "HDMI_DDC_SDA",
+            "key1",
+            "key2",
+            "rst_n",
+            "sd_miso"
+          ],
+          "product_only": [
+            "depth_sw_n[0]",
+            "depth_sw_n[1]",
+            "depth_sw_n[2]",
+            "depth_sw_n[3]",
+            "dip_sw[0]",
+            "dip_sw[1]",
+            "dip_sw[2]",
+            "dip_sw[3]",
+            "ext_keys_n[0]",
+            "ext_keys_n[1]",
+            "ext_keys_n[2]",
+            "ext_keys_n[3]",
+            "ext_keys_n[4]",
+            "key3"
+          ],
+          "reference_only": []
+        },
+        "output": {
+          "also_in_reference": [
+            "HDMI_CLK_P",
+            "HDMI_D0_P",
+            "HDMI_D1_P",
+            "HDMI_D2_P",
+            "HDMI_DDC_SCL",
+            "HDMI_DDC_SDA",
+            "sd_dclk",
+            "sd_mosi",
+            "sd_ncs",
+            "seg_data[0]",
+            "seg_data[1]",
+            "seg_data[2]",
+            "seg_data[3]",
+            "seg_data[4]",
+            "seg_data[5]",
+            "seg_data[6]",
+            "seg_data[7]",
+            "seg_sel[0]",
+            "seg_sel[1]",
+            "seg_sel[2]",
+            "seg_sel[3]",
+            "seg_sel[4]",
+            "seg_sel[5]"
+          ],
+          "product_only": [
+            "led[0]",
+            "led[1]",
+            "led[2]",
+            "led[3]",
+            "seg_sel[6]",
+            "seg_sel[7]"
+          ],
+          "reference_only": []
+        }
+      },
+      "comparison_unit": "Diagnostic family and SDRAM macro, not identical placement or timing"
+    },
+    "top_adc": {
+      "findings_also_reproduced_in_reference": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "findings_not_reproduced_in_reference": [],
+      "all_normalized_critical_messages_reproduced": true,
+      "missing_delay_port_changes": {
+        "input": {
+          "also_in_reference": [
+            "HDMI_DDC_SDA",
+            "key1",
+            "key2",
+            "rst_n",
+            "sd_miso"
+          ],
+          "product_only": [
+            "depth_sw_n[0]",
+            "depth_sw_n[1]",
+            "depth_sw_n[2]",
+            "depth_sw_n[3]",
+            "dip_sw[0]",
+            "dip_sw[1]",
+            "dip_sw[2]",
+            "dip_sw[3]",
+            "ext_keys_n[0]",
+            "ext_keys_n[1]",
+            "ext_keys_n[2]",
+            "ext_keys_n[3]",
+            "ext_keys_n[4]",
+            "key3"
+          ],
+          "reference_only": []
+        },
+        "output": {
+          "also_in_reference": [
+            "HDMI_CLK_P",
+            "HDMI_D0_P",
+            "HDMI_D1_P",
+            "HDMI_D2_P",
+            "HDMI_DDC_SCL",
+            "HDMI_DDC_SDA",
+            "sd_dclk",
+            "sd_mosi",
+            "sd_ncs",
+            "seg_data[0]",
+            "seg_data[1]",
+            "seg_data[2]",
+            "seg_data[3]",
+            "seg_data[4]",
+            "seg_data[5]",
+            "seg_data[6]",
+            "seg_data[7]",
+            "seg_sel[0]",
+            "seg_sel[1]",
+            "seg_sel[2]",
+            "seg_sel[3]",
+            "seg_sel[4]",
+            "seg_sel[5]"
+          ],
+          "product_only": [
+            "led[0]",
+            "led[1]",
+            "led[2]",
+            "led[3]",
+            "seg_sel[6]",
+            "seg_sel[7]"
+          ],
+          "reference_only": []
+        }
+      },
+      "comparison_unit": "Diagnostic family and SDRAM macro, not identical placement or timing"
+    }
+  },
+  "unresolved_scope": [
+    "Inherited findings are not automatically safe or waived",
+    "40 MHz CPR memory configuration differs from the official 125 MHz design",
+    "Positive CPR internal setup/hold does not prove external I/O timing",
+    "Custom strict runner failure is not an official contest acceptance verdict"
+  ]
+}

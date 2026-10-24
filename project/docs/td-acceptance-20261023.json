@@ -1,0 +1,431 @@
+{
+  "recorded_utc": "2026-10-23T10:22:50.667595+00:00",
+  "strict_acceptance_status": "failed",
+  "device": "EG4S20BG256",
+  "base_commit": "5b1558f66f0b7df7592d82807cfd8ef34cc614c7",
+  "tool": "E:\\BaiduNetdiskDownload\\HX4S20_Contest_202606\\anlu\\td\\bin\\td_commands_prompt.exe",
+  "tool_sha256": "e2e04ada5e256dccd017240c0f4dcface7f96dca67cde0e56e606ac0e02f827a",
+  "tool_version_policy": "Use the installed 6.2.168116; no SP1 dependency",
+  "executed_build_runner_sha256": "3d26fec3939b497813941fd063daab85bcc103fdad84ebbe0056f2bb9cb03840",
+  "executed_build_results_sha256": "aaf7a8d5ae45eb26d6f18a58bd6a3f633b984ef95bb5a4c1fbf1ec9347fa4f33",
+  "build_inputs_unchanged_during_run": true,
+  "build_input_count": 137,
+  "changed_build_inputs_from_sdc_reload_attempt": {
+    "project/build.tcl": {
+      "before": "8562392dfe5d74ea76c5e692d5f1375ba986acb1306a8a47b24d3060a46fc5cf",
+      "after": "ed3dc4a6cedbf95a64309f4d25ee9efdd7155969e607d949b30cdd8c88d582a6"
+    },
+    "project/constraints/adc_mailbox.sdc": {
+      "before": "d3b98831a1b565290e613f03946c2d150ca01fc3b8fe4923e07e9c9b8595a020",
+      "after": "026fd4b167a821e6e5bfcc94218c3e234df991e1639ed1bd935bb6f38e8ad67b"
+    },
+    "project/constraints/page_status.sdc": {
+      "before": "987a82c84a7e1d446ace2115b38b92149dd62e73bc2722ffef6c04d51078bee6",
+      "after": "671cb216053dfcfed6d867f24cefc64df7a26d07c78adfc0b1937498b07a07a4"
+    }
+  },
+  "rtl_pll_pins_unchanged": true,
+  "new_runner_full_td_build_executed": false,
+  "new_runner_validation": {
+    "tests": 10,
+    "passed": true,
+    "log_sha256": "0be61d04cd19a76a783940db54d46ef0fd27328fc41f48df94dd99ecd1db240d",
+    "current_runner_sha256": "b4dee1e8fb5b07ed06c7ac3fbbcb08c93ff7c604d6fd7b96f460f8dc8c33a5b3",
+    "coverage_checker_sha256": "b9f46f7da559d991f718f67408e912dd45afc7f7002ed991267dff9ef13da1c3"
+  },
+  "hardware_programmed_this_task": false,
+  "preserved_board_verified_d123_sha256": "469e20326ea1b0c894b172bbe28497520efc36ea07aea9db6a5faf7340b49f90",
+  "tops": [
+    {
+      "top": "top",
+      "full_build_status": "failed",
+      "tool_version": "6.2.168116",
+      "returncode": 0,
+      "elapsed_seconds": 243.853,
+      "slacks_ns": {
+        "SWNS": 0.103,
+        "STNS": 0.0,
+        "HWNS": 0.004,
+        "HTNS": 0.0
+      },
+      "corners": "Slow/Fast max and min",
+      "sta_coverage_percent": 99.65,
+      "critical_diagnostics": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "resources": {
+        "lut": {
+          "used": 9580,
+          "available": 19600,
+          "percent": 48.88
+        },
+        "reg": {
+          "used": 5215,
+          "available": 19600,
+          "percent": 26.61
+        },
+        "bram": {
+          "used": 27,
+          "available": 64,
+          "percent": 42.19
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        },
+        "adc": {
+          "used": 0,
+          "available": 1,
+          "percent": 0.0,
+          "report_row_omitted": true
+        }
+      },
+      "bitstream_sha256": "9e9fc83a0d7f4b9ab6159495ae4aedc5a8c4bf245d68c1e43b6aedc9fe73f09b",
+      "new_bitstream_hardware_verified": false,
+      "coverage_review": {
+        "status": "needs_review",
+        "blocking_findings": [],
+        "review_findings": [
+          "dummy node: 3",
+          "no input delay: 19",
+          "no output delay: 29",
+          "abnormal input delay: 32"
+        ],
+        "checks": {
+          "1": {
+            "name": "no clock",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "2": {
+            "name": "clock definition",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "3": {
+            "name": "dummy node",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "4": {
+            "name": "invalid constraint",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "5": {
+            "name": "pll/clock buffer clock constraints",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "6": {
+            "name": "combinational loops",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "7": {
+            "name": "soft fifo timing exception constraints",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "8": {
+            "name": "no path constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "9": {
+            "name": "shadowed/ignored timing exception constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "10": {
+            "name": "no input delay",
+            "count": 19,
+            "severity": "MEDIUM"
+          },
+          "11": {
+            "name": "no output delay",
+            "count": 29,
+            "severity": "MEDIUM"
+          },
+          "12": {
+            "name": "partial input delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "13": {
+            "name": "partial output delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "14": {
+            "name": "abnormal input delay",
+            "count": 32,
+            "severity": "MEDIUM"
+          }
+        },
+        "max_delay_rows": [
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_page_status/u_transfer/src_hold[*]}] -to [get_regs {*u_page_status/u_transfer/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 0,
+            "dominated": 0,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_frame_publish/held_index[*]}] -to [get_regs {*u_frame_publish/pending_index[*]}] 25 -datapath_only"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 24.700"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 9.700"
+          }
+        ],
+        "scope": "report coverage only; manual interface, CDC and physical review still required",
+        "top": "top",
+        "check_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\build\\top\\timing_check.rpt",
+        "check_sha256": "c814b6e96bf375951f691ba1fdac2228854d81fb8cf4cc50e2bed2a949aafefa",
+        "checker_sha256": "b9f46f7da559d991f718f67408e912dd45afc7f7002ed991267dff9ef13da1c3"
+      },
+      "report_hashes": {
+        "clock_intersection.rpt": "794fccd1559ac5ae382006e628ad5ae561c653819ca33c61b38d364e49632c81",
+        "clock_summary.rpt": "00341edf77ee9b9dfd79ca51baa138c7bc9095024ab1d68921787d247f929823",
+        "gate.qor": "060fb6e66321db06808a531f91ccdaff20d723f7d313f923bddfdfc4b17bfe97",
+        "gate_area.rpt": "a7efe2144727aa7289754cbf75ec83465b63edd5f0ae5d146cda175e7acc8233",
+        "place.qor": "a490ba19363bc96f91f1a78c94a98284e4bde11335e63c2d7c744ceca51e5518",
+        "route.qor": "33864e4f2aee9c9a57e65dd614dc128227cc78ec3a9b0f83e4e1d55f224bdf90",
+        "rtl_area.rpt": "b1daabb110bff553d514a5f919d3d4050747ca975aa6eb7b43d5a9154be7165b",
+        "timing_check.rpt": "c814b6e96bf375951f691ba1fdac2228854d81fb8cf4cc50e2bed2a949aafefa",
+        "timing_exception.rpt": "210eb5245cf0ab3b2a73e617353ebf97183595a8b90a166087123a667108bc5b",
+        "timing_status.rpt": "2378225910a7b86d5adb1fa18cb30ad818e87215f90d546fd6abcb06d5287a45",
+        "timing_summary.rpt": "0f13a05ce0c1193e1df0ac51c23ea8e6b06ba1ebdcd50954cdbf7fb994802397"
+      }
+    },
+    {
+      "top": "top_adc",
+      "full_build_status": "failed",
+      "tool_version": "6.2.168116",
+      "returncode": 0,
+      "elapsed_seconds": 391.953,
+      "slacks_ns": {
+        "SWNS": 0.141,
+        "STNS": 0.0,
+        "HWNS": 0.011,
+        "HTNS": 0.0
+      },
+      "corners": "Slow/Fast max and min",
+      "sta_coverage_percent": 99.67,
+      "critical_diagnostics": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "resources": {
+        "lut": {
+          "used": 9879,
+          "available": 19600,
+          "percent": 50.4
+        },
+        "reg": {
+          "used": 5361,
+          "available": 19600,
+          "percent": 27.35
+        },
+        "bram": {
+          "used": 27,
+          "available": 64,
+          "percent": 42.19
+        },
+        "adc": {
+          "used": 1,
+          "available": 1,
+          "percent": 100.0
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        }
+      },
+      "bitstream_sha256": "ab30c3514f8e6d21ba5b6e43f603137bc4e414be18890b117be0700b3442a1f7",
+      "new_bitstream_hardware_verified": false,
+      "coverage_review": {
+        "status": "needs_review",
+        "blocking_findings": [],
+        "review_findings": [
+          "dummy node: 4",
+          "no input delay: 19",
+          "no output delay: 29",
+          "abnormal input delay: 32"
+        ],
+        "checks": {
+          "1": {
+            "name": "no clock",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "2": {
+            "name": "clock definition",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "3": {
+            "name": "dummy node",
+            "count": 4,
+            "severity": "HIGH"
+          },
+          "4": {
+            "name": "invalid constraint",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "5": {
+            "name": "pll/clock buffer clock constraints",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "6": {
+            "name": "combinational loops",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "7": {
+            "name": "soft fifo timing exception constraints",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "8": {
+            "name": "no path constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "9": {
+            "name": "shadowed/ignored timing exception constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "10": {
+            "name": "no input delay",
+            "count": 19,
+            "severity": "MEDIUM"
+          },
+          "11": {
+            "name": "no output delay",
+            "count": 29,
+            "severity": "MEDIUM"
+          },
+          "12": {
+            "name": "partial input delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "13": {
+            "name": "partial output delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "14": {
+            "name": "abnormal input delay",
+            "count": 32,
+            "severity": "MEDIUM"
+          }
+        },
+        "max_delay_rows": [
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_mailbox/src_hold[*]}] -to [get_regs {*u_mailbox/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_page_status/u_transfer/src_hold[*]}] -to [get_regs {*u_page_status/u_transfer/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 0,
+            "dominated": 0,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_frame_publish/held_index[*]}] -to [get_regs {*u_frame_publish/pending_index[*]}] 25 -datapath_only"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 24.700"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 9.700"
+          }
+        ],
+        "scope": "report coverage only; manual interface, CDC and physical review still required",
+        "top": "top_adc",
+        "check_file": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\build\\top_adc\\timing_check.rpt",
+        "check_sha256": "1d127bdb2cc94484caea9a38bd63ede70178c835c05d8b6ff0509a0ea73689d0",
+        "checker_sha256": "b9f46f7da559d991f718f67408e912dd45afc7f7002ed991267dff9ef13da1c3"
+      },
+      "report_hashes": {
+        "clock_intersection.rpt": "8345c42e0f993bb1134efa0f619fa55292f5a633f69115f24214e81718df15e2",
+        "clock_summary.rpt": "457e82aa6266221cb1eab3d87a4d4c45bc097e51b437e40272089c4421b365ec",
+        "gate.qor": "845246dbd41b3a529c7ffaef0511fe2c9eb6390b30e60f5a313bac4e3a7f26a3",
+        "gate_area.rpt": "1130bb4eade0527dd91f30059f690943e686eb6e75609817a670ea6dcf7ecf25",
+        "place.qor": "6f7b84dd43b04c4ba2316c027e1e0f035df75e0537ad0ebb0639b2c93fe691a8",
+        "route.qor": "8f776a211058f3fb780c67270f9b3c26c27494989f68b9a402a1d77366f4751f",
+        "rtl_area.rpt": "e9895d181af8b6bc39b4fca6b77ee86e0401e92897953a1e6263cb61354ad967",
+        "timing_check.rpt": "1d127bdb2cc94484caea9a38bd63ede70178c835c05d8b6ff0509a0ea73689d0",
+        "timing_exception.rpt": "f6dc589fcf7dfd582ef4e9f4f23b8c23f1b513140fc8c62462b29260464659e6",
+        "timing_status.rpt": "8f1db33f802bead5775616ce403eb428b094e74900f93c3c864104399a4cd459",
+        "timing_summary.rpt": "54352a422098ad9a2e63bebe8d03858505f6049eac1cdda140491ccd90438ce6"
+      }
+    }
+  ],
+  "offline_diagnostics": {
+    "pll": {
+      "original_normal_feedback": "three USR-6135 diagnostics in minimal design",
+      "enforced_dedicated_routes": "same three diagnostics; no ERROR",
+      "conclusion": "reproduced independently of training/SDRAM; not waived"
+    },
+    "sdram_clock": {
+      "direct": "reproduced PHY-5079 and PHY-7002",
+      "oddr_without_generated_clock": "PHY-5079 absent; missing clock and lost timing coverage, rejected",
+      "oddr_with_sip_generated_clock": "coverage restored but setup negative and no-clock check remains, rejected",
+      "product_change_applied": false
+    }
+  },
+  "remaining": [
+    "PLL feedback physical validation on 6.2.168116",
+    "SDRAM forwarded clock and macro placement validation",
+    "per-interface timing and dangling-node review",
+    "40 MHz finite-write operating condition versus APUG011 continuous-write requirement",
+    "board revalidation after any accepted physical change"
+  ]
+}

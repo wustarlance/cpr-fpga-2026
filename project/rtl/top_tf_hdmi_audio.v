@@ -214,11 +214,15 @@ page_status_cdc u_page_status(
     .dst_clk(video_clk), .dst_rst_n(app_rst_n), .video_status(page_status_video));
 // 三条来源并存：板载 KEY、扩展口 ext_keys_n、外接八位面板。
 // 全部先反相成高有效，再按位相或——任何一处的按键都能操作，互不屏蔽。
+//
+// 板载 KEY 不再受 USE_EXTERNAL_IO 屏蔽：原实现 USE_EXTERNAL_IO=1 时直接丢弃
+// 板载键，接了外接控制盒就按不动板载键了。现在两者始终并存。
+// 已量产的按压盒仍可用板载 KEY2/KEY3/KEY4 临时操作，KEY1 始终是复位。
 wire [4:0] onboard_keys = {2'b00, ~key1, ~key3, ~key2};
 wire [4:0] panel_keys   = ~key_panel_n[4:0];
 wire [4:0] app_keys_raw;
 key_source_merge u_key_merge(
-    .onboard_keys (USE_EXTERNAL_IO ? 5'b00000 : onboard_keys),
+    .onboard_keys (onboard_keys),
     .panel_keys   ((USE_EXTERNAL_IO ? ~ext_keys_n : 5'b00000) | panel_keys),
     .keys         (app_keys_raw));
 // Board demo: KEY2 generates a press; dips select a contact pattern, zero selects target.
@@ -598,12 +602,6 @@ wire [3:0] led_level = {
 };
 assign led = LED_ACTIVE_LOW ? ~led_level : led_level;
 
-// Temporary candidate identity d123; preserves mode/page/SD-state digits.
-wire [6:0] candidate_d,candidate_1,candidate_2,candidate_3;
-seg_decoder u_candidate_d(.bin_data(4'hd),.seg_data(candidate_d));
-seg_decoder u_candidate_1(.bin_data(4'h1),.seg_data(candidate_1));
-seg_decoder u_candidate_2(.bin_data(4'h2),.seg_data(candidate_2));
-seg_decoder u_candidate_3(.bin_data(4'h3),.seg_data(candidate_3));
 cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan(
     .clk               (clk),
     .rst_n             (rst_n),
@@ -612,10 +610,10 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan(
     .digit0            ({1'b1,seg_data_mode}),   // 左起第 1 位：模式
     .digit1            ({1'b1,7'b011_1111}),     // 左起第 2 位：'-'
     .digit2            ({1'b1,seg_data_page}),   // 左起第 3 位：页号
-    .digit3            ({1'b1,candidate_d}),     // 左起第 4 位
-    .digit4            ({1'b1,candidate_1}),     // 左起第 5 位
-    .digit5            ({1'b1,candidate_2}),     // 左起第 6 位
-    .digit6            ({1'b1,candidate_3}),     // 左起第 7 位
+    .digit3            ({1'b1,7'b1111_111}),     // 左起第 4 位
+    .digit4            ({1'b1,7'b1111_111}),     // 左起第 5 位
+    .digit5            ({1'b1,7'b1111_111}),     // 左起第 6 位
+    .digit6            ({1'b1,7'b1111_111}),     // 左起第 7 位
     .digit7            ({1'b1,seg_data_0})       // 左起第 8 位：SD 加载状态码
 );
 
