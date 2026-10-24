@@ -30,8 +30,16 @@
 #   - clk（50 MHz 输入）不纳入分组，输入建立/保持照旧检查
 #=============================================================================
 
-# 音频 PLL 输出时钟：derive_clocks 生成的时钟名就是管脚路径
-set audio_clk [get_clocks {u_audio_pll/pll_inst.clkc[2]}]
+# 音频 PLL 输出时钟：derive_clocks 生成的时钟名带实例层次路径——top 下是
+# u_audio_pll/pll_inst.clkc[2]，top_adc 下多一层 u_board/。这条精确名只能命中
+# 其中一个顶层，命中不到时 $audio_clk 为空，set_clock_groups 就少一组，音频
+# 时钟退回同步关系：top_adc 因此报出 audio -> sd 的 -6.129ns 假违例（时钟表里
+# 该路径预算只剩 0.662ns，明显是拿两个无公倍关系的周期硬配边沿）。
+# 用前导通配匹配两种层次，并在空匹配时直接报错，不允许静默失效。
+set audio_clk [get_clocks {*audio_pll/pll_inst.clkc[2]}]
+if {[llength $audio_clk] == 0} {
+    error "project_cdc.sdc: audio PLL output clock not found (*audio_pll/pll_inst.clkc\[2\])"
+}
 
 set_clock_groups -name async_domains -asynchronous \
     -group [get_clocks {sd_card_clk}] \
