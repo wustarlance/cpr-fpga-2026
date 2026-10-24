@@ -67,6 +67,12 @@ if {[catch {
     if {[llength $cpr_page_src] != 12 || [llength $cpr_page_dst] != 12} {
         error "Page status mailbox must bind 12 source and 12 capture registers"
     }
+    # 多时钟域关系：音频 PLL 输出（12.295 MHz）与 sd_card_clk / ext_mem_clk /
+    # video_clk 之间没有相位关系，跨域点全部是构造性安全的（格雷码指针 + 两级
+    # 同步器、双时钟 FIFO、准静态采样率配置）。缺这份 SDC，TD 会按同步关系去
+    # 算跨域路径，凭空报 sd_card_clk -> audio SWNS -2.35ns、audio -> sd HWNS -1.54ns。
+    # scripts/build_project.tcl 一直有读这一份，这里对齐，两条流程结果一致。
+    read_sdc constraints/project_cdc.sdc
     report_area -file $cpr_reports/rtl_area.rpt
     commit_param -step gate
     optimize_gate -packarea $cpr_reports/gate.area
@@ -82,6 +88,7 @@ if {[catch {
         read_sdc constraints/audio_metronome.sdc
     }
     read_sdc constraints/page_status.sdc
+    read_sdc constraints/project_cdc.sdc
     read_sdc -ip rfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.tcl
     read_sdc -ip wfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.tcl
     report_area -file $cpr_reports/gate_area.rpt
