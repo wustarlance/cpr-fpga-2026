@@ -14,9 +14,11 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def role(port, top):
+def role(port, top, external_io=False):
     if port.startswith(('ext_keys_n[', 'depth_sw_n[')):
-        return 'inactive_external_io_default'
+        return 'configured_external_inputs_cdc_review' if external_io else 'inactive_external_io_default'
+    if port.startswith('key_panel_n['):
+        return 'key_panel_configuration_cdc_review'
     if port == 'dip_sw[3]' and top == 'top_adc':
         return 'inactive_demo_contact_in_adc'
     if port.startswith('dip_sw[') or port in ('key1', 'key2', 'key3'):
@@ -34,7 +36,7 @@ def role(port, top):
     return 'unclassified'
 
 
-def review_report(report, pins, top):
+def review_report(report, pins, top, external_io=False):
     result = {'missing_delay_ports': {}, 'dummy_models': {}}
     for number, direction in ((10, 'input'), (11, 'output')):
         section = re.search(rf'(?ms)^{number}\. checking no {direction} delay \(MEDIUM\).*?(?=^{number+1}\. checking)', report)
@@ -44,7 +46,7 @@ def review_report(report, pins, top):
         declared = int(re.search(r'There are (\d+) .* ports', section[0])[1])
         if len(names) != declared or len(set(names)) != declared:
             raise ValueError(f'{top} {direction} detail count mismatch')
-        entries = [{'port': n, 'pin': pins[n], 'classification': role(n, top)} for n in names]
+        entries = [{'port': n, 'pin': pins[n], 'classification': role(n, top, external_io)} for n in names]
         if any(e['classification'] == 'unclassified' for e in entries):
             raise ValueError('Unclassified interface')
         result['missing_delay_ports'][direction] = entries
@@ -88,12 +90,24 @@ def main():
             if match[1] in pins:
                 raise ValueError('Duplicate pin constraint: ' + match[1])
             pins[match[1]] = match[2]
-    result = {'scope': 'Default top/top_adc USE_EXTERNAL_IO=0 only; classification is not timing signoff',
+    result = {'scope': 'Default parameters parsed from each top; classification is not timing signoff',
               'evidence': str(args.evidence.resolve()), 'pin_file_sha256': sha(pin_file),
               'auditor_sha256': sha(Path(__file__)), 'reports': {}, 'source_sha256': {}}
     for top in ('top', 'top_adc'):
         path = args.evidence / top / 'timing_check.rpt'
-        record = review_report(path.read_text(encoding='utf-8'), pins, top)
+        source = REPO / ('project/rtl/top_adc.v' if top == 'top_adc' else 'project/rtl/top_tf_hdmi_audio.v')
+        match = re.search(r'parameter\s+USE_EXTERNAL_IO\s*=\s*([01])\b', source.read_text(encoding='utf-8'))
+        if not match:
+            raise ValueError('Cannot determine default USE_EXTERNAL_IO')
+        manifest_path = args.evidence / 'results.json'
+        if manifest_path.is_file():
+            manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+            for current in (source, pin_file):
+                recorded = manifest.get('sources', {}).get(current.relative_to(REPO).as_posix())
+                if recorded is None or recorded != sha(current):
+                    raise ValueError('Report/source configuration mismatch: ' + str(current))
+        record = review_report(path.read_text(encoding='utf-8'), pins, top, match[1] == '1')
+        record['default_use_external_io'] = int(match[1])
         record['report_sha256'] = sha(path)
         result['reports'][top] = record
     for name in ('project/rtl/top_tf_hdmi_audio.v', 'project/rtl/top_adc.v',

@@ -4,7 +4,7 @@ from pathlib import Path
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'project'))
-from audit_interfaces import review_report
+from audit_interfaces import review_report, role
 
 
 def fixture():
@@ -27,6 +27,11 @@ There are 1 output ports
 
 
 class InterfaceAuditTests(unittest.TestCase):
+    def test_current_external_default_is_not_reported_as_inactive(self):
+        self.assertEqual(role('ext_keys_n[0]','top',True),'configured_external_inputs_cdc_review')
+        self.assertEqual(role('ext_keys_n[0]','top',False),'inactive_external_io_default')
+        self.assertEqual(role('key_panel_n[0]','top',True),'key_panel_configuration_cdc_review')
+
     def test_model_groups_are_not_pin_counts(self):
         record = review_report(fixture(), {'HDMI_DDC_SDA': 'R2'}, 'top')
         self.assertEqual(record['dummy_summary_count'], 2)

@@ -88,6 +88,10 @@ if {[catch {
     if {$cpr_stage eq "full"} {
         export_db $cpr_reports/gate.db
         report_qor -step gate -file $cpr_reports/gate.qor
+        # The merged background-scaling datapath misses setup by 0.040 ns
+        # with this TD build's default effort. Use the documented timing
+        # placement effort; retain the real clocks and path requirements.
+        set_param place opt_timing high
         commit_param -step place
         place
         report_qor -step place -file $cpr_reports/place.qor
