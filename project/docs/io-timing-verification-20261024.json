@@ -1,0 +1,978 @@
+{
+  "scope": "Completed offline SD/HDMI timing budget and checks; physical I/O signoff remains conditional",
+  "date": "2026-10-24",
+  "source_base_commit": "d73df52b53e4f4e7d434501f2eeea1d62bd85e58",
+  "upstream_main": "a5b4a59416e31ffbdb856a7fb01990804143d9d5",
+  "tool_version": "6.2.168116",
+  "tool_sha256": "e2e04ada5e256dccd017240c0f4dcface7f96dca67cde0e56e606ac0e02f827a",
+  "hardware_programmed": false,
+  "flash_written": false,
+  "sd_card_written": false,
+  "physical_signoff": false,
+  "spi_transfer_divider": 1,
+  "spi_transfer_hz": 16666666.666666666,
+  "sources_unchanged_during_full_build": true,
+  "tool_unchanged_during_full_build": true,
+  "full_build_strict_status": "failed",
+  "full_build_manifest_sha256": "5c11a71fe6af6cfff97574cba2fb715439c0dc2968a37d6ae2c8a0d6715572b2",
+  "io_collection_manifest_sha256": "49e532e44c7f299e5d1a0b95f8634f5dec1ecf4f1c80457cad1aa6bbd0497e61",
+  "sources_sha256": {
+    "project/build.tcl": "58e91447d8c716a0d8639e1755eb6fb01dfca6fcc48c275c825c770b4c782c80",
+    "project/constraints/timing.sdc": "e2308d2d69cb1a81aff9072eda1cae368bbebd1294ce336e113c11c614bc7109",
+    "project/constraints/page_status.sdc": "671cb216053dfcfed6d867f24cefc64df7a26d07c78adfc0b1937498b07a07a4",
+    "project/constraints/adc_mailbox.sdc": "026fd4b167a821e6e5bfcc94218c3e234df991e1639ed1bd935bb6f38e8ad67b",
+    "project/rtl/top_tf_hdmi_audio.v": "6e17d0699bcaee9e57f1ec8a4fab610d94b516fba359b975d1fcd1e3892ca595",
+    "project/rtl/top_adc.v": "bfb829f5be60978a258bed53802ff7ec2374bdc50de312a1293f73962c1b592e",
+    "project/vendor/SD/sd_card_top.v": "3a47cc7974bb96f6be9862563613fd0428820f41e7a9f3a51d5ec21c5acdae49",
+    "project/vendor/SD/spi_master.v": "37f7a21144fa5cca3cc5c3b5f68a5ad40b3108336b600e45a1367734ac61403c",
+    "project/tools/collect_io_paths.py": "e81ed8a9f7011dd2cb9662f5accb470925362a5271b5f5b7a0543cc94c4a5f2b",
+    "project/tools/io_timing_budget.py": "fb51a18885e582e7efe765824523f0ab3135ac0fd1fecfd84c8dc6d08f8dc1ca",
+    "project/audit_interfaces.py": "f00e488cf7ca74f1eff17ce73a3d9c925bfc2b43e61e147bda9d17d16be50d9f",
+    "tests/sim/run.py": "a3a131ae696cba2265b24925fe56a7799761c7669c93cc879954a6c994bc396f",
+    "tests/sim/tb/tb_spi_io_timing.v": "70da7be8ea3f07fbab17831b682c11eb505c9effb1a7f41f44c998ad594db4f3",
+    "tests/sim/tb/tb_hdmi_lane_timing.v": "5ebf3f0eadaae0ec9607dac4c875b59fa6ad35d9ef13f918ef58b69db50e9b4d",
+    "tests/test_io_timing_budget.py": "04a877c756d5fe7bee7194fc5a27eb9026d52ebf552e4814a4ddb1beeec70fca",
+    "tests/test_td_interface_audit.py": "8fae70db6a6d086acde690d1b95c01e5085fc60920fbe7633e9cadcd6bc7f0d0",
+    "tests/test_td_report_checks.py": "817a195b76e99a9fef63ce8ff102cdc5244b856a5adc1599405a2731ccaf8a06"
+  },
+  "unit_checks": {
+    "tests_run": 27,
+    "errors": 0,
+    "failures": 0,
+    "status": "passed",
+    "test_files_sha256": {
+      "tests/test_io_timing_budget.py": "04a877c756d5fe7bee7194fc5a27eb9026d52ebf552e4814a4ddb1beeec70fca",
+      "tests/test_td_interface_audit.py": "8fae70db6a6d086acde690d1b95c01e5085fc60920fbe7633e9cadcd6bc7f0d0",
+      "tests/test_td_report_checks.py": "817a195b76e99a9fef63ce8ff102cdc5244b856a5adc1599405a2731ccaf8a06"
+    }
+  },
+  "rtl_simulation": {
+    "scope": "RTL functional simulation only",
+    "results_manifest_sha256": "008776062e19cdb5a75f0764502366df6dc1cb67c3a2689e81bbf375e4df59dd",
+    "tools": {
+      "iverilog": {
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\iverilog-portable\\ucrt64\\bin\\iverilog.exe",
+        "sha256": "25e1ba02e72f58d9d484bc5457d69a6b179d22d86bdf5ba5d6f9f0d4fe620bbf",
+        "version": "Icarus Verilog version 13.0 (stable) (v13_0)",
+        "version_returncode": 0
+      },
+      "vvp": {
+        "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\iverilog-portable\\ucrt64\\bin\\vvp.exe",
+        "sha256": "f0775603e1f1bcf1b2dea16dff963a4b7d71b7b33d5bbe23d2b01ff5b2304e09",
+        "version": "Icarus Verilog runtime version 13.0 (stable) (v13_0)",
+        "version_returncode": 0
+      }
+    },
+    "tests": [
+      {
+        "test": "tb_spi_io_timing",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\vendor\\SD\\spi_master.v",
+            "sha256": "37f7a21144fa5cca3cc5c3b5f68a5ad40b3108336b600e45a1367734ac61403c"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\tests\\sim\\tb\\tb_spi_io_timing.v",
+            "sha256": "70da7be8ea3f07fbab17831b682c11eb505c9effb1a7f41f44c998ad594db4f3"
+          }
+        ],
+        "pass_marker_seen": true,
+        "failure_marker_seen": false,
+        "compiled_image_sha256": "1fb3887a45359a9ab7572a1402f1e851705b1c01fb4b7d33b382db8bb5a3b09e"
+      },
+      {
+        "test": "tb_hdmi_lane_timing",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\lane_lvds_10_1.v",
+            "sha256": "de9529321354f04837e051d0ec1681cf44783d4be3284703a788e081147500bc"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\05_lab_ex\\lab_ex5_i2s\\src\\user_source\\hdl_source\\hdmi_phy_warpper.v",
+            "sha256": "416b082b0987001bdbc0a7e20a557cb8fb1dca34e25dc881e6d28a8cb3cf4300"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\tests\\sim\\tb\\tb_hdmi_lane_timing.v",
+            "sha256": "5ebf3f0eadaae0ec9607dac4c875b59fa6ad35d9ef13f918ef58b69db50e9b4d"
+          }
+        ],
+        "pass_marker_seen": true,
+        "failure_marker_seen": false,
+        "compiled_image_sha256": "8432adb8b5e2da2ed1eb9af67ca079fcb3081c0b50484a93d2f9e7414265ae9a"
+      },
+      {
+        "test": "tb_sd_cmd_recovery",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\vendor\\SD\\sd_card_cmd.v",
+            "sha256": "377453c600158b40f9a0ea4912d4c42b6ab2d3916e94c053e9be16b999852e83"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\tests\\sim\\tb\\tb_sd_cmd_recovery.v",
+            "sha256": "f4b0bbbac1a829c37fa2dbb3b125cecec8c10027c1ffab59098a900270289940"
+          }
+        ],
+        "pass_marker_seen": true,
+        "failure_marker_seen": false,
+        "compiled_image_sha256": "47fcbacfdf3082c06fa359a2672dc1600bbb3d0b0acca47a7a8dd978e7cfa621"
+      },
+      {
+        "test": "tb_sd_sector_recovery",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\vendor\\SD\\sd_card_sec_read_write.v",
+            "sha256": "76a1b589cead19d940447862912c9fbfc5867e512edd06453cc4cdb61f97a8c4"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\tests\\sim\\tb\\tb_sd_sector_recovery.v",
+            "sha256": "c6ef68a107879157568a847a9f8c81af8c5faa85d759e2391931d7f89f872f02"
+          }
+        ],
+        "pass_marker_seen": true,
+        "failure_marker_seen": false,
+        "compiled_image_sha256": "46e41668beaa612a0afbfc9b8d610a9177941daf8cf99b0bb2698069771e21b7"
+      },
+      {
+        "test": "tb_sd_image_recovery",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\rtl\\cpr_page_manager.v",
+            "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\rtl\\SD\\sd_card_bmp.v",
+            "sha256": "f63bc9bdf0f42ee73ea0e0110e6c99dea37c6f1225a8a8fe4d863133fa54de8b"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\vendor\\SD\\bmp_read.v",
+            "sha256": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\rtl\\frame_buffer_publish.v",
+            "sha256": "48fa9c896646c3c69bf385f954fb860e4fc634af1bcc848db876cb4757b45d4f"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\vendor\\SD\\frame_fifo_write.v",
+            "sha256": "e242c75760838eb6c0766c23889d760655508f1036d96db3c874c339209eeecc"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\tests\\sim\\stubs\\sd_fault_sector_model.v",
+            "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\tests\\sim\\tb\\tb_sd_image_recovery.v",
+            "sha256": "3d99c2b9efadf632c899c988b7c5f90758a2b8378b111f13174926be05bd7009"
+          }
+        ],
+        "pass_marker_seen": true,
+        "failure_marker_seen": false,
+        "compiled_image_sha256": "4e40176c342f4249107740d9faf0924ba47c9a57f45f52cbb17290499732f2a3"
+      },
+      {
+        "test": "tb_sd_retry_limits",
+        "status": "passed",
+        "sources": [
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\rtl\\cpr_page_manager.v",
+            "sha256": "db93612f8cad0291359d6c1c7340069abf8817f66b42fbaefb25f6f710dc1528"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\rtl\\SD\\sd_card_bmp.v",
+            "sha256": "f63bc9bdf0f42ee73ea0e0110e6c99dea37c6f1225a8a8fe4d863133fa54de8b"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\project\\vendor\\SD\\bmp_read.v",
+            "sha256": "3ddc5d3238ef9b775512a51338f9f82783f34f3a8a3de65ffbedfa63b8258a65"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\tests\\sim\\stubs\\sd_fault_sector_model.v",
+            "sha256": "13322c31b65add4242b67ac31a77a52f8a81817c53f98584130dee11e5173313"
+          },
+          {
+            "path": "C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\tests\\sim\\tb\\tb_sd_retry_limits.v",
+            "sha256": "944485bfa053acb7029b3e5a346a3e47e5a7a11cd08a3b278bea0762840c2754"
+          }
+        ],
+        "pass_marker_seen": true,
+        "failure_marker_seen": false,
+        "compiled_image_sha256": "3aed4270a99b0e913a0c9a4bd8a19ddf12be14cdb949421171e13a13e6347505"
+      }
+    ]
+  },
+  "negative_controls": [
+    {
+      "test": "tb_spi_io_timing",
+      "flag": "+LATE_MISO",
+      "returncode": 1,
+      "expected_failure_seen": true,
+      "compiled_image_sha256": "1fb3887a45359a9ab7572a1402f1e851705b1c01fb4b7d33b382db8bb5a3b09e",
+      "output": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\tests\\sim\\tb\\tb_spi_io_timing.v:52: MISO mismatch div=0 delay=30 received=4b expected=96\r\n       Time: 42986000  Scope: tb_spi_io_timing.transfer\r\n"
+    },
+    {
+      "test": "tb_hdmi_lane_timing",
+      "flag": "+BAD_ODDR",
+      "returncode": 1,
+      "expected_failure_seen": true,
+      "compiled_image_sha256": "8432adb8b5e2da2ed1eb9af67ca079fcb3081c0b50484a93d2f9e7414265ae9a",
+      "output": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\td23\\tests\\sim\\tb\\tb_hdmi_lane_timing.v:43: HDMI lanes lost common character alignment: 0b9 346 2f4 07a\r\n       Time: 680001  Scope: tb_hdmi_lane_timing.check_word\r\n"
+    }
+  ],
+  "tops": [
+    {
+      "top": "top",
+      "tool_returncode": 0,
+      "fresh_bitgen_marker": true,
+      "setup_hold_ns": {
+        "SWNS": 0.117,
+        "STNS": 0.0,
+        "HWNS": 0.003,
+        "HTNS": 0.0
+      },
+      "bitstream_sha256": "e266069df3840488c957f03d0a14b313f307f982f6825dbc69b7ada716912634",
+      "resources": {
+        "lut": {
+          "used": 11871,
+          "available": 19600,
+          "percent": 60.57
+        },
+        "reg": {
+          "used": 6124,
+          "available": 19600,
+          "percent": 31.24
+        },
+        "bram": {
+          "used": 40,
+          "available": 64,
+          "percent": 62.5
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        },
+        "adc": {
+          "used": 0,
+          "available": 1,
+          "percent": 0.0,
+          "report_row_omitted": true
+        }
+      },
+      "strict_status": "failed",
+      "critical_warning_count": 7,
+      "critical_diagnostics": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "warning_families_match_official_reference": true,
+      "coverage_review": {
+        "status": "needs_review",
+        "blocking_findings": [],
+        "review_findings": [
+          "dummy node: 3",
+          "no input delay: 25",
+          "no output delay: 29",
+          "abnormal input delay: 32"
+        ],
+        "checks": {
+          "1": {
+            "name": "no clock",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "2": {
+            "name": "clock definition",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "3": {
+            "name": "dummy node",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "4": {
+            "name": "invalid constraint",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "5": {
+            "name": "pll/clock buffer clock constraints",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "6": {
+            "name": "combinational loops",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "7": {
+            "name": "soft fifo timing exception constraints",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "8": {
+            "name": "no path constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "9": {
+            "name": "shadowed/ignored timing exception constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "10": {
+            "name": "no input delay",
+            "count": 25,
+            "severity": "MEDIUM"
+          },
+          "11": {
+            "name": "no output delay",
+            "count": 29,
+            "severity": "MEDIUM"
+          },
+          "12": {
+            "name": "partial input delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "13": {
+            "name": "partial output delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "14": {
+            "name": "abnormal input delay",
+            "count": 32,
+            "severity": "MEDIUM"
+          }
+        },
+        "max_delay_rows": [
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_page_status/u_transfer/src_hold[*]}] -to [get_regs {*u_page_status/u_transfer/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 0,
+            "dominated": 0,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_frame_publish/held_index[*]}] -to [get_regs {*u_frame_publish/pending_index[*]}] 25 -datapath_only"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 24.700"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 9.700"
+          }
+        ],
+        "scope": "report coverage only; manual interface, CDC and physical review still required"
+      },
+      "interface_audit": {
+        "default_use_external_io": 1,
+        "classification_counts": {
+          "input": {
+            "hdmi_ddc_ip_timing_open": 1,
+            "configured_external_inputs_cdc_review": 9,
+            "asynchronous_controls_cdc_review": 7,
+            "key_panel_configuration_cdc_review": 6,
+            "asynchronous_reset_release_review": 1,
+            "sd_spi_interface_timing_open": 1
+          },
+          "output": {
+            "hdmi_tmds_serial_interface_timing_open": 4,
+            "hdmi_ddc_ip_timing_open": 2,
+            "human_visible_output_no_capture_clock": 20,
+            "sd_spi_interface_timing_open": 3
+          }
+        },
+        "unique_missing_delay_port_count": 53,
+        "dummy_summary_count": 3,
+        "dummy_summary_unit": "model_groups_in_this_TD_report",
+        "dummy_listed_pin_count": 500,
+        "report_sha256": "b54b873840c9fbef0c3b7a46e9abc495d6d16c453acadc9ec87db742e6c04993",
+        "status": "needs_review"
+      },
+      "io_budget": {
+        "top": "top",
+        "checkpoint_sha256": "e1f361cd26dc9b7692dd642ed4903e79c824c48495f37bb1784ca61f31374888",
+        "checkpoint_unchanged": true,
+        "budget": {
+          "status": "conditional",
+          "missing": [],
+          "physical_signoff": false,
+          "card": {
+            "brand": "Netac",
+            "capacity_gb": 16,
+            "series": null,
+            "electrical_timing_verified": false
+          },
+          "scope": "Routed FPGA delay budget plus protocol requirements; connector/PCB/card verification remains separate",
+          "hdmi_requirements": {
+            "character_ns": 40.0,
+            "ui_ns": 4.0,
+            "source_intrapair_limit_ns": 0.6,
+            "source_interpair_limit_ns": 8.0
+          },
+          "ddc_requirements": {
+            "mode": "Standard-mode",
+            "f_scl_max_hz": 100000,
+            "scl_low_min_ns": 4700,
+            "scl_high_min_ns": 4000,
+            "sda_setup_min_ns": 250,
+            "sda_hold_min_ns": 0,
+            "rise_max_ns": 1000,
+            "fall_max_ns": 300,
+            "actual_scl_waveform_verified": false,
+            "actual_bus_capacitance_pf": null
+          },
+          "output_path_envelopes_ns": {
+            "sd_dclk": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "sd_mosi": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "sd_ncs": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_CLK_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D0_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D1_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D2_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            }
+          },
+          "sd_fpga_terms_ns": {
+            "input_path_max": 4.019,
+            "sck_output_max": 4.62,
+            "capture_clock_min": 3.232,
+            "sck_launch_clock_max": 3.513,
+            "setup_max": 0.116,
+            "uncertainty": 0.1,
+            "reported_virtual_clock_uncertainty": 0.0,
+            "minimum_budget_uncertainty_from_product_sta": 0.1
+          },
+          "sd_modes": {
+            "initialization": {
+              "divider": 248,
+              "half_period_ns": 2500.0,
+              "frequency_hz": 200000.0,
+              "reference_card_tco_ns": 50,
+              "card_tco_plus_pcb_roundtrip_max_ns": 2490.864,
+              "pcb_roundtrip_remaining_after_reference_card_ns": 2440.864,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 2492.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 2492.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 2505.107
+            },
+            "transfer": {
+              "divider": 1,
+              "half_period_ns": 30.0,
+              "frequency_hz": 16666666.666666666,
+              "reference_card_tco_ns": 14,
+              "card_tco_plus_pcb_roundtrip_max_ns": 20.864,
+              "pcb_roundtrip_remaining_after_reference_card_ns": 6.864,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 22.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 22.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 35.107
+            },
+            "legacy_25mhz": {
+              "divider": 0,
+              "half_period_ns": 20.0,
+              "frequency_hz": 25000000.0,
+              "reference_card_tco_ns": 14,
+              "card_tco_plus_pcb_roundtrip_max_ns": 10.864,
+              "pcb_roundtrip_remaining_after_reference_card_ns": -3.136,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 12.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 12.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 25.107
+            }
+          },
+          "hdmi_reported_paths": {
+            "clock_plus_output_max_delay_ns": {
+              "HDMI_CLK_P": 4.404,
+              "HDMI_D0_P": 4.404,
+              "HDMI_D1_P": 4.404,
+              "HDMI_D2_P": 4.404
+            },
+            "interpair_spread_ns": 0.0,
+            "pcb_interpair_remaining_ns": 8.0,
+            "intrapair_skew_and_eye_verified": false,
+            "limit": "Reported maximum digital paths only; process labels are in the envelopes. Not measured skew or an analog eye check."
+          }
+        },
+        "analysis_profile_sha256": "edba504976c2b303faca1c2415727a95be28f9dafa4d53e175cbd20a1942025c",
+        "artifacts_sha256": {
+          "all-paths.rpt": "17cd6b2724a9db2eb8cc7d20c31281c048316115753a5d4e61b701792d9a72f9",
+          "budget.json": "eb68bd67fbfbe359d45ce3a7685fb9e867cf5962ad89e90bb6eff57aabbb1b11",
+          "console.log": "da4a7c98ad315ee1ee9dc8ba996e1b4c3b746cf6554372d6a3d785d28da24af0",
+          "coordinate-check.rpt": "961e868661c157b5f8d82beceff6d2f1525f8566094368ab1b00eb74a6ab25e6",
+          "extract.tcl": "cd78d4c799210c17c98d1fdec0b8803b6a5b00f8f6cc2297dbb80fbe8a611a68",
+          "miso-paths.rpt": "5a6337cf63f853d5157284dd4fb0dd444cf398cb76cc16ef912263e5e34a0d39",
+          "td_20261024_191956.log": "78573f03a759da2ae6f9ddb7cb79da755e4dbbd18c9e4e3f081fb99db49878a4",
+          "td_20261024_191956.logw": "4ab3913075c9def11e6d46e1b7e125129c8b0f71f5482fcbb04d96ce8f71faee"
+        }
+      }
+    },
+    {
+      "top": "top_adc",
+      "tool_returncode": 0,
+      "fresh_bitgen_marker": true,
+      "setup_hold_ns": {
+        "SWNS": 0.027,
+        "STNS": 0.0,
+        "HWNS": 0.003,
+        "HTNS": 0.0
+      },
+      "bitstream_sha256": "742551afa1e9a40aceceae38d59fc3a752b8194548c1e3ef95d9f93cb4832990",
+      "resources": {
+        "lut": {
+          "used": 11805,
+          "available": 19600,
+          "percent": 60.23
+        },
+        "reg": {
+          "used": 6208,
+          "available": 19600,
+          "percent": 31.67
+        },
+        "bram": {
+          "used": 40,
+          "available": 64,
+          "percent": 62.5
+        },
+        "adc": {
+          "used": 1,
+          "available": 1,
+          "percent": 100.0
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        }
+      },
+      "strict_status": "failed",
+      "critical_warning_count": 7,
+      "critical_diagnostics": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ],
+      "warning_families_match_official_reference": true,
+      "coverage_review": {
+        "status": "needs_review",
+        "blocking_findings": [],
+        "review_findings": [
+          "dummy node: 4",
+          "no input delay: 25",
+          "no output delay: 29",
+          "abnormal input delay: 32"
+        ],
+        "checks": {
+          "1": {
+            "name": "no clock",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "2": {
+            "name": "clock definition",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "3": {
+            "name": "dummy node",
+            "count": 4,
+            "severity": "HIGH"
+          },
+          "4": {
+            "name": "invalid constraint",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "5": {
+            "name": "pll/clock buffer clock constraints",
+            "count": 3,
+            "severity": "HIGH"
+          },
+          "6": {
+            "name": "combinational loops",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "7": {
+            "name": "soft fifo timing exception constraints",
+            "count": 0,
+            "severity": "HIGH"
+          },
+          "8": {
+            "name": "no path constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "9": {
+            "name": "shadowed/ignored timing exception constraints",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "10": {
+            "name": "no input delay",
+            "count": 25,
+            "severity": "MEDIUM"
+          },
+          "11": {
+            "name": "no output delay",
+            "count": 29,
+            "severity": "MEDIUM"
+          },
+          "12": {
+            "name": "partial input delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "13": {
+            "name": "partial output delay",
+            "count": 0,
+            "severity": "MEDIUM"
+          },
+          "14": {
+            "name": "abnormal input delay",
+            "count": 32,
+            "severity": "MEDIUM"
+          }
+        },
+        "max_delay_rows": [
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_mailbox/src_hold[*]}] -to [get_regs {*u_mailbox/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 24,
+            "dominated": 24,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_page_status/u_transfer/src_hold[*]}] -to [get_regs {*u_page_status/u_transfer/dst_data[*]}] 40 -datapath_only"
+          },
+          {
+            "total": 0,
+            "dominated": 0,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs {*u_frame_publish/held_index[*]}] -to [get_regs {*u_frame_publish/pending_index[*]}] 25 -datapath_only"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 24.700"
+          },
+          {
+            "total": 36,
+            "dominated": 36,
+            "shadowed": 0,
+            "ignored": 0,
+            "constraint": "set_max_delay -from [get_regs -nowarn {*/primary_addr_gray_reg[*]}] -to [get_regs -nowarn {*/sync_r1[*]}] -datapath_only 9.700"
+          }
+        ],
+        "scope": "report coverage only; manual interface, CDC and physical review still required"
+      },
+      "interface_audit": {
+        "default_use_external_io": 1,
+        "classification_counts": {
+          "input": {
+            "hdmi_ddc_ip_timing_open": 1,
+            "configured_external_inputs_cdc_review": 9,
+            "inactive_demo_contact_in_adc": 1,
+            "asynchronous_controls_cdc_review": 6,
+            "key_panel_configuration_cdc_review": 6,
+            "asynchronous_reset_release_review": 1,
+            "sd_spi_interface_timing_open": 1
+          },
+          "output": {
+            "hdmi_tmds_serial_interface_timing_open": 4,
+            "hdmi_ddc_ip_timing_open": 2,
+            "human_visible_output_no_capture_clock": 20,
+            "sd_spi_interface_timing_open": 3
+          }
+        },
+        "unique_missing_delay_port_count": 53,
+        "dummy_summary_count": 4,
+        "dummy_summary_unit": "model_groups_in_this_TD_report",
+        "dummy_listed_pin_count": 584,
+        "report_sha256": "e12ee9f1c0ba6d2bc83c78f8a35bcea60d1193d0420eb881ff731a391769a4e0",
+        "status": "needs_review"
+      },
+      "io_budget": {
+        "top": "top_adc",
+        "checkpoint_sha256": "41e12068a1ee350fc6fd20d4aa2d87de0f877e146e95abc965883d8f4e5bb7c8",
+        "checkpoint_unchanged": true,
+        "budget": {
+          "status": "conditional",
+          "missing": [],
+          "physical_signoff": false,
+          "card": {
+            "brand": "Netac",
+            "capacity_gb": 16,
+            "series": null,
+            "electrical_timing_verified": false
+          },
+          "scope": "Routed FPGA delay budget plus protocol requirements; connector/PCB/card verification remains separate",
+          "hdmi_requirements": {
+            "character_ns": 40.0,
+            "ui_ns": 4.0,
+            "source_intrapair_limit_ns": 0.6,
+            "source_interpair_limit_ns": 8.0
+          },
+          "ddc_requirements": {
+            "mode": "Standard-mode",
+            "f_scl_max_hz": 100000,
+            "scl_low_min_ns": 4700,
+            "scl_high_min_ns": 4000,
+            "sda_setup_min_ns": 250,
+            "sda_hold_min_ns": 0,
+            "rise_max_ns": 1000,
+            "fall_max_ns": 300,
+            "actual_scl_waveform_verified": false,
+            "actual_bus_capacitance_pf": null
+          },
+          "output_path_envelopes_ns": {
+            "sd_dclk": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "sd_mosi": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "sd_ncs": {
+              "launch_plus_output_max_ns": 8.133,
+              "launch_plus_output_min_ns": 5.881,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_CLK_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D0_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D1_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            },
+            "HDMI_D2_P": {
+              "launch_plus_output_max_ns": 4.404,
+              "launch_plus_output_min_ns": 3.215,
+              "reported_max_processes": [
+                "slow"
+              ],
+              "reported_min_processes": [
+                "fast"
+              ]
+            }
+          },
+          "sd_fpga_terms_ns": {
+            "input_path_max": 3.981,
+            "sck_output_max": 4.62,
+            "capture_clock_min": 3.232,
+            "sck_launch_clock_max": 3.513,
+            "setup_max": 0.116,
+            "uncertainty": 0.1,
+            "reported_virtual_clock_uncertainty": 0.0,
+            "minimum_budget_uncertainty_from_product_sta": 0.1
+          },
+          "sd_modes": {
+            "initialization": {
+              "divider": 248,
+              "half_period_ns": 2500.0,
+              "frequency_hz": 200000.0,
+              "reference_card_tco_ns": 50,
+              "card_tco_plus_pcb_roundtrip_max_ns": 2490.902,
+              "pcb_roundtrip_remaining_after_reference_card_ns": 2440.902,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 2492.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 2492.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 2505.075
+            },
+            "transfer": {
+              "divider": 1,
+              "half_period_ns": 30.0,
+              "frequency_hz": 16666666.666666666,
+              "reference_card_tco_ns": 14,
+              "card_tco_plus_pcb_roundtrip_max_ns": 20.902,
+              "pcb_roundtrip_remaining_after_reference_card_ns": 6.902,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 22.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 22.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 35.075
+            },
+            "legacy_25mhz": {
+              "divider": 0,
+              "half_period_ns": 20.0,
+              "frequency_hz": 25000000.0,
+              "reference_card_tco_ns": 14,
+              "card_tco_plus_pcb_roundtrip_max_ns": 10.902,
+              "pcb_roundtrip_remaining_after_reference_card_ns": -3.098,
+              "pcb_mosi_minus_clock_setup_allowance_ns": 12.648,
+              "pcb_clock_minus_mosi_hold_allowance_ns": 12.648,
+              "miso_hold_margin_at_zero_pcb_tco_min_ns": 25.075
+            }
+          },
+          "hdmi_reported_paths": {
+            "clock_plus_output_max_delay_ns": {
+              "HDMI_CLK_P": 4.404,
+              "HDMI_D0_P": 4.404,
+              "HDMI_D1_P": 4.404,
+              "HDMI_D2_P": 4.404
+            },
+            "interpair_spread_ns": 0.0,
+            "pcb_interpair_remaining_ns": 8.0,
+            "intrapair_skew_and_eye_verified": false,
+            "limit": "Reported maximum digital paths only; process labels are in the envelopes. Not measured skew or an analog eye check."
+          }
+        },
+        "analysis_profile_sha256": "edba504976c2b303faca1c2415727a95be28f9dafa4d53e175cbd20a1942025c",
+        "artifacts_sha256": {
+          "all-paths.rpt": "6efe3ad5a2af20185ac733a11f97c3f21bb148b5f7d2d07e7ce72126aab84542",
+          "budget.json": "68a9219d3dc4953548d264c76cf40763c72d7b865215f82f3e81d9c613c95fc5",
+          "console.log": "c15542437081aeee3871b94f3667df0310aac9973c0bd48028298ece1716ac16",
+          "coordinate-check.rpt": "5fcde7de7453635af1c1fec2f8de0958ee6d68128dac63af88d7ac8494c36c47",
+          "extract.tcl": "6b7a8d038fc5e637d91730b06b15117f7db63a60e86aa5f3071206429a775c2d",
+          "miso-paths.rpt": "2d736c00ef4a0e4579fc457082decd8394b94552c78fd25860b4a23192c6d5ff",
+          "td_20261024_192007.log": "683472fbe9789055a66a0fbfbf594189b19f0f78f044bad7518afc74df3ab113",
+          "td_20261024_192007.logw": "e62e791f4e71b14937fe5a2a014cf834da984ce4a9c337e9296b47a022405803"
+        }
+      }
+    }
+  ],
+  "primary_references": {
+    "sd": "Supplied SDSDv17.pdf pp36-37; reference contract only, not a Netac model-specific guarantee",
+    "hdmi": "https://ez.analog.com/video/a/documents/c/hdmi-faq/DO9240/hdmi-layout-guideline",
+    "ddc": "https://www.nxp.com/docs/en/user-guide/UM10204.pdf Table 11"
+  },
+  "remaining_physical_evidence": [
+    "Actual Netac 16 GB series and SPI electrical contract/load",
+    "PCB clock/data propagation and signal quality",
+    "Integrated CS transaction boundary verification",
+    "DDC SCL/SDA frequency, duty cycle, rise/fall and actual pullup/load",
+    "HDMI P/N electrical skew, jitter and eye",
+    "Manufacturer interpretation of inherited PLL/SDRAM diagnostics and 40 MHz finite-burst conditions",
+    "New bitstreams require separate hardware regression; prior D123 tests are not reused"
+  ]
+}

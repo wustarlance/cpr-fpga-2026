@@ -4,7 +4,10 @@ module sd_card_top
     parameter integer TOKEN_TIMEOUT_CYCLES = 10_000_000,
     parameter integer SPI_TIMEOUT_CYCLES = 1_000_000,
 	parameter  SPI_LOW_SPEED_DIV = 248,         // SD card low speed mode frequency division parameter,spi clk speed = clk speed /((SPI_LOW_SPEED_DIV + 2) * 2 )
-	parameter  SPI_HIGH_SPEED_DIV = 0           // SD card high speed mode frequency division parameter,spi clk speed = clk speed /((SPI_HIGH_SPEED_DIV + 2) * 2 )
+    // 100 MHz / (2*(1+2)) = 16.667 MHz. The former 25 MHz profile left
+    // insufficient worst-case return time in the routed FPGA I/O budget.
+    // This is the controller's faster transfer phase, not SD High Speed mode.
+	parameter  SPI_HIGH_SPEED_DIV = 1
 )
 (
 	input            clk,

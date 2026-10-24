@@ -18,6 +18,8 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 RTL, TB = "project/rtl/", "tests/sim/tb/"
 TESTS = {
+    "tb_spi_io_timing": {"sources": ["project/vendor/SD/spi_master.v", TB + "tb_spi_io_timing.v"]},
+    "tb_hdmi_lane_timing": {"sources": ["05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v", "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_phy_warpper.v", TB + "tb_hdmi_lane_timing.v"]},
     "tb_adc_ctrl": {"sources": [RTL + "adc_ctrl.v", "tests/sim/stubs/eg_phy_adc_timing_model.v", TB + "tb_adc_ctrl.v"]},
     "tb_pressure_normalize": {"sources": [RTL + "pressure_normalize.v", TB + "tb_pressure_normalize.v"]},
     "tb_peak_detect": {"sources": [RTL + "peak_detect.v", TB + "tb_peak_detect.v"]},

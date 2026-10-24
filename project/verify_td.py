@@ -14,6 +14,8 @@ import subprocess
 import sys
 import time
 
+from td_report_checks import review_timing_check
+
 PROJECT = Path(__file__).resolve().parent
 REPO = PROJECT.parent
 
@@ -51,20 +53,16 @@ def summarize(log, top, stage):
     for match in re.finditer(r"^CPR_PAGE_REGS hold=(.*?) capture=(.*?)$", log, re.M):
         page_mailbox.append({"hold_bits": len(re.findall(r"\{[^{}]+\}", match[1])),
                              "capture_bits": len(re.findall(r"\{[^{}]+\}", match[2]))})
-    # TD reports the built-in SDRAM macro moving during intermediate ECO
-    # placement. No product LOC binds that macro. Retain this exact diagnostic
-    # separately; accept it only for a completed route and successful bitgen.
+    # Observe relocation separately, but never waive a critical diagnostic
+    # merely because route/bitgen completed. Physical legality needs review.
     relocation = [line for line in diagnostics if re.search(
         r"PHY-7002 CRITICAL-WARNING: Instance (?:u_board/)?U3/sdram location .*will be moved during placement", line)]
-    completed_physical = (f"CPR_BUILD_PASS {top}" in log and
-                          "End Stage 5 | Design Rule Check" in log)
     errors = [line for line in diagnostics if
-        re.search(r"\b(?:ERROR|FATAL)\b|CRITICAL-WARNING", line) and not
-        (stage == "full" and completed_physical and line in relocation)]
+        re.search(r"\b(?:ERROR|FATAL)\b|CRITICAL-WARNING", line)]
     version = re.search(r"Tang Dynasty, V([^\s]+)", log)
     return {"td_version": version[1] if version else None,
             "pass_marker": (f"CPR_BUILD_PASS {top}" if stage == "full" else f"CPR_SYNTHESIS_PASS {top}") in log,
-            "diagnostics": diagnostics, "reviewed_sdram_relocation_warnings": relocation,
+            "diagnostics": diagnostics, "observed_sdram_relocation_warnings": relocation,
             "errors_or_critical_warnings": errors,
             "mailbox_collections": mailbox, "page_mailbox_collections": page_mailbox}
 
@@ -92,6 +90,7 @@ def run_top(tool, top, output, timeout, stage):
     record = {"top": top, "command": command, "returncode": code,
               "timed_out": timed_out, "elapsed_seconds": round(time.monotonic() - started, 3),
               **summarize(log, top, stage)}
+    record["coverage_checker_sha256"] = digest(PROJECT / "td_report_checks.py")
     resources = {}
     reports_fresh = record["pass_marker"] and code == 0 and not timed_out
     for name in ("rtl_area.rpt", "gate_area.rpt"):
@@ -117,9 +116,22 @@ def run_top(tool, top, output, timeout, stage):
         physical_ok = physical_ok and reports_fresh and bitstream.is_file()
         if physical_ok:
             record["bitstream_sha256"] = digest(bitstream)
+            shutil.copy2(bitstream, destination / bitstream.name)
             status = (destination / "timing_status.rpt").read_text()
             slacks = re.findall(r"(?:SWNS|STNS|HWNS|HTNS):\s*([-+0-9.]+)ns", status)
             physical_ok = len(slacks) == 4 and all(float(x) >= 0 for x in slacks)
+        check_report = destination / "timing_check.rpt"
+        if check_report.is_file():
+            record["timing_coverage_review"] = review_timing_check(check_report.read_text(), top)
+            physical_ok = physical_ok and record["timing_coverage_review"]["status"] == "passed"
+        else:
+            physical_ok = False
+        # These reports assist review; they do not replace the required five.
+        for name in ("clock_summary.rpt", "clock_intersection.rpt", "timing_exception.rpt",
+                     "gate.qor", "place.qor", "route.qor"):
+            report = PROJECT / "build" / top / name
+            if reports_fresh and report.is_file():
+                shutil.copy2(report, destination / name)
     record["resources"] = resources
     record["reports"] = {p.name: digest(p) for p in destination.glob("*.rpt")}
     mailbox_ok = top != "top_adc" or (record["mailbox_collections"] and all(
@@ -131,8 +143,12 @@ def run_top(tool, top, output, timeout, stage):
                     and resources["lut"]["available"] == 19600
                     and resources["adc"]["used"] == expected_adc
                     and all(v["used"] <= v["available"] for v in resources.values()))
+    required = {"rtl_area.rpt", "gate_area.rpt"}
+    if stage == "full":
+        required.update({"timing_status.rpt", "timing_summary.rpt", "timing_check.rpt"})
     record["status"] = "passed" if (reports_fresh and not record["errors_or_critical_warnings"]
-        and record["td_version"] and len(record["reports"]) == (5 if stage == "full" else 2) and physical_ok and mailbox_ok and page_mailbox_ok and resources_ok) else "failed"
+        and record["td_version"] and required <= set(record["reports"]) and physical_ok
+        and mailbox_ok and page_mailbox_ok and resources_ok) else "failed"
     return record
 
 
