@@ -60,8 +60,9 @@ if {[catch {
     if {[llength $cpr_page_src] != 12 || [llength $cpr_page_dst] != 12} {
         error "Page status mailbox must bind 12 source and 12 capture registers"
     }
-    # Point-level WAV CDC contracts; preserve FIFO/ADC/page datapath bounds.
-    read_sdc constraints/project_cdc.sdc
+    # Inspect the PCM mailbox here, but bind WAV CDC constraints only AFTER
+    # gate mapping below. Constant controls (e.g. ADC top loop) are pruned
+    # during mapping; pre-map exceptions would survive with invalid endpoints.
     set cpr_pcm_hold [get_regs {*u_audio_wav/u_path/S_frame_m[*]}]
     set cpr_pcm_capture [get_regs {*u_audio_wav/u_path/S_aud_frame[*]}]
     puts "CPR_PCM_REGS hold=[llength $cpr_pcm_hold] capture=[llength $cpr_pcm_capture]"
