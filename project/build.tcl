@@ -60,12 +60,15 @@ if {[catch {
     if {[llength $cpr_page_src] != 12 || [llength $cpr_page_dst] != 12} {
         error "Page status mailbox must bind 12 source and 12 capture registers"
     }
-    # 多时钟域关系：音频 PLL 输出（12.295 MHz）与 sd_card_clk / ext_mem_clk /
-    # video_clk 之间没有相位关系，跨域点全部是构造性安全的（格雷码指针 + 两级
-    # 同步器、双时钟 FIFO、准静态采样率配置）。缺这份 SDC，TD 会按同步关系去
-    # 算跨域路径，凭空报 sd_card_clk -> audio SWNS -2.35ns、audio -> sd HWNS -1.54ns。
-    # scripts/build_project.tcl 一直有读这一份，这里对齐，两条流程结果一致。
+    # Point-level WAV CDC contracts; preserve FIFO/ADC/page datapath bounds.
     read_sdc constraints/project_cdc.sdc
+    set cpr_pcm_hold [get_regs {*u_audio_wav/u_path/S_frame_m[*]}]
+    set cpr_pcm_capture [get_regs {*u_audio_wav/u_path/S_aud_frame[*]}]
+    puts "CPR_PCM_REGS hold=[llength $cpr_pcm_hold] capture=[llength $cpr_pcm_capture]"
+    if {([llength $cpr_pcm_hold] != 0 || [llength $cpr_pcm_capture] != 0) &&
+        ([llength $cpr_pcm_hold] != 48 || [llength $cpr_pcm_capture] != 48)} {
+        error "Default WAV audio must bind 48 coherent PCM source and capture registers"
+    }
     report_area -file $cpr_reports/rtl_area.rpt
     commit_param -step gate
     optimize_gate -packarea $cpr_reports/gate.area

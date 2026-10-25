@@ -103,6 +103,7 @@ wire [1:0]  disp_buf_idx;
 wire [1:0] active_read_idx;
 wire publish_req, publish_done, read_frame_start;
 wire publish_raw, publish_fade, fade_request, fade_ready;
+wire rst_sd; // Declare before use inside the generate block (no local implicit net).
 generate if (ENABLE_SMOOTH_TRANSITIONS) begin: g_smooth_publish
     cpr_transition_publish u_transition_publish(
         .clk(sd_card_clk), .rst(rst_sd), .publish_in(publish_raw),
@@ -178,7 +179,7 @@ always @(posedge clk or negedge por_reset_n) begin
 end
 wire app_rst_n, sd_rst_n, mem_rst_n, audio_rst_n;
 wire rst_video = ~app_rst_n;
-wire rst_sd = ~sd_rst_n;
+assign rst_sd = ~sd_rst_n;
 wire rst_mem = ~mem_rst_n;
 wire rst_audio = ~audio_rst_n;
 reset_release u_app_reset(.clk           (video_clk),

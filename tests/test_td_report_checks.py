@@ -29,6 +29,11 @@ def complete_report():
 
 
 class ReportChecks(unittest.TestCase):
+    def test_undriven_user_reset_is_not_hidden_by_positive_timing(self):
+        warning="HDL-5314 WARNING: net 'g_smooth_publish.rst_sd' does not have a driver in rtl/top_tf_hdmi_audio.v(108)"
+        result=summarize(warning+'\nCPR_BUILD_PASS top setup=0.1 hold=0.1','top','full')
+        self.assertIn(warning,result['errors_or_critical_warnings'])
+
     def test_three_plls_are_not_three_failures(self):
         self.assertEqual(review_timing_check(complete_report(), "top")["status"], "passed")
 

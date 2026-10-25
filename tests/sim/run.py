@@ -18,6 +18,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 RTL, TB = "project/rtl/", "tests/sim/tb/"
 TESTS = {
+    "tb_wav_visualizer": {"sources": [RTL+"audio/"+n+".v" for n in ("pcm_fifo","pcm_frame_tick","pcm_player","wav_reader","audio_arc_calculate","wav_audio_path","wav_audio_sd_top")] + [RTL+"cpr_audio_visualizer.v",TB+"tb_wav_visualizer.v"], "fixtures": ["tests/sim/fixtures/wav_stereo_visualizer.mem"]},
     "tb_audio_visualizer": {"sources": [RTL + "cpr_audio_visualizer.v", RTL + "video_rgb_to_axis_640x480.v", TB + "tb_audio_visualizer.v"]},
     "tb_slide_transition": {"sources": [RTL + "cpr_slide_fade.v", RTL + "cpr_transition_publish.v", RTL + "frame_buffer_publish.v", TB + "tb_slide_transition.v"]},
     "tb_spi_io_timing": {"sources": ["project/vendor/SD/spi_master.v", TB + "tb_spi_io_timing.v"]},
