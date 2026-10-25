@@ -51,6 +51,11 @@ wire read_enable=(video_cycle%20==0) && !memory_writer.read_buf.model.empty_flag
  integer seen[0:4*DW*DH-1];
  reg [23:0] expected_pixels[0:4*DW*DH-1];
  reg [23:0]expected;
+wire sd_sec_ready,sd_sec_read_error,sd_init_done;
+wire [7:0] sd_sec_read_data;
+wire sd_sec_read_data_valid,sd_sec_read_end,sd_sec_read;
+wire [31:0] sd_sec_read_addr;
+wire sd_read_cancel,SD_nCS,SD_DCLK,SD_MOSI;
 sd_card_bmp #(.CLK_FREQ_HZ(1000),.SCALE_ENABLE(1),.BLUR_BACKGROUND(USE_BLUR),
               .LOAD_TIMEOUT_CYCLES(200000),.READER_TIMEOUT_CYCLES(200000),
               .DST_WIDTH(DW),.DST_HEIGHT(DH),
@@ -60,7 +65,22 @@ sd_card_bmp #(.CLK_FREQ_HZ(1000),.SCALE_ENABLE(1),.BLUR_BACKGROUND(USE_BLUR),
   .write_finish_toggle(write_toggle),.write_buf_idx(write_index),.disp_buf_idx(publish_index),
   .publish_req(publish),.publish_done(done),.write_req(req),.write_req_ack(ack),
   .pixel_ready(space),.write_en(en),.write_data(data),
-  .SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
+  .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),.sd_init_done(sd_init_done),
+  .sd_sec_read_data(sd_sec_read_data),.sd_sec_read_data_valid(sd_sec_read_data_valid),
+  .sd_sec_read_end(sd_sec_read_end),.sd_sec_read(sd_sec_read),
+  .sd_sec_read_addr(sd_sec_read_addr),.sd_read_cancel(sd_read_cancel));
+
+  // sd_card_top now lives at the top level and is shared with WAV playback,
+  // so the bench supplies the sector model through the sd_sec_* slave port.
+  sd_card_top #(.TOKEN_TIMEOUT_CYCLES(10000000),.SPI_TIMEOUT_CYCLES(1000000)) sd_card_top_m0(
+   .clk(clk),.rst(rst),.read_cancel(sd_read_cancel),
+   .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),
+   .sd_init_done(sd_init_done),.sd_sec_read(sd_sec_read),
+   .sd_sec_read_addr(sd_sec_read_addr),.sd_sec_read_data(sd_sec_read_data),
+   .sd_sec_read_data_valid(sd_sec_read_data_valid),.sd_sec_read_end(sd_sec_read_end),
+   .SD_nCS(SD_nCS),.SD_DCLK(SD_DCLK),.SD_MOSI(SD_MOSI),.SD_MISO(1'b1),
+   .sd_sec_write(1'b0),.sd_sec_write_addr(32'd0),.sd_sec_write_data(8'd0),
+   .sd_sec_write_data_req(),.sd_sec_write_end());
  frame_read_write #(.BURST_SIZE(BURST),.FRAME_WIDTH(DW),.FRAME_HEIGHT(DH)) memory_writer(
   .rst(rst),.mem_clk(mem_clk),.Sdr_init_done(!rst),.Sdr_init_ref_vld(1'b0),.Sdr_busy(1'b0),
   .App_rd_en(rd_request),.App_rd_addr(rd_addr),.Sdr_rd_en(read_return[2]),.Sdr_rd_dout(32'd0),
@@ -199,14 +219,14 @@ endtask
    $fatal(1,"first display did not run concurrently with background prefetch");
   for(i=0;i<4;i=i+1)if(slot_writes[i]!=DW*DH || frame_writes[i]!=1 || write_requests[i]!=1)
    $fatal(1,"slot %0d not written exactly once",i);
-  if(USE_BLUR && scheduler.sd_card_top_m0.model_read_count!=16)
-   $fatal(1,"expected 4 scans + 4 headers + 8 source passes, got %0d",scheduler.sd_card_top_m0.model_read_count);
+  if(USE_BLUR && sd_card_top_m0.model_read_count!=16)
+   $fatal(1,"expected 4 scans + 4 headers + 8 source passes, got %0d",sd_card_top_m0.model_read_count);
   @(negedge clk);key_next=0;repeat(30)@(negedge clk);key_next=1;
   wait(active==1);repeat(10)@(negedge mem_clk);
   if(writes!=4*DW*DH || loads!=4)$fatal(1,"cached switch loaded pixels again");
-  reads_snapshot=scheduler.sd_card_top_m0.model_read_count;
+  reads_snapshot=sd_card_top_m0.model_read_count;
   repeat(1000)@(negedge clk);
-  if(scheduler.sd_card_top_m0.model_read_count!=reads_snapshot)
+  if(sd_card_top_m0.model_read_count!=reads_snapshot)
    $fatal(1,"SD read after cache completion");
   if(USE_BLUR)$display("PASS tb_sd_blur_pipeline: blur composite in all four SDRAM slots, concurrent display reads, publish after write finish, cached switch");
   else $display("PASS tb_sd_scaled_pipeline: complete four-slot SDRAM writes, V flip, FIFO backpressure, cached switch");

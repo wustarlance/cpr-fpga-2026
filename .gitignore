@@ -19,7 +19,9 @@
 # 仿真编译输出（iverilog/verilator 的工作目录）与波形，每次跑都重新生成。
 # 注意：这里不能用行内注释 —— 见下面第 ③ 节末尾的说明。
 build/
+build_msim/
 waves/
+transcript
 **/__pycache__/
 *.pyc
 
@@ -111,3 +113,40 @@ Thumbs.db
 # 临时 TD 试验工程（自己练手用，不是参赛产物）。
 # 上次 387d1ee 误提交就是因为它是未跟踪状态、被 git add -A 顺手带进去了。
 /test/
+
+# ---------- ⑦ 本地备份 / 损坏样本 / 仿真库 ----------
+# 这几类都是「本机排障的中间物」，对队友没有任何价值，且会大幅膨胀仓库：
+#   backup/     加密核损坏样本 + 源码 .bak，约 1.2 MB
+#   sim/work/   ModelSim 编译库（_info / *.qdb / *.qpg），约 2.1 MB，每次 vlog 重新生成
+# 注意：*.bak 用通配是为了连 project.al.bak2_xxx / .bak3_xxx 一起挡住。
+*.bak
+*.bak2*
+*.bak3*
+
+# 仿真/构建过程日志（*.log 已在第 ③ 节挡掉，这里补 txt 形式）
+*_log.txt
+
+# ---------- ⑧ 本机验证载体：project/workbuddy_change/ ----------
+# 这个目录是最初做音频链路验证时的工作区，里面有：
+#   audio_board.al / audio_bringup.al / audio_tmg.al   三个独立试验工程
+#   rtl/audio_*_top.v、wave_painter.v                  验证用顶层
+#   constraints/audio_*.adc|sdc                        验证工程的约束
+#   scripts/、build*.bat、sim/、tb/、doc/               试验脚本与排查记录
+#
+# 为什么不进仓库：
+#   1. 参赛工程 project.al 已经不再引用这里的任何文件——
+#      原先唯一被引用的两个（sd_sec_arbiter.v、project_cdc.sdc）
+#      已分别移到 rtl/SD/ 和 constraints/，工程可独立编译；
+#   2. 三个 .al 是并行试验工程，队友 clone 后不会去跑，
+#      留着反而让人误以为它们是正式工程；
+#   3. 目录里混有 backdoor 级临时物（build_*.log、td_*.logw、_Runs/），
+#      体积大且每次编译都变。
+# 判据：clone 下来只跑 project.build_project.bat 就能出 bit，
+#       不需要本目录任何内容。
+project/workbuddy_change/
+
+# ---------- ⑨ 本机构建输出 ----------
+# build_project.bat / scripts/build_project.tcl 的输出目录。
+# 里面的 .bit 已被第 ③ 节 *.bit 挡掉，但 .db/.area/.txt 会漏网，
+# 所以整目录排除。需要位流时本地跑一次构建即重新生成。
+/project/build_project/

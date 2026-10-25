@@ -11,6 +11,11 @@ module tb_sd_retry_limits;
   wire[3:0]status;
   wire published,valid;
   integer attempts=0;
+  wire sd_sec_ready,sd_sec_read_error,sd_init_done;
+  wire [7:0] sd_sec_read_data;
+  wire sd_sec_read_data_valid,sd_sec_read_end,sd_sec_read;
+  wire [31:0] sd_sec_read_addr;
+  wire sd_read_cancel,SD_nCS,SD_DCLK,SD_MOSI;
   sd_card_bmp #(.CLK_FREQ_HZ(1000),.SCALE_ENABLE(0),.RETRY_LIMIT(LIMIT),
     .LOAD_TIMEOUT_CYCLES(100),.READER_TIMEOUT_CYCLES(80),
     .SCAN_MAX_SECTOR(0),.SCAN_TARGET_COUNT(1)) dut(
@@ -19,7 +24,22 @@ module tb_sd_retry_limits;
    .state_code(status),.media_error(),.bmp_width(16'd4),.bmp_height(16'd2),
    .display_valid(valid),.write_finish_toggle(1'b0),.write_buf_idx(),.disp_buf_idx(),
    .publish_req(published),.publish_done(1'b0),.write_req(),.write_req_ack(1'b0),
-   .pixel_ready(1'b1),.write_en(),.write_data(),.SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
+   .pixel_ready(1'b1),.write_en(),.write_data(),
+   .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),.sd_init_done(sd_init_done),
+   .sd_sec_read_data(sd_sec_read_data),.sd_sec_read_data_valid(sd_sec_read_data_valid),
+   .sd_sec_read_end(sd_sec_read_end),.sd_sec_read(sd_sec_read),
+   .sd_sec_read_addr(sd_sec_read_addr),.sd_read_cancel(sd_read_cancel));
+  // sd_card_top now lives at the top level and is shared with WAV playback,
+  // so the bench supplies the sector model through the sd_sec_* slave port.
+  sd_card_top #(.TOKEN_TIMEOUT_CYCLES(10000000),.SPI_TIMEOUT_CYCLES(1000000)) sd_card_top_m0(
+   .clk(clk),.rst(rst),.read_cancel(sd_read_cancel),
+   .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),
+   .sd_init_done(sd_init_done),.sd_sec_read(sd_sec_read),
+   .sd_sec_read_addr(sd_sec_read_addr),.sd_sec_read_data(sd_sec_read_data),
+   .sd_sec_read_data_valid(sd_sec_read_data_valid),.sd_sec_read_end(sd_sec_read_end),
+   .SD_nCS(SD_nCS),.SD_DCLK(SD_DCLK),.SD_MOSI(SD_MOSI),.SD_MISO(1'b1),
+   .sd_sec_write(1'b0),.sd_sec_write_addr(32'd0),.sd_sec_write_data(8'd0),
+   .sd_sec_write_data_req(),.sd_sec_write_end());
   assign failed[k]=dut.media_fault;
   always @(posedge clk)if(!rst)begin
    if(dut.load_start_pulse)attempts<=attempts+1;

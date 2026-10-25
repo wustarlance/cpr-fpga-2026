@@ -2,7 +2,7 @@
 module tb_sd_scaled_pages;
  reg training=0,train_next=0,train_prev=0,hold_publish=0,auto_run=0;
  wire [11:0] page_status;
- defparam dut.sd_card_top_m0.PAGE_COLOR=1;
+ defparam sd_card_top_m0.PAGE_COLOR=1;
 
  reg clk=0,mem_clk=0,rst_n=0,key_next=1;
  reg hold_ack=0,hold_finish=0,frozen_toggle=0;
@@ -24,6 +24,11 @@ module tb_sd_scaled_pages;
  wire[31:0]fifo_word=fifo[rp%512];
  always #5 clk=~clk;
  always #12.5 mem_clk=~mem_clk;
+ wire sd_sec_ready,sd_sec_read_error,sd_init_done;
+ wire [7:0] sd_sec_read_data;
+ wire sd_sec_read_data_valid,sd_sec_read_end,sd_sec_read;
+ wire [31:0] sd_sec_read_addr;
+ wire sd_read_cancel,SD_nCS,SD_DCLK,SD_MOSI;
  sd_card_bmp #(.CLK_FREQ_HZ(1000),.SCALE_ENABLE(1),.DST_WIDTH(8),.DST_HEIGHT(4),.READER_TIMEOUT_CYCLES(80),
   .LOAD_TIMEOUT_CYCLES(5000),.SCAN_MAX_SECTOR(3),.SCAN_TARGET_COUNT(4)) dut(
   .clk(clk),.rst(!rst_n),.key_next(key_next),.key_prev(1'b1),
@@ -34,7 +39,22 @@ module tb_sd_scaled_pages;
   .write_buf_idx(write_index),.disp_buf_idx(pending_index),
   .publish_req(publish),.publish_fade(publish_fade),.publish_done(done),.write_req(write_req),
   .write_req_ack(writer_ack&&!hold_ack),.pixel_ready(1'b1),.write_en(write_en),.write_data(write_data),
-  .SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
+  .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),.sd_init_done(sd_init_done),
+  .sd_sec_read_data(sd_sec_read_data),.sd_sec_read_data_valid(sd_sec_read_data_valid),
+  .sd_sec_read_end(sd_sec_read_end),.sd_sec_read(sd_sec_read),
+  .sd_sec_read_addr(sd_sec_read_addr),.sd_read_cancel(sd_read_cancel));
+
+  // sd_card_top now lives at the top level and is shared with WAV playback,
+  // so the bench supplies the sector model through the sd_sec_* slave port.
+  sd_card_top #(.TOKEN_TIMEOUT_CYCLES(10000000),.SPI_TIMEOUT_CYCLES(1000000)) sd_card_top_m0(
+   .clk(clk),.rst(!rst_n),.read_cancel(sd_read_cancel),
+   .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),
+   .sd_init_done(sd_init_done),.sd_sec_read(sd_sec_read),
+   .sd_sec_read_addr(sd_sec_read_addr),.sd_sec_read_data(sd_sec_read_data),
+   .sd_sec_read_data_valid(sd_sec_read_data_valid),.sd_sec_read_end(sd_sec_read_end),
+   .SD_nCS(SD_nCS),.SD_DCLK(SD_DCLK),.SD_MOSI(SD_MOSI),.SD_MISO(1'b1),
+   .sd_sec_write(1'b0),.sd_sec_write_addr(32'd0),.sd_sec_write_data(8'd0),
+   .sd_sec_write_data_req(),.sd_sec_write_end());
  frame_buffer_publish swap(clk,rst_n,publish,pending_index,,done,
                            mem_clk,rst_n,frame_start,active_index);
  frame_fifo_write #(.BURST_SIZE(4),.FRAME_WIDTH(8),.FRAME_HEIGHT(4)) writer(
@@ -111,9 +131,9 @@ module tb_sd_scaled_pages;
   begin
    rst_n=0;training=in_training;train_next=0;train_prev=0;key_next=1;
    hold_ack=0;hold_finish=0;hold_publish=0;auto_run=0;
-   dut.sd_card_top_m0.image_count=pictures;
-   dut.sd_card_top_m0.fail_budget=0;dut.sd_card_top_m0.fault_kind=0;
-   dut.sd_card_top_m0.fail_sector=1;dut.sd_card_top_m0.only_transaction=0;
+   sd_card_top_m0.image_count=pictures;
+   sd_card_top_m0.fail_budget=0;sd_card_top_m0.fault_kind=0;
+   sd_card_top_m0.fail_sector=1;sd_card_top_m0.only_transaction=0;
    for(j=0;j<256;j=j+1)memory[j]=32'hbadc0ffe;
    repeat(5)tick;rst_n=1;
   end
@@ -149,12 +169,12 @@ module tb_sd_scaled_pages;
   test_case=3;boot(4,0);
   // Enable a persistent target fault only after catalogue scan, leaving the
   // source list intact. Slot zero remains a good visible frame throughout.
-  wait(dut.scan_done);dut.sd_card_top_m0.fault_kind=3;dut.sd_card_top_m0.fail_budget=-1;
+  wait(dut.scan_done);sd_card_top_m0.fault_kind=3;sd_card_top_m0.fail_budget=-1;
   wait_image(0);wait(dut.cache_failed[1]);wait_cache(4'b1101);
   if(dut.cache_valid[1]||dut.img_idx!=0)$fatal(1,"failed preload was made visible");
   base_loads=loads;repeat(500)tick;
   if(loads!=base_loads)$fatal(1,"failed preload retried forever");
-  dut.sd_card_top_m0.fail_budget=0;enter;wait_image(1);wait_cache(15);
+  sd_card_top_m0.fail_budget=0;enter;wait_image(1);wait_cache(15);
   if(loads!=base_loads+1)$fatal(1,"explicit training action did not recover exactly once");
   leave;wait_image(0);
   $display("CHECK stalled source, bounded retry and manual recovery");

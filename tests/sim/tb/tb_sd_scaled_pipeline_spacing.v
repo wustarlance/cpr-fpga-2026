@@ -30,6 +30,11 @@ module tb_sd_scaled_pipeline_spacing;
  integer writes=0,loads=0,stalls=0,b,i,x,y,sx,sy,fw,fh,ox,top,bottom,w,h,pos;
  integer seen[0:8191];
  reg [23:0]expected;
+ wire sd_sec_ready,sd_sec_read_error,sd_init_done;
+ wire [7:0] sd_sec_read_data;
+ wire sd_sec_read_data_valid,sd_sec_read_end,sd_sec_read;
+ wire [31:0] sd_sec_read_addr;
+ wire sd_read_cancel,SD_nCS,SD_DCLK,SD_MOSI;
  sd_card_bmp #(.CLK_FREQ_HZ(1000),.SCALE_ENABLE(1),.LOAD_TIMEOUT_CYCLES(2000000),.READER_TIMEOUT_CYCLES(200000),.DST_WIDTH(64),.DST_HEIGHT(32),
               .SCAN_START_SECTOR(0),.SCAN_MAX_SECTOR(3)) scheduler(
   .clk(clk),.rst(rst),.key_next(key_next),.key_prev(1'b1),.key_auto(1'b1),.external_auto(1'b0),
@@ -37,7 +42,22 @@ module tb_sd_scaled_pipeline_spacing;
   .write_finish_toggle(write_toggle),.write_buf_idx(write_index),.disp_buf_idx(publish_index),
   .publish_req(publish),.publish_done(done),.write_req(req),.write_req_ack(ack),
   .pixel_ready(space),.write_en(en),.write_data(data),
-  .SD_nCS(),.SD_DCLK(),.SD_MOSI(),.SD_MISO(1'b1));
+  .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),.sd_init_done(sd_init_done),
+  .sd_sec_read_data(sd_sec_read_data),.sd_sec_read_data_valid(sd_sec_read_data_valid),
+  .sd_sec_read_end(sd_sec_read_end),.sd_sec_read(sd_sec_read),
+  .sd_sec_read_addr(sd_sec_read_addr),.sd_read_cancel(sd_read_cancel));
+
+  // sd_card_top now lives at the top level and is shared with WAV playback,
+  // so the bench supplies the sector model through the sd_sec_* slave port.
+  sd_card_top #(.TOKEN_TIMEOUT_CYCLES(10000000),.SPI_TIMEOUT_CYCLES(1000000)) sd_card_top_m0(
+   .clk(clk),.rst(rst),.read_cancel(sd_read_cancel),
+   .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),
+   .sd_init_done(sd_init_done),.sd_sec_read(sd_sec_read),
+   .sd_sec_read_addr(sd_sec_read_addr),.sd_sec_read_data(sd_sec_read_data),
+   .sd_sec_read_data_valid(sd_sec_read_data_valid),.sd_sec_read_end(sd_sec_read_end),
+   .SD_nCS(SD_nCS),.SD_DCLK(SD_DCLK),.SD_MOSI(SD_MOSI),.SD_MISO(1'b1),
+   .sd_sec_write(1'b0),.sd_sec_write_addr(32'd0),.sd_sec_write_data(8'd0),
+   .sd_sec_write_data_req(),.sd_sec_write_end());
  frame_read_write #(.WRITE_BURST_SIZE(128),.WRITE_TO_READ_GAP(16),.WRITE_RESTART_GAP(64),.FRAME_WIDTH(64),.FRAME_HEIGHT(32)) memory_writer(
   .diagnostic_pause(1'b0),.rst(rst),.mem_clk(mem_clk),.Sdr_init_done(!rst),.Sdr_init_ref_vld(1'b0),.Sdr_busy(1'b0),
   .App_rd_en(rd_request),.App_rd_addr(),.Sdr_rd_en(read_return[2]),.Sdr_rd_dout(32'd0),
