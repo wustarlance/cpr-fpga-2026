@@ -82,6 +82,16 @@ if {[catch {
     }
     read_sdc constraints/page_status.sdc
     read_sdc constraints/project_cdc.sdc
+    # Total-frame status is not exposed by either shipped top. Do not attach
+    # this optional bound before mapping: its source can then be removed while
+    # TD retains the constraint. Bind only surviving physical endpoints.
+    set cpr_total_hold [get_regs -nowarn {*u_audio_wav/u_path/S_cfg_total_hold[*]}]
+    set cpr_total_capture [get_regs -nowarn {*u_audio_wav/u_path/S_ftotal[*]}]
+    puts "CPR_OPTIONAL_TOTAL_REGS hold=[llength $cpr_total_hold] capture=[llength $cpr_total_capture]"
+    if {[llength $cpr_total_hold] > 0 && [llength $cpr_total_capture] > 0} {
+        set_max_delay -from $cpr_total_hold -to $cpr_total_capture 80 -datapath_only
+        set_false_path -hold -from $cpr_total_hold -to $cpr_total_capture
+    }
     read_sdc -ip rfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.tcl
     read_sdc -ip wfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.tcl
     report_area -file $cpr_reports/gate_area.rpt

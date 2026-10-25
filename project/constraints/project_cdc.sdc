@@ -41,8 +41,6 @@ if {[llength [get_regs -nowarn {*u_audio_wav/u_path/S_aud_frame[*]}]] > 0} {
 # another complete SD header transfer, not arbitrary per-cycle changes.
 set_max_delay -from [get_regs -nowarn {*u_audio_wav/u_path/S_cfg_rate_hold[*]}] -to [get_regs -nowarn {*u_audio_wav/u_path/S_sr[*]}] 80 -datapath_only
 set_false_path -hold -from [get_regs -nowarn {*u_audio_wav/u_path/S_cfg_rate_hold[*]}] -to [get_regs -nowarn {*u_audio_wav/u_path/S_sr[*]}]
-if {[llength [get_regs -nowarn {*u_audio_wav/u_path/S_cfg_total_hold[*]}]] > 0 &&
-    [llength [get_regs -nowarn {*u_audio_wav/u_path/S_ftotal[*]}]] > 0} {
-    set_max_delay -from [get_regs -nowarn {*u_audio_wav/u_path/S_cfg_total_hold[*]}] -to [get_regs -nowarn {*u_audio_wav/u_path/S_ftotal[*]}] 80 -datapath_only
-    set_false_path -hold -from [get_regs -nowarn {*u_audio_wav/u_path/S_cfg_total_hold[*]}] -to [get_regs -nowarn {*u_audio_wav/u_path/S_ftotal[*]}]
-}
+# Optional frame-total diagnostics are pruned in both shipped tops. Apply
+# their bound only AFTER gate mapping in build.tcl, when both endpoints survive.
+# A pre-map constraint persists even if a later conditional read skips it.
