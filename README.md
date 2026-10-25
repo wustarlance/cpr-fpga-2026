@@ -1,4 +1,4 @@
-> **2026-10-24 音频可视化与轮播转场**：基于 main `5ff4f49` 保留最新按键修正，加入实际 PCM 波形/VU 与自动轮播淡出淡入。12 项功能自检通过，2 个错误变体被拒绝；现有 TD 两顶层生成位流，setup +0.109/+0.117 ns、hold 均 +0.011 ns。原有关键告警保留，严格检查仍 failed；本次未上板。见[功能、预览与验证](project/docs/audio-and-transitions.md)。
+> **2026-10-25 波形／音量条与轮播转场**：已整合 main `7235989` 的 WAV 与共享SD路径；18项功能检查、3项预期故障注入通过。TD两顶层生成位流，setup +0.120/+0.159 ns、hold +0.003/+0.004 ns。原PLL／SDRAM关键告警保留，严格检查仍 failed、板级 I/O 为 conditional，新位流未上板。见[功能、预览与当前验证](project/docs/audio-and-transitions.md)。
 >
 > **2026-10-24 SD/HDMI 离线时序预算**：同步最新主分支，SD 传输改为约 16.67 MHz，补齐布线后 min/max 抽取与自检。现有 TD 6.2.168116 两顶层生成位流、内部 setup/hold 均为正；6 项 RTL、27 项 Python 检查通过，2 项错误注入按预期失败。严格检查仍 failed，板级 I/O 结论仍为 conditional，本次未上板。见[预算与实际结果](project/docs/io-timing-budget.md)。
 >
@@ -36,7 +36,7 @@
 
 基础架构现在登记在 [`project/project.al`](project/project.al)：默认 `top` 用板载按键演示，`top_adc` 接入片内 ADC CH1 的采样、跨域、四点均值和完整释放后的按压事件。源文件、构建方法与操作见 [`project/README.md`](project/README.md)，变更来源见 [`source-provenance.md`](project/docs/source-provenance.md)。
 
-当前实现包含三模式、训练计数/评级/计时、亮度和对比度、中文页眉与滚动字幕、四槽全缓存与加载时最近邻等比缩放、HDMI 音频（教学/展播播放音阶，训练锁定 A4 节拍提示）。训练画面采用左侧384像素教程与右侧256像素反馈面板，字幕在训练模式下限制在左侧；完整教程图可用素材工具等比例排版。操作、坐标和素材命令见[训练布局说明](project/docs/training-layout.md)。**压力仍未标定；音乐播放、转场特效、音频可视化，以及面积平均/双线性缩放仍待实现**（面积平均与双线性已在 Python 中建模并按参考量化，RTL 尚未实现）。下方作品简介说明设计定位，不能视为所有功能已经完成。
+当前实现包含三模式、训练计数/评级/计时、亮度和对比度、中文页眉与滚动字幕、四槽全缓存与加载时最近邻等比缩放，以及卡上 WAV 的 HDMI 播放和训练节拍门控。新增实际输出 PCM 的波形／音量条与自动轮播淡出淡入，说明和验证见[音频与转场](project/docs/audio-and-transitions.md)。训练画面采用左侧384像素教程与右侧256像素反馈面板，字幕在训练模式下限制在左侧；操作、坐标和素材命令见[训练布局说明](project/docs/training-layout.md)。前景仍为最近邻采样，补边背景已实现区域均值、盒式模糊、双线性放大和压暗。**压力与机械深度仍未标定，FAT32 目录／碎片文件和 FFT 频谱仍未实现，新音频／转场位流尚未上板。**下方作品简介说明设计定位，不能视为所有功能已经完成。
 
 ![训练画面RTL输出，底图为仿真测试图案](project/docs/training-layout-rtl.png)
 
