@@ -2,6 +2,8 @@
 // Defaults are test pressure codes, not calibrated physical depth thresholds.
 module top_adc #(parameter USE_EXTERNAL_IO=1,
                  parameter ENABLE_AUDIO=1,
+                 parameter ENABLE_AUDIO_VISUALIZATION=1,
+                 parameter ENABLE_SMOOTH_TRANSITIONS=1,
                  parameter BLUR_BACKGROUND=1,
                  parameter integer BG_BRIGHTNESS_NUM=3,
                  parameter integer BG_BRIGHTNESS_SHIFT=2,
@@ -24,6 +26,8 @@ module top_adc #(parameter USE_EXTERNAL_IO=1,
 );
     top #(.USE_ADC(1), .USE_EXTERNAL_IO(USE_EXTERNAL_IO),
           .ENABLE_AUDIO(ENABLE_AUDIO), .LED_ACTIVE_LOW(LED_ACTIVE_LOW),
+          .ENABLE_AUDIO_VISUALIZATION(ENABLE_AUDIO_VISUALIZATION),
+          .ENABLE_SMOOTH_TRANSITIONS(ENABLE_SMOOTH_TRANSITIONS),
           .BLUR_BACKGROUND(BLUR_BACKGROUND),
           .BG_BRIGHTNESS_NUM(BG_BRIGHTNESS_NUM),
           .BG_BRIGHTNESS_SHIFT(BG_BRIGHTNESS_SHIFT),

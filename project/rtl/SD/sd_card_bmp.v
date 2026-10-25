@@ -38,6 +38,7 @@ module sd_card_bmp #(
     output reg [1:0]            write_buf_idx,
     output reg [1:0]            disp_buf_idx,
     output reg                  publish_req,
+    output reg                  publish_fade,
     input                       publish_done,
 
     output                      write_req,
@@ -265,7 +266,7 @@ always @(posedge clk or posedge rst) begin
         load_sector<=0; scan_kicked<=0; first_image_committed<=0;
         auto_play_en<=0; auto_cnt<=0; img_found_count<=0;
         img_idx<=0; load_idx<=0; pending_buf_idx<=0;
-        write_buf_idx<=0; disp_buf_idx<=0;
+        write_buf_idx<=0; disp_buf_idx<=0; publish_fade<=0;
         img_sector0<=0; img_sector1<=0; img_sector2<=0; img_sector3<=0;
         next_req_pending<=0; pending_prev<=0;
         load_busy<=0; publish_wait<=0; publish_req<=0;
@@ -449,7 +450,7 @@ always @(posedge clk or posedge rst) begin
         load_sector<=0; scan_kicked<=0; first_image_committed<=0;
         auto_play_en<=0; auto_key_en<=0; auto_cnt<=0; img_found_count<=0;
         img_idx<=0; load_idx<=0; pending_buf_idx<=0;
-        write_buf_idx<=0; disp_buf_idx<=0;
+        write_buf_idx<=0; disp_buf_idx<=0; publish_fade<=0;
         img_sector0<=0; img_sector1<=0; img_sector2<=0; img_sector3<=0;
         next_req_pending<=0; pending_prev<=0;
         load_busy<=0; publish_wait<=0; publish_req<=0;
@@ -460,7 +461,7 @@ always @(posedge clk or posedge rst) begin
     end else begin
         wrfin_tgl_sync<={wrfin_tgl_sync[1:0],write_finish_toggle};
         write_ack_sync<={write_ack_sync[0],write_req_ack};
-        scan_start_pulse<=0; load_start_pulse<=0; cancel_load<=0; publish_req<=0;
+        scan_start_pulse<=0; load_start_pulse<=0; cancel_load<=0; publish_req<=0; publish_fade<=0;
         if(!load_busy) load_timer<=0;
         else if(load_timer<LOAD_TIMEOUT_CYCLES) load_timer<=load_timer+1'b1;
         if(!sd_init_done) begin
@@ -495,6 +496,7 @@ always @(posedge clk or posedge rst) begin
                         next_req_pending<=0;
                     end else if(display_valid && !next_req_pending && auto_play_en && auto_tick && cache_valid[auto_index]) begin
                         disp_buf_idx<=auto_index; publish_req<=1; publish_wait<=1;
+                        publish_fade<=img_found_count>1 && auto_index!=img_idx;
                     end
                 end
             end

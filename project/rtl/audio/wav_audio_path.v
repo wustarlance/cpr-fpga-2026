@@ -112,6 +112,17 @@ module wav_audio_path #(
 /* 0. 控制信号跨域：I_stop / I_loop                                          */
 /*    人按按钮是毫秒级，两级同步就够；停止还要在两侧各拉 16 拍复位 FIFO。      */
 /* ======================================================================== */
+// Playback/mute are video-domain levels. Synchronize before MCLK use.
+reg S_play_meta, S_play_sync, S_mute_meta, S_mute_sync;
+always @(posedge I_mclk or posedge I_mclk_rst) begin
+    if (I_mclk_rst) begin
+        S_play_meta<=0; S_play_sync<=0;
+        S_mute_meta<=1; S_mute_sync<=1;
+    end else begin
+        S_play_meta<=I_play; S_play_sync<=S_play_meta;
+        S_mute_meta<=I_mute; S_mute_sync<=S_mute_meta;
+    end
+end
 reg [1:0] S_stop_sd_sync;
 reg [1:0] S_loop_sd_sync;
 always @(posedge I_sd_clk or posedge I_sd_rst) begin
@@ -331,14 +342,18 @@ pcm_fifo #(
 /* ======================================================================== */
 reg        S_cfg_tog;
 reg        S_cfg_seen;
+// Snapshot with the toggle; reader reset/reparse must not change an in-flight payload.
+reg [31:0] S_cfg_rate_hold, S_cfg_total_hold;
 always @(posedge I_sd_clk or posedge I_sd_rst) begin
     if (I_sd_rst) begin
         S_cfg_tog  <= 1'b0;
         S_cfg_seen <= 1'b0;
+        S_cfg_rate_hold<=0; S_cfg_total_hold<=0;
     end
     else if (W_wav_hdr && !S_cfg_seen) begin
         S_cfg_tog  <= ~S_cfg_tog;
         S_cfg_seen <= 1'b1;
+        S_cfg_rate_hold<=W_wav_sr; S_cfg_total_hold<=W_wav_ftotal;
     end
     else if (!W_wav_hdr) begin
         S_cfg_seen <= 1'b0;
@@ -359,8 +374,8 @@ always @(posedge I_mclk or posedge I_mclk_rst) begin
         S_ftotal <= 32'd0;
     end
     else if (W_cfg_load) begin
-        S_sr     <= W_wav_sr;
-        S_ftotal <= W_wav_ftotal;
+        S_sr     <= S_cfg_rate_hold;
+        S_ftotal <= S_cfg_total_hold;
     end
 end
 
@@ -383,7 +398,7 @@ pcm_player #(
 ) u_pcm_player (
     .I_clk         (I_mclk),
     .I_rst         (I_mclk_rst),
-    .I_play        (I_play),
+    .I_play        (S_play_sync),
     .I_stop        (W_stop_m),
     .I_sample_rate (S_sr),
     .I_frame_total (S_ftotal),
@@ -425,7 +440,7 @@ always @(posedge I_mclk or posedge I_mclk_rst) begin
         S_frame_m <= 48'd0;
     end
     else if (W_pcm_valid) begin
-        S_frame_m <= I_mute ? 48'd0 : {W_pcm_right, W_pcm_left};
+        S_frame_m <= S_mute_sync ? 48'd0 : {W_pcm_right, W_pcm_left};
         S_tog     <= ~S_tog;
     end
 end

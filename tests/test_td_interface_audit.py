@@ -31,6 +31,7 @@ class InterfaceAuditTests(unittest.TestCase):
         self.assertEqual(role('ext_keys_n[0]','top',True),'configured_external_inputs_cdc_review')
         self.assertEqual(role('ext_keys_n[0]','top',False),'inactive_external_io_default')
         self.assertEqual(role('key_panel_n[0]','top',True),'key_panel_configuration_cdc_review')
+        self.assertEqual(role('dip_sw[3]','top_adc',True),'asynchronous_controls_cdc_review')
 
     def test_model_groups_are_not_pin_counts(self):
         record = review_report(fixture(), {'HDMI_DDC_SDA': 'R2'}, 'top')

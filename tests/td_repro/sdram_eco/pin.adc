@@ -1,0 +1,5 @@
+set_pin_assignment {clk} {LOCATION = R7; IOSTANDARD = LVCMOS33;}
+set_pin_assignment {status[0]} {LOCATION = A4; IOSTANDARD = LVCMOS33;}
+set_pin_assignment {status[1]} {LOCATION = A3; IOSTANDARD = LVCMOS33;}
+set_pin_assignment {status[2]} {LOCATION = C10; IOSTANDARD = LVCMOS33;}
+set_pin_assignment {status[3]} {LOCATION = B12; IOSTANDARD = LVCMOS33;}

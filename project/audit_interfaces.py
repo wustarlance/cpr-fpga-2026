@@ -19,8 +19,7 @@ def role(port, top, external_io=False):
         return 'configured_external_inputs_cdc_review' if external_io else 'inactive_external_io_default'
     if port.startswith('key_panel_n['):
         return 'key_panel_configuration_cdc_review'
-    if port == 'dip_sw[3]' and top == 'top_adc':
-        return 'inactive_demo_contact_in_adc'
+    # SW4 now controls WAV playback in both tops, including top_adc.
     if port.startswith('dip_sw[') or port in ('key1', 'key2', 'key3'):
         return 'asynchronous_controls_cdc_review'
     if port == 'rst_n':

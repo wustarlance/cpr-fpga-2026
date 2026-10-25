@@ -58,7 +58,8 @@ def summarize(log, top, stage):
     relocation = [line for line in diagnostics if re.search(
         r"PHY-7002 CRITICAL-WARNING: Instance (?:u_board/)?U3/sdram location .*will be moved during placement", line)]
     errors = [line for line in diagnostics if
-        re.search(r"\b(?:ERROR|FATAL)\b|CRITICAL-WARNING", line)]
+        re.search(r"\b(?:ERROR|FATAL)\b|CRITICAL-WARNING", line)
+        or ('HDL-5314' in line and 'rtl/' in line and '.enc.' not in line)]
     version = re.search(r"Tang Dynasty, V([^\s]+)", log)
     return {"td_version": version[1] if version else None,
             "pass_marker": (f"CPR_BUILD_PASS {top}" if stage == "full" else f"CPR_SYNTHESIS_PASS {top}") in log,
