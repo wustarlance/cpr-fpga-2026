@@ -9,9 +9,9 @@ if {[llength [get_regs -nowarn {*u_audio_wav/u_path/S_mute_meta}]] > 0} {
 if {[llength [get_regs -nowarn {*u_audio_wav/u_path/S_stop_sd_sync[0]}]] > 0} {
     set_false_path -to [get_regs -nowarn {*u_audio_wav/u_path/S_stop_sd_sync[0]}]
 }
-if {[llength [get_regs -nowarn {*u_audio_wav/u_path/S_loop_sd_sync[0]}]] > 0} {
-    set_false_path -to [get_regs -nowarn {*u_audio_wav/u_path/S_loop_sd_sync[0]}]
-}
+# Optional loop first stage is handled by build.tcl via wav_loop.sdc.
+# Do not put its conditional inside read_sdc: this TD still records the command
+# for the ADC mapping where that logical endpoint is absent.
 if {[llength [get_regs -nowarn {*u_audio_wav/u_path/S_tog_m[0]}]] > 0} {
     set_false_path -to [get_regs -nowarn {*u_audio_wav/u_path/S_tog_m[0]}]
 }

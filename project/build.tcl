@@ -83,6 +83,14 @@ if {[catch {
     }
     read_sdc constraints/page_status.sdc
     read_sdc constraints/project_cdc.sdc
+    # Use an ordinary Tcl condition around reading a static SDC. In this TD,
+    # an if inside read_sdc does not prevent an absent loop endpoint from
+    # becoming an invalid exception in the ADC implementation.
+    set cpr_loop_first [get_regs {*u_audio_wav/u_path/S_loop_sd_sync[0]}]
+    puts "CPR_OPTIONAL_LOOP_REGS [llength $cpr_loop_first]"
+    if {[llength $cpr_loop_first] > 0} {
+        read_sdc constraints/wav_loop.sdc
+    }
     # Total-frame status is not exposed by either shipped top. Do not attach
     # this optional bound before mapping: its source can then be removed while
     # TD retains the constraint. Bind only surviving physical endpoints.
