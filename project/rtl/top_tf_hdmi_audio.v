@@ -10,6 +10,8 @@ module top #(
     parameter ENABLE_AUDIO = 1,
     parameter ENABLE_AUDIO_VISUALIZATION = 1,
     parameter ENABLE_SMOOTH_TRANSITIONS = 1,
+    // 自动展播（模式 2）每页停留秒数。改这个数必须重新综合。
+    parameter integer AUTO_DWELL_S = 5,
     parameter UI_LANGUAGE_ZH = 1,
     parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
     parameter [11:0] RELEASE_BASELINE = 12'd3000,
@@ -475,6 +477,7 @@ wire        sd_bmp_end,       sd_wav_end;
 sd_card_bmp #(
     .TRAINING_PAGE_INDEX(TRAINING_PAGE_INDEX),
     .CLK_FREQ_HZ       (100_000_000),
+    .AUTO_DWELL_S      (AUTO_DWELL_S),
     .SCAN_START_SECTOR (32'd0),
     .SCAN_MAX_SECTOR   (32'd131071),
     .SCAN_TARGET_COUNT (3'd4),

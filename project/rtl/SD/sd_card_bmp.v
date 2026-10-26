@@ -2,6 +2,8 @@
 module sd_card_bmp #(
     parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
     parameter integer CLK_FREQ_HZ       = 100_000_000,
+    // 自动展播时每页停留的秒数。1 = 旧行为（每秒翻一页）；产品顶层传 5。
+    parameter integer AUTO_DWELL_S      = 1,
     parameter integer RETRY_LIMIT       = 1,
     parameter integer LOAD_TIMEOUT_CYCLES = CLK_FREQ_HZ * 3,
     parameter integer READER_TIMEOUT_CYCLES = CLK_FREQ_HZ,
@@ -103,7 +105,7 @@ reg [31:0]       load_sector;
 reg              scan_kicked;
 reg              first_image_committed;
 reg              auto_play_en;
-reg [31:0]       auto_cnt;
+reg [39:0]       auto_cnt;   // 展播停留计数，40 位够 100 MHz 下约 3 小时
 reg [2:0]        img_found_count;
 reg [1:0]        img_idx;              // 当前真正显示中的图片编号
 reg [1:0]        load_idx;             // 当前正在写入的图片编号
@@ -167,7 +169,9 @@ wire [1:0] manual_from_current;
 
 assign write_en   = bmp_data_wr_en && load_busy && !recovering && !operation_error && !cancel_load;
 assign write_data = {bmp_data[23:16], bmp_data[15:8], bmp_data[7:0], 8'b0};
-assign auto_tick  = (auto_cnt == (CLK_FREQ_HZ - 1));
+// 停留时间不再固定 1 秒：AUTO_DWELL_S 秒一个 tick（=1 时与旧行为逐拍等价）。
+localparam [63:0] AUTO_DWELL_CYCLES = (AUTO_DWELL_S < 1 ? 1 : AUTO_DWELL_S) * CLK_FREQ_HZ;
+assign auto_tick  = (auto_cnt >= (AUTO_DWELL_CYCLES - 1));
 assign next_from_current = next_index_limited(img_idx, img_found_count);
 assign manual_from_current = pending_prev ? prev_index_limited(img_idx, img_found_count) : next_from_current;
 assign write_finish_pulse = wrfin_tgl_sync[2] ^ wrfin_tgl_sync[1];
