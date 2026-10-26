@@ -38,14 +38,16 @@
 //   .O_acr_valid / O_acr_cts / O_acr_n                      → HDMI 核 I_acr_*
 //   ACR 已在本层算好，框架里原来的 audio_arc_calculate 可以不例化。
 //
-// 四段音频 = 一个 2 bit 选曲口：
-//   input     I_audio_sel[1:0]   ← 直接接"当前上屏页号"即可
-//   内部 4 选 1 后送 wav_audio_path 的 I_start_sector，并且**换页那一拍自动
+// 五段音频 = 一个 3 bit 选曲口（2026-10-26 扩到 5 段）：
+//   input     I_audio_sel[2:0]   0..3 → 该页 WAV；4 → FREE_SONG（自动轮播模式）
+//   内部 5 选 1 后送 wav_audio_path 的 I_start_sector，并且**换码那一拍自动
 //   发一次重启**（abort→start），重新锁存新扇区、清两侧 FIFO，所以外部只
 //   需要接对 I_audio_sel，不需要自己产生 I_stop。
+//   为什么选曲口是"码"而不是"页号 + 模式标志"：换模式（手动↔自动轮播）
+//   正好等于换一次曲，交给同一套 restart 就够，本层与下层都不用理解模式。
 //
-//   四个首扇区 **不在本层定义**，也不在本层透传：唯一一处是
-//   rtl/audio/wav_track_select.v 的 module 参数默认值 PICTURE_1..4。
+//   五个首扇区 **不在本层定义**，也不在本层透传：唯一一处是
+//   rtl/audio/wav_track_select.v 的 module 参数默认值 PICTURE_1..4 + FREE_SONG。
 //   本层例化它时不写参数覆盖，所以"填哪儿"只有那一个地方，不会出现
 //   "顶层改了但中间层默认值把它盖回去"这类问题。要换扇区就改那一个文件。
 //
@@ -53,7 +55,7 @@
 //   走**片内合成**（heartbeat_synth，见 wav_audio_path 第 5.5 节），不读卡：
 //   I_heart_en 就是音频口那个 2:1 选择器的选择端 —— 1 出"咚—哒"、0 出该页
 //   WAV（训练模式即"屏蔽该页音频、只播心跳"）。没有混音、没有淡化。
-//   卡上第 5 段 HEART_BEAT 的方案已删除，训练模式不再占用扇区表。
+//   FREE_SONG 是自动轮播模式的曲子，与训练模式无关（训练时不读卡）。
 //
 // 与厂商 sd_card_top 的接口边界（2026-10-21 修正）：
 //   厂商原文件只有 sd_sec_read(电平请求) / sd_sec_read_end(结束) / data_valid，
@@ -77,7 +79,7 @@ module wav_audio_sd_top #(
     input  wire        I_video_rst,
 
     /* ---- 控制 ---- */
-    input  wire [1:0]  I_audio_sel,         // 选曲：0..3 → PICTURE_1..4
+    input  wire [2:0]  I_audio_sel,         // 选曲：0..3 → PICTURE_1..4；4 → FREE_SONG
     input  wire        I_play,              // 1 = 播放；0 = 暂停（位置保留，不消耗 FIFO）
     input  wire        I_stop,              // 单拍：回到当前曲目开头
     input  wire        I_mute,

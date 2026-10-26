@@ -20,8 +20,24 @@
 #   u_audio_wav 侧全部跨域：PCM 数据过双时钟 FIFO；I_loop 经两级同步；
 #                           WAV 头信息（采样率/总帧数）解析后保持恒定，
 #                           只在停止/重新开文件时更新一次
+#   u_audio_wav/u_heartbeat 的训练模式选择端（2026-10-26 补）：
+#       video_clk 域的 I_heart_en / I_mute 进入音频块后各过一级两级同步器
+#       （S_heart_sync / S_mute_sync，见 rtl/audio/wav_audio_path.v §5.5），
+#       同步后的 W_heart_m / W_mute_m 才去驱动选择器和心跳模块；
+#       心跳模块的 O_busy 是 MCLK 域内部信号，不跨域。
+#       注意：这两个是**电平**（按下/切模式后保持毫秒级），不是单拍脉冲，
+#       两级同步足够；真正的单拍跨域（I_stop）走 toggle 握手，不在这里。
 #   保持（HWNS）违例全部落在同步器的第一级输入上，两级同步器本身就能吸收，
 #   没有实际意义。
+#
+#   选曲码 I_audio_sel（2026-10-26 由 2 bit 扩到 3 bit，加第 5 段 FREE_SONG）：
+#       0..3 来自 ext_mem_clk 域的 active_read_idx，bit2 来自 video_clk 域的
+#       auto_mode_q（app_mode==1 打一拍）。两者都不是格雷码，跳变时可能有多位
+#       同时翻转，所以 wav_audio_sd_top/u_track_select 里先 2 级同步、再做
+#       "连续 8 拍不变才认"的稳定过滤（S_sel_cnt），中间值活不过一拍，被直接
+#       滤掉；确认后才产生一次 abort→start。也就是说这条跨域不是靠"多位同时
+#       稳定"保证的，而是靠**时间过滤**（8 个 100 MHz 周期 = 80 ns，远小于
+#       一次换页的毫秒级间隔），和 frame_fifo 的格雷码指针是两种不同手段。
 #
 # 保留检查的部分：
 #   - 每个时钟域内部的单域路径（含 sd_card_clk 内 -0.602ns 那条，

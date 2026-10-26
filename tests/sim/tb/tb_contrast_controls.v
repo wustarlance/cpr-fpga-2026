@@ -1,19 +1,28 @@
 `timescale 1ns/1ps
+//=============================================================================
+// tb_contrast_controls —— 对比度档位的契约（2026-10-26 只剩 K6 一路）
+//-----------------------------------------------------------------------------
+// 检查项：
+//   1) 复位后 = 3'd2（中性 1.00），不因为按键悬空/上电沿乱跳；
+//   2) 按一次前进一档：2→3→4→0→1→2（0.50 … 1.50 五档循环）；
+//   3) 短于消抖窗口（STABLE_MS 个 tick）的毛刺不算一次按键；
+//   4) 开关通路已经删除：本 TB 不再给 raw_switches 任何激励 —— 如果哪天有人
+//      把 SW1..3 的绝对译码接回来，端口会变，这个 TB 编译就过不去。
+//=============================================================================
 module tb_contrast_controls;
-    reg clk=0,rst_n=0,training=0;
-    reg [2:0] raw=0;
+    reg clk=0, rst_n=0;
     reg raw_key=0;
-    wire [2:0] held,live;
+    wire [2:0] level;
     reg [3:0] divider=0;
-    wire tick_ms=divider==9;
+    wire tick_ms = (divider==9);          // 10 个 clk = 1 ms
     always #5 clk=~clk;
-    always @(posedge clk) divider<=divider==9 ? 0 : divider+1;
-    contrast_controls #(.STABLE_MS(3),.HOLD_DURING_TRAINING(1)) h(
-        .clk(clk),.rst_n(rst_n),.tick_ms(tick_ms),.raw_switches(raw),
-        .raw_key(raw_key),.training_enabled(training),.contrast_level(held));
-    contrast_controls #(.STABLE_MS(3),.HOLD_DURING_TRAINING(0)) l(
-        .clk(clk),.rst_n(rst_n),.tick_ms(tick_ms),.raw_switches(raw),
-        .raw_key(raw_key),.training_enabled(training),.contrast_level(live));
+    always @(posedge clk) divider <= (divider==9) ? 4'd0 : divider+4'd1;
+
+    contrast_controls #(.STABLE_MS(3)) dut(
+        .clk(clk), .rst_n(rst_n), .tick_ms(tick_ms),
+        .raw_key(raw_key), .contrast_level(level));
+
+    // 按一次（按下保持够长 → 松开，也等到稳定）
     task press_key;
         begin
             @(negedge clk); raw_key=1;
@@ -22,41 +31,44 @@ module tb_contrast_controls;
             repeat(80) @(negedge clk);
         end
     endtask
-    task set_switch(input [2:0] code);
-        begin @(negedge clk);raw=code;repeat(80)@(negedge clk);end
+
+    // 毛刺：只按 2 个 tick（20 clk），短于 STABLE_MS=3
+    task glitch_key;
+        begin
+            @(negedge clk); raw_key=1;
+            repeat(20) @(negedge clk);
+            raw_key=0;
+            repeat(80) @(negedge clk);
+        end
     endtask
+
     initial begin
-        repeat(3)@(negedge clk);rst_n=1;repeat(5)@(negedge clk);
-        if(held!==2 || live!==2)$fatal(1,"neutral startup");
-        raw=1;@(negedge clk);raw=0;repeat(80)@(negedge clk);
-        if(held!==2 || live!==2)$fatal(1,"short switch glitch changed setting");
-        set_switch(1);if(held!==0 || live!==0)$fatal(1,"low contrast mapping");
-        set_switch(2);if(held!==1)$fatal(1,"0.75 contrast mapping");
-        set_switch(3);if(held!==3)$fatal(1,"1.25 contrast mapping");
-        training=1;set_switch(4);
-        if(held!==3 || live!==4)$fatal(1,"training demo hold/ADC live selection");
-        training=0;repeat(3)@(negedge clk);
-        if(held!==4)$fatal(1,"leaving demo training did not restore switch setting");
-        set_switch(7);if(held!==2 || live!==2)$fatal(1,"invalid raw code fallback");
-        set_switch(0);if(held!==2)$fatal(1,"zero switches must be neutral");
-        set_switch(4);#2;rst_n=0;#1;
-        if(held!==2 || live!==2)$fatal(1,"asynchronous reset neutral");
-        // ---- K6 按键通路：相对步进 + 开关交还 ----
-        // 上一段测试把 rst_n 拉低后没有释放，这里先退出复位
-        #1; rst_n=1; repeat(5)@(negedge clk);
-        if(held!==2 || live!==2)$fatal(1,"reset release must be neutral");
-        set_switch(0);
-        if(held!==2 || live!==2)$fatal(1,"neutral before key test");
-        // 连按三次：2 -> 3 -> 4 -> 0
-        press_key(); if(held!==3)$fatal(1,"key step 1 got %0d",held);
-        press_key(); if(held!==4)$fatal(1,"key step 2 got %0d",held);
-        press_key(); if(held!==0)$fatal(1,"key step 3 should wrap to 0, got %0d",held);
-        // 训练中按键仍然有效（HOLD 只冻结开关译码，不冻结按键）
-        training=1; press_key(); if(held!==1)$fatal(1,"key must work during training");
-        training=0;
-        // 拨动开关后控制权交还，按键设置被覆盖
-        set_switch(2); if(held!==1 || live!==1)$fatal(1,"switch must reclaim control");
-        $display("PASS tb_contrast_controls");$finish;
+        repeat(3) @(negedge clk);
+        rst_n=1;
+        repeat(10) @(negedge clk);
+        if (level !== 3'd2) $fatal(1, "复位后应为中性档 2，实测 %0d", level);
+
+        // ---- 毛刺不算按键 ----
+        glitch_key();
+        if (level !== 3'd2) $fatal(1, "2 个 tick 的毛刺改动了档位（%0d）", level);
+
+        // ---- 逐档前进 + 回卷 ----
+        press_key(); if (level !== 3'd3) $fatal(1, "第 1 次按键应到 3，实测 %0d", level);
+        press_key(); if (level !== 3'd4) $fatal(1, "第 2 次按键应到 4，实测 %0d", level);
+        press_key(); if (level !== 3'd0) $fatal(1, "第 3 次按键应从 4 回卷到 0，实测 %0d", level);
+        press_key(); if (level !== 3'd1) $fatal(1, "第 4 次按键应到 1，实测 %0d", level);
+        press_key(); if (level !== 3'd2) $fatal(1, "第 5 次按键应回到 2，实测 %0d", level);
+
+        // ---- 异步复位：任何档位都回中性 ----
+        press_key();                       // 2 -> 3
+        if (level !== 3'd3) $fatal(1, "复位前应停在 3，实测 %0d", level);
+        #2 rst_n=0; #1;
+        if (level !== 3'd2) $fatal(1, "异步复位应立刻回中性 2，实测 %0d", level);
+        #1 rst_n=1; repeat(10) @(negedge clk);
+        if (level !== 3'd2) $fatal(1, "复位释放后应仍为 2，实测 %0d", level);
+
+        $display("PASS: tb_contrast_controls 只剩 K6 逐档步进（SW1~3 已下线）");
+        $finish;
     end
-    initial begin #100000;$fatal(1,"tb_contrast_controls TIMEOUT");end
+    initial begin #200000; $fatal(1,"tb_contrast_controls TIMEOUT"); end
 endmodule

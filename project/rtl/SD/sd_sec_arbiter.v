@@ -61,6 +61,7 @@ localparam [1:0] OWN_WAV  = 2'd2;
 reg  [1:0]  owner;
 reg         wav_pend;
 reg  [31:0] wav_addr_q;
+reg         ch1_read_d;
 
 wire idle = (owner == OWN_NONE);
 
@@ -79,17 +80,30 @@ wire bmp_fire = I_ch0_read && I_sd_ready && idle;
  * -------------------------------------------------------------------------- */
 wire wav_fire = wav_pend && I_sd_ready && idle && !bmp_fire;
 
+/* I_ch1_read 从发起到收到 end 一直是高电平（reader 的 S_SEC_REQ→S_RECV），
+ * 所以只能在**上升沿**锁存，不能按电平。按电平会在本次事务结束后、read 还没
+ * 撤销的那一拍再把同一个请求补发一次 —— 每读一个扇区白读两遍，而且那次多余
+ * 事务的 end 有可能刚好落到下一次解析的接收态里，把新解析截断。 */
+wire ch1_read_rise = I_ch1_read && !ch1_read_d;
+
 always @(posedge clk or posedge rst) begin
     if (rst) begin
         wav_pend   <= 1'b0;
         wav_addr_q <= 32'd0;
+        ch1_read_d <= 1'b0;
     end
     else begin
-        if (I_ch1_read) begin
+        ch1_read_d <= I_ch1_read;
+        if (wav_fire) begin
+            wav_pend   <= 1'b0;
+        end
+        else if (ch1_read_rise) begin
             wav_pend   <= 1'b1;
             wav_addr_q <= I_ch1_addr;
         end
-        else if (wav_fire) begin
+        else if (!I_ch1_read) begin
+            // 请求方撤销（换曲 abort）：把还没发出去的挂起请求一起丢掉，
+            // 否则它会在 BMP 让出总线之后补发一整扇区，正好撞进新解析。
             wav_pend   <= 1'b0;
         end
     end

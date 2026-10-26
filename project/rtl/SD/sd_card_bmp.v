@@ -132,6 +132,30 @@ always @(posedge clk or posedge rst) begin
     end
 end
 wire page_request, page_pending, page_missing, page_user_request;
+
+/* ---------------------------------------------------------------------------
+ * 页请求信号的就近再生（2026-10-26）
+ * ---------------------------------------------------------------------------
+ * page_request / page_pending 的源 FF 在 u_pages(cpr_page_manager) 里，而消费
+ * 它们的调度逻辑在 sd_card_bmp 顶层。td 的 route_timing_summary 显示 page_pending
+ * 这条线扇出 11、单条布线 2.14 ns，紧接着的 target[0] 扇出 32、又 2.26 ns ——
+ * 100 MHz(10 ns) 下一半预算被两条长线吃掉，top_adc 的 setup 就是断在
+ *   request_pending → page_pending → target[0] → sector_lut → load_sector[16]
+ * 这条链上（-0.013 ns，逻辑只有 6 级，纯布线问题）。
+ *
+ * 处理办法：在本地各打一拍再进调度逻辑。语义只是"晚一个周期看到请求"，
+ * 而这两个都是**电平**（一直挂着直到 request_accept / 请求被接受），所以功能
+ * 不变；换来的是长线后面接一个单负载 FF（td 会把它摆在源 FF 旁边），
+ * 关键路径从 page_pending_q 重新起算，等于把 2.1 ns 的线延从路径里摘掉。
+ * 注意：对外回给 u_pages 的 page_accept 仍用未延迟的 page_request（握手的
+ * 那一侧保持原时序），只有本层的"要不要开始装这一页"延后一拍。
+ * ------------------------------------------------------------------------- */
+reg page_request_q, page_pending_q;
+always @(posedge clk or posedge rst) begin
+    if (rst) begin page_request_q<=0; page_pending_q<=0; end
+    else begin page_request_q<=page_request; page_pending_q<=page_pending; end
+end
+
 wire [1:0] page_index;
 assign state_code = media_fault ? 4'he : page_missing ? 4'hd : bmp_state_code;
 wire page_accept = page_request && sd_init_done && scan_done &&
@@ -145,8 +169,8 @@ cpr_page_manager #(.TRAINING_PAGE_INDEX(TRAINING_PAGE_INDEX)) u_pages(
     .request_accept(page_accept), .request_valid(page_request),
     .request_pending(page_pending), .request_index(page_index),
     .page_missing(page_missing), .user_request(page_user_request));
-wire page_loading = load_busy || recovering || (page_pending && !page_missing);
-wire [1:0] status_target = page_pending ? page_index : load_busy ? load_idx : img_idx;
+wire page_loading = load_busy || recovering || (page_pending_q && !page_missing);
+wire [1:0] status_target = page_pending_q ? page_index : load_busy ? load_idx : img_idx;
 // Coherent SD-domain word: valid/current/count/target/loading/missing/error/train.
 assign page_status = {display_valid,img_idx,img_found_count,status_target,
                       page_loading,page_missing,media_fault,training_sync[1]};
@@ -356,7 +380,7 @@ always @(posedge clk or posedge rst) begin
             if (page_user_request && media_fault && (recover_scan || img_found_count==0)) begin
                 media_fault<=0; media_error<=0; retry_count<=0; scan_kicked<=0;
             end
-            if (training_sync[1] || page_pending) begin
+            if (training_sync[1] || page_pending_q) begin
                 next_req_pending<=0;
             end else if ((key_next_press || key_prev_press) && media_fault) begin
                 media_fault<=0; media_error<=0; retry_count<=0;
@@ -371,8 +395,8 @@ always @(posedge clk or posedge rst) begin
                 pending_prev<=key_prev_press && !key_next_press;
             end
 
-            auto_play_en<=auto_sync[1] && !training_sync[1] && !page_pending;
-            if (scan_done && auto_play_en && !training_sync[1] && !page_pending && display_valid && !load_busy &&
+            auto_play_en<=auto_sync[1] && !training_sync[1] && !page_pending_q;
+            if (scan_done && auto_play_en && !training_sync[1] && !page_pending_q && display_valid && !load_busy &&
                 first_image_committed && img_found_count>1 && !media_fault) begin
                 if (auto_tick) auto_cnt<=0;
                 else auto_cnt<=auto_cnt+1'b1;
@@ -393,7 +417,7 @@ always @(posedge clk or posedge rst) begin
                     source_done_seen<=0; source_busy_seen<=0; write_done_seen<=0;
                     writer_started<=0; retry_count<=0; media_fault<=0; media_error<=0;
                 end
-            end else if (!training_sync[1] && !page_pending && !media_fault &&
+            end else if (!training_sync[1] && !page_pending_q && !media_fault &&
                          scan_done && bmp_ready && sd_ready && !load_busy) begin
                 if (!first_image_committed && img_found_count>0) begin
                     load_idx<=0; load_sector<=img_sector0;
@@ -432,7 +456,7 @@ reg [1:0] target;
 reg select_load;
 always @* begin
     target=load_seq[1:0]; select_load=0;
-    if (page_request && !cache_valid[page_index] && !cache_failed[page_index]) begin
+    if (page_request_q && !cache_valid[page_index] && !cache_failed[page_index]) begin
         target=page_index; select_load=1;
     end else if (next_req_pending && !cache_valid[manual_index] && !cache_failed[manual_index]) begin
         target=manual_index; select_load=1;
@@ -483,7 +507,7 @@ always @(posedge clk or posedge rst) begin
                     if(!display_valid || img_idx!=page_index) begin
                         disp_buf_idx<=page_index; publish_req<=1; publish_wait<=1;
                     end
-                end else if(!page_pending && !training_sync[1]) begin
+                end else if(!page_pending_q && !training_sync[1]) begin
                     if(!display_valid && |cache_valid) begin
                         if(cache_valid[0]) disp_buf_idx<=0;
                         else if(cache_valid[1]) disp_buf_idx<=1;
@@ -498,7 +522,7 @@ always @(posedge clk or posedge rst) begin
                     end
                 end
             end
-            if(training_sync[1] || page_pending) next_req_pending<=0;
+            if(training_sync[1] || page_pending_q) next_req_pending<=0;
             else if((key_next_press || key_prev_press) && display_valid) begin
                 next_req_pending<=1; pending_prev<=key_prev_press && !key_next_press;
                 // A fresh user action can retry the requested failed slot.
@@ -508,8 +532,8 @@ always @(posedge clk or posedge rst) begin
             end
             if(page_user_request && page_request) cache_failed[page_index]<=0;
             if(key_auto_press) auto_key_en<=!auto_key_en;
-            auto_play_en<=(auto_sync[1] || auto_key_en) && !training_sync[1] && !page_pending;
-            if(!auto_play_en || !display_valid || training_sync[1] || page_pending) auto_cnt<=0;
+            auto_play_en<=(auto_sync[1] || auto_key_en) && !training_sync[1] && !page_pending_q;
+            if(!auto_play_en || !display_valid || training_sync[1] || page_pending_q) auto_cnt<=0;
             else if(!auto_tick) auto_cnt<=auto_cnt+1'b1;
 
             if(recovering) begin

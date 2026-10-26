@@ -70,6 +70,10 @@ Linux/macOS 或 Git Bash 可执行 `bash tests/sim/run.sh --all`。`run.sh tb_na
 | `tb_contrast_rgb` | 三通道对比度逐值、负数取整、饱和及无像素延迟 |
 | `tb_font5x7_rom` | 全部256字符地址与原字模期望表 |
 | `tb_scroll_contract` | 参数边界、裁剪、帧计数、完整回绕、暂停/隐藏及字模联调 |
+| `tb_wav_track_select` | 换页→扇区查表：四页映射、稳定过滤（含跨位翻转中间值）、脉冲宽度、复位与不重复触发 |
+| `tb_wav_page_switch` | 换页换曲全链路（仲裁器 + 合成 SD 卡）：连续/回退/连打 22 步都换成目标曲目，防"卡在一首"回归；换页时给 ch0 喂 4 ms 的读图突发（776 个扇区）占住总线，再验音乐照样按页换过去（上板"图换了歌不换"的现场）；末段验训练模式音频口二选一（训练→心跳、训练中换页仍出心跳且该页 WAV 常量一次都没出现、训练 30 ms 内 0 个扇区读请求且 `play_pos` 冻住、正常播放 30 ms 内必有读请求作对照、退出→立刻回到该页） |
+| `tb_sd_sec_arbiter_abort` | 换页 abort 时的挂起请求契约：ch1 独占总线一次请求只换一次事务（不能读两遍）、BMP 占线时请求被 pending 吸收并在让出后补发一次、**挂起期间撤销后旧地址不得再被补发**（这条改了电平触发就会挂）、撤销后重新请求仍能被服务 |
+| `tb_heartbeat_synth` | 训练心跳：双声起点（0 / 70 ms）、峰值 100% 与 65%、指数包络衰减、110 BPM 拍长、两声之间长静音、左右一致、关断全零；发声中途关断必须"收尾"（`O_busy` 保持到包络压到 0、最后一帧 ≤2048、之后全零），收尾后重新使能仍从拍首起振 |
 | `tb_contrast_controls` | 全部拨码映射、短脉冲过滤、训练保持与ADC模式实时调节 |
 | `tb_cpr_overlay_features` | 教学透明区、字幕颜色、帧参数快照及展播暂停恢复 |
 | `tb_training_layout` | 完整教程区域透出、面板/文字/标记/字幕边界、两种输入模式与告警帧 |
@@ -105,3 +109,21 @@ Linux/macOS 或 Git Bash 可执行 `bash tests/sim/run.sh --all`。`run.sh tb_na
 运行`python tests/sim/check_white_line_mutations.py --output /path/to/new-directory`可验证三种故意错误会被拒绝：取消写间隔、活动突发逐字刷新门控、旁路早数据对齐。源文件只复制到输出目录再修改，产品RTL不被更改。Windows工具参数与`run.py`相同。
 
 本次精确执行范围、硬件观察及TD严格验收未通过的边界见[白线修正说明](../../project/docs/white-lines-20261023.md)。
+
+## 布局布线后仿真（2026-10-26）
+
+`postsim/` 是门级网表 + SDF 反标的整片冒烟仿真，和上面的 RTL 自检是两回事：
+
+```bash
+cd project
+CPR_TOP=top td_commands_prompt.exe scripts/postsim/export.tcl   # 从 route.db 出网表+SDF
+cd ..
+python tests/sim/postsim/run_postsim.py --top top --top top_adc \
+    --modelsim "D:/Program Files/Mentor Graphics ModelSim SE-64 10.6e/win64"
+```
+
+判据只有四条：SDF 载入、无致命错误、复位后主输出无 X、`video_clk` 在跳。
+HDMI 串行输出与数码管扫描只报数不作判据——TD 的 `EG_PHY_PLL` 不出 `extlock`、
+LVDS pad 模型不产生串行数据，测试平台必须 `force` 锁定信号（`all_plls_locked`），
+这两条是厂商模型的缺陷，不是设计问题。结论与数据见
+[时序复核与后仿真报告](../../project/docs/timing-postsim-20261026.md)。
