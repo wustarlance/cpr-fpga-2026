@@ -2,6 +2,8 @@
 module sd_card_bmp #(
     parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
     parameter integer CLK_FREQ_HZ       = 100_000_000,
+    // 自动展播时每页停留的秒数。1 = 旧行为（每秒翻一页）；产品顶层传 5。
+    parameter integer AUTO_DWELL_S      = 1,
     parameter integer RETRY_LIMIT       = 1,
     parameter integer LOAD_TIMEOUT_CYCLES = CLK_FREQ_HZ * 3,
     parameter integer READER_TIMEOUT_CYCLES = CLK_FREQ_HZ,
@@ -38,6 +40,7 @@ module sd_card_bmp #(
     output reg [1:0]            write_buf_idx,
     output reg [1:0]            disp_buf_idx,
     output reg                  publish_req,
+    output reg                  publish_fade,
     input                       publish_done,
 
     output                      write_req,
@@ -102,7 +105,7 @@ reg [31:0]       load_sector;
 reg              scan_kicked;
 reg              first_image_committed;
 reg              auto_play_en;
-reg [31:0]       auto_cnt;
+reg [39:0]       auto_cnt;   // 展播停留计数，40 位够 100 MHz 下约 3 小时
 reg [2:0]        img_found_count;
 reg [1:0]        img_idx;              // 当前真正显示中的图片编号
 reg [1:0]        load_idx;             // 当前正在写入的图片编号
@@ -190,7 +193,9 @@ wire [1:0] manual_from_current;
 
 assign write_en   = bmp_data_wr_en && load_busy && !recovering && !operation_error && !cancel_load;
 assign write_data = {bmp_data[23:16], bmp_data[15:8], bmp_data[7:0], 8'b0};
-assign auto_tick  = (auto_cnt == (CLK_FREQ_HZ - 1));
+// 停留时间不再固定 1 秒：AUTO_DWELL_S 秒一个 tick（=1 时与旧行为逐拍等价）。
+localparam [63:0] AUTO_DWELL_CYCLES = (AUTO_DWELL_S < 1 ? 1 : AUTO_DWELL_S) * CLK_FREQ_HZ;
+assign auto_tick  = (auto_cnt >= (AUTO_DWELL_CYCLES - 1));
 assign next_from_current = next_index_limited(img_idx, img_found_count);
 assign manual_from_current = pending_prev ? prev_index_limited(img_idx, img_found_count) : next_from_current;
 assign write_finish_pulse = wrfin_tgl_sync[2] ^ wrfin_tgl_sync[1];
@@ -289,7 +294,7 @@ always @(posedge clk or posedge rst) begin
         load_sector<=0; scan_kicked<=0; first_image_committed<=0;
         auto_play_en<=0; auto_cnt<=0; img_found_count<=0;
         img_idx<=0; load_idx<=0; pending_buf_idx<=0;
-        write_buf_idx<=0; disp_buf_idx<=0;
+        write_buf_idx<=0; disp_buf_idx<=0; publish_fade<=0;
         img_sector0<=0; img_sector1<=0; img_sector2<=0; img_sector3<=0;
         next_req_pending<=0; pending_prev<=0;
         load_busy<=0; publish_wait<=0; publish_req<=0;
@@ -473,7 +478,7 @@ always @(posedge clk or posedge rst) begin
         load_sector<=0; scan_kicked<=0; first_image_committed<=0;
         auto_play_en<=0; auto_key_en<=0; auto_cnt<=0; img_found_count<=0;
         img_idx<=0; load_idx<=0; pending_buf_idx<=0;
-        write_buf_idx<=0; disp_buf_idx<=0;
+        write_buf_idx<=0; disp_buf_idx<=0; publish_fade<=0;
         img_sector0<=0; img_sector1<=0; img_sector2<=0; img_sector3<=0;
         next_req_pending<=0; pending_prev<=0;
         load_busy<=0; publish_wait<=0; publish_req<=0;
@@ -484,7 +489,7 @@ always @(posedge clk or posedge rst) begin
     end else begin
         wrfin_tgl_sync<={wrfin_tgl_sync[1:0],write_finish_toggle};
         write_ack_sync<={write_ack_sync[0],write_req_ack};
-        scan_start_pulse<=0; load_start_pulse<=0; cancel_load<=0; publish_req<=0;
+        scan_start_pulse<=0; load_start_pulse<=0; cancel_load<=0; publish_req<=0; publish_fade<=0;
         if(!load_busy) load_timer<=0;
         else if(load_timer<LOAD_TIMEOUT_CYCLES) load_timer<=load_timer+1'b1;
         if(!sd_init_done) begin
@@ -519,6 +524,7 @@ always @(posedge clk or posedge rst) begin
                         next_req_pending<=0;
                     end else if(display_valid && !next_req_pending && auto_play_en && auto_tick && cache_valid[auto_index]) begin
                         disp_buf_idx<=auto_index; publish_req<=1; publish_wait<=1;
+                        publish_fade<=img_found_count>1 && auto_index!=img_idx;
                     end
                 end
             end

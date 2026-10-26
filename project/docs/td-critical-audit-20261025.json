@@ -1,0 +1,248 @@
+{
+  "scope": "Offline critical-warning investigation; no physical-warning waiver or new production bitstream",
+  "date": "2026-10-25",
+  "recorded_utc": "2026-10-25T08:15:45.765588+00:00",
+  "device": "EG4S20BG256",
+  "tool_version": "6.2.168116",
+  "tool_sha256": "e2e04ada5e256dccd017240c0f4dcface7f96dca67cde0e56e606ac0e02f827a",
+  "product_base_commit": "1297d6e6336a814d2d172e306a29c53399c4be50",
+  "full_build_evidence": "project/build/verify_20261025T071736.335593Z",
+  "full_build_manifest_sha256": "da43a8f9799514514a6b52f0393d57f6796816650fd2b3b8aab93197c319c1e1",
+  "product_design_inventory_matches_full_build": true,
+  "physical_audits": [
+    {
+      "top": "top",
+      "checkpoint_sha256": "b4c24e13005ceff21b377ed90852623d52896ed8c858747ed30712636fb9053f",
+      "checkpoint_unchanged": true,
+      "audit_log_sha256": "1403616ccb926181f139936e2f2744b25f794425d4484293ff448c52bbeffe39",
+      "pnl_sha256": "0c07bf6f69132c3be17a094f67089815605668004b9fa62d23ba1fe9ce69cec7",
+      "feedback_net_report_route_type": "global (not proof of dedicated feedback branch)",
+      "feedback": [
+        {
+          "pin": "sys_pll_m0/pll_inst.fbclk",
+          "net_delay_ps": 2099,
+          "slack": "inf (not phase-compensation signoff)"
+        },
+        {
+          "pin": "video_pll_m0/pll_inst.fbclk",
+          "net_delay_ps": 2231,
+          "slack": "inf (not phase-compensation signoff)"
+        },
+        {
+          "pin": "u_audio_pll/pll_inst.fbclk",
+          "net_delay_ps": 2099,
+          "slack": "inf (not phase-compensation signoff)"
+        }
+      ],
+      "sdram_location_xy": [
+        164,
+        288
+      ],
+      "sdram_grid_col_row": [
+        20,
+        36
+      ],
+      "local_wire_diagnostic": "PHY-5079",
+      "local_wire_clock": "ext_mem_clk_sft",
+      "local_wire_net": "U3/u2_ram/SDRAM_CLK",
+      "local_wire_clock_fanout": "0/1",
+      "local_wire_count": 1,
+      "original_full_build_critical_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ]
+    },
+    {
+      "top": "top_adc",
+      "checkpoint_sha256": "e85164ed64b3fb98a6cab1b3caff25f37539833f1984b883def68fd8caff27ad",
+      "checkpoint_unchanged": true,
+      "audit_log_sha256": "4adc9f50ef0709b5235189f517390e077c8e185e9ffb6a58a79cf17f45a29449",
+      "pnl_sha256": "f830bf1f168bcbd6fdf72d7efb2279ae4f57c2988cac37a9644c52e590c7d70a",
+      "feedback_net_report_route_type": "global (not proof of dedicated feedback branch)",
+      "feedback": [
+        {
+          "pin": "u_board/sys_pll_m0/pll_inst.fbclk",
+          "net_delay_ps": 2099,
+          "slack": "inf (not phase-compensation signoff)"
+        },
+        {
+          "pin": "u_board/video_pll_m0/pll_inst.fbclk",
+          "net_delay_ps": 2231,
+          "slack": "inf (not phase-compensation signoff)"
+        },
+        {
+          "pin": "u_board/u_audio_pll/pll_inst.fbclk",
+          "net_delay_ps": 2099,
+          "slack": "inf (not phase-compensation signoff)"
+        }
+      ],
+      "sdram_location_xy": [
+        164,
+        288
+      ],
+      "sdram_grid_col_row": [
+        20,
+        36
+      ],
+      "local_wire_diagnostic": "PHY-5079",
+      "local_wire_clock": "ext_mem_clk_sft",
+      "local_wire_net": "u_board/U3/u2_ram/SDRAM_CLK",
+      "local_wire_clock_fanout": "0/1",
+      "local_wire_count": 1,
+      "original_full_build_critical_warnings": [
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (12, 12) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-7002 CRITICAL-WARNING: Instance u_board/U3/sdram location (164, 288) is not honored. Cell's initial location is not legal at the beginning of ECO placement, and will be moved during placement. Please verify user location constraints through the adc file.",
+        "PHY-5079 CRITICAL-WARNING: Marked 1 clock net(s) utilize the local routing resources. Please check log message and the sinks of clock nets.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/sys_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/u_audio_pll/pll_inst is on local network, of which compensation delay is unpredictable.",
+        "USR-6135 CRITICAL-WARNING: The feedback path of PLL u_board/video_pll_m0/pll_inst is on local network, of which compensation delay is unpredictable."
+      ]
+    }
+  ],
+  "placement_experiments": [
+    {
+      "experiment": "fixed_macro_location",
+      "stage": "placement only, not routed timing signoff",
+      "original_checkpoint_unchanged": true,
+      "critical_counts": {
+        "PHY-7002": 3
+      },
+      "eco_legalization_calls": 3,
+      "adopted_in_product": false,
+      "log_sha256": "7d97f2cd8710a134386a4358d9ce610b66c7450866efc144adab968ea86c8a04",
+      "manifest_sha256": "ca7ad9cc203b41039952506f09005a59a1e0d3d1776ec486e39e277a20c1731d",
+      "qor_sha256": "7ed53cef95e9718f631e880f6c21254e6e3dea8d579a3321c24ed679f1cae60a"
+    },
+    {
+      "experiment": "place_opt_timing_off",
+      "stage": "placement only, not routed timing signoff",
+      "original_checkpoint_unchanged": true,
+      "critical_counts": {
+        "PHY-7002": 1
+      },
+      "eco_legalization_calls": 1,
+      "adopted_in_product": false,
+      "log_sha256": "c532575b09b48aee6880866adb81412e090938c1ef28a1874e8dd05db2bef331",
+      "manifest_sha256": "30529b0f1f614966153239caf462827264c77463d99cc3a12f61e4ee5fab4250",
+      "qor_sha256": "6083c7e58a61f961fc1924b11da3d562fe442e99835a11fab5fed88b29565989"
+    }
+  ],
+  "minimal_cases": [
+    {
+      "case": "sdram-logic-minimal",
+      "repo_directory": "tests/td_repro/sdram_eco",
+      "inputs_sha256": {
+        "build.tcl": "be56d8ce4bf30bf67c02669defd538d545fd3eae2774112fc387c5a5202ca16c",
+        "macro.adc": "f85bd3cc00b73f03875265a07ca82eb584e8b1e7e36396489d3895f9083bd35b",
+        "pin.adc": "21c745368b7b44a07fe222b4aa141c9e7eed539b0682ffcf549c57544fe7b96f",
+        "probe.v": "83a5adb529f1bc19e396573f4301f90b19bf4b783a5681b38bcf9af79938b219",
+        "timing.sdc": "2e3776e96a844fc8884199657869822e3fe442fad565ebe8c5e50b08a371ba2a"
+      },
+      "product_function_test": false,
+      "resources": {
+        "lut": 23,
+        "reg": 32,
+        "bram": 0,
+        "pll": 0
+      },
+      "runs": [
+        {
+          "variant": "unconstrained",
+          "completed": true,
+          "critical_counts": {
+            "PHY-7002": 1,
+            "PHY-5079": 2
+          },
+          "duplicate_drc_note": "route and explicit report_route_status each emit the same PHY-5079",
+          "log_sha256": "83b42b438da31bd057bee1ced0ebf6ca3c7ae11b6f67497bff8e3c8024ae92be",
+          "gate_area_sha256": "d72a0b02e6ebe76315697008ead9cac4a4cfad4325a16286e66f0491ea4b9d48",
+          "timing_check_sha256": "c56c350c4b5f877bea24a3f7d6b0fb0bba70d8de4fcf53744251c79bfcfb9971"
+        },
+        {
+          "variant": "fixed",
+          "completed": true,
+          "critical_counts": {
+            "PHY-7002": 1,
+            "PHY-5079": 2
+          },
+          "duplicate_drc_note": "route and explicit report_route_status each emit the same PHY-5079",
+          "log_sha256": "d3cf7f8a6ff725445d9f03bf42318745e89689bc1e68a1e357f5c1320e870581",
+          "gate_area_sha256": "d72a0b02e6ebe76315697008ead9cac4a4cfad4325a16286e66f0491ea4b9d48",
+          "timing_check_sha256": "c56c350c4b5f877bea24a3f7d6b0fb0bba70d8de4fcf53744251c79bfcfb9971"
+        }
+      ]
+    },
+    {
+      "case": "sdram-bare-high-control",
+      "repo_directory": "tests/td_repro/sdram_eco/control",
+      "inputs_sha256": {
+        "probe.v": "18091a9fce481ce274174d494c44a300aaa0be2d19aadfe378fdb6c5ec53b86f",
+        "pin.adc": "21c745368b7b44a07fe222b4aa141c9e7eed539b0682ffcf549c57544fe7b96f",
+        "timing.sdc": "2e3776e96a844fc8884199657869822e3fe442fad565ebe8c5e50b08a371ba2a",
+        "macro.adc": "f85bd3cc00b73f03875265a07ca82eb584e8b1e7e36396489d3895f9083bd35b",
+        "build.tcl": "be56d8ce4bf30bf67c02669defd538d545fd3eae2774112fc387c5a5202ca16c"
+      },
+      "product_function_test": false,
+      "resources": {
+        "lut": 0,
+        "reg": 0,
+        "bram": 0,
+        "pll": 0
+      },
+      "runs": [
+        {
+          "variant": "unconstrained",
+          "completed": true,
+          "critical_counts": {},
+          "duplicate_drc_note": "route and explicit report_route_status each emit the same PHY-5079",
+          "log_sha256": "d74e308348a51c4368bd0a4e9d3725c30a32410cf965961b23f899ef575fd3e5",
+          "gate_area_sha256": "93b7f3d3e309722b210cd8e557388c12c79e01228e97c121bdc8c855e1aee487",
+          "timing_check_sha256": "c56c350c4b5f877bea24a3f7d6b0fb0bba70d8de4fcf53744251c79bfcfb9971"
+        }
+      ]
+    }
+  ],
+  "controlled_comparison": "only probe.v differs between logic-high and bare-high; other four source/constraint files identical",
+  "pll_minimal_reuse": {
+    "reexecuted_this_task": false,
+    "executed_on": "2026-10-23",
+    "tool_binary_identical": true,
+    "wrappers_identical_to_current": {
+      "sys_pll.v": "9a1a2be0004be8e83d94bb9cce49a8a6a61b2dbf0250f12799f2e30bf0db248a",
+      "video_pll.v": "57e45a062814673e97773cf6c58ff1629fa45895e30de9d2c2b6bdd30bd9bb13",
+      "PLL_HDMI_AUDIO.v": "1e174c1dc4edbce9c61d6b390aca3b7b94022b60995a92981d5278247b7f5867"
+    },
+    "prior_manifest_sha256": "5004ae04630b50887fb535f2b8a68db4ac8d631c37be94a830cedc1efcd3c33c",
+    "prior_console_sha256": "6b577f2b2aa88ff7ece2ff5d3824ca8836e33db24d1c45ffa45d10137dabf495",
+    "critical_counts": {
+      "USR-6135": 3
+    }
+  },
+  "product_changes": {
+    "rtl": false,
+    "pll": false,
+    "clock_frequency": false,
+    "pin_or_timing_constraints": false
+  },
+  "hardware_programmed": false,
+  "new_production_bitgen": false,
+  "strict_status": "failed",
+  "closed_critical_categories": [],
+  "remaining_critical_categories": [
+    "USR-6135",
+    "PHY-5079",
+    "PHY-7002"
+  ],
+  "vendor_questions": [
+    "Why does the supplied NORMAL/CLKC0_EXT + EG_LOGIC_BUFG feedback produce USR-6135 despite a global-labelled net? Provide supported dedicated feedback topology or a version/device-specific diagnostic clarification.",
+    "Why does the 23-LUT/32-register SDRAM reproducer trigger PHY-7002 at ECO even with x20y36z0 and IsFixed=True? Provide legal macro-site/optimization settings or a model fix.",
+    "What supported forwarded-clock structure and timing model avoids PHY-5079 for the native SDRAM clock PAD branch while retaining complete DQ setup/hold analysis?"
+  ],
+  "official_location_constraint_reference": "https://tech.anlogic.com/Cn/Index/index/cate/32/tp/1/p/2.html"
+}

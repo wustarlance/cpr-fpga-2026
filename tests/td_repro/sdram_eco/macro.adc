@@ -1,0 +1,1 @@
+set_inst_assignment {sdram} {location = x20y36z0;}

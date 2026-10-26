@@ -8,6 +8,10 @@ module top #(
     parameter integer BG_BRIGHTNESS_NUM = 3,
     parameter integer BG_BRIGHTNESS_SHIFT = 2,
     parameter ENABLE_AUDIO = 1,
+    parameter ENABLE_AUDIO_VISUALIZATION = 1,
+    parameter ENABLE_SMOOTH_TRANSITIONS = 1,
+    // 自动展播（模式 2）每页停留秒数。改这个数必须重新综合。
+    parameter integer AUTO_DWELL_S = 5,
     parameter UI_LANGUAGE_ZH = 1,
     // 训练模式的心跳（2026-10-25 新增，见音频一节的长注释）：
     //   音源只有一条路：片内合成 heartbeat_synth（"咚—哒"），不读卡。
@@ -106,6 +110,18 @@ wire [1:0]  write_buf_idx;
 wire [1:0]  disp_buf_idx;
 wire [1:0] active_read_idx;
 wire publish_req, publish_done, read_frame_start;
+wire publish_raw, publish_fade, fade_request, fade_ready;
+wire rst_sd; // Declare before use inside the generate block (no local implicit net).
+generate if (ENABLE_SMOOTH_TRANSITIONS) begin: g_smooth_publish
+    cpr_transition_publish u_transition_publish(
+        .clk(sd_card_clk), .rst(rst_sd), .publish_in(publish_raw),
+        .smooth_in(publish_fade), .publish_done(publish_done),
+        .fade_ready_async(fade_ready), .fade_request(fade_request),
+        .publish_out(publish_req));
+end else begin: g_direct_publish
+    assign publish_req=publish_raw;
+    assign fade_request=1'b0;
+end endgenerate
 
 
 wire App_rd_en;
@@ -171,7 +187,7 @@ always @(posedge clk or negedge por_reset_n) begin
 end
 wire app_rst_n, sd_rst_n, mem_rst_n, audio_rst_n;
 wire rst_video = ~app_rst_n;
-wire rst_sd = ~sd_rst_n;
+assign rst_sd = ~sd_rst_n;
 wire rst_mem = ~mem_rst_n;
 wire rst_audio = ~audio_rst_n;
 reset_release u_app_reset(.clk           (video_clk),
@@ -336,6 +352,9 @@ always @(posedge video_clk or negedge app_rst_n) begin
     else if (tick_ms && beat_hold_ms != 0) beat_hold_ms <= beat_hold_ms - 1'b1;
 end
 wire audio_gate = BEAT_GATE ? ((app_mode != 2) || (beat_hold_ms != 0)) : 1'b1;
+// Share the final gated PCM words between HDMI and its on-screen monitor.
+wire [23:0] hdmi_audio_left = (ENABLE_AUDIO && audio_gate) ? audio_left_data : 24'd0;
+wire [23:0] hdmi_audio_right = (ENABLE_AUDIO && audio_gate) ? audio_right_data : 24'd0;
 assign audio_output_valid = ENABLE_AUDIO ? audio_valid : 1'b0;
 assign acr_output_valid = ENABLE_AUDIO ? acr_valid : 1'b0;
 reg [1:0] display_valid_sync;
@@ -360,20 +379,33 @@ always @(posedge video_clk or posedge rst_video) begin
     if (rst_video) contrast_video <= 3'd2;
     else if (brightness_vs_d && !vs) contrast_video <= contrast_level;
 end
-wire [23:0] app_rgb, adjusted_rgb, contrasted_rgb;
+wire [23:0] app_rgb, adjusted_rgb, contrasted_rgb, picture_rgb;
+wire picture_vs, picture_de;
 brightness_rgb u_brightness(
     .rgb(display_valid_sync[1] ? vout_data_raw : 24'h102030),
     .level   (brightness_video),
     .out_rgb (adjusted_rgb));
 contrast_rgb u_contrast(
     .rgb(adjusted_rgb), .level(contrast_video), .out_rgb(contrasted_rgb));
+generate if (ENABLE_SMOOTH_TRANSITIONS) begin: g_slide_fade
+    cpr_slide_fade u_fade(
+        .clk(video_clk), .rst(rst_video), .request_async(fade_request),
+        .vs(vs), .de(de), .rgb(contrasted_rgb),
+        .ready(fade_ready), .out_vs(picture_vs), .out_de(picture_de),
+        .out_rgb(picture_rgb), .gain());
+end else begin: g_no_slide_fade
+    assign picture_rgb=contrasted_rgb;
+    assign picture_vs=vs;
+    assign picture_de=de;
+    assign fade_ready=1'b1;
+end endgenerate
 cpr_overlay #(.UNCALIBRATED_PRESSURE(USE_ADC), .PAGE_STATUS_ENABLE(1),
               .CHINESE_UI(UI_LANGUAGE_ZH)) u_overlay(
     .clk (video_clk),
     .rst (rst_video),
-    .vs  (vs),
-    .de  (de),
-    .rgb(contrasted_rgb),
+    .vs  (picture_vs),
+    .de  (picture_de),
+    .rgb(picture_rgb),
     .page_status         (page_status_video),
     .contrast_level      (contrast_level),
     .auto_running        (auto_enable),
@@ -455,6 +487,7 @@ wire        sd_bmp_end,       sd_wav_end;
 sd_card_bmp #(
     .TRAINING_PAGE_INDEX(TRAINING_PAGE_INDEX),
     .CLK_FREQ_HZ       (100_000_000),
+    .AUTO_DWELL_S      (AUTO_DWELL_S),
     .SCAN_START_SECTOR (32'd0),
     .SCAN_MAX_SECTOR   (32'd131071),
     .SCAN_TARGET_COUNT (3'd4),
@@ -484,7 +517,8 @@ sd_card_bmp #(
     .write_finish_toggle(frame_write_toggle_mem),
     .write_buf_idx     (write_buf_idx),
     .disp_buf_idx      (disp_buf_idx),
-    .publish_req       (publish_req),
+    .publish_req       (publish_raw),
+    .publish_fade      (publish_fade),
     .publish_done      (publish_done),
 
     .write_req         (sd_card_write_req),
@@ -682,7 +716,20 @@ video_delay video_delay_m0(
 );
 
 // 首图提交前黑屏；提交后一直显示当前显示缓冲区内容
-assign vout_data = app_rgb; // status UI is visible while SD scans or is absent
+wire visual_vs, visual_de;
+generate if (ENABLE_AUDIO && ENABLE_AUDIO_VISUALIZATION) begin: g_audio_visualization
+    cpr_audio_visualizer u_visualizer(
+        .clk(video_clk), .rst(rst_video), .enable(1'b1),
+        .vs(picture_vs), .de(picture_de), .rgb(app_rgb),
+        .sample_valid(audio_output_valid),
+        .sample_left(hdmi_audio_left), .sample_right(hdmi_audio_right),
+        .out_vs(visual_vs), .out_de(visual_de), .out_rgb(vout_data),
+        .level(), .waveform_valid());
+end else begin: g_no_audio_visualization
+    assign visual_vs=picture_vs;
+    assign visual_de=picture_de;
+    assign vout_data=app_rgb;
+end endgenerate
 
 frame_read_write #(
     // D123 exploratory real-image verification: D122-backed writer cadence.
@@ -980,8 +1027,8 @@ wav_audio_sd_top #(
 video_rgb_to_axis_640x480 u_video_rgb_to_axis_640x480(
     .I_clk         (video_clk),
     .I_rst         (rst_video),
-    .I_vs          (vs),
-    .I_de          (de),
+    .I_vs          (visual_vs),
+    .I_de          (visual_de),
     .I_rgb         (vout_data),
     .O_video_user  (axis_s_user),
     .O_video_valid (axis_s_valid),
@@ -1030,8 +1077,8 @@ hdmi_1_4b_transmitter_core_wrapper #(
     .O_axis_s_ready     (axis_s_ready),
 
     .I_audio_valid      (audio_output_valid),
-    .I_audio_left_data  ((ENABLE_AUDIO && audio_gate) ? audio_left_data : 24'd0),
-    .I_audio_right_data ((ENABLE_AUDIO && audio_gate) ? audio_right_data : 24'd0),
+    .I_audio_left_data  (hdmi_audio_left),
+    .I_audio_right_data (hdmi_audio_right),
     .I_acr_valid        (acr_output_valid),
     .I_acr_cts          (acr_cts),
     .I_acr_n            (acr_n),

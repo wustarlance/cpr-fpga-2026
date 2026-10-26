@@ -60,12 +60,16 @@ if {[catch {
     if {[llength $cpr_page_src] != 12 || [llength $cpr_page_dst] != 12} {
         error "Page status mailbox must bind 12 source and 12 capture registers"
     }
-    # 多时钟域关系：音频 PLL 输出（12.295 MHz）与 sd_card_clk / ext_mem_clk /
-    # video_clk 之间没有相位关系，跨域点全部是构造性安全的（格雷码指针 + 两级
-    # 同步器、双时钟 FIFO、准静态采样率配置）。缺这份 SDC，TD 会按同步关系去
-    # 算跨域路径，凭空报 sd_card_clk -> audio SWNS -2.35ns、audio -> sd HWNS -1.54ns。
-    # scripts/build_project.tcl 一直有读这一份，这里对齐，两条流程结果一致。
-    read_sdc constraints/project_cdc.sdc
+    # Inspect the PCM mailbox here, but bind WAV CDC constraints only AFTER
+    # gate mapping below. Constant controls (e.g. ADC top loop) are pruned
+    # during mapping; pre-map exceptions would survive with invalid endpoints.
+    set cpr_pcm_hold [get_regs {*u_audio_wav/u_path/S_frame_m[*]}]
+    set cpr_pcm_capture [get_regs {*u_audio_wav/u_path/S_aud_frame[*]}]
+    puts "CPR_PCM_REGS hold=[llength $cpr_pcm_hold] capture=[llength $cpr_pcm_capture]"
+    if {([llength $cpr_pcm_hold] != 0 || [llength $cpr_pcm_capture] != 0) &&
+        ([llength $cpr_pcm_hold] != 48 || [llength $cpr_pcm_capture] != 48)} {
+        error "Default WAV audio must bind 48 coherent PCM source and capture registers"
+    }
     report_area -file $cpr_reports/rtl_area.rpt
     commit_param -step gate
     optimize_gate -packarea $cpr_reports/gate.area
@@ -79,6 +83,24 @@ if {[catch {
     }
     read_sdc constraints/page_status.sdc
     read_sdc constraints/project_cdc.sdc
+    # Use an ordinary Tcl condition around reading a static SDC. In this TD,
+    # an if inside read_sdc does not prevent an absent loop endpoint from
+    # becoming an invalid exception in the ADC implementation.
+    set cpr_loop_first [get_regs {*u_audio_wav/u_path/S_loop_sd_sync[0]}]
+    puts "CPR_OPTIONAL_LOOP_REGS [llength $cpr_loop_first]"
+    if {[llength $cpr_loop_first] > 0} {
+        read_sdc constraints/wav_loop.sdc
+    }
+    # Total-frame status is not exposed by either shipped top. Do not attach
+    # this optional bound before mapping: its source can then be removed while
+    # TD retains the constraint. Bind only surviving physical endpoints.
+    set cpr_total_hold [get_regs -nowarn {*u_audio_wav/u_path/S_cfg_total_hold[*]}]
+    set cpr_total_capture [get_regs -nowarn {*u_audio_wav/u_path/S_ftotal[*]}]
+    puts "CPR_OPTIONAL_TOTAL_REGS hold=[llength $cpr_total_hold] capture=[llength $cpr_total_capture]"
+    if {[llength $cpr_total_hold] > 0 && [llength $cpr_total_capture] > 0} {
+        set_max_delay -from $cpr_total_hold -to $cpr_total_capture 80 -datapath_only
+        set_false_path -hold -from $cpr_total_hold -to $cpr_total_capture
+    }
     read_sdc -ip rfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.tcl
     read_sdc -ip wfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.tcl
     report_area -file $cpr_reports/gate_area.rpt
