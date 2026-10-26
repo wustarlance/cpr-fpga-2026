@@ -559,8 +559,29 @@ sd_sec_arbiter u_sd_sec_arbiter (
     .O_ch1_end  (sd_wav_end)
 );
 
+// state_code 来自 sd_card_clk 域（sd_card_bmp），而数码管扫描在 clk（50 MHz）域。
+// 原来直接拿 sd 域的组合结果进 seg_decoder → seg_scan 的多级多路器，形成一条
+// 跨域长组合路径：top_adc 某次布局下 6 级逻辑、net 占 76%，在 10 ns 预算下
+// -0.235 ns，时序守卫直接判 FAIL；同一份网表换次布局又能过 —— 典型的"贴着
+// 临界点、随时会翻"。这里先同步两级再译码：跨域只剩 "sd 域 Q → 同步 FF D"
+// 一段，后面的译码和扫描全部落回 clk 域（20 ns 预算）。
+// 4 bit 逐位同步可能出现一拍中间码，但只作用于数码管的显示码，且 clk 比
+// sd_card_clk 慢一半、state_code 本身变化极慢，肉眼不可见；若将来要严格
+// 一致，把这里换成 page_status_cdc 用的 sample_mailbox 即可。
+reg [3:0] state_code_meta, state_code_sync;
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        state_code_meta <= 4'd0;
+        state_code_sync <= 4'd0;
+    end
+    else begin
+        state_code_meta <= state_code;
+        state_code_sync <= state_code_meta;
+    end
+end
+
 seg_decoder seg_decoder_m0(
-    .bin_data          (state_code),
+    .bin_data          (state_code_sync),
     .seg_data          (seg_data_0)
 );
 
@@ -737,10 +758,23 @@ sdram #(.REGISTER_READ_DATA(1)) U3(
 // SD 卡与 BMP 共用顶层唯一那份 sd_card_top，经 sd_sec_arbiter 分时仲裁：
 //   BMP 优先（画面不能花），WAV 让路（FIFO 约 21 ms 缓冲，切页瞬间可能欠载）。
 //
-// 播放控制（2026-10-24 新增 SW4）：
-//   SW1 (C8, dip_sw[0]) = 循环播放，1 = 单文件循环
-//   SW4 (C5, dip_sw[3]) = 播放 / 停止开关：**拨动一次切换一次**
-//   SW2/SW3 已被对比度（contrast_controls）占用，不做播放控制。
+// 播放控制（2026-10-25 改：SW4 真暂停、SW3 停止归零、翻页换曲）：
+//   SW1 (C8, dip_sw[0]) = 循环播放，1 = 单曲循环
+//   SW3 (C6, dip_sw[2]) = 停止 + 回到当前曲开头（拨动一次触发一次）
+//   SW4 (C5, dip_sw[3]) = 暂停 / 继续（拨动一次切换一次，**从原处接着放**）
+//   SW2 (C7, dip_sw[1]) = 音频不用
+//
+// 暂停与停止的区别（这是本次改动的核心）：
+//   暂停 = 只把 I_play 拉低。pcm_player 的 W_playing=0 就不再拉 FIFO 读，
+//          读指针不动、SD 侧把 FIFO 填满后自己停住，所以位置完整保留，
+//          再开就是断点续播（样本级精确，不是"大约那个位置"）。
+//   停止 = I_stop 单拍 → wav_audio_path 走 abort→start：清两侧 FIFO、
+//          play_pos 归零、reader 重新从文件头解析 RIFF。这里同时把
+//          wav_play_en 拉低，所以停完是**静音停在文件头**，而不是"从头再放"。
+//
+// 换曲不在这里做：wav_audio_sd_top 的 I_audio_sel 直接接 active_read_idx
+// （SDRAM 四缓冲里"当前正在上屏"的那一页），模块内部自己同步、自己发重启，
+// 所以翻页即换曲，无需本层产生额外脉冲。
 //
 // 为什么用"拨动切换"而不是"拨上=停、拨下=播"：
 //   板卡 DEMO（2_Example/.../8_key_sw/key_sw.adc）把 C8/C7/C6/C5 这四位拨码和
@@ -753,6 +787,7 @@ sdram #(.REGISTER_READ_DATA(1)) U3(
 // 上电 50 ms 内不响应拨动：input_filter 要 20 ms 才稳定，这段时间的边沿是
 // 上电建立过程，必须忽略，否则开关停在某个位置会在开机瞬间把状态翻掉。
 wire        sw4_lvl;
+wire        sw3_lvl;
 
 input_filter #(.WIDTH(1), .STABLE_MS(20)) u_wav_sw4 (
     .clk   (video_clk),
@@ -763,30 +798,51 @@ input_filter #(.WIDTH(1), .STABLE_MS(20)) u_wav_sw4 (
     .rise  ()
 );
 
+input_filter #(.WIDTH(1), .STABLE_MS(20)) u_wav_sw3 (
+    .clk   (video_clk),
+    .rst_n (app_rst_n),
+    .tick_ms (tick_ms),
+    .raw   (dip_sw[2:2]),
+    .level (sw3_lvl),
+    .rise  ()
+);
+
 reg        sw4_lvl_d;
+reg        sw3_lvl_d;
 reg  [6:0] wav_init_ms;
 reg        wav_play_en;
+reg        wav_stop_req;          // 单拍：送 I_stop，回到曲目开头
 
 wire wav_ctrl_ready;
 
 always @(posedge video_clk or negedge app_rst_n) begin
     if (!app_rst_n) begin
-        sw4_lvl_d   <= 1'b0;
-        wav_init_ms <= 7'd0;
-        wav_play_en <= 1'b1;              // 上电默认播放
+        sw4_lvl_d    <= 1'b0;
+        sw3_lvl_d    <= 1'b0;
+        wav_init_ms  <= 7'd0;
+        wav_play_en  <= 1'b1;          // 上电默认播放
+        wav_stop_req <= 1'b0;
     end
     else begin
-        sw4_lvl_d <= sw4_lvl;             // 已消抖电平，延迟一拍做边沿检测
+        sw4_lvl_d    <= sw4_lvl;       // 已消抖电平，延迟一拍做边沿检测
+        sw3_lvl_d    <= sw3_lvl;
+        wav_stop_req <= 1'b0;
         if (tick_ms && (wav_init_ms < 7'd60))
             wav_init_ms <= wav_init_ms + 1'b1;
-        // 拨动一次切换一次；上电 50 ms 内的边沿属于建立过程，被 ready 挡掉
+
+        // SW4：只切播放位，绝不动读指针 → 断点续播
         if (wav_ctrl_ready && (sw4_lvl ^ sw4_lvl_d))
             wav_play_en <= ~wav_play_en;
+
+        // SW3：停止（静音）+ 回到开头。两条赋值给不同寄存器，同一拍一起生效
+        if (wav_ctrl_ready && (sw3_lvl ^ sw3_lvl_d)) begin
+            wav_play_en  <= 1'b0;
+            wav_stop_req <= 1'b1;
+        end
     end
 end
 
 assign wav_ctrl_ready = (wav_init_ms >= 7'd50);
-wire wav_sw4_edge = wav_ctrl_ready && (sw4_lvl ^ sw4_lvl_d);
 
 wire        wav_ready;
 wire        wav_error;
@@ -794,7 +850,10 @@ wire [3:0]  wav_error_code;
 wire [3:0]  wav_state;
 
 wav_audio_sd_top #(
-    .START_SECTOR (32'd12000),   // WAV 首扇区，必须与烧卡工具 --lba 一致
+    // 四段音频的首扇区**不在这里填**：唯一一处定义是
+    //   rtl/audio/wav_track_select.v 里的 PICTURE_1..4 参数默认值。
+    // 本层与中间层都不做参数覆盖，改扇区只改那一个文件；
+    // 烧卡用 tools/burn_wav.py --track N，它也从那个文件读默认 LBA。
     .ACR_N        (6144)         // 48 kHz
 ) u_audio_wav (
     .I_sd_clk        (sd_card_clk),
@@ -804,9 +863,13 @@ wav_audio_sd_top #(
     .I_mclk_rst      (rst_audio),
     .I_video_rst     (rst_video),
 
-    .I_play          (wav_play_en),    // SW4 拨动一次切换；上电 = 播放
-    .I_stop          (wav_sw4_edge),   // 每次拨动回到文件开头（单拍）
-    .I_mute          (~wav_play_en),   // 停止时静音（帧节拍照常走，HDMI 流不断）
+    // 换曲：0..3 对应 PICTURE_1..4。active_read_idx 是 SDRAM 四缓冲里
+    // "当前正在上屏"的那一页（在帧边界才更新），所以换图和换曲同帧发生。
+    .I_audio_sel     (active_read_idx),
+
+    .I_play          (wav_play_en),    // SW4：暂停/继续（位置保留）
+    .I_stop          (wav_stop_req),   // SW3：停止并回到当前曲开头（单拍）
+    .I_mute          (~wav_play_en),   // 暂停/停止时静音（帧节拍照常走，HDMI 流不断）
     .I_loop          (dip_sw[0]),      // SW1 = 循环
 
     .I_sd_init_done  (sd_init_done),

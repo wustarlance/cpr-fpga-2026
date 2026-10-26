@@ -71,6 +71,8 @@ for name in ("tb_sd_buffer_ownership", "tb_sd_image_recovery", "tb_sd_retry_limi
 TESTS["tb_input_filter"] = {"sources": [RTL + "input_filter.v", TB + "tb_input_filter.v"],
                             "pass_pattern": r"(?m)^PASS: input_filter\b"}
 TESTS["tb_page_manager"] = {"sources": [RTL + "cpr_page_manager.v", TB + "tb_page_manager.v"]}
+TESTS["tb_wav_track_select"] = {"sources": [RTL + "audio/wav_track_select.v", TB + "tb_wav_track_select.v"],
+                                "pass_pattern": r"(?m)^PASS: wav_track_select\b"}
 TESTS["tb_page_status"] = {"sources": [RTL + "sample_mailbox.v", RTL + "page_status_cdc.v", RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_page_status.v"]}
 TESTS["tb_training_pages"] = {"sources": [RTL + "cpr_page_manager.v"] + [s for s in TESTS["tb_sd_image_recovery"]["sources"] if s != RTL + "cpr_page_manager.v" and s != TB + "tb_sd_image_recovery.v"] + [TB + "tb_training_pages.v"]}
 TESTS["tb_sd_scaled_pages"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "SD/sd_card_bmp.v", "project/vendor/SD/bmp_read_scaled.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/frame_fifo_write.v", "tests/sim/stubs/sd_fault_sector_model.v", TB + "tb_sd_scaled_pages.v"]}

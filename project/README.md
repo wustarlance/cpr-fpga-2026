@@ -40,7 +40,9 @@ SD读取现在包含令牌/字节超时、读CRC、取消、整图有限重试�
 
 `top` 和 `top_adc` 均提供综合期参数 `ENABLE_AUDIO`，默认 `1` 保持 HDMI 音频输出；设为 `0` 会关闭 HDMI 音频采样与 ACR 包。修改参数后需重新综合并生成位流。音频 PLL 保持运行，因为其时钟也供 ADC 采样链使用。
 
-音频内容改为从 SD 卡播放 WAV：`rtl/audio/wav_audio_sd_top.v` 经 `rtl/SD/sd_sec_arbiter.v` 与 BMP 画面分时复用顶层唯一那份 `sd_card_top`（BMP 优先、WAV 让路），从 LBA 12000 起读 48 kHz / 24 bit WAV，经 `pcm_fifo` 跨到 12.295082 MHz 音频域后由 `pcm_player` 直接送 HDMI 数据岛（ACR 随流输出）。按压训练的 40 ms 节拍窗口仍由 `beat_hold_ms` 与 `audio_gate` 控制，但**声源来自卡上的 WAV**：未插卡或读卡失败时，训练模式的节拍提示音没有声音；片上音阶发生器 `rtl/cpr_audio_tone_i2s.v` 已随本分支移除，给它的 `metronome_meta` 做 CDC 豁免的 `constraints/audio_metronome.sdc` 也一并删除（豁免集合恒为空，留着只会误导）。声音只经 HDMI 输出，板上没有蜂鸣器。
+音频内容改为从 SD 卡播放 WAV：`rtl/audio/wav_audio_sd_top.v` 经 `rtl/SD/sd_sec_arbiter.v` 与 BMP 画面分时复用顶层唯一那份 `sd_card_top`（BMP 优先、WAV 让路）。**一页一段音频**：四段 WAV 的首扇区只在一处定义——`rtl/audio/wav_track_select.v` 的 `parameter PICTURE_1..PICTURE_4`（`wav_audio_sd_top` 与顶层例化都不写覆盖，改扇区就改那四行）；`I_audio_sel` 直接接 `active_read_idx`（SDRAM 四缓冲里"当前正在上屏"的那一页，只在帧边界更新），因此**换图和换曲同帧发生**。选曲与重启都在 `rtl/audio/wav_track_select.v` 里做：2 级同步 + 8 拍稳定过滤（滤掉 2 bit 页号跨位翻转时的一拍中间值），确认换页后给一个换页脉冲，`wav_audio_path` 走既有的 abort→start 重新锁存扇区并清两侧 FIFO，中间约 10~20 ms 静音。读到的 WAV 经 `pcm_fifo` 跨到 12.295082 MHz 音频域后由 `pcm_player` 直接送 HDMI 数据岛（ACR 随流输出）。按压训练的 40 ms 节拍窗口仍由 `beat_hold_ms` 与 `audio_gate` 控制，但**声源来自卡上的 WAV**：未插卡或读卡失败时，训练模式的节拍提示音没有声音；片上音阶发生器 `rtl/cpr_audio_tone_i2s.v` 已随本分支移除，给它的 `metronome_meta` 做 CDC 豁免的 `constraints/audio_metronome.sdc` 也一并删除（豁免集合恒为空，留着只会误导）。声音只经 HDMI 输出，板上没有蜂鸣器。
+
+音频的四个开关：SW4（C5）暂停 / 继续——只拉低 `I_play`，`pcm_player` 就不再拉 FIFO 读，读指针和 SD 侧预填数据都保留，所以再播是**断点续播**（样本级精确）；SW3（C6）停止并回到本曲开头——`I_stop` 单拍让 reader 重新解析 RIFF，同时清掉播放位，所以停完是**静音停在文件头**，要听就再拨 SW4 从头放；SW1（C8）单曲循环；SW2（C7）与音频无关。注意这三个开关与对比度（`contrast_controls` 用 `dip_sw[2:0]`）、按压档选择复用同一组拨码，拨 SW3 会顺带改对比度 bit2，属既有复用。
 
 本工程整合 PR #1 的训练、ADC、OSD、复位和自检，与本地 SDRAM 40 MHz、刷新参数及 BMP 扫描流水化修复。媒体层继续用原始扇区扫描。当前 BMP 路径支持正高度、24 位无压缩、宽≤2048/高≤1536 的图片，加载时最近邻等比缩放并居中。需要补边的图片在加载阶段额外读取一遍源图，生成 32×24 cover 裁切背景，经区域均值降采样、三遍3×3盒式模糊、双线性放大并保留75%亮度，再盖上清晰前景写入 SDRAM；无补边图片仍走原来的单遍缩放。前四张会预载入四个固定 SDRAM 槽位，四槽就绪后手动/自动切换不再访问 SD 卡或重新计算模糊背景。设置顶层参数 `BLUR_BACKGROUND=0` 可恢复固定深蓝灰补边并取消双遍加载。
 
