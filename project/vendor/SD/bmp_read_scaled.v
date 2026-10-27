@@ -165,6 +165,11 @@ module bmp_read_scaled #(
     reg payload_zero_q;
     reg first_sector, sector_exhausted;
     reg [13:0] row_byte;
+    // A source byte is fetched one cycle before BYTE_USE. Capture its payload
+    // predicate there too, so the 14-bit row comparison does not feed the
+    // background helper's acceptance/average-control cone in the same cycle.
+    // row_byte/row_bytes do not change between FETCH and USE or while USE stalls.
+    reg row_has_pixel_q;
     reg [15:0] source_x, source_y;
     reg [1:0] channel;
     reg [7:0] blue, green;
@@ -199,7 +204,7 @@ module bmp_read_scaled #(
     wire in_content_x = out_x>=off_x && out_x<content_x_hi;
     wire in_content_y = out_y>=bottom_rows && out_y<content_y_hi;
     wire bg_pixel_valid = (pass_mode==1) && (state==BYTE_USE) &&
-                          (row_byte<row_bytes) && (channel==2);
+                          row_has_pixel_q && (channel==2);
     wire bg_finish = (pass_mode==1) && (state==ROW_READY) &&
                      payload_zero_q;
     wire bg_sample_req = (state==BG_SAMPLE_REQ);
@@ -237,12 +242,16 @@ module bmp_read_scaled #(
 
     // Synchronous reads infer block RAM. RAM contents need no reset: only
     // complete received sectors/rows are ever made visible to the consumer.
+    always @(posedge clk or posedge rst) begin
+        if (rst) row_has_pixel_q<=1'b0;
+        else if (state==BYTE_FETCH) row_has_pixel_q<=row_byte<row_bytes;
+    end
     always @(posedge clk) begin
         if (state==SECTOR && sd_sec_read_data_valid_q && rx_count<512)
             sector_buf[rx_count[8:0]] <= sd_sec_read_data_q;
         if (state==BYTE_FETCH) sector_q <= sector_buf[proc_pos];
         if (state==OUT_FETCH) row_q <= row_buf[sample_x[10:0]];
-        if (state==BYTE_USE && row_byte<row_bytes && channel==2)
+        if (state==BYTE_USE && row_has_pixel_q && channel==2)
             row_buf[source_x[10:0]] <= {sector_q, green, blue};
     end
 
@@ -353,11 +362,14 @@ module bmp_read_scaled #(
                     // testing row_byte+1==stride, so the 14-bit carry chain is
                     // not in series with the row-end decision on the 100 MHz
                     // byte path.
-                    stride_m1<=((width[11:0]*14'd3+14'd3)&14'h3ffc)-14'd1;
+                    // stride_m1 is prepared in CHECK_END from registered
+                    // stride, so multiplication/alignment and subtraction
+                    // do not share the same 100 MHz setup path.
                     hdr_ok_a<=hdr_fields_ok; pixel_offset_min<=dib_size+14;
                     state<=CHECK_END;
                 end
                 CHECK_END: begin
+                    stride_m1<=stride-14'd1;
                     pixel_end<=pixel_offset + stride * height[10:0];
                     hdr_ok_b<=hdr_ok_a && hdr_dims_ok;
                     state<=CHECK_HEADER;
@@ -519,7 +531,7 @@ module bmp_read_scaled #(
                     if (pass_mode==1 && channel==2 && !bg_ingest_ready) begin
                         state<=BYTE_USE;
                     end else begin
-                    if(row_byte<row_bytes) begin
+                    if(row_has_pixel_q) begin
                         case(channel)
                             0: blue<=sector_q;
                             1: green<=sector_q;

@@ -88,6 +88,7 @@ TESTS["tb_wav_page_switch"] = {
                  "heartbeat_synth")]
                + [TB + "tb_wav_page_switch.v"],
     "pass_pattern": r"(?m)^PASS: wav_page_switch\b"}
+TESTS["tb_heartbeat_loudness"] = {"sources": [RTL + "audio/heartbeat_synth.v", TB + "tb_heartbeat_loudness.v"], "pass_pattern": r"(?m)^PASS: heartbeat_loudness\b"}
 TESTS["tb_heartbeat_synth"] = {"sources": [RTL + "audio/heartbeat_synth.v", TB + "tb_heartbeat_synth.v"],
                                "pass_pattern": r"(?m)^PASS: heartbeat_synth\b"}
 TESTS["tb_page_status"] = {"sources": [RTL + "sample_mailbox.v", RTL + "page_status_cdc.v", RTL + "cpr_overlay.v", LP, RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_page_status.v"]}

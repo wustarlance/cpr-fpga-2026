@@ -13,14 +13,15 @@
 //
 // 现在的语义（一路到底，没有仲裁）：
 //   * 复位后 = 3'd3（100 %，恒等/直通）；
-//   * 每按一次 K6 前进一档，3->4->5->0->1->2->3 循环
-//     （0=0 %、1=50 %、2=75 %、3=100 %、4=125 %、5=150 %，与 OSD 的百分比同义）；
+//   * 每按一次 K6 前进一档，3->4->5->1->2->3 循环，跳过0 %；
+//     保留50/75/100/125/150 %，与现有OSD百分比显示一致。
 //   * 训练模式下照样可调（对比度是显示参数，和训练状态无关）。
 //
 // 2026-10-27 改：档位含义由"增益 0.50…1.50"改成百分比口径，中性档落在第 3 档
 // 100 %（0.50…1.50 那套的 100 % 其实落在第 2 档，屏上写 100 % 而画面不是原图，
 // 讲解时容易误会）。同日再扩一档：0/50/75/100/125/150 %，既保留"0 % 全灰"
 // 的演示档，也把被删掉的增强档（125 %/150 %）加回来。
+// 2026-10-27 后续：移除0 %可选档，其他百分比与增益映射保持原样。
 // 输出对比度档位给 contrast_rgb（做 RGB 乘法）和 cpr_overlay（OSD 里显示）。
 module contrast_controls #(
     parameter STABLE_MS=20
@@ -38,6 +39,7 @@ module contrast_controls #(
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) contrast_level<=3'd3;
         else if(key_rise)
-            contrast_level <= (contrast_level==3'd5) ? 3'd0 : contrast_level + 3'd1;
+            contrast_level <= (contrast_level>=3'd5 || contrast_level==3'd0) ?
+                              3'd1 : contrast_level + 3'd1;
     end
 endmodule
