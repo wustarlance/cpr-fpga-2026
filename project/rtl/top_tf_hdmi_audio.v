@@ -11,7 +11,7 @@ module top #(
     parameter ENABLE_AUDIO_VISUALIZATION = 1,
     parameter ENABLE_SMOOTH_TRANSITIONS = 1,
     // 自动展播（模式 2）每页停留秒数。改这个数必须重新综合。
-    parameter integer AUTO_DWELL_S = 5,
+    parameter integer AUTO_DWELL_S = 8,
     parameter UI_LANGUAGE_ZH = 1,
     parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
     parameter [11:0] RELEASE_BASELINE = 12'd3000,
