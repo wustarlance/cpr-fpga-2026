@@ -36,9 +36,10 @@ module top #(
     input                       key3,           // KEY3 (B1), previous
     input wire [3:0]             dip_sw,         // SW1..3 = 仅板卡演示模式的触点图案（2026-10-26 起不再控制对比度）；SW4 = 音频暂停
     input wire [4:0]             ext_keys_n,     // mode/prev/next/brightness/session clear
-    // 外接八位按键面板（J1 奇数行 13~23）。模块自带上拉，按下为低电平。
-    // K1~K5 与板载 KEY 并存；K6 留给对比度按键；K7/K8 暂未使用。
-    input wire [5:0]             key_panel_n,
+    // 外接八位按键面板（J1 奇数行 13~25）。模块自带上拉，按下为低电平。
+    // K1~K5 与板载 KEY 并存；K6 对比度；K7 字幕开关（2026-10-27 新增，H15）；
+    // K8 仍未使用。
+    input wire [6:0]             key_panel_n,
     input wire [3:0]             depth_sw_n,     // cumulative contacts, close to GND
     input                       key2,           // KEY4 (C1), mode
 
@@ -229,7 +230,8 @@ wire bpm_valid;
 wire clear_session, adc_peak_event, adc_path_fault;
 wire [1:0] adc_peak_grade;
 reg [5:0] beat_hold_ms;
-wire [4:0] app_keys_level;
+wire [5:0] app_keys_level;
+wire subtitle_on;                    // K7 字幕开关（默认开）
 wire [11:0] page_status_sd, page_status_video;
 page_status_cdc u_page_status(
     .src_clk(sd_card_clk), .src_rst_n(sd_rst_n), .status(page_status_sd),
@@ -240,12 +242,13 @@ page_status_cdc u_page_status(
 // 板载 KEY 不再受 USE_EXTERNAL_IO 屏蔽：原实现 USE_EXTERNAL_IO=1 时直接丢弃
 // 板载键，接了外接控制盒就按不动板载键了。现在两者始终并存。
 // 已量产的按压盒仍可用板载 KEY2/KEY3/KEY4 临时操作，KEY1 始终是复位。
-wire [4:0] onboard_keys = {2'b00, ~key1, ~key3, ~key2};
-wire [4:0] panel_keys   = ~key_panel_n[4:0];
-wire [4:0] app_keys_raw;
+// 板载只有 5 路（KEY1 是复位，不进这条链），bit5 固定 0：只有面板 K7 能拉高。
+wire [5:0] onboard_keys = {1'b0, ~key1, ~key3, ~key2};
+wire [5:0] panel_keys   = ~key_panel_n[5:0];
+wire [5:0] app_keys_raw;
 key_source_merge u_key_merge(
     .onboard_keys (onboard_keys),
-    .panel_keys   ((USE_EXTERNAL_IO ? ~ext_keys_n : 5'b00000) | panel_keys),
+    .panel_keys   ({1'b0, (USE_EXTERNAL_IO ? ~ext_keys_n : 5'b00000)} | panel_keys),
     .keys         (app_keys_raw));
 // Board demo: KEY2 generates a press; dips select a contact pattern, zero selects target.
 // External mode observes real contacts directly; calibration remains a mechanical task.
@@ -287,6 +290,7 @@ cpr_control #(.USE_PRESS_EVENTS(USE_ADC)) u_control(
     .press_event         (adc_peak_event),
     .press_grade         (adc_peak_grade),
     .press_fault         (adc_path_fault),
+    .subtitle_on         (subtitle_on),
     .clear_session       (clear_session));
 
 // ADC 路径：generate 是【综合期二选一】，不是运行时的 if。
@@ -376,7 +380,7 @@ contrast_controls u_contrast_controls(
     .raw_key     (~key_panel_n[5]),          // K6：对比度，按下为低电平
     .contrast_level(contrast_level));
 always @(posedge video_clk or posedge rst_video) begin
-    if (rst_video) contrast_video <= 3'd2;
+    if (rst_video) contrast_video <= 3'd4;   // 100 %：与 contrast_controls 的复位档一致
     else if (brightness_vs_d && !vs) contrast_video <= contrast_level;
 end
 wire [23:0] app_rgb, adjusted_rgb, contrasted_rgb, picture_rgb;
@@ -420,6 +424,7 @@ cpr_overlay #(.UNCALIBRATED_PRESSURE(USE_ADC), .PAGE_STATUS_ENABLE(1),
     .bpm_valid           (bpm_valid),
     .sensor_fault        (sensor_fault | adc_path_fault),
     .brightness_level    (brightness_level),
+    .subtitle_en         (subtitle_on),
     .pause_warning       (pause_warning),
     .rotate_due          (rotate_due),
     .beat                (beat_hold_ms != 0),

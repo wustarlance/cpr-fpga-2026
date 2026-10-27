@@ -11,9 +11,25 @@ module cpr_text_zh #(parameter UNCALIBRATED_PRESSURE=0, PAGE_STATUS_ENABLE=0)(
     input wire [15:0] count_bcd, interval_bcd, pause_bcd,
     input wire [23:0] rotate_bcd,
     input wire [11:0] bpm_bcd,
+    input wire subtitle_en,          // 字幕总开关（K7）：0 = 底部字幕带整条不画
     output wire text_pixel,
     output reg [23:0] text_color
 );
+    // 亮度/对比度改用百分比显示（2026-10-27）。档位→百分比的换算只在
+    // level_percent.v 里有一份，英文界面（cpr_overlay 的 ASCII 分支）用的是
+    // 同一个模块，两套界面不会各说一套数字。
+    wire [3:0] br_h, br_t, br_u, ct_h, ct_t, ct_u;
+    wire [2:0] br_blank, ct_blank;
+    level_percent u_bright_percent(
+        .level({1'b0, brightness}), .is_contrast(1'b0),
+        .hundreds(br_h), .tens(br_t), .units(br_u), .blank(br_blank));
+    level_percent u_contrast_percent(
+        .level(contrast), .is_contrast(1'b1),
+        .hundreds(ct_h), .tens(ct_t), .units(ct_u), .blank(ct_blank));
+    // 字库里 '%' 排在最后一个码位（见 tools/generate_chinese_font.py 末尾，
+    // 追加在 CJK 之后，这样既有 0..129 的编码全部保持不变）。它不是字符串
+    // 表里的一条文案，而是像数字一样按位置直接取的固定字形。
+    localparam [7:0] PCT_CODE = 8'd130;
     reg [9:0] offset;
     reg [1:0] frames;
     always @(posedge clk or posedge rst) begin
@@ -56,6 +72,14 @@ module cpr_text_zh #(parameter UNCALIBRATED_PRESSURE=0, PAGE_STATUS_ENABLE=0)(
     cpr_font16_rom u_font(.code(glyph_code),.row(glyph_row),.row_bits(row_bits));
     assign text_pixel=!rst && de && enabled && row_bits[15-glyph_column];
 
+    // 百分比三位数字的选取：cell 22/23/24 → 百/十/个位（对比度是 29/30/31）.
+    wire [2:0] br_pos = cell_x - 6'd22;
+    wire [2:0] ct_pos = cell_x - 6'd29;
+    wire [3:0] br_digit = br_pos==3'd0 ? br_h : br_pos==3'd1 ? br_t : br_u;
+    wire [3:0] ct_digit = ct_pos==3'd0 ? ct_h : ct_pos==3'd1 ? ct_t : ct_u;
+    wire br_hide = br_pos==3'd0 ? br_blank[2] : br_pos==3'd1 ? br_blank[1] : br_blank[0];
+    wire ct_hide = ct_pos==3'd0 ? ct_blank[2] : ct_pos==3'd1 ? ct_blank[1] : ct_blank[0];
+
     // IDs 1..10 are decimal digits in the generated font. All other IDs
     // come exclusively from cpr_zh_strings; never send raw UTF-8 bytes here.
     function [7:0] digit_id;
@@ -81,10 +105,22 @@ module cpr_text_zh #(parameter UNCALIBRATED_PRESSURE=0, PAGE_STATUS_ENABLE=0)(
                 d_index=cell_x-6'd15;
                 if(page_status[1]||page_status[2])d_text_color=24'hffd080;
             end else if(cell_x>=20 && cell_x<22) begin d_message_id=4; d_index=cell_x-6'd20; end
-            else if(cell_x==22)begin d_use_override=1;d_override_code=digit_id({2'd0,brightness});end
-            else if(cell_x>=25 && cell_x<27)begin d_message_id=5;d_index=cell_x-6'd25;end
-            else if(cell_x==27)begin d_use_override=1;d_override_code=digit_id({1'b0,contrast});end
-            else if(mode==1 && cell_x>=31 && cell_x<34)begin d_message_id=auto_running ? 12 : 13;d_index=cell_x-6'd31;end
+            // 2026-10-27：亮度由"一格档位序号"改成"三格数字 + 一格 %"，
+            // 例如 cell 22..25 = " 25%"、cell 27..28 = 对比标签、29..32 = "100%"。
+            // 对比度标签因此从 cell 25..26 右移到 27..28，模式一的"播放中/已暂停"
+            // 从 31..33 右移到 34..36（34..38 原来是空的，够放）。
+            else if(cell_x>=22 && cell_x<25)begin
+                d_use_override=1;
+                d_override_code=br_hide ? 8'd0 : digit_id(br_digit);
+            end
+            else if(cell_x==25)begin d_use_override=1;d_override_code=PCT_CODE;end
+            else if(cell_x>=27 && cell_x<29)begin d_message_id=5;d_index=cell_x-6'd27;end
+            else if(cell_x>=29 && cell_x<32)begin
+                d_use_override=1;
+                d_override_code=ct_hide ? 8'd0 : digit_id(ct_digit);
+            end
+            else if(cell_x==32)begin d_use_override=1;d_override_code=PCT_CODE;end
+            else if(mode==1 && cell_x>=34 && cell_x<37)begin d_message_id=auto_running ? 12 : 13;d_index=cell_x-6'd34;end
         end else if(mode==2 && x_next>=400 && x_next<624 && y>=16 && !y[4]) begin
             d_enabled=1; cell_x=x_next[9:4]-6'd25; d_index=cell_x;
             case(y[8:5])
@@ -126,7 +162,7 @@ module cpr_text_zh #(parameter UNCALIBRATED_PRESSURE=0, PAGE_STATUS_ENABLE=0)(
                 12:begin d_message_id=beat ? 34 : 35;d_text_color=beat ? 24'hffffff : 24'h91a4b0;end
                 default:d_message_id=63;
             endcase
-        end else if(x_next>=16 && x_next<(mode==2 ? 368 : 624) && y>=448 && y<464) begin
+        end else if(subtitle_en && x_next>=16 && x_next<(mode==2 ? 368 : 624) && y>=448 && y<464) begin
             scroll_position={1'b0,x_next}-11'd16+{1'b0,offset};
             if(scroll_position>=576)scroll_position=scroll_position-11'd576;
             if(scroll_position>=576)scroll_position=scroll_position-11'd576;

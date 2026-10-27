@@ -6,7 +6,7 @@ module tb_chinese_overlay;
     reg [31:0] count=87,rotate_ms=120000;
     reg [15:0] interval_ms=545,pause_ms=0;
     reg [7:0] bpm=110;
-    reg valid=1,pause_warning=0,rotate_due=0,fault=0,beat=0,auto_running=0;
+    reg valid=1,pause_warning=0,rotate_due=0,fault=0,beat=0,auto_running=0,subtitle_en=1;
     reg [11:0] page=12'hb11;
     reg [23:0] base_rgb;
     wire [23:0] demo_rgb,adc_rgb;
@@ -15,13 +15,13 @@ module tb_chinese_overlay;
         .clk(clk),.rst(rst),.vs(vs),.de(de),.rgb(base_rgb),.mode(mode),.count(count),.rate(rate),.depth_grade(depth),
         .pause_warning(pause_warning),.rotate_due(rotate_due),.beat(beat),.interval_ms(interval_ms),.pause_ms(pause_ms),
         .rotate_remaining_ms(rotate_ms),.bpm(bpm),.bpm_valid(valid),.sensor_fault(fault),.brightness_level(brightness),
-        .contrast_level(contrast),.auto_running(auto_running),.page_status(page),.out_rgb(demo_rgb));
+        .contrast_level(contrast),.auto_running(auto_running),.page_status(page),.subtitle_en(subtitle_en),.out_rgb(demo_rgb));
     cpr_overlay #(.CHINESE_UI(1),.PAGE_STATUS_ENABLE(1),.UNCALIBRATED_PRESSURE(1)) adc(
         .clk(clk),.rst(rst),.vs(vs),.de(de),.rgb(base_rgb),.mode(mode),.count(count),.rate(rate),.depth_grade(depth),
         .pause_warning(pause_warning),.rotate_due(rotate_due),.beat(beat),.interval_ms(interval_ms),.pause_ms(pause_ms),
         .rotate_remaining_ms(rotate_ms),.bpm(bpm),.bpm_valid(valid),.sensor_fault(fault),.brightness_level(brightness),
-        .contrast_level(contrast),.auto_running(auto_running),.page_status(page),.out_rgb(adc_rgb));
-    reg [255:0] glyphs[0:129];
+        .contrast_level(contrast),.auto_running(auto_running),.page_status(page),.subtitle_en(subtitle_en),.out_rgb(adc_rgb));
+    reg [255:0] glyphs[0:130];
     reg [31:0] cells[0:9599];
     reg [7:0] bmp_bytes[0:921653];
     integer fd,n,px,py,s,a,address,offset,checks=0,white=0,dump_demo=0,dump_adc=0;
@@ -75,10 +75,10 @@ module tb_chinese_overlay;
                             if(py>=352 && py<368)expected=s==1 ? 24'hff4040 : 24'h206040;
                             if(py>=384 && py<400)expected=s==1 ? 24'hffffff : 24'h304050;
                         end
-                        if(py>=448 && py<464 && px>=16 && px<(s<2 ? 368 : 624))expected=24'h182430;
+                        if(subtitle_en && py>=448 && py<464 && px>=16 && px<(s<2 ? 368 : 624))expected=24'h182430;
                         address=(s*2+a)*1200+(py/16)*40+px/16;
                         cell_value=cells[address];glyph_id=cell_value[7:0];
-                        if(glyph_id>=130)$fatal(1,"reference glyph out of range");
+                        if(glyph_id>=131)$fatal(1,"reference glyph out of range");
                         if(glyphs[glyph_id][255-(py%16)*16-(px%16)])begin expected=cell_value[31:8];white=white+1;end
                         actual=a==0 ? demo_rgb : adc_rgb;
                         if(actual!==expected)$fatal(1,"Chinese raster mismatch state=%0d adc=%0d x=%0d y=%0d expected=%h got=%h",s,a,px,py,expected,actual);

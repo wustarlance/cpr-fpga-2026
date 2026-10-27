@@ -20,6 +20,9 @@ module cpr_overlay #(parameter UNCALIBRATED_PRESSURE = 0,
     input wire [2:0] contrast_level,
     input wire auto_running,
     input wire [11:0] page_status,
+    // 2026-10-27：字幕总开关（外接面板 K7，默认 1）。为 0 时底部字幕带整条
+    // 不画——连那条深色底也不再覆盖，画面下沿恢复成照片本身。
+    input wire subtitle_en,
     output reg [23:0] out_rgb
 );
 reg [9:0] x, y;
@@ -29,8 +32,19 @@ reg frame_pause, frame_rotate, frame_beat, frame_fault, frame_bpm_valid;
 reg beat_seen;
 reg [2:0] frame_contrast;
 reg frame_auto_running;
+reg frame_subtitle_en;
 reg [11:0] frame_page;
 wire [1:0] header_page = frame_page[3] || frame_page[2] ? frame_page[5:4] : frame_page[10:9];
+// 亮度/对比度百分比：与 cpr_text_zh 里的那一份是同一张表（level_percent.v），
+// 英文界面和中文界面显示的数字因此永远一致。
+wire [3:0] br_hundreds, br_tens, br_units, ct_hundreds, ct_tens, ct_units;
+wire [2:0] br_blank, ct_blank;
+level_percent u_bright_percent(
+    .level({1'b0, frame_brightness}), .is_contrast(1'b0),
+    .hundreds(br_hundreds), .tens(br_tens), .units(br_units), .blank(br_blank));
+level_percent u_contrast_percent(
+    .level(frame_contrast), .is_contrast(1'b1),
+    .hundreds(ct_hundreds), .tens(ct_tens), .units(ct_units), .blank(ct_blank));
 wire [5:0] subtitle_addr;
 wire [7:0] subtitle_code;
 wire [34:0] subtitle_glyph;
@@ -40,7 +54,7 @@ cpr_subtitle_rom #(.UNCALIBRATED_PRESSURE(UNCALIBRATED_PRESSURE)) u_subtitle_mes
 font5x7_rom u_subtitle_font(.code(subtitle_code), .pixels(subtitle_glyph));
 scroll_text u_subtitles(
     .clk(clk), .rst_n(!rst), .frame_start(last_vs && !vs), .de(de),
-    .x(x), .y(y), .enable(1'b1),
+    .x(x), .y(y), .enable(frame_subtitle_en),
     .scroll_enable((frame_mode != 2'd1) || frame_auto_running),
     .text_addr(subtitle_addr), .glyph_pixels(subtitle_glyph), .text_pixel(subtitle_pixel));
 reg [15:0] count_bcd, interval_bcd, pause_bcd;
@@ -59,6 +73,7 @@ generate if (CHINESE_UI) begin: g_chinese
         .bpm_valid(frame_bpm_valid), .page_status(frame_page),
         .count_bcd(count_bcd), .interval_bcd(interval_bcd), .pause_bcd(pause_bcd),
         .rotate_bcd(rotate_bcd), .bpm_bcd(bpm_bcd),
+        .subtitle_en(frame_subtitle_en),
         .text_pixel(zh_text_pixel), .text_color(zh_text_color));
 end else begin: g_ascii
     assign zh_text_pixel=1'b0;
@@ -117,7 +132,8 @@ always @(posedge clk or posedge rst) begin
         x <= 0; y <= 0; last_de <= 0; last_vs <= 1;
         frame_page <= 0;
         frame_mode <= 0; frame_rate <= 0; frame_depth <= 0;
-        frame_brightness <= 3; frame_contrast <= 2; frame_auto_running <= 0;
+        frame_brightness <= 3; frame_contrast <= 3'd4; frame_auto_running <= 0;
+        frame_subtitle_en <= 1'b1;
         frame_pause <= 0; frame_rotate <= 0;
         frame_beat <= 0; frame_fault <= 0; frame_bpm_valid <= 0;
         beat_seen <= 0; count_bcd <= 0; interval_bcd <= 0;
@@ -133,6 +149,7 @@ always @(posedge clk or posedge rst) begin
             frame_brightness <= brightness_level;
             frame_contrast <= contrast_level;
             frame_auto_running <= auto_running;
+            frame_subtitle_en <= subtitle_en;
             frame_pause <= pause_warning; frame_rotate <= rotate_due;
             frame_beat <= beat || beat_seen; frame_fault <= sensor_fault;
             frame_bpm_valid <= bpm_valid; beat_seen <= 0;
@@ -187,6 +204,7 @@ function [34:0] glyph;
             "V": glyph = {5'b10001,5'b10001,5'b10001,5'b10001,5'b10001,5'b01010,5'b00100};
             ":": glyph = {5'b00000,5'b00100,5'b00100,5'b00000,5'b00100,5'b00100,5'b00000};
             "-": glyph = {5'b00000,5'b00000,5'b00000,5'b11111,5'b00000,5'b00000,5'b00000};
+            "%": glyph = {5'b11000,5'b11001,5'b00010,5'b00100,5'b01001,5'b10011,5'b10011};
             default: glyph = 35'b0;
         endcase
     end
@@ -245,10 +263,19 @@ always @(*) begin
                 frame_page[2] ? "M" : frame_page[3] ? "L" : " ";
             16: character = "B"; 17: character = "R"; 18: character = "I";
             19: character = "G"; 20: character = "H"; 21: character = "T";
-            22: character = ":"; 23: character = digit({2'b0,frame_brightness});
-            26: character = "C"; 27: character = "O"; 28: character = "N";
-            29: character = "T"; 30: character = ":";
-            31: character = digit({1'b0,frame_contrast});
+            // 亮度 22..24 三位数字（右对齐）+ 25 '%'；对比度 27..30 标签、
+            // 31..33 三位数字 + 34 '%'。原来各占一格、只显示档位序号的写法
+            // 换成百分比后要占四格，所以对比度标签整体右移一格。
+            22: character = br_blank[2] ? " " : digit(br_hundreds);
+            23: character = br_blank[1] ? " " : digit(br_tens);
+            24: character = br_blank[0] ? " " : digit(br_units);
+            25: character = "%";
+            27: character = "C"; 28: character = "O"; 29: character = "N";
+            30: character = "T";
+            31: character = ct_blank[2] ? " " : digit(ct_hundreds);
+            32: character = ct_blank[1] ? " " : digit(ct_tens);
+            33: character = ct_blank[0] ? " " : digit(ct_units);
+            34: character = "%";
             default: character = " ";
         endcase
     end else if (frame_mode == 2 && x >= TRAIN_TEXT_LEFT && x < TRAIN_TEXT_RIGHT) begin
@@ -382,7 +409,9 @@ always @(*) begin
             if (y >= 352 && y < 368) out_rgb = frame_fault ? 24'hff4040 : 24'h206040;
             if (y >= 384 && y < 400) out_rgb = frame_beat ? 24'hffffff : 24'h304050;
         end
-        if (y >= 448 && y < 464 && x >= 16 && x < 624 &&
+        // 字幕带（含深色底）受 K7 字幕开关控制：关掉时整条都不画，
+        // 让照片的下沿露出来，而不是留一条空黑带。
+        if (frame_subtitle_en && y >= 448 && y < 464 && x >= 16 && x < 624 &&
             (frame_mode != 2 || x < TRAIN_SUBTITLE_RIGHT)) begin
             out_rgb = 24'h182430;
             if (!CHINESE_UI && subtitle_pixel) out_rgb = 24'hffffff;

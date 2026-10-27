@@ -16,13 +16,13 @@ module tb_training_layout;
         .pause_warning(pause_warning),.rotate_due(rotate_due),.beat(beat),
         .interval_ms(interval_ms),.pause_ms(pause_ms),.rotate_remaining_ms(rotate_ms),
         .bpm(bpm),.bpm_valid(bpm_valid),.sensor_fault(fault),
-        .brightness_level(2'd3),.contrast_level(3'd2),.auto_running(1'b1),.out_rgb(demo_rgb));
+        .brightness_level(2'd3),.contrast_level(3'd2),.auto_running(1'b1),.subtitle_en(1'b1),.out_rgb(demo_rgb));
     cpr_overlay #(.UNCALIBRATED_PRESSURE(1)) adc(.clk(clk),.rst(rst),.vs(vs),.de(de),.rgb(base_rgb),
         .mode(mode),.count(count),.rate(rate),.depth_grade(depth),
         .pause_warning(pause_warning),.rotate_due(rotate_due),.beat(beat),
         .interval_ms(interval_ms),.pause_ms(pause_ms),.rotate_remaining_ms(rotate_ms),
         .bpm(bpm),.bpm_valid(bpm_valid),.sensor_fault(fault),
-        .brightness_level(2'd3),.contrast_level(3'd2),.auto_running(1'b1),.out_rgb(adc_rgb));
+        .brightness_level(2'd3),.contrast_level(3'd2),.auto_running(1'b1),.subtitle_en(1'b1),.out_rgb(adc_rgb));
     reg [7:0] panel_golden [0:839];
     reg [35:0] glyph_golden [0:255];
     reg [4095:0] panel_path, glyph_path, dump_prefix;

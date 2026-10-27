@@ -17,7 +17,8 @@ cpr_slide_fade f(.clk(clk),.rst(rst),.request_async(request),.vs(vs),.de(de),.rg
 `define STATUS_PORTS .mode(mode),.count(32'd87),.rate(2'd2),.depth_grade(2'd2), \
  .pause_warning(1'b0),.rotate_due(1'b0),.beat(1'b0),.interval_ms(16'd545),.pause_ms(16'd0), \
  .rotate_remaining_ms(32'd120000),.bpm(8'd110),.bpm_valid(1'b1),.sensor_fault(1'b0), \
- .brightness_level(2'd3),.contrast_level(3'd2),.auto_running(1'b1),.page_status(12'hb11)
+ .brightness_level(2'd3),.contrast_level(3'd2),.auto_running(1'b1),.page_status(12'hb11), \
+ .subtitle_en(1'b1)
 cpr_overlay #(.CHINESE_UI(1),.PAGE_STATUS_ENABLE(1)) osd(
     .clk(clk),.rst(rst),.vs(fv),.de(fd),.rgb(frgb),`STATUS_PORTS,.out_rgb(osd_rgb));
 cpr_audio_visualizer scope(.clk(clk),.rst(rst),.enable(1'b1),.vs(fv),.de(fd),.rgb(osd_rgb),

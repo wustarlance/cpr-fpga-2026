@@ -379,6 +379,15 @@
                     <Attr Name="CompileOrder" Val="47"/>
                 </FileInfo>
             </File>
+            <File Path="rtl/level_percent.v">
+                <FileInfo>
+                    <Attr Name="AutoExcluded" Val="true"/>
+                    <Attr Name="UsedInSyn" Val="true"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="design_1"/>
+                    <Attr Name="CompileOrder" Val="0"/>
+                </FileInfo>
+            </File>
             <File Path="rtl/key_source_merge.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>

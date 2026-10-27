@@ -12,9 +12,14 @@
 //       面板资源；SW1~3 腾出来后留给别的功能。
 //
 // 现在的语义（一路到底，没有仲裁）：
-//   * 复位后 = 3'd2（中性，1.00）；
-//   * 每按一次 K6 前进一档，0->1->2->3->4->0 循环（0=0.50 … 4=1.50）；
+//   * 复位后 = 3'd4（100 %，恒等/直通）；
+//   * 每按一次 K6 前进一档，4->0->1->2->3->4 循环
+//     （0=0 %、1=25 %、2=50 %、3=75 %、4=100 %，与 OSD 显示的百分比同义）；
 //   * 训练模式下照样可调（对比度是显示参数，和训练状态无关）。
+//
+// 2026-10-27 改：档位含义由"增益 0.50…1.50"改成"对比度 0…100 %"，中性档
+// 因此从中间的 2 变成满档 4（0.50…1.50 那套的 100 % 其实落在第 2 档，屏上
+// 写 100 % 而画面不是原图，讲解时容易误会）。
 // 输出对比度档位给 contrast_rgb（做 RGB 乘法）和 cpr_overlay（OSD 里显示）。
 module contrast_controls #(
     parameter STABLE_MS=20
@@ -30,7 +35,7 @@ module contrast_controls #(
         .level(key_level),.rise(key_rise));
 
     always @(posedge clk or negedge rst_n) begin
-        if(!rst_n) contrast_level<=3'd2;
+        if(!rst_n) contrast_level<=3'd4;
         else if(key_rise)
             contrast_level <= (contrast_level==3'd4) ? 3'd0 : contrast_level + 3'd1;
     end
