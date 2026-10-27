@@ -19,7 +19,7 @@ module tb_splash_boot;
 
     always #20 clk = ~clk;           // 25 MHz，与 video_clk 一致
 
-    splash_boot dut (
+    splash_boot #(.DWELL_CYCLES(64)) dut (
         .clk   (clk),
         .rst   (rst),
         .vs    (vs),
@@ -94,6 +94,17 @@ module tb_splash_boot;
             errors = errors + 1;
         end
 
+        // 刚上电、dwell 还没到：即使已经有图（hide=1），也要继续显示 logo，
+        // 否则会正好落在显示器还没锁定的窗口里（板上实测就是这个现象）。
+        hide = 1'b1;
+        @(posedge clk);
+        #1;
+        if (active !== 1'b1) begin
+            $display("[FAIL] dwell 未到 + hide=1 时仍应显示 logo，实际 active=%b", active);
+            errors = errors + 1;
+        end
+        hide = 1'b0;
+
         feed_frame;
 
         if (px_seen !== 640 * 480) begin
@@ -115,12 +126,12 @@ module tb_splash_boot;
             errors = errors + 1;
         end
 
-        // 有图可上屏后必须立刻让位
+        // 这里已经跑了 >64 拍（dwell 早就到了），有图后必须让位
         hide = 1'b1;
         @(posedge clk);
         #1;
         if (active !== 1'b0) begin
-            $display("[FAIL] hide=1 时 active 应为 0，实际 %b", active);
+            $display("[FAIL] dwell 已到 + hide=1 时 active 应为 0，实际 %b", active);
             errors = errors + 1;
         end
 

@@ -390,22 +390,7 @@ wire picture_vs, picture_de;
 // 现在挪到 cpr_audio_visualizer 之后、送 AXIS 之前，整屏一起变。
 // 两个模块都是纯组合、零像素延迟，所以只是改连线顺序，不加流水级；
 // vs/de 不经过它们，画面时序不变。无图时的深蓝底色仍在这里给出。
-// 开机画面：首图能上屏之前把 splash_boot 的像素接进来。
-// splash_on 就是“还没有任何一页可显示”，所以它绝不会盖住正常画面；
-// 有图以后立刻让位，退化成原来的 vout_data_raw。
-wire [23:0] splash_rgb;
-wire        splash_on;
-splash_boot u_splash (
-    .clk   (video_clk),
-    .rst   (rst_video),
-    .vs    (vs),
-    .de    (de),
-    .hide  (display_valid_sync[1]),
-    .rgb   (splash_rgb),
-    .active(splash_on)
-);
-wire [23:0] picture_src_rgb = splash_on ? splash_rgb :
-                             (display_valid_sync[1] ? vout_data_raw : 24'h102030);
+wire [23:0] picture_src_rgb = display_valid_sync[1] ? vout_data_raw : 24'h102030;
 generate if (ENABLE_SMOOTH_TRANSITIONS) begin: g_slide_fade
     cpr_slide_fade u_fade(
         .clk(video_clk), .rst(rst_video), .request_async(fade_request),
@@ -1053,12 +1038,28 @@ wav_audio_sd_top #(
 );
 
 // ===================== RGB/DE 转 AXIS 视频 =====================
+// 开机画面：注入点在整条视频链的**最后一棒**（送 AXIS 之前）。
+// 这样它不受 cpr_slide_fade 的淡入淡出、也不受 OSD 影响——
+// 首图发布时那 0.53 s 的淡黑不会把 logo 拉黑，画面切得干净。
+// splash_on 在“有图 且 已显示够 3 s”之前一直是 1，避开显示器锁定的死区。
+wire [23:0] splash_rgb;
+wire        splash_on;
+splash_boot u_splash (
+    .clk   (video_clk),
+    .rst   (rst_video),
+    .vs    (visual_vs),
+    .de    (visual_de),
+    .hide  (display_valid_sync[1]),
+    .rgb   (splash_rgb),
+    .active(splash_on)
+);
+
 video_rgb_to_axis_640x480 u_video_rgb_to_axis_640x480(
     .I_clk         (video_clk),
     .I_rst         (rst_video),
     .I_vs          (visual_vs),
     .I_de          (visual_de),
-    .I_rgb         (contrasted_rgb),
+    .I_rgb         (splash_on ? splash_rgb : contrasted_rgb),
     .O_video_user  (axis_s_user),
     .O_video_valid (axis_s_valid),
     .O_video_last  (axis_s_last),

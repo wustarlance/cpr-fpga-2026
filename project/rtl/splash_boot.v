@@ -41,6 +41,19 @@ module splash_boot (
     output wire        active    // 开机画面正在接管输出
 );
 
+// 最少显示多久：第一张图 1 s 就发布了，但显示器往往 1 s 之后才锁定，
+// 如果一发布就交棒，logo 正好落在显示器还没亮的窗口里（实测就是这样）。
+// 所以这里保证画面至少显示 DWELL 拍（25 MHz 下 75,000,000 = 3 s）。
+parameter integer DWELL_CYCLES = 75_000_000;
+
+reg [26:0] dwell_cnt;
+wire       dwell_done = (dwell_cnt >= DWELL_CYCLES);
+
+always @(posedge clk or posedge rst) begin
+    if (rst)                     dwell_cnt <= 27'd0;
+    else if (!dwell_done)        dwell_cnt <= dwell_cnt + 27'd1;
+end
+
 // 三个窗口（gen_splash_rom.py 从这里解析；W 必须是 4 的整数倍 = 4 像素/字）
 localparam [9:0] W1_X0 = 10'd256;
 localparam [9:0] W1_Y0 = 10'd83;
@@ -125,7 +138,8 @@ wire [7:0] gray   = gray_of(pix);
 wire       shaded = in1 | in2 | in3;
 
 assign rgb    = shaded ? {gray, gray, gray} : 24'h000000;
-assign active = !hide;
+// 有图之后还要等够 DWELL，避免"刚发布就交棒"把画面交给还没锁定的显示器
+assign active = !(hide && dwell_done);
 
 endmodule
 
