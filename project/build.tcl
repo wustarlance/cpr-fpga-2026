@@ -120,6 +120,25 @@ if {[catch {
         # （11 级锥），已改为寄存器预计算，见该模块 2026-10-27 注释。
         set_param place opt_timing high
         commit_param -step place
+        # 2026-10-27：高扇出网优化。先诊断再动手——实测（report_routing_resource）
+        # 布线资源平均只用了 27.18%，report_congestion level>=1 无任何拥挤通道，
+        # 说明瓶颈不是布线通道不够，而是 85.3% slice 占用下单元被摊开、网线太长
+        # （榜首 state[3] 扇出 64、单跳 1.475 ns；前 10 条路径 56%~80% 是线延迟）。
+        # 所以过去调 route effort / post_route_opt 全部无效果——路由器不是瓶颈。
+        #
+        # hfn_opt_effort 是官方 TimingUltra 相对 TimingHigh 的唯一增量参数，作用是
+        # 让布局阶段复制高扇出网、就近驱动。单独打开实测（其余条件不变）：
+        #   SWNS 0.114 → 0.197 ns（+73%），HWNS 0.003 不变，
+        #   榜首路径 Max Fanout 64 → 8、线延迟占比 80% → 56%，
+        #   代价 slices 85.30% → 86.03%（+72 slices）。
+        # 净收益明确且是全局的（整条路径带 0.114~0.213 一起抬到 0.197~0.254），
+        # 故默认开启；要退回历史行为：CPR_HFN_EFFORT=off 再构建。
+        set cpr_hfn high
+        if {[info exists ::env(CPR_HFN_EFFORT)]} { set cpr_hfn $::env(CPR_HFN_EFFORT) }
+        if {$cpr_hfn ne "" && $cpr_hfn ne "off"} {
+            set_param place hfn_opt_effort $cpr_hfn
+            commit_param -step place
+        }
         place
         report_qor -step place -file $cpr_reports/place.qor
         commit_param -step route
