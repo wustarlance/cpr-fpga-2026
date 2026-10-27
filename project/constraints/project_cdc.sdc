@@ -59,3 +59,19 @@ set_false_path -hold -from [get_regs -nowarn {*u_audio_wav/u_path/S_cfg_rate_hol
 # Optional frame-total diagnostics are pruned in both shipped tops. Apply
 # their bound only AFTER gate mapping in build.tcl, when both endpoints survive.
 # A pre-map constraint persists even if a later conditional read skips it.
+
+# ---------------------------------------------------------------------------
+# 帧缓存读请求：video_clk -> ext_mem_clk（2026-10-26 补）
+#   frame_fifo_read 的 read_req 是"保持到 read_req_ack 才撤"的握手电平，进入
+#   mem 域后走 read_req_d0/d1/d2 三级链；read_req_d0 是**捕获亚稳态的第一级**，
+#   和上面那些 *_meta / *_sync[0] 完全同类。
+#   video_clk(40 ns) 与 ext_mem_clk(25 ns) 同源于 50 MHz 参考但相位无关，
+#   所以这一级不该按"单周期建立关系"检查：请求电平连同 read_len/read_addr_index
+#   在 ack 之前一直保持稳定，第二级负责把亚稳态定下来。
+#   为什么现在才补：原来 sd/video/audio 之间用整组 clock group 互切，这条被顺带
+#   跳过；改成端点级约束后它第一次真正参与检查（亮度/对比度改到整屏后布局扰动，
+#   该路径 net delay 5.64 ns、slack -0.728ns）。只补第一级，多比特的
+#   read_len/read_addr_index 仍按握手稳定性由设计保证，不加宽泛例外。
+if {[llength [get_regs -nowarn {*frame_fifo_read*/read_req_d0}]] > 0} {
+    set_false_path -to [get_regs -nowarn {*frame_fifo_read*/read_req_d0}]
+}
