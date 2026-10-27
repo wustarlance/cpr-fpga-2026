@@ -51,6 +51,10 @@ rtl/cpr_slide_fade.v
 rtl/cpr_transition_publish.v
 rtl/scroll_text.v
 rtl/font5x7_rom.v
+rtl/splash_boot.v
+rtl/splash_rom_w1.v
+rtl/splash_rom_w2.v
+rtl/splash_rom_w3.v
 rtl/contrast_controls.v
 rtl/cpr_subtitle_rom.v
 rtl/cpr_page_manager.v
