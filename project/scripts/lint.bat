@@ -95,7 +95,7 @@ type "%TEMP%\cpr_lint.txt"
 
 echo.
 echo -------------------- 汇总 --------------------
-findstr /C:"%Error" "%TEMP%\cpr_lint.txt" >nul
+findstr /C:"Error" "%TEMP%\cpr_lint.txt" >nul
 if errorlevel 1 (
     echo 错误   : 0
 ) else (
