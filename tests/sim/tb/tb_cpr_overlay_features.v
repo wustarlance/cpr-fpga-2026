@@ -10,7 +10,7 @@ module tb_cpr_overlay_features;
         .pause_warning(1'b0),.rotate_due(1'b0),.beat(1'b0),
         .interval_ms(16'd545),.pause_ms(16'd0),.rotate_remaining_ms(32'd120000),
         .bpm(8'd110),.bpm_valid(1'b1),.sensor_fault(1'b0),
-        .brightness_level(2'd3),.contrast_level(contrast),.auto_running(auto_running),.out_rgb(rgb));
+        .brightness_level(2'd3),.contrast_level(contrast),.auto_running(auto_running),.subtitle_en(1'b1),.out_rgb(rgb));
     integer x,y,white=0,bg=0,i,held_offset;
     task frame;
         begin @(negedge clk);de=0;vs=1;@(negedge clk);vs=0;@(negedge clk);vs=1;end

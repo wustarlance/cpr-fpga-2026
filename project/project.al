@@ -37,7 +37,7 @@
                     <Attr Name="CompileOrder" Val="5"/>
                 </FileInfo>
             </File>
-            <File Path="rtl/top_tf_hdmi_audio.v">
+            <File Path="rtl/top/top_tf_hdmi_audio.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -109,7 +109,7 @@
                     <Attr Name="CompileOrder" Val="11"/>
                 </FileInfo>
             </File>
-            <File Path="rtl/SD/sd_card_bmp.v">
+            <File Path="vendor/SD/sd_card_bmp.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -377,6 +377,15 @@
                     <Attr Name="UsedInP&R" Val="true"/>
                     <Attr Name="BelongTo" Val="design_1"/>
                     <Attr Name="CompileOrder" Val="47"/>
+                </FileInfo>
+            </File>
+            <File Path="rtl/level_percent.v">
+                <FileInfo>
+                    <Attr Name="AutoExcluded" Val="true"/>
+                    <Attr Name="UsedInSyn" Val="true"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="design_1"/>
+                    <Attr Name="CompileOrder" Val="0"/>
                 </FileInfo>
             </File>
             <File Path="rtl/key_source_merge.v">

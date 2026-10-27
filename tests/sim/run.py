@@ -17,6 +17,7 @@ import time
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 RTL, TB = "project/rtl/", "tests/sim/tb/"
+LP = RTL + "level_percent.v"
 TESTS = {
     "tb_wav_visualizer": {"sources": [RTL+"audio/"+n+".v" for n in ("pcm_fifo","pcm_frame_tick","pcm_player","wav_reader","audio_arc_calculate","wav_audio_path","wav_audio_sd_top","wav_track_select","heartbeat_synth")] + [RTL+"cpr_audio_visualizer.v",TB+"tb_wav_visualizer.v"], "fixtures": ["tests/sim/fixtures/wav_stereo_visualizer.mem"]},
     "tb_audio_visualizer": {"sources": [RTL + "cpr_audio_visualizer.v", RTL + "video_rgb_to_axis_640x480.v", TB + "tb_audio_visualizer.v"]},
@@ -40,17 +41,18 @@ TESTS = {
         "sources": [RTL + "rate_display_lut.v", TB + "tb_rate_display_lut.v"],
         "pass_pattern": r"(?m)^PASS: (?:tb_rate_display_lut\b|rate_display_lut exhaustive range test\b)"},
     "tb_brightness_rgb": {"sources": [RTL + "brightness_rgb.v", TB + "tb_brightness_rgb.v"]},
+    "tb_level_percent": {"sources": [LP, TB + "tb_level_percent.v"], "pass_pattern": r"(?m)^PASS: level_percent\b"},
     "tb_bmp_scan": {"sources": ["project/vendor/SD/bmp_read.v", TB + "tb_bmp_scan.v"], "pass_pattern": r"(?m)^\[PASS\] BMP scanner/load regression complete"},
     "tb_sdram_refresh": {"sources": [TB + "tb_sdram_refresh.v"], "include_dirs": ["project/vendor/include"], "pass_pattern": r"(?m)^\[PASS\]"},
     "tb_frame_buffer_publish": {"sources": [RTL + "frame_buffer_publish.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_buffer_publish.v"]},
-    "tb_sd_buffer_ownership": {"sources": [RTL + "frame_buffer_publish.v", RTL + "SD/sd_card_bmp.v", "tests/sim/stubs/sd_image_reader_model.v", TB + "tb_sd_buffer_ownership.v"]},
-    "tb_cpr_overlay": {"sources": [RTL + "cpr_overlay.v", TB + "tb_cpr_overlay.v"]},
+    "tb_sd_buffer_ownership": {"sources": [RTL + "frame_buffer_publish.v", "project/vendor/SD/sd_card_bmp.v", "tests/sim/stubs/sd_image_reader_model.v", TB + "tb_sd_buffer_ownership.v"]},
+    "tb_cpr_overlay": {"sources": [RTL + "cpr_overlay.v", LP, TB + "tb_cpr_overlay.v"]},
     "tb_reset_release": {"sources": [RTL + "reset_release.v", TB + "tb_reset_release.v"]},
 }
-TESTS["tb_sd_cache_ownership"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "frame_buffer_publish.v", RTL + "SD/sd_card_bmp.v", "tests/sim/stubs/sd_cache_reader_model.v", TB + "tb_sd_cache_ownership.v"]}
+TESTS["tb_sd_cache_ownership"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/sd_card_bmp.v", "tests/sim/stubs/sd_cache_reader_model.v", TB + "tb_sd_cache_ownership.v"]}
 TESTS["tb_bmp_scaled"] = {"sources": ["project/vendor/SD/bmp_read_scaled.v", TB + "tb_bmp_scaled.v"]}
 TESTS["tb_bmp_scaled_frame"] = {"sources": ["project/vendor/SD/bmp_read_scaled.v", TB + "tb_bmp_scaled.v"]}
-TESTS["tb_sd_scaled_pipeline"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "SD/sd_card_bmp.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/bmp_read_scaled.v", "project/vendor/SD/bmp_blur_background.v", "project/vendor/SD/frame_read_write.v", "project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_sd_scaled_pipeline.v"]}
+TESTS["tb_sd_scaled_pipeline"] = {"sources": [RTL + "cpr_page_manager.v", "project/vendor/SD/sd_card_bmp.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/bmp_read_scaled.v", "project/vendor/SD/bmp_blur_background.v", "project/vendor/SD/frame_read_write.v", "project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_sd_scaled_pipeline.v"]}
 TESTS["tb_sd_blur_pipeline"] = {"sources": TESTS["tb_sd_scaled_pipeline"]["sources"]}
 TESTS.update({
     "tb_contrast_rgb": {"sources": [RTL + "contrast_rgb.v", TB + "tb_contrast_rgb.v"], "plusargs": ["+golden=fixtures/contrast_golden.mem"], "pass_pattern": r"(?m)^PASS: contrast_rgb\b"},
@@ -58,17 +60,17 @@ TESTS.update({
     "tb_scroll_contract": {"sources": [RTL + "scroll_text.v", RTL + "font5x7_rom.v", TB + "tb_scroll_contract.v"]},
     "tb_contrast_controls": {"sources": [RTL + "input_filter.v", RTL + "contrast_controls.v", TB + "tb_contrast_controls.v"]},
     "tb_key_source_merge": {"sources": [RTL + "key_source_merge.v", TB + "tb_key_source_merge.v"]},
-    "tb_cpr_overlay_features": {"sources": [RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_cpr_overlay_features.v"]},
+    "tb_cpr_overlay_features": {"sources": [RTL + "cpr_overlay.v", LP, RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_cpr_overlay_features.v"]},
 })
 TESTS["tb_contrast_rgb"]["fixtures"] = ["tests/sim/fixtures/contrast_golden.mem"]
 TESTS["tb_font5x7_rom"]["fixtures"] = ["tests/sim/fixtures/glyph5x7_golden.mem"]
 TESTS["tb_scroll_contract"]["fixtures"] = ["tests/sim/fixtures/scroll_text_ascii.mem", "tests/sim/fixtures/glyph5x7_golden.mem"]
 TESTS["tb_cpr_overlay"]["sources"] += [RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v"]
 TESTS["tb_training_layout"] = {
-    "sources": [RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_training_layout.v"],
+    "sources": [RTL + "cpr_overlay.v", LP, RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_training_layout.v"],
     "fixtures": ["tests/sim/fixtures/training_panel_golden.mem", "tests/sim/fixtures/glyph5x7_golden.mem"],
 }
-TESTS.update({'tb_sd_cmd_recovery': {'sources': ['project/vendor/SD/sd_card_cmd.v', 'tests/sim/tb/tb_sd_cmd_recovery.v'], 'fixtures': ['tests/sim/fixtures/sd_crc_sector.mem'], 'plusargs': []}, 'tb_sd_sector_recovery': {'sources': ['project/vendor/SD/sd_card_sec_read_write.v', 'tests/sim/tb/tb_sd_sector_recovery.v']}, 'tb_sd_image_recovery': {'sources': ['project/rtl/SD/sd_card_bmp.v', 'project/vendor/SD/bmp_read.v', 'project/rtl/frame_buffer_publish.v', 'project/vendor/SD/frame_fifo_write.v', 'tests/sim/stubs/sd_fault_sector_model.v', 'tests/sim/tb/tb_sd_image_recovery.v']}, 'tb_sd_retry_limits': {'sources': ['project/rtl/SD/sd_card_bmp.v', 'project/vendor/SD/bmp_read.v', 'tests/sim/stubs/sd_fault_sector_model.v', 'tests/sim/tb/tb_sd_retry_limits.v']}})
+TESTS.update({'tb_sd_cmd_recovery': {'sources': ['project/vendor/SD/sd_card_cmd.v', 'tests/sim/tb/tb_sd_cmd_recovery.v'], 'fixtures': ['tests/sim/fixtures/sd_crc_sector.mem'], 'plusargs': []}, 'tb_sd_sector_recovery': {'sources': ['project/vendor/SD/sd_card_sec_read_write.v', 'tests/sim/tb/tb_sd_sector_recovery.v']}, 'tb_sd_image_recovery': {'sources': ['project/vendor/SD/sd_card_bmp.v', 'project/vendor/SD/bmp_read.v', 'project/rtl/frame_buffer_publish.v', 'project/vendor/SD/frame_fifo_write.v', 'tests/sim/stubs/sd_fault_sector_model.v', 'tests/sim/tb/tb_sd_image_recovery.v']}, 'tb_sd_retry_limits': {'sources': ['project/vendor/SD/sd_card_bmp.v', 'project/vendor/SD/bmp_read.v', 'tests/sim/stubs/sd_fault_sector_model.v', 'tests/sim/tb/tb_sd_retry_limits.v']}})
 for name in ("tb_sd_buffer_ownership", "tb_sd_image_recovery", "tb_sd_retry_limits"):
     TESTS[name]["sources"].insert(0, RTL + "cpr_page_manager.v")
 TESTS["tb_input_filter"] = {"sources": [RTL + "input_filter.v", TB + "tb_input_filter.v"],
@@ -88,11 +90,11 @@ TESTS["tb_wav_page_switch"] = {
     "pass_pattern": r"(?m)^PASS: wav_page_switch\b"}
 TESTS["tb_heartbeat_synth"] = {"sources": [RTL + "audio/heartbeat_synth.v", TB + "tb_heartbeat_synth.v"],
                                "pass_pattern": r"(?m)^PASS: heartbeat_synth\b"}
-TESTS["tb_page_status"] = {"sources": [RTL + "sample_mailbox.v", RTL + "page_status_cdc.v", RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_page_status.v"]}
+TESTS["tb_page_status"] = {"sources": [RTL + "sample_mailbox.v", RTL + "page_status_cdc.v", RTL + "cpr_overlay.v", LP, RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_page_status.v"]}
 TESTS["tb_training_pages"] = {"sources": [RTL + "cpr_page_manager.v"] + [s for s in TESTS["tb_sd_image_recovery"]["sources"] if s != RTL + "cpr_page_manager.v" and s != TB + "tb_sd_image_recovery.v"] + [TB + "tb_training_pages.v"]}
-TESTS["tb_sd_scaled_pages"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "SD/sd_card_bmp.v", "project/vendor/SD/bmp_read_scaled.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/frame_fifo_write.v", "tests/sim/stubs/sd_fault_sector_model.v", TB + "tb_sd_scaled_pages.v"]}
+TESTS["tb_sd_scaled_pages"] = {"sources": [RTL + "cpr_page_manager.v", "project/vendor/SD/sd_card_bmp.v", "project/vendor/SD/bmp_read_scaled.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/frame_fifo_write.v", "tests/sim/stubs/sd_fault_sector_model.v", TB + "tb_sd_scaled_pages.v"]}
 TESTS["tb_sd_scaled_recovery"] = {"sources": TESTS["tb_sd_scaled_pages"]["sources"][:-1] + [TB + "tb_sd_scaled_recovery.v"]}
-ZH = [RTL + "cpr_font16_rom.v", RTL + "cpr_zh_strings.v", RTL + "cpr_text_zh.v"]
+ZH = [RTL + "cpr_font16_rom.v", RTL + "cpr_zh_strings.v", RTL + "cpr_text_zh.v", LP]
 TESTS["tb_chinese_rom"] = {
     "sources": ZH[:2] + [TB + "tb_chinese_rom.v"],
     "fixtures": ["tests/sim/fixtures/chinese_glyphs.mem", "tests/sim/fixtures/chinese_messages.mem"],

@@ -30,13 +30,25 @@
       {
         "column": 21,
         "row": 0,
-        "text": "亮度3",
+        "text": "亮度",
         "color": "ffffff"
       },
       {
-        "column": 26,
+        "column": 23,
         "row": 0,
-        "text": "对比2",
+        "text": "100%",
+        "color": "ffffff"
+      },
+      {
+        "column": 28,
+        "row": 0,
+        "text": "对比",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 0,
+        "text": " 50%",
         "color": "ffffff"
       },
       {
@@ -210,13 +222,25 @@
       {
         "column": 21,
         "row": 0,
-        "text": "亮度3",
+        "text": "亮度",
         "color": "ffffff"
       },
       {
-        "column": 26,
+        "column": 23,
         "row": 0,
-        "text": "对比2",
+        "text": "100%",
+        "color": "ffffff"
+      },
+      {
+        "column": 28,
+        "row": 0,
+        "text": "对比",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 0,
+        "text": " 50%",
         "color": "ffffff"
       },
       {
@@ -390,13 +414,25 @@
       {
         "column": 21,
         "row": 0,
-        "text": "亮度0",
+        "text": "亮度",
         "color": "ffffff"
       },
       {
-        "column": 26,
+        "column": 23,
         "row": 0,
-        "text": "对比4",
+        "text": " 25%",
+        "color": "ffffff"
+      },
+      {
+        "column": 28,
+        "row": 0,
+        "text": "对比",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 0,
+        "text": "100%",
         "color": "ffffff"
       },
       {
@@ -570,13 +606,25 @@
       {
         "column": 21,
         "row": 0,
-        "text": "亮度0",
+        "text": "亮度",
         "color": "ffffff"
       },
       {
-        "column": 26,
+        "column": 23,
         "row": 0,
-        "text": "对比4",
+        "text": " 25%",
+        "color": "ffffff"
+      },
+      {
+        "column": 28,
+        "row": 0,
+        "text": "对比",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 0,
+        "text": "100%",
         "color": "ffffff"
       },
       {
@@ -750,13 +798,25 @@
       {
         "column": 21,
         "row": 0,
-        "text": "亮度3",
+        "text": "亮度",
         "color": "ffffff"
       },
       {
-        "column": 26,
+        "column": 23,
         "row": 0,
-        "text": "对比2",
+        "text": "100%",
+        "color": "ffffff"
+      },
+      {
+        "column": 28,
+        "row": 0,
+        "text": "对比",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 0,
+        "text": " 50%",
         "color": "ffffff"
       },
       {
@@ -804,13 +864,25 @@
       {
         "column": 21,
         "row": 0,
-        "text": "亮度3",
+        "text": "亮度",
         "color": "ffffff"
       },
       {
-        "column": 26,
+        "column": 23,
         "row": 0,
-        "text": "对比2",
+        "text": "100%",
+        "color": "ffffff"
+      },
+      {
+        "column": 28,
+        "row": 0,
+        "text": "对比",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 0,
+        "text": " 50%",
         "color": "ffffff"
       },
       {
@@ -858,17 +930,29 @@
       {
         "column": 21,
         "row": 0,
-        "text": "亮度3",
+        "text": "亮度",
         "color": "ffffff"
       },
       {
-        "column": 26,
+        "column": 23,
         "row": 0,
-        "text": "对比2",
+        "text": "100%",
         "color": "ffffff"
       },
       {
-        "column": 32,
+        "column": 28,
+        "row": 0,
+        "text": "对比",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 0,
+        "text": " 50%",
+        "color": "ffffff"
+      },
+      {
+        "column": 35,
         "row": 0,
         "text": "已暂停",
         "color": "ffffff"
@@ -918,17 +1002,29 @@
       {
         "column": 21,
         "row": 0,
-        "text": "亮度3",
+        "text": "亮度",
         "color": "ffffff"
       },
       {
-        "column": 26,
+        "column": 23,
         "row": 0,
-        "text": "对比2",
+        "text": "100%",
         "color": "ffffff"
       },
       {
-        "column": 32,
+        "column": 28,
+        "row": 0,
+        "text": "对比",
+        "color": "ffffff"
+      },
+      {
+        "column": 30,
+        "row": 0,
+        "text": " 50%",
+        "color": "ffffff"
+      },
+      {
+        "column": 35,
         "row": 0,
         "text": "已暂停",
         "color": "ffffff"

@@ -4,7 +4,7 @@ module tb_cpr_control;
     reg clk = 0;
     always #5 clk = !clk;
     reg rst_n = 0;
-    reg [4:0] raw_keys = 0;
+    reg [5:0] raw_keys = 0;
     reg [3:0] raw_depth = 0;
     wire [1:0] mode, brightness_level, rate_grade, depth_grade;
     wire next_key_n, prev_key_n, auto_enable, training_enabled;
@@ -13,6 +13,7 @@ module tb_cpr_control;
     wire rate_valid, pause_warning, rotate_due, beat_event, sensor_fault;
     wire [7:0] bpm_approx;
     wire bpm_valid;
+    wire subtitle_on;
     integer errors = 0;
     integer beats = 0;
     cpr_control #(.CLK_HZ(10000), .PAUSE_WARN_MS(40),
@@ -27,6 +28,7 @@ module tb_cpr_control;
         .rotate_remaining_ms(rotate_remaining_ms), .rotate_due(rotate_due),
         .beat_event(beat_event), .sensor_fault(sensor_fault),
         .bpm_approx(bpm_approx), .bpm_valid(bpm_valid),
+        .subtitle_on(subtitle_on),
         .press_event(1'b0), .press_grade(2'd0), .press_fault(1'b0)
     );
     always @(posedge clk) if (rst_n && beat_event) beats = beats + 1;
@@ -64,6 +66,14 @@ module tb_cpr_control;
         rst_n = 1; wait_ms(2);
         check(mode == 0 && brightness_level == 3 && !auto_enable,
               "reset enters teaching at full brightness");
+        check(subtitle_on == 1, "subtitle defaults to on after reset");
+        key_press(5);
+        check(subtitle_on == 0, "K7 press turns the subtitle off");
+        key_press(5);
+        check(subtitle_on == 1, "second K7 press turns it back on");
+        key_press(5);
+        check(subtitle_on == 0 && mode == 0 && brightness_level == 3,
+              "K7 only touches the subtitle, not mode or brightness");
         raw_keys[0] = 1; wait_ms(5); raw_keys[0] = 0; wait_ms(25);
         check(mode == 0, "short key bounce cannot change mode");
         raw_keys[2] = 1; wait_ms(25);
@@ -118,8 +128,8 @@ module tb_cpr_control;
         check(mode == 2 && press_count == 0 && !rate_valid,
               "reentering training starts a fresh session");
         rst_n = 0; repeat (3) @(negedge clk);
-        check(mode == 0 && press_count == 0 && brightness_level == 3,
-              "asynchronous reset restores application state");
+        check(mode == 0 && press_count == 0 && brightness_level == 3 && subtitle_on == 1,
+              "asynchronous reset restores application state (subtitle back on)");
         if (errors == 0) $display("PASS: cpr_control integration test");
         else $fatal(1, "cpr_control errors=%0d", errors);
         $finish;

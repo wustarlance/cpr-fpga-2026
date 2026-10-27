@@ -14,7 +14,8 @@ cpr_overlay #(.PAGE_STATUS_ENABLE(1)) overlay(
  .count(32'd0),.rate(2'd0),.depth_grade(2'd0),.interval_ms(16'd0),.pause_ms(16'd0),
  .rotate_remaining_ms(32'd0),.bpm(8'd0),.bpm_valid(1'b0),.sensor_fault(1'b0),
  .brightness_level(2'd3),.contrast_level(3'd2),.auto_running(1'b0),
- .pause_warning(1'b0),.rotate_due(1'b0),.beat(1'b0),.page_status(video_status),.out_rgb(rgb));
+ .pause_warning(1'b0),.rotate_due(1'b0),.beat(1'b0),.page_status(video_status),
+ .subtitle_en(1'b1),.out_rgb(rgb));
 always @(posedge src_clk)if(rst_n&&transfer.send)begin
  accepted[a]=status;a=a+1;
 end

@@ -13,7 +13,7 @@ module top_adc #(parameter USE_EXTERNAL_IO=1,
     input wire clk, rst_n, key1, key3, key2,
     input wire [3:0] dip_sw,
     input wire [4:0] ext_keys_n,
-    input wire [5:0] key_panel_n,   // 外接八位按键面板 K1~K6
+    input wire [6:0] key_panel_n,   // 外接八位按键面板 K1~K7（K7 = 字幕开关）
     input wire [3:0] depth_sw_n,
     output wire [7:0] seg_sel,
     output wire [7:0] seg_data,

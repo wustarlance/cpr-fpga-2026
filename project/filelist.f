@@ -8,7 +8,7 @@
 -I../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD
 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_phy_warpper.v
 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v
-rtl/top_tf_hdmi_audio.v
+rtl/top/top_tf_hdmi_audio.v
 vendor/SD/bmp_read.v
 vendor/SD/bmp_blur_background.v
 vendor/SD/bmp_read_scaled.v
@@ -16,7 +16,7 @@ vendor/SD/color_bar.v
 vendor/SD/frame_fifo_read.v
 vendor/SD/frame_fifo_write.v
 vendor/SD/frame_read_write.v
-rtl/SD/sd_card_bmp.v
+vendor/SD/sd_card_bmp.v
 vendor/SD/seg_decoder.v
 vendor/SD/seg_scan.v
 vendor/SD/video_delay.v
@@ -43,6 +43,7 @@ rtl/cpr_sensor_path.v
 rtl/top_adc.v
 rtl/frame_buffer_publish.v
 rtl/contrast_rgb.v
+rtl/level_percent.v
 rtl/key_source_merge.v
 rtl/cpr_seg_scan.v
 rtl/cpr_audio_visualizer.v

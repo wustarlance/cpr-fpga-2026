@@ -9,17 +9,30 @@ from PIL import Image, ImageDraw, ImageFont
 PROJECT = Path(__file__).resolve().parents[1]
 
 
+# '%' 是唯一不交给字体渲染的字符。亮度/对比度改百分比后必须有它，而这份
+# 工程不分发 Noto OTF，用系统字体临时渲染会让"同一份源码、不同机器、不同的
+# 百分号"。所以按 16x16 像素网格手绘一行常量：两个 4x4 空心环 + 1px 斜线，
+# 笔画宽度与 Noto 14px 的数字一致。放在字符表最后，既有 0..129 的 ID 不变。
+PERCENT_ROWS = [0x0000, 0x0000, 0x0F00, 0x0910, 0x0920, 0x0F40, 0x0040, 0x0080,
+                0x0100, 0x02F0, 0x0290, 0x0490, 0x08F0, 0x0000, 0x0000, 0x0000]
+
+
 def generate(font_path):
     content = json.loads((PROJECT / 'assets/content.zh-CN.json').read_text(encoding='utf-8'))
     messages = content['ui']
     assert len(messages) < 64 and all(len(s) <= 32 for s in messages)
     chars = sorted(set(''.join(messages)) - set('0123456789:/- '))
-    chars = list(' 0123456789:/-') + chars
+    # '%' 追加在最后：亮度/对比度改成百分比显示后要画百分号，而把新字符
+    # 插在中间会让所有 CJK 的 ID 整体平移、所有既有 .mem 黄金表全部失效。
+    chars = list(' 0123456789:/-') + chars + list('%')
     assert len(chars) < 256 and len(chars) == len(set(chars))
     ids = {c: n for n, c in enumerate(chars)}
     font = ImageFont.truetype(str(font_path), 14)
     glyphs = []
     for c in chars:
+        if c == '%':
+            glyphs.append(list(PERCENT_ROWS))
+            continue
         image = Image.new('L', (16, 16))
         d = ImageDraw.Draw(image)
         # Noto's ascender is taller than its visible CJK box. Use a fixed

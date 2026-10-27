@@ -64,8 +64,9 @@ DEMO/**           -text
 #    和 05_lab_ex/ 下的原始例程 diff，不需要 --strip-trailing-cr。
 #    这对"区分参考依赖与自研部分"这件事有实际用处。
 project/rtl/cpr_overlay.v               -text
-project/rtl/top_tf_hdmi_audio.v         -text
-project/rtl/SD/sd_card_bmp.v            -text
+# 2026-10-27：顶层移到 rtl/top/；sd_card_bmp.v 移到 vendor/SD/
+# （后者已由上面的 project/vendor/** -text 覆盖，不再单列）。
+project/rtl/top/top_tf_hdmi_audio.v     -text
 project/rtl/video_rgb_to_axis_640x480.v -text
 project/constraints/pin.adc             -text
 

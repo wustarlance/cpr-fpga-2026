@@ -1,7 +1,8 @@
 // Application clock domain: video_clk (25 MHz on HX4S20C).
 // raw inputs are active high; normalize pin polarity in the board top.
 // Keys: [0] mode, [1] previous, [2] next / auto pause, [3] brightness,
-//       [4] clear the current training session.
+//       [4] clear the current training session,
+//       [5] subtitle on/off (2026-10-27：外接面板 K7，点动一下翻转，默认开)。
 // Depth: cumulative contacts, 0000 released, 0001 shallow,
 //        0011/0111 target, 1111 deep. Mechanical calibration is external.
 module cpr_control #(
@@ -15,13 +16,14 @@ module cpr_control #(
 )(
     input wire clk,
     input wire rst_n,
-    input wire [4:0] raw_keys,
+    input wire [5:0] raw_keys,
     input wire [3:0] raw_depth,
     output wire tick_ms,
-    output wire [4:0] keys_level,
+    output wire [5:0] keys_level,
     output wire [3:0] depth_level,
     output reg [1:0] mode,
     output reg [1:0] brightness_level,
+    output reg subtitle_on,
     output reg auto_run,
     output wire next_key_n,
     output wire prev_key_n,
@@ -46,7 +48,7 @@ module cpr_control #(
     input wire press_fault,
     output wire clear_session
 );
-    wire [4:0] keys_rise;
+    wire [5:0] keys_rise;
     wire [3:0] depth_rise_unused;
     // training_core clears on entry/exit as well as this explicit event.
     assign clear_session = keys_rise[4];
@@ -55,7 +57,7 @@ module cpr_control #(
         .rst_n   (rst_n),
         .tick_ms (tick_ms)
     );
-    input_filter #(.WIDTH(5), .STABLE_MS(KEY_STABLE_MS)) u_keys (
+    input_filter #(.WIDTH(6), .STABLE_MS(KEY_STABLE_MS)) u_keys (
         .clk     (clk),
         .rst_n   (rst_n),
         .tick_ms (tick_ms),
@@ -82,6 +84,7 @@ module cpr_control #(
             mode <= 2'd0;
             brightness_level <= 2'd3;
             auto_run <= 1'b1;
+            subtitle_on <= 1'b1;          // 字幕默认开；K7 每按一下翻转
         end else begin
             if (keys_rise[0]) begin
                 if (mode == 2'd2) mode <= 2'd0;
@@ -92,6 +95,8 @@ module cpr_control #(
                 auto_run <= !auto_run;
             end
             if (keys_rise[3]) brightness_level <= brightness_level + 1'b1;
+            // 字幕开关与模式无关：教学/展播/训练三个界面共享同一条字幕带。
+            if (keys_rise[5]) subtitle_on <= ~subtitle_on;
         end
     end
     training_core #(

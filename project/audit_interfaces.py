@@ -94,7 +94,7 @@ def main():
               'auditor_sha256': sha(Path(__file__)), 'reports': {}, 'source_sha256': {}}
     for top in ('top', 'top_adc'):
         path = args.evidence / top / 'timing_check.rpt'
-        source = REPO / ('project/rtl/top_adc.v' if top == 'top_adc' else 'project/rtl/top_tf_hdmi_audio.v')
+        source = REPO / ('project/rtl/top_adc.v' if top == 'top_adc' else 'project/rtl/top/top_tf_hdmi_audio.v')
         match = re.search(r'parameter\s+USE_EXTERNAL_IO\s*=\s*([01])\b', source.read_text(encoding='utf-8'))
         if not match:
             raise ValueError('Cannot determine default USE_EXTERNAL_IO')
@@ -109,7 +109,7 @@ def main():
         record['default_use_external_io'] = int(match[1])
         record['report_sha256'] = sha(path)
         result['reports'][top] = record
-    for name in ('project/rtl/top_tf_hdmi_audio.v', 'project/rtl/top_adc.v',
+    for name in ('project/rtl/top/top_tf_hdmi_audio.v', 'project/rtl/top_adc.v',
                  'project/rtl/input_filter.v', 'project/rtl/cpr_control.v',
                  'project/rtl/contrast_controls.v', 'project/rtl/reset_release.v',
                  'project/rtl/cpr_seg_scan.v', 'project/vendor/SD/spi_master.v',
