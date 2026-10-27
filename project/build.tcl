@@ -110,6 +110,14 @@ if {[catch {
         # The merged background-scaling datapath misses setup by 0.040 ns
         # with this TD build's default effort. Use the documented timing
         # placement effort; retain the real clocks and path requirements.
+        #
+        # 2026-10-27：试过两条更强的路都没用，留档免得重试——
+        #   1) TD 官方 TimingHigh 整套（build_fast.tcl 那 12 条）：触发增量合法化，
+        #      撞 PHY-8023（holdbuf 落在非法位置）→ RUN-8102，带不带
+        #      route post_route_opt high 都一样；
+        #   2) 只加 set_param place effort high：结果与原始配置逐位相同（无效果）。
+        # 真正的问题在结构：bmp_blur_background 的坐标钳位串在 read_addr_q 的 D 端
+        # （11 级锥），已改为寄存器预计算，见该模块 2026-10-27 注释。
         set_param place opt_timing high
         commit_param -step place
         place

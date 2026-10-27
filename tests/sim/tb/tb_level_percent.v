@@ -3,7 +3,7 @@
 //
 // 期望值是"屏上应该看到的字"，直接写在下面这张表里，不从 DUT 反推：
 //   亮度 4 档  : 25% / 50% / 75% / 100%
-//   对比度 5 档: 0% / 25% / 50% / 75% / 100%
+//   对比度 6 档: 0% / 50% / 75% / 100% / 125% / 150%
 // 每一位用 4 位数字 + blank 掩码表示；blank=1 表示该格留空（前导零不画）。
 module tb_level_percent;
     reg  [2:0] level;
@@ -31,13 +31,13 @@ module tb_level_percent;
         expect_bright[6] = {3'b100, 4'd0, 4'd2, 4'd5};
         expect_bright[7] = {3'b100, 4'd0, 4'd2, 4'd5};
 
-        // 对比度：0..4 全部合法，5..7 回退 100%（contrast_rgb 的 default 分支）。
+        // 对比度：0..5 六档全部合法，6..7 回退 100%（contrast_rgb 的 default 分支）。
         expect_contrast[0] = {3'b110, 4'd0, 4'd0, 4'd0}; //   0%
-        expect_contrast[1] = {3'b100, 4'd0, 4'd2, 4'd5}; //  25%
-        expect_contrast[2] = {3'b100, 4'd0, 4'd5, 4'd0}; //  50%
-        expect_contrast[3] = {3'b100, 4'd0, 4'd7, 4'd5}; //  75%
-        expect_contrast[4] = {3'b000, 4'd1, 4'd0, 4'd0}; // 100%
-        expect_contrast[5] = {3'b000, 4'd1, 4'd0, 4'd0};
+        expect_contrast[1] = {3'b100, 4'd0, 4'd5, 4'd0}; //  50%
+        expect_contrast[2] = {3'b100, 4'd0, 4'd7, 4'd5}; //  75%
+        expect_contrast[3] = {3'b000, 4'd1, 4'd0, 4'd0}; // 100%
+        expect_contrast[4] = {3'b000, 4'd1, 4'd2, 4'd5}; // 125%
+        expect_contrast[5] = {3'b000, 4'd1, 4'd5, 4'd0}; // 150%
         expect_contrast[6] = {3'b000, 4'd1, 4'd0, 4'd0};
         expect_contrast[7] = {3'b000, 4'd1, 4'd0, 4'd0};
 

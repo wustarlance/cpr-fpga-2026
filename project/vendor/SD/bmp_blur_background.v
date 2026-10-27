@@ -131,28 +131,54 @@ module bmp_blur_background #(
     // them as `integer` made the tap-delta adders, the >=bw/bh clamps and the
     // ny*THUMB_WIDTH multiply 32-bit wide, which put this cone on the 10 ns
     // sd_card_clk critical path once the frame FIFOs grew.
-    reg signed [6:0] nx,ny;
+    // 2026-10-27：把"tap 坐标钳位"搬出 read_addr 的组合锥。
+    //   原来 blur_x ±1 -> 负钳位 -> 上限钳位 -> nyu*THUMB_WIDTH+nxu 全都串在
+    //   read_addr_q 的 D 端，是 sd_card_clk 域最差路径（11 级、6 个加法器、
+    //   9.963/10 ns，-0.243 ns）。现在每个像素先把 x-1/x/x+1、y-1/y/y+1 六个
+    //   **已钳位**坐标算好存寄存器，tap 只做 3:1 选择再相加；钳位逻辑照旧存在，
+    //   只是吃一整拍。blur_x/blur_y 只在 BLUR_WRITE 里变化，寄存器同一拍更新，
+    //   到下一轮 BLUR_FETCH 已就绪，钳位结果与原来的逐拍组合实现逐位等价。
+    reg [6:0] nxm_q, nx0_q, nxp_q, nym_q, ny0_q, nyp_q;
+    wire [6:0] bxw   = {1'b0, blur_x};
+    wire [6:0] byw   = {1'b0, blur_y};
+    wire [6:0] bww   = {1'b0, bw};
+    wire [6:0] bhw   = {1'b0, bh};
+    wire [6:0] bw_m1 = bww - 7'd1;
+    wire [6:0] bh_m1 = bhw - 7'd1;
+    // 下一个像素的坐标：与 BLUR_WRITE 里那套推进逐位一致（x 先走，走完回到 0 并推 y）。
+    wire [6:0] xnxt = (bxw == bww - 7'd1) ? 7'd0 : (bxw + 7'd1);
+    wire [6:0] ynxt = (bxw == bww - 7'd1) ? ((byw == bhw - 7'd1) ? 7'd0 : (byw + 7'd1)) : byw;
+    // BLUR_BEGIN 把坐标强制回 (0,0) 并立刻进 BLUR_FETCH，所以那一拍也要按 (0,0) 预计算。
+    wire [6:0] xcal = (state == BLUR_BEGIN) ? 7'd0 : xnxt;
+    wire [6:0] ycal = (state == BLUR_BEGIN) ? 7'd0 : ynxt;
+    always @(posedge clk) begin
+        // 只在坐标即将变化的那一拍装载：到下一轮 BLUR_FETCH 时寄存器正好对应当前像素。
+        if (state == BLUR_BEGIN || state == BLUR_WRITE) begin
+            nx0_q <= (xcal >= bww) ? bw_m1 : xcal;
+            nxm_q <= (xcal == 7'd0) ? 7'd0 :
+                     (((xcal - 7'd1) >= bww) ? bw_m1 : (xcal - 7'd1));
+            nxp_q <= ((xcal + 7'd1) >= bww) ? bw_m1 : (xcal + 7'd1);
+            ny0_q <= (ycal >= bhw) ? bh_m1 : ycal;
+            nym_q <= (ycal == 7'd0) ? 7'd0 :
+                     (((ycal - 7'd1) >= bhw) ? bh_m1 : (ycal - 7'd1));
+            nyp_q <= ((ycal + 7'd1) >= bhw) ? bh_m1 : (ycal + 7'd1);
+        end
+    end
     reg [6:0] nxu,nyu;
     always @* begin
-        nx={1'b0,blur_x}; ny={1'b0,blur_y};
+        // tap 0..8 的 (dx,dy)：0=(-1,-1) 1=(0,-1) 2=(+1,-1) 3=(-1,0)
+        //                     4=(0,0)   5=(+1,0) 6=(-1,+1) 7=(0,+1) 8=(+1,+1)
         case(blur_tap)
-            0:begin nx=nx-1;ny=ny-1;end
-            1:ny=ny-1;
-            2:begin nx=nx+1;ny=ny-1;end
-            3:nx=nx-1;
-            5:nx=nx+1;
-            6:begin nx=nx-1;ny=ny+1;end
-            7:ny=ny+1;
-            8:begin nx=nx+1;ny=ny+1;end
-            default:begin end
+            4'd0:    begin nxu=nxm_q; nyu=nym_q; end
+            4'd1:    begin nxu=nx0_q; nyu=nym_q; end
+            4'd2:    begin nxu=nxp_q; nyu=nym_q; end
+            4'd3:    begin nxu=nxm_q; nyu=ny0_q; end
+            4'd5:    begin nxu=nxp_q; nyu=ny0_q; end
+            4'd6:    begin nxu=nxm_q; nyu=nyp_q; end
+            4'd7:    begin nxu=nx0_q; nyu=nyp_q; end
+            4'd8:    begin nxu=nxp_q; nyu=nyp_q; end
+            default: begin nxu=nx0_q; nyu=ny0_q; end   // tap 4 = 中心
         endcase
-        if(nx<0)nx=0;
-        if(ny<0)ny=0;
-        if(nx>=bw)nx=bw-1;
-        if(ny>=bh)ny=bh-1;
-        // After clamping both are non-negative, so index with unsigned values:
-        // ny*THUMB_WIDTH then reduces to a shift instead of a signed multiply.
-        nxu=nx; nyu=ny;
         read_addr=0;
         if(state==BLUR_FETCH||state==BLUR_FETCH2)read_addr=nyu*THUMB_WIDTH+nxu;
         else case(sample_tap)
