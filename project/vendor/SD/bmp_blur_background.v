@@ -39,7 +39,8 @@ module bmp_blur_background #(
         SAMPLE_MUL_Y=25, SAMPLE_DIV_Y=26, SAMPLE_Y=27,
         SAMPLE_FETCH=28, SAMPLE_SAVE=29, H0_PREP=30, H0_SAVE=31,
         H1_PREP=32, H1_SAVE=33, V_PREP=34, V_SAVE=35,
-        MULTIPLY=36, DIVIDE=37, BLUR_FETCH2=38, SAMPLE_FETCH2=39, V_ADD=40;
+        MULTIPLY=36, DIVIDE=37, BLUR_FETCH2=38, SAMPLE_FETCH2=39, V_ADD=40,
+        BLUR_COORDS=41;
     reg [5:0] state, div_return, mul_return;
     reg [11:0] src_w;
     reg [10:0] src_h;
@@ -49,8 +50,8 @@ module bmp_blur_background #(
     reg [5:0] bw, bh, clear_x, bx, by, held_bucket;
     reg [16:0] x_rem, y_rem;
     reg [23:0] held_rgb;
-    reg [11:0] held_x;
-    reg [10:0] held_y;
+    reg held_inside, held_at_left, held_at_bottom;
+    reg [15:0] crop_right, crop_top;
     reg finish_seen, avg_resume;
     reg [5:0] avg_x, avg_y;
     reg [7:0] avg_r, avg_g, avg_b;
@@ -95,8 +96,10 @@ module bmp_blur_background #(
     wire div_ge=div_trial>={1'b0,div_den};
     wire [32:0] div_sub=div_trial-{1'b0,div_den};
     wire [31:0] div_next={div_bits[30:0],div_ge};
-    wire held_inside=held_x>=crop_left && held_x<crop_left+crop_w &&
-        held_y>=crop_bottom && held_y<crop_bottom+crop_h;
+    // Crop is stable throughout ingest. Prepare exclusive bounds during CLEAR,
+    // then capture per-pixel predicates alongside held_rgb at acceptance. The
+    // next PIXEL_CHECK cycle no longer combines coordinate compares with the
+    // bucket/row transition cone (the routed 100 MHz setup failure).
     wire [31:0] sum_r=accum_q[119:88]+held_rgb[23:16];
     wire [31:0] sum_g=accum_q[87:56]+held_rgb[15:8];
     wire [31:0] sum_b=accum_q[55:24]+held_rgb[7:0];
@@ -127,17 +130,11 @@ module bmp_blur_background #(
     wire [7:0] c01=channel(p01,color);
     wire [7:0] c10=channel(p10,color);
     wire [7:0] c11=channel(p11,color);
-    // Thumbnail coordinates are 0..31, so 7 signed bits are enough. Keeping
-    // them as `integer` made the tap-delta adders, the >=bw/bh clamps and the
-    // ny*THUMB_WIDTH multiply 32-bit wide, which put this cone on the 10 ns
-    // sd_card_clk critical path once the frame FIFOs grew.
-    // 2026-10-27：把"tap 坐标钳位"搬出 read_addr 的组合锥。
-    //   原来 blur_x ±1 -> 负钳位 -> 上限钳位 -> nyu*THUMB_WIDTH+nxu 全都串在
-    //   read_addr_q 的 D 端，是 sd_card_clk 域最差路径（11 级、6 个加法器、
-    //   9.963/10 ns，-0.243 ns）。现在每个像素先把 x-1/x/x+1、y-1/y/y+1 六个
-    //   **已钳位**坐标算好存寄存器，tap 只做 3:1 选择再相加；钳位逻辑照旧存在，
-    //   只是吃一整拍。blur_x/blur_y 只在 BLUR_WRITE 里变化，寄存器同一拍更新，
-    //   到下一轮 BLUR_FETCH 已就绪，钳位结果与原来的逐拍组合实现逐位等价。
+    // Prepare clamped taps AFTER the current pixel coordinates are registered.
+    // Computing the next x/y, wrapping a row and clamping in the same cycle
+    // made bw -> nyp_q an 11-level setup path. This internal preparation state
+    // costs one clock per thumbnail pixel/pass; ready/valid still waits for
+    // done, and no source pixel or tap is accepted early.
     reg [6:0] nxm_q, nx0_q, nxp_q, nym_q, ny0_q, nyp_q;
     wire [6:0] bxw   = {1'b0, blur_x};
     wire [6:0] byw   = {1'b0, blur_y};
@@ -145,23 +142,15 @@ module bmp_blur_background #(
     wire [6:0] bhw   = {1'b0, bh};
     wire [6:0] bw_m1 = bww - 7'd1;
     wire [6:0] bh_m1 = bhw - 7'd1;
-    // 下一个像素的坐标：与 BLUR_WRITE 里那套推进逐位一致（x 先走，走完回到 0 并推 y）。
-    wire [6:0] xnxt = (bxw == bww - 7'd1) ? 7'd0 : (bxw + 7'd1);
-    wire [6:0] ynxt = (bxw == bww - 7'd1) ? ((byw == bhw - 7'd1) ? 7'd0 : (byw + 7'd1)) : byw;
-    // BLUR_BEGIN 把坐标强制回 (0,0) 并立刻进 BLUR_FETCH，所以那一拍也要按 (0,0) 预计算。
-    wire [6:0] xcal = (state == BLUR_BEGIN) ? 7'd0 : xnxt;
-    wire [6:0] ycal = (state == BLUR_BEGIN) ? 7'd0 : ynxt;
     always @(posedge clk) begin
-        // 只在坐标即将变化的那一拍装载：到下一轮 BLUR_FETCH 时寄存器正好对应当前像素。
-        if (state == BLUR_BEGIN || state == BLUR_WRITE) begin
-            nx0_q <= (xcal >= bww) ? bw_m1 : xcal;
-            nxm_q <= (xcal == 7'd0) ? 7'd0 :
-                     (((xcal - 7'd1) >= bww) ? bw_m1 : (xcal - 7'd1));
-            nxp_q <= ((xcal + 7'd1) >= bww) ? bw_m1 : (xcal + 7'd1);
-            ny0_q <= (ycal >= bhw) ? bh_m1 : ycal;
-            nym_q <= (ycal == 7'd0) ? 7'd0 :
-                     (((ycal - 7'd1) >= bhw) ? bh_m1 : (ycal - 7'd1));
-            nyp_q <= ((ycal + 7'd1) >= bhw) ? bh_m1 : (ycal + 7'd1);
+        if (state == BLUR_COORDS) begin
+            // blur_x/y are always in 0..bw/bh-1 (including 1x1 images).
+            nx0_q <= bxw;
+            nxm_q <= (bxw == 0) ? 7'd0 : bxw - 7'd1;
+            nxp_q <= (bxw >= bw_m1) ? bw_m1 : bxw + 7'd1;
+            ny0_q <= byw;
+            nym_q <= (byw == 0) ? 7'd0 : byw - 7'd1;
+            nyp_q <= (byw >= bh_m1) ? bh_m1 : byw + 7'd1;
         end
     end
     reg [6:0] nxu,nyu;
@@ -220,7 +209,9 @@ module bmp_blur_background #(
             src_w<=1;src_h<=1;aspect_w<=0;aspect_h<=0;wide_crop<=0;
             crop_w<=1;crop_h<=1;crop_left<=0;crop_bottom<=0;
             bw<=1;bh<=1;clear_x<=0;bx<=0;by<=0;held_bucket<=0;
-            x_rem<=0;y_rem<=0;held_rgb<=0;held_x<=0;held_y<=0;
+            x_rem<=0;y_rem<=0;held_rgb<=0;
+            held_inside<=0;held_at_left<=0;held_at_bottom<=0;
+            crop_right<=1;crop_top<=1;
             finish_seen<=0;avg_resume<=0;avg_x<=0;avg_y<=0;
             avg_r<=0;avg_g<=0;avg_b<=0;blur_source<=0;final_source<=0;
             blur_x<=0;blur_y<=0;blur_tap<=0;blur_pass<=0;
@@ -273,6 +264,8 @@ module bmp_blur_background #(
                         clear_x<=0;state<=CLEAR;
                     end
                     CLEAR:begin
+                        crop_right<=crop_left+crop_w;
+                        crop_top<=crop_bottom+crop_h;
                         if(clear_x==THUMB_WIDTH-1)begin
                             bx<=0;by<=0;x_rem<=0;y_rem<=0;state<=INGEST;
                         end else clear_x<=clear_x+1'b1;
@@ -281,17 +274,22 @@ module bmp_blur_background #(
                         if(finish_seen || (finish && !pixel_valid))begin
                             avg_x<=0;avg_y<=by;avg_resume<=0;state<=AVG_FETCH;
                         end else if(pixel_valid)begin
-                            held_rgb<=pixel_rgb;held_x<=pixel_x;held_y<=pixel_y;state<=PIXEL_CHECK;
+                            held_rgb<=pixel_rgb;
+                            held_inside<=pixel_x>=crop_left && pixel_x<crop_right &&
+                                         pixel_y>=crop_bottom && pixel_y<crop_top;
+                            held_at_left<=pixel_x==crop_left;
+                            held_at_bottom<=pixel_y==crop_bottom;
+                            state<=PIXEL_CHECK;
                         end
                     end
                     PIXEL_CHECK:begin
                         if(!held_inside)state<=INGEST;
                         else begin
-                            held_bucket<=held_x==crop_left?6'd0:bx;
-                            if(held_x==crop_left)begin
+                            held_bucket<=held_at_left?6'd0:bx;
+                            if(held_at_left)begin
                                 bx<=bw>=crop_w?6'd1:6'd0;
                                 x_rem<=bw>=crop_w?bw-crop_w:bw;
-                                if(held_y!=crop_bottom)begin
+                                if(!held_at_bottom)begin
                                     if(y_rem+bh>=crop_h)begin
                                         y_rem<=y_rem+bh-crop_h;by<=by+1'b1;
                                         avg_x<=0;avg_y<=by;avg_resume<=1;state<=AVG_FETCH;
@@ -331,8 +329,9 @@ module bmp_blur_background #(
                         blur_source<=0;blur_x<=0;blur_y<=0;blur_tap<=0;blur_pass<=0;
                         blur_r<=0;blur_g<=0;blur_b<=0;
                         if(BLUR_PASSES==0)begin final_source<=0;done<=1;state<=WAIT_SAMPLE;end
-                        else state<=BLUR_FETCH;
+                        else state<=BLUR_COORDS;
                     end
+                    BLUR_COORDS:state<=BLUR_FETCH;
                     BLUR_FETCH:state<=BLUR_FETCH2;
                     BLUR_FETCH2:state<=BLUR_USE;
                     BLUR_USE:begin
@@ -366,10 +365,10 @@ module bmp_blur_background #(
                                 if(blur_pass==BLUR_PASSES-1)begin
                                     final_source<=~blur_source;done<=1;state<=WAIT_SAMPLE;
                                 end else begin
-                                    blur_pass<=blur_pass+1'b1;blur_source<=~blur_source;state<=BLUR_FETCH;
+                                    blur_pass<=blur_pass+1'b1;blur_source<=~blur_source;state<=BLUR_COORDS;
                                 end
-                            end else begin blur_y<=blur_y+1'b1;state<=BLUR_FETCH;end
-                        end else begin blur_x<=blur_x+1'b1;state<=BLUR_FETCH;end
+                            end else begin blur_y<=blur_y+1'b1;state<=BLUR_COORDS;end
+                        end else begin blur_x<=blur_x+1'b1;state<=BLUR_COORDS;end
                     end
                     WAIT_SAMPLE:if(sample_req)begin
                         sx<=sample_x>=DST_WIDTH?DST_WIDTH-1:sample_x;

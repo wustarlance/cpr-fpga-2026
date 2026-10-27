@@ -47,6 +47,10 @@ TESTS = {
     "tb_frame_buffer_publish": {"sources": [RTL + "frame_buffer_publish.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_buffer_publish.v"]},
     "tb_sd_buffer_ownership": {"sources": [RTL + "frame_buffer_publish.v", "project/vendor/SD/sd_card_bmp.v", "tests/sim/stubs/sd_image_reader_model.v", TB + "tb_sd_buffer_ownership.v"]},
     "tb_cpr_overlay": {"sources": [RTL + "cpr_overlay.v", LP, TB + "tb_cpr_overlay.v"]},
+    "tb_splash_boot": {"sources": [RTL + "splash_boot.v", RTL + "splash_rom_w1.v",
+                            RTL + "splash_rom_w2.v", RTL + "splash_rom_w3.v",
+                            TB + "tb_splash_boot.v"],
+                       "pass_pattern": r"(?m)^\[PASS\] splash_boot frame matches generated ROM"},
     "tb_reset_release": {"sources": [RTL + "reset_release.v", TB + "tb_reset_release.v"]},
 }
 TESTS["tb_sd_cache_ownership"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/sd_card_bmp.v", "tests/sim/stubs/sd_cache_reader_model.v", TB + "tb_sd_cache_ownership.v"]}
@@ -88,6 +92,7 @@ TESTS["tb_wav_page_switch"] = {
                  "heartbeat_synth")]
                + [TB + "tb_wav_page_switch.v"],
     "pass_pattern": r"(?m)^PASS: wav_page_switch\b"}
+TESTS["tb_heartbeat_loudness"] = {"sources": [RTL + "audio/heartbeat_synth.v", TB + "tb_heartbeat_loudness.v"], "pass_pattern": r"(?m)^PASS: heartbeat_loudness\b"}
 TESTS["tb_heartbeat_synth"] = {"sources": [RTL + "audio/heartbeat_synth.v", TB + "tb_heartbeat_synth.v"],
                                "pass_pattern": r"(?m)^PASS: heartbeat_synth\b"}
 TESTS["tb_page_status"] = {"sources": [RTL + "sample_mailbox.v", RTL + "page_status_cdc.v", RTL + "cpr_overlay.v", LP, RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_page_status.v"]}

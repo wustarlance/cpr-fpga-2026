@@ -83,6 +83,32 @@ if {[catch {
     }
     read_sdc constraints/page_status.sdc
     read_sdc constraints/project_cdc.sdc
+    # These video -> SD controls are caught by two-stage synchronizers. Only
+    # their first-stage HOLD check is inapplicable: arrival near an edge may
+    # metastabilize that stage, while stage two supplies the settling cycle.
+    # Retain all setup checks (including the selector bus's one-cycle flight
+    # bound), all second stages, RAM paths and the related PLL clocks.
+    # S_sel_meta is followed by S_sel_sync and an eight-cycle stable-code
+    # filter. Do not cut S_sel_sync or the filter/capture registers.
+    # Resolve logical endpoints after mapping; packed physical cell names can
+    # misleadingly mention the visualizer, background RAM or frame publisher.
+    foreach {cpr_first_pattern cpr_second_pattern cpr_count} {
+        {*sd_card_bmp_m0/u_key_next/button_sync0} {*sd_card_bmp_m0/u_key_next/button_sync1} 1
+        {*sd_card_bmp_m0/u_key_prev/button_sync0} {*sd_card_bmp_m0/u_key_prev/button_sync1} 1
+        {*sd_card_bmp_m0/auto_sync[0]} {*sd_card_bmp_m0/auto_sync[1]} 1
+        {*sd_card_bmp_m0/training_sync[0]} {*sd_card_bmp_m0/training_sync[1]} 1
+        {*sd_card_bmp_m0/train_next_sync[0]} {*sd_card_bmp_m0/train_next_sync[1]} 1
+        {*sd_card_bmp_m0/train_prev_sync[0]} {*sd_card_bmp_m0/train_prev_sync[1]} 1
+        {*u_audio_wav/u_track/S_sel_meta[*]} {*u_audio_wav/u_track/S_sel_sync[*]} 3
+    } {
+        set cpr_first_regs [get_regs -nowarn $cpr_first_pattern]
+        set cpr_second_regs [get_regs -nowarn $cpr_second_pattern]
+        puts "CPR_SD_CONTROL_CDC first=$cpr_first_regs second=$cpr_second_regs expected=$cpr_count"
+        if {[llength $cpr_first_regs] != $cpr_count || [llength $cpr_second_regs] != $cpr_count} {
+            error "Unexpected SD control synchronizer endpoints: $cpr_first_pattern"
+        }
+        set_false_path -hold -to $cpr_first_regs
+    }
     # Use an ordinary Tcl condition around reading a static SDC. In this TD,
     # an if inside read_sdc does not prevent an absent loop endpoint from
     # becoming an invalid exception in the ADC implementation.

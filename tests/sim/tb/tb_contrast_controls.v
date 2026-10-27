@@ -4,8 +4,8 @@
 //-----------------------------------------------------------------------------
 // 检查项：
 //   1) 复位后 = 3'd3（100 %，恒等直通），不因为按键悬空/上电沿乱跳；
-//   2) 按一次前进一档：3→4→5→0→1→2→3
-//      （0 %、50 %、75 %、100 %、125 %、150 % 六档循环）；
+//   2) 按一次前进一档：3→4→5→1→2→3
+//      （50 %、75 %、100 %、125 %、150 % 五档循环）；
 //   3) 短于消抖窗口（STABLE_MS 个 tick）的毛刺不算一次按键；
 //   4) 开关通路已经删除：本 TB 不再给 raw_switches 任何激励 —— 如果哪天有人
 //      把 SW1..3 的绝对译码接回来，端口会变，这个 TB 编译就过不去。
@@ -56,10 +56,9 @@ module tb_contrast_controls;
         // ---- 逐档前进 + 回卷 ----
         press_key(); if (level !== 3'd4) $fatal(1, "第 1 次按键应到 125%%，实测 %0d", level);
         press_key(); if (level !== 3'd5) $fatal(1, "第 2 次按键应到 150%%，实测 %0d", level);
-        press_key(); if (level !== 3'd0) $fatal(1, "第 3 次按键应回卷到 0%%，实测 %0d", level);
-        press_key(); if (level !== 3'd1) $fatal(1, "第 4 次按键应到 50%%，实测 %0d", level);
-        press_key(); if (level !== 3'd2) $fatal(1, "第 5 次按键应到 75%%，实测 %0d", level);
-        press_key(); if (level !== 3'd3) $fatal(1, "第 6 次按键应回到 100%%，实测 %0d", level);
+        press_key(); if (level !== 3'd1) $fatal(1, "第 3 次按键应回卷到 50%%，实测 %0d", level);
+        press_key(); if (level !== 3'd2) $fatal(1, "第 4 次按键应到 75%%，实测 %0d", level);
+        press_key(); if (level !== 3'd3) $fatal(1, "第 5 次按键应回到 100%%，实测 %0d", level);
 
         // ---- 异步复位：任何档位都回 100% ----
         press_key();                       // 100% -> 125%
@@ -72,5 +71,6 @@ module tb_contrast_controls;
         $display("PASS: tb_contrast_controls 只剩 K6 逐档步进（SW1~3 已下线）");
         $finish;
     end
+    always @(negedge clk) if(rst_n && level===0) $fatal(1,"0 percent became selectable");
     initial begin #200000; $fatal(1,"tb_contrast_controls TIMEOUT"); end
 endmodule
