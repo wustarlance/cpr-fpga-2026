@@ -381,20 +381,20 @@ always @(posedge video_clk or posedge rst_video) begin
 end
 wire [23:0] app_rgb, adjusted_rgb, contrasted_rgb, picture_rgb;
 wire picture_vs, picture_de;
-brightness_rgb u_brightness(
-    .rgb(display_valid_sync[1] ? vout_data_raw : 24'h102030),
-    .level   (brightness_video),
-    .out_rgb (adjusted_rgb));
-contrast_rgb u_contrast(
-    .rgb(adjusted_rgb), .level(contrast_video), .out_rgb(contrasted_rgb));
+// 亮度/对比度作用在【整屏】（2026-10-26 改）。
+// 原来这两级放在 cpr_overlay 之前，只调图片，OSD 文字/训练面板/波形条保持原色；
+// 现在挪到 cpr_audio_visualizer 之后、送 AXIS 之前，整屏一起变。
+// 两个模块都是纯组合、零像素延迟，所以只是改连线顺序，不加流水级；
+// vs/de 不经过它们，画面时序不变。无图时的深蓝底色仍在这里给出。
+wire [23:0] picture_src_rgb = display_valid_sync[1] ? vout_data_raw : 24'h102030;
 generate if (ENABLE_SMOOTH_TRANSITIONS) begin: g_slide_fade
     cpr_slide_fade u_fade(
         .clk(video_clk), .rst(rst_video), .request_async(fade_request),
-        .vs(vs), .de(de), .rgb(contrasted_rgb),
+        .vs(vs), .de(de), .rgb(picture_src_rgb),
         .ready(fade_ready), .out_vs(picture_vs), .out_de(picture_de),
         .out_rgb(picture_rgb), .gain());
 end else begin: g_no_slide_fade
-    assign picture_rgb=contrasted_rgb;
+    assign picture_rgb=picture_src_rgb;
     assign picture_vs=vs;
     assign picture_de=de;
     assign fade_ready=1'b1;
@@ -731,6 +731,14 @@ end else begin: g_no_audio_visualization
     assign vout_data=app_rgb;
 end endgenerate
 
+// 整屏亮度/对比度：吃可视化之后、送 HDMI 之前的最终像素。
+brightness_rgb u_brightness(
+    .rgb     (vout_data),
+    .level   (brightness_video),
+    .out_rgb (adjusted_rgb));
+contrast_rgb u_contrast(
+    .rgb     (adjusted_rgb), .level(contrast_video), .out_rgb(contrasted_rgb));
+
 frame_read_write #(
     // D123 exploratory real-image verification: D122-backed writer cadence.
     .WRITE_BURST_SIZE(128),
@@ -1029,7 +1037,7 @@ video_rgb_to_axis_640x480 u_video_rgb_to_axis_640x480(
     .I_rst         (rst_video),
     .I_vs          (visual_vs),
     .I_de          (visual_de),
-    .I_rgb         (vout_data),
+    .I_rgb         (contrasted_rgb),
     .O_video_user  (axis_s_user),
     .O_video_valid (axis_s_valid),
     .O_video_last  (axis_s_last),
