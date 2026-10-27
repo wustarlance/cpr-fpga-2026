@@ -55,16 +55,20 @@ module tb_contrast_rgb;
         end
 
         // Special cases.
-        rgb = 24'h000000; level = 3'd2; #1;   // black, identity
+        // 2026-10-27：档位口径从"围绕 1.00 的增益"改成 0..100 %，恒等档由 2 变成 4。
+        rgb = 24'h000000; level = 3'd4; #1;   // black, identity (100 %)
         if (out_rgb !== 24'h000000) begin $display("FAIL black"); errors = errors + 1; end
-        rgb = 24'hFFFFFF; level = 3'd2; #1;   // white, identity
+        rgb = 24'hFFFFFF; level = 3'd4; #1;   // white, identity (100 %)
         if (out_rgb !== 24'hFFFFFF) begin $display("FAIL white"); errors = errors + 1; end
-        rgb = 24'h808080; level = 3'd2; #1;   // 128 midpoint, identity
+        rgb = 24'h808080; level = 3'd4; #1;   // 128 midpoint, identity (100 %)
         if (out_rgb !== 24'h808080) begin $display("FAIL mid-128"); errors = errors + 1; end
-        rgb = 24'h000000; level = 3'd4; #1;   // low saturation (gain 6 clamps to 0)
-        if (out_rgb !== 24'h000000) begin $display("FAIL low sat"); errors = errors + 1; end
-        rgb = 24'hFFFFFF; level = 3'd4; #1;   // high saturation (gain 6 clamps to 255)
-        if (out_rgb !== 24'hFFFFFF) begin $display("FAIL high sat"); errors = errors + 1; end
+        // 新口径的两个极端：0 % 把所有值收到 128；75 % 把黑拉亮到 32、白压到 223。
+        rgb = 24'h000000; level = 3'd0; #1;   // 0 %: everything collapses to 128
+        if (out_rgb !== 24'h808080) begin $display("FAIL 0%% collapse"); errors = errors + 1; end
+        rgb = 24'hFFFFFF; level = 3'd3; #1;   // 75 %: ((255-128)*3)>>2 + 128 = 223
+        if (out_rgb !== 24'hDFDFDF) begin $display("FAIL 75%% white"); errors = errors + 1; end
+        rgb = 24'h000000; level = 3'd3; #1;   // 75 %: floor((-128*3)/4) + 128 = 32
+        if (out_rgb !== 24'h202020) begin $display("FAIL 75%% black"); errors = errors + 1; end
 
         if (errors == 0) begin
             $display("PASS: contrast_rgb 6144 channel checks + special cases");

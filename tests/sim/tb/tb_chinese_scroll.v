@@ -5,7 +5,7 @@ module tb_chinese_scroll;
     reg [9:0] x=16,y=448;
     wire pixel;
     wire [23:0] color;
-    reg [255:0] glyphs[0:129];
+    reg [255:0] glyphs[0:130];
     reg [7:0] messages[0:1375];
     integer f,px,py,offset=0,frame_count=0,p,id,msg,checks=0;
     reg expected;
@@ -15,7 +15,9 @@ module tb_chinese_scroll;
         .rate(2'd0),.depth(2'd0),.brightness(2'd0),.contrast(3'd0),.auto_running(run),
         .pause_warning(1'b0),.rotate_due(1'b0),.fault(1'b0),.beat(1'b0),.bpm_valid(1'b0),
         .page_status(12'd0),.count_bcd(16'd0),.interval_bcd(16'd0),.pause_bcd(16'd0),
-        .rotate_bcd(24'd0),.bpm_bcd(12'd0),.text_pixel(pixel),.text_color(color));
+        .rotate_bcd(24'd0),.bpm_bcd(12'd0),
+        .subtitle_en(1'b1),   // 2026-10-27 新增端口：1 = 字幕带开（默认）
+        .text_pixel(pixel),.text_color(color));
     task advance;
         begin
             @(negedge clk);frame_start=1;@(negedge clk);frame_start=0;

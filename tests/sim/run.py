@@ -185,7 +185,10 @@ def run_test(name, config, output, compiler, runtime, env, timeout):
             raise ValueError("Test manifest must have a nonempty sources list")
         if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", record["top"]):
             raise ValueError("Test top must be a Verilog identifier")
-        sources = [(REPO / source).resolve() for source in config["sources"]]
+        # 去重：个别用例的列表由多段拼接而成（如 tb_chinese_overlay =
+        # tb_training_layout[:-1] + ZH，两段都含 level_percent.v），
+        # 同一个文件传给 iverilog 两次会报 "already been declared"。
+        sources = list(dict.fromkeys((REPO / source).resolve() for source in config["sources"]))
         missing = [str(source) for source in sources if not source.is_file()]
         if missing:
             record["error"] = "Missing sources: " + ", ".join(missing)
