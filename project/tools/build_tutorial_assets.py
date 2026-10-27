@@ -16,11 +16,11 @@ BG='#102030'; PANEL='#142b3b'; INK='#f3f7fa'; MUTED='#b6c9d5'; ACCENT='#58e0bc';
 
 
 class Card:
-    def __init__(self,font_path):
+    def __init__(self,font_path,font_index=0):
         self.scale=3
         self.image=Image.new('RGB',(1056,1200),BG)
         self.draw=ImageDraw.Draw(self.image)
-        self.font_path=font_path
+        self.font_path=font_path; self.font_index=font_index
         self.svg=[f'<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="1200" viewBox="0 0 352 400"><rect width="352" height="400" fill="{BG}"/>']
     def box(self,xy,fill=PANEL,outline=None,r=0):
         x,y,w,h=xy; s=self.scale
@@ -38,7 +38,7 @@ class Card:
         if outline:self.line(points+[points[0]],outline,1)
         self.svg.append('<polygon points="'+' '.join(f'{x},{y}' for x,y in points)+f'" fill="{fill}" stroke="{outline or "none"}"/>')
     def text(self,x,y,text,size=14,fill=INK):
-        font=ImageFont.truetype(str(self.font_path),size*self.scale)
+        font=ImageFont.truetype(str(self.font_path),size*self.scale,index=self.font_index)
         assert x + self.draw.textlength(text,font=font)/self.scale <= 340, (text,'horizontal overflow')
         self.draw.text((x*self.scale,y*self.scale),text,font=font,fill=fill,anchor='lt')
         self.svg.append(f'<text x="{x}" y="{y}" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="{size}" fill="{fill}">{html.escape(text)}</text>')
@@ -107,7 +107,7 @@ def make_card(index,content,font):
     return c.finish()
 
 
-def build(font,output):
+def build(font,output,font_index=0):
     if output.exists():
         raise ValueError('Output already exists; choose a new directory to preserve reviewed assets')
     output.mkdir(parents=True)
@@ -150,5 +150,6 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--font',required=True,type=Path)
     parser.add_argument('--output',type=Path,default=PROJECT/'assets/tutorials')
+    parser.add_argument('--font-index',type=int,default=0,help='字体集合(.ttc)里的 face 序号；Noto Sans CJK 的 SC 是 2')
     args=parser.parse_args()
-    build(args.font,args.output)
+    build(args.font,args.output,args.font_index)
