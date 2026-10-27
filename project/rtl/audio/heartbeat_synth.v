@@ -71,7 +71,10 @@ module heartbeat_synth #(
     parameter integer AMP_FIRST      = 32767,      // 第 1 声幅度 Q15（100%）
     parameter integer AMP_SECOND     = 21300,      // 第 2 声幅度 Q15（≈65%）
     parameter integer DECAY_SHIFT_1  = 8,          // 第 1 声衰减：τ = 2^SHIFT 个样本
-    parameter integer DECAY_SHIFT_2  = 8           // 第 2 声衰减
+    parameter integer DECAY_SHIFT_2  = 8,          // 第 2 声衰减
+    // Lift the decaying envelope while retaining each hit's original peak.
+    // 0 retains the original waveform; 1 increases energy without PCM clipping.
+    parameter integer BOOST_DECAY    = 1
 )(
     input  wire            I_clk,        // MCLK（12.295082 MHz）
     input  wire            I_rst,        // 高有效
@@ -119,6 +122,7 @@ localparam [15:0] HOLD2 = (48'd4_194_304 / INC2);
 /* ---------------------------------------------------------------------- */
 reg [23:0] S_phase;    // 相位累加器
 reg [15:0] S_env;      // 包络（Q15，无符号，0..32767）
+reg [15:0] S_peak;     // 当前声部原峰值；保留两声100%/65%的强弱比例
 reg [15:0] S_dur;      // 当前这一声还剩多少个样本
 reg [15:0] S_hold;     // 衰减开始前还要满幅保持多少个样本
 reg [23:0] S_inc;      // 当前这一声的相位增量
@@ -176,6 +180,7 @@ always @(posedge I_clk or posedge I_rst) begin
     if (I_rst) begin
         S_phase  <= 24'd0;
         S_env    <= 16'd0;
+        S_peak   <= AMP1;
         S_dur    <= 16'd0;
         S_hold   <= 16'd0;
         S_inc    <= INC1;
@@ -222,6 +227,7 @@ always @(posedge I_clk or posedge I_rst) begin
         if (S_idx == 16'd0) begin
             // ---- 第 1 声起点 ----
             S_env    <= AMP1;
+            S_peak   <= AMP1;
             S_phase  <= 24'd0;
             S_inc    <= INC1;
             S_shift  <= DECAY_SHIFT_1[3:0];
@@ -232,6 +238,7 @@ always @(posedge I_clk or posedge I_rst) begin
         else if (S_idx == GAP) begin
             // ---- 第 2 声起点（第 1 声早已收尾：25 ms < 70 ms） ----
             S_env    <= AMP2;
+            S_peak   <= AMP2;
             S_phase  <= 24'd0;
             S_inc    <= INC2;
             S_shift  <= DECAY_SHIFT_2[3:0];
@@ -256,7 +263,13 @@ end
 /*    S_active 而不是 (I_enable && S_active)：退出收尾那 32 帧还要出声音，    */
 /*    否则收尾就只是"提前 0.7 ms 归零"，等于没做。                            */
 /* ---------------------------------------------------------------------- */
-wire signed [15:0] W_env_s = S_env;                  // ≤32767，按有符号看也安全
+// A full-scale first hit has no amplitude headroom. Boost only its envelope's
+// decaying region, clamping at the original per-hit peak BEFORE the sine
+// multiplication. This keeps a sinusoid instead of clipping PCM wave crests.
+wire [16:0] W_env_double = {S_env,1'b0};
+wire [15:0] W_env_louder = (W_env_double>{1'b0,S_peak}) ?
+                           S_peak : W_env_double[15:0];
+wire signed [15:0] W_env_s = BOOST_DECAY ? W_env_louder : S_env;
 wire signed [31:0] W_prod  = S_sin * W_env_s;        // Q15 × Q15 = Q30
 wire signed [15:0] W_smp   = W_prod[30:15];          // 回到 Q15
 
