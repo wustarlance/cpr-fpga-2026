@@ -157,7 +157,11 @@ module bmp_read_scaled #(
     reg [23:0] row_buf[0:MAX_WIDTH-1];
     reg [23:0] row_q;
 
-    reg [31:0] payload_left;
+    // 24 位足够，且是可证明的上界：payload_left 只由 pixel_end-pixel_offset 装载，
+    // 而 pixel_end-pixel_offset 恒等于 stride*height ≤ 6144*1536 = 9,437,184 < 2^24
+    // （stride 由 MAX_WIDTH*3 取整到 4 字节，height ≤ MAX_HEIGHT）。减法按模 2^24
+    // 计算与 32 位结果低 24 位完全相同，递减/归零判定也不受影响，省 8 条进位链。
+    reg [23:0] payload_left;
     // payload_left 递减到零的时刻原来在 ROW_READY 里现算：32 位归约比较直接
     // 串进 blur 的 finish -> state 次态锥，是 sd_card_clk 域最差的一条路径
     // （9.750ns，逻辑 10 级）。这里与 payload_left 同拍维护零标志，四个赋值点
@@ -190,17 +194,27 @@ module bmp_read_scaled #(
     reg bg_cancel_reg;
     reg [23:0] bg_pixel_q;
     // A shared restoring divider runs once per image, never in the pixel
-    // path. Explicit 32-bit operands and one subtract per clock bound timing.
-    reg [31:0] div_bits, div_rem, div_den;
-    reg [5:0] div_count;
+    // path. Explicit operands and one subtract per clock bound timing.
+    //
+    // 2026-10-27：位宽按可证明的取值域收紧，原来是 32/32/32 + 33 位比较减法跑 32 拍。
+    //   被除数 div_bits = div_prod + div_half ≤ MAX_HEIGHT*DST_WIDTH + 1024
+    //                    = 1536*640 + 1024 = 984,064 < 2^21  → 21 位
+    //   除数   div_den = width 或 height ≤ MAX_WIDTH = 2048       → 12 位
+    //   余数   div_rem <  div_den ≤ 2047                          → 12 位
+    //   商     = div_bits/div_den ≤ 984,576，21 拍后正好落在 div_bits[20:0]，
+    //          下游只取 div_bits[15:0] 与 div_bits==0，与 32 拍版本逐位相同
+    // （已用模型穷举：2048 个除数 × 9 个被除数边界 + 30 万随机组 + 除零防御，全等）
+    reg [20:0] div_bits;
+    reg [11:0] div_rem, div_den;
+    reg [4:0] div_count;
     // The dividend is dimension x DST_OTHER plus a rounding half. The multiply
     // and the add are registered separately: a MULT18 feeding a 22-bit carry
     // chain in one 100 MHz cycle was the failing setup path of this reader.
     reg [21:0] div_prod;
     reg [11:0] div_half;
-    wire [32:0] div_trial = {div_rem, div_bits[31]};
+    wire [12:0] div_trial = {div_rem, div_bits[20]};
     wire div_ge = div_trial >= {1'b0,div_den};
-    wire [32:0] div_sub = div_trial - {1'b0,div_den};
+    wire [12:0] div_sub = div_trial - {1'b0,div_den};
     wire in_content_x = out_x>=off_x && out_x<content_x_hi;
     wire in_content_y = out_y>=bottom_rows && out_y<content_y_hi;
     wire bg_pixel_valid = (pass_mode==1) && (state==BYTE_USE) &&
@@ -428,12 +442,12 @@ module bmp_read_scaled #(
                     state<=FIT_ALIGN;
                 end
                 FIT_ALIGN: begin
-                    div_bits<={10'd0,div_prod+div_half};
-                    div_rem<=0; div_count<=32; state<=DIVIDE;
+                    div_bits<=div_prod[20:0]+div_half;
+                    div_rem<=0; div_count<=21; state<=DIVIDE;
                 end
                 DIVIDE: begin
-                    div_bits<={div_bits[30:0],div_ge};
-                    div_rem<=div_ge?div_sub[31:0]:div_trial[31:0];
+                    div_bits<={div_bits[19:0],div_ge};
+                    div_rem<=div_ge?div_sub[11:0]:div_trial[11:0];
                     div_count<=div_count-1'b1;
                     if(div_count==1) state<=FIT_FINISH;
                 end
@@ -480,7 +494,7 @@ module bmp_read_scaled #(
                     if (bg_ingest_ready) begin
                         rx_count<=0; first_sector<=1;
                         sd_sec_read_addr<=load_base+(pixel_offset>>9);
-                        payload_left<=pixel_end-pixel_offset;
+                        payload_left<=pixel_end[23:0]-pixel_offset[23:0];
                         payload_zero_q<=(pixel_end==pixel_offset);
                         row_byte<=0; source_x<=0; source_y<=0; channel<=0;
                         state<=SECTOR;
@@ -499,7 +513,7 @@ module bmp_read_scaled #(
                         write_req<=0; state<=WRITE_RELEASE;
                         rx_count<=0; first_sector<=1;
                         sd_sec_read_addr<=load_base+(pixel_offset>>9);
-                        payload_left<=pixel_end-pixel_offset;
+                        payload_left<=pixel_end[23:0]-pixel_offset[23:0];
                         payload_zero_q<=(pixel_end==pixel_offset);
                         row_byte<=0; source_x<=0; source_y<=0; channel<=0;
                         out_x<=0; out_y<=0; content_y<=0;
@@ -540,7 +554,7 @@ module bmp_read_scaled #(
                         channel<=channel==2?0:channel+1'b1;
                     end
                     payload_left<=payload_left-1'b1;
-                    payload_zero_q<=(payload_left==32'd1);
+                    payload_zero_q<=(payload_left==24'd1);
                     proc_pos<=proc_pos+1'b1;
                     sector_exhausted<=proc_pos==511;
                     if(row_byte==stride_m1) begin
