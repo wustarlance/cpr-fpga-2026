@@ -15,6 +15,8 @@
 #      ./project/scripts/lint.sh --strict       # 不压制任何告警（首次审计用）
 #      ./project/scripts/lint.sh --widths       # 只看位宽类告警（真错的常见来源）
 #      ./project/scripts/lint.sh --fail-on-warn # 有告警就返回非 0（以后接 CI 用）
+#      ./project/scripts/lint.sh --panel        # 精简：只输出 错误 + 高信号告警
+#                                               #（给 VS Code 任务/问题面板用）
 #
 #  退出码：0 = 无错误；1 = 有 %Error 或 Verilator 运行失败；2 = --fail-on-warn 且有告警
 #
@@ -35,6 +37,7 @@ TOP=top
 STRICT=0
 WIDTHS=0
 FAIL_ON_WARN=0
+PANEL=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -42,6 +45,7 @@ while [ $# -gt 0 ]; do
         --strict)       STRICT=1; shift ;;
         --widths)       WIDTHS=1; shift ;;
         --fail-on-warn) FAIL_ON_WARN=1; shift ;;
+        --panel)        PANEL=1; shift ;;
         -h|--help)      sed -n '2,32p' "$0"; exit 0 ;;
         *) echo "未知参数: $1（--help 看用法）" >&2; exit 1 ;;
     esac
@@ -109,7 +113,25 @@ echo
 
 OUT="$("$VERILATOR_BIN" "${ARGS[@]}" 2>&1)"
 RC=$?
-printf '%s\n' "$OUT"
+if [ "$PANEL" = "1" ]; then
+    # 只留"永远可疑"的几类，给编辑器的问题面板用：
+    #   Error                真错误
+    #   IMPLICIT             用了没声明的信号（自动生成 1 bit 线）
+    #   COMBDLY              组合逻辑里用了 <=
+    #   PINMISSING           端口留空
+    #   VARHIDDEN            变量遮蔽
+    # 其余（WIDTH*/UNDRIVEN/SYNCASYNCNET/…）不进面板：UNDRIVEN 有 28 条是
+    # 隐式黑盒 IP 的输出脚造成的假象，宽度类 200+ 条会淹没真信号，用
+    # --strict / --widths 单独看。
+    printf '%s\n' "$OUT" | grep -E '%Error|%Warning-(IMPLICIT|COMBDLY|PINMISSING|VARHIDDEN)'
+    FOLDED=$(printf '%s\n' "$OUT" | grep -c '%Warning')
+    SHOWN=$(printf '%s\n' "$OUT" | grep -cE '%Warning-(IMPLICIT|COMBDLY|PINMISSING|VARHIDDEN)')
+    echo
+    echo "（面板模式：显示 $SHOWN 条高信号告警，折叠 $((FOLDED - SHOWN)) 条；"
+    echo "  用 --strict 看全部，--widths 专看位宽类）"
+else
+    printf '%s\n' "$OUT"
+fi
 
 echo
 echo "-------------------- 汇总 --------------------"
