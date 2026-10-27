@@ -15,7 +15,12 @@
 //        ▼
 //   pcm_player（MCLK 域）
 //        │  {L,R} 24 bit + O_pcm_valid 单拍（fs ≈ 48 kHz，间隔 20.8 µs）
-//        ├──────────────► 翻转握手跨域 ──► audio_valid + L/R（video_clk 域）
+//        │
+//        ├──► 5.5 节：二选一 —— I_heart_en=0 出 WAV；=1 出 heartbeat_synth
+//        │            （训练模式"咚—哒"，硬切，无混音、无淡化；
+//        │              退出训练时等心跳自己收尾 0.7 ms 再切回 WAV）
+//        ▼
+//        翻转握手跨域 ──► audio_valid + L/R（video_clk 域）
 //        │                                      │
 //        │                                      ▼
 //        │                              audio_arc_calculate（N=6144）
@@ -49,7 +54,10 @@ module wav_audio_path #(
     // 下面两个都是 **sd_clk 周期数**，不是 ns：
     //   100_000_000 周期 × 10 ns = 1 s（sd_clk = 100 MHz）
     parameter integer WAIT_TIMEOUT_CYCLES = 100_000_000, // 单扇区 1 s 无字节 → 超时
-    parameter integer RETRY_CYCLES        = 100_000_000  // 出错后等 1 s 再重解析
+    // 出错后等多久再重解析。原来是 1 s：一旦解析失败，用户在那一秒里换页
+    // 也听不到任何反应，看起来就是"卡死在上一首"。100 ms 足够让卡把上一次
+    // 事务收干净，又不会让人觉得按了没反应。
+    parameter integer RETRY_CYCLES        = 10_000_000  // 出错后等 100 ms 再重解析
 )(
     /* ================= SD 扇区读接口（I_sd_clk 域，接 sd_card_top） ========= */
     input  wire        I_sd_clk,
@@ -77,8 +85,16 @@ module wav_audio_path #(
     /* ================= 控制 ================================================ */
     input  wire        I_play,            // 1 = 播放；0 = 暂停（发静音，不消耗 FIFO）
     input  wire        I_stop,            // 单拍：回到文件开头
-    input  wire        I_mute,            // 1 = 静音（帧节拍照常走，样本清 0）
+    input  wire        I_mute,            // 1 = 静音（帧节拍照常走，样本清 0）；内部两级同步
     input  wire        I_loop,            // 1 = 单文件循环
+
+    /* ================= 训练模式心跳插播（2026-10-25 新增） ================= */
+    // 训练模式的音频不是卡里的音乐，而是片内合成的"咚—哒"心跳（heartbeat_synth）。
+    // 这一级就是一个 2:1 多路选择器：同一套帧节拍下二选一，
+    //   0 → WAV（pcm_player），1 → 心跳。没有混音、没有淡化。
+    // I_heart_en 从 video_clk 域来，内部两级同步成 W_heart_m 才当 sel 用；
+    // 心跳正在发声时还会把 sel 按住（见 §5.5 的 W_sel）。
+    input  wire        I_heart_en,        // 0 = 出该页 WAV；1 = 出心跳（训练模式）
 
     /* ================= 送 HDMI 1.4b 发送核 ================================= */
     output wire                    O_audio_valid,
@@ -184,6 +200,29 @@ reg        S_wav_abort;
 reg [3:0]  S_abort_cnt;
 reg [31:0] S_retry_cnt;
 
+//--------------------------------------------------------------------------
+// 换曲时"等在跑的扇区真的收尾"（2026-10-25 修：换页换曲偶发卡死）
+//
+// 现象：连续换过几首后，再前进/后退到某一页，音乐卡在那一首上不再换，
+//       之后换图也不换曲（reader 报 ERR_NOT_RIFF，再等 1 s 才重试）。
+//
+// 根因：vendor 的 sd_card_sec_read_write 一旦进 S_READ，**不看 sd_sec_read
+//       是否撤销**，照样把 512 字节发完并给一个 sd_sec_read_end。而这里
+//       abort 后固定 8 拍就发 start，新的 header 解析正好撞上旧扇区剩下的
+//       字节和那个旧 end —— 解析直接在扇区中途"结束"，RIFF 校验失败。
+//       换页时如果 reader 恰好不在收数（FIFO 满、在等空间），就没事，
+//       所以这个故障是"有时候"才出现，正好符合上板看到的现象。
+//
+// 修法：abort 之后先让 reader 回 IDLE（旧请求随之撤销），然后等那个在跑的
+//       事务把 end 交出来再发 start；没有在跑的事务就直接走。
+//       end 迟迟不来（卡被拔、BMP 正在独占）时按 DRAIN_MAX 兜底放行。
+//--------------------------------------------------------------------------
+localparam [17:0] DRAIN_MAX = 18'd100_000;   // 1 ms @100 MHz（一个扇区 SPI 约 0.25 ms）
+
+reg [17:0] S_drain_cnt;
+reg        S_drain_need;
+reg        S_drain_seen;   // abort 期间已经等到过 end
+
 wire        W_wav_busy, W_wav_done, W_wav_err, W_wav_hdr;
 wire [3:0]  W_wav_ecode, W_wav_state;
 wire [31:0] W_wav_addr;
@@ -197,11 +236,14 @@ wire [11:0] W_fifo_space_w;
 
 always @(posedge I_sd_clk or posedge I_sd_rst) begin
     if (I_sd_rst) begin
-        S_q         <= Q_WAIT_INIT;
-        S_wav_start <= 1'b0;
-        S_wav_abort <= 1'b0;
-        S_abort_cnt <= 4'd0;
-        S_retry_cnt <= 32'd0;
+        S_q          <= Q_WAIT_INIT;
+        S_wav_start  <= 1'b0;
+        S_wav_abort  <= 1'b0;
+        S_abort_cnt  <= 4'd0;
+        S_retry_cnt  <= 32'd0;
+        S_drain_cnt  <= 18'd0;
+        S_drain_need <= 1'b0;
+        S_drain_seen <= 1'b0;
     end
     else begin
         S_wav_start <= 1'b0;
@@ -220,10 +262,15 @@ always @(posedge I_sd_clk or posedge I_sd_rst) begin
 
         Q_RUN: begin
             if (W_stop_sd_edge) begin
-                // 先丢掉正在进行的扇区请求，再重新从文件头开始
-                S_wav_abort <= 1'b1;
-                S_abort_cnt <= 4'd8;
-                S_q         <= Q_ABORT;
+                // 先丢掉正在进行的扇区请求，再重新从文件头开始。
+                // W_wav_read 记下"此刻是否真有一次扇区事务在外面"，
+                // 决定 Q_ABORT 要不要等它收尾。
+                S_wav_abort  <= 1'b1;
+                S_abort_cnt  <= 4'd8;
+                S_drain_need <= W_wav_read;
+                S_drain_cnt  <= 18'd0;
+                S_drain_seen <= 1'b0;
+                S_q          <= Q_ABORT;
             end
             else if (W_wav_err) begin
                 S_retry_cnt <= 32'd0;
@@ -232,18 +279,43 @@ always @(posedge I_sd_clk or posedge I_sd_rst) begin
         end
 
         Q_ABORT: begin
-            if (S_abort_cnt != 4'd0)
+            // 在 abort 的这 8 拍里旧事务可能就收尾了，先记下来，
+            // 免得固定等到 8 拍之后去采样时已经错过那个单拍 end。
+            if (I_sd_sec_end) S_drain_seen <= 1'b1;
+            if (S_abort_cnt != 4'd0) begin
                 S_abort_cnt <= S_abort_cnt - 4'd1;
+            end
             else begin
                 S_wav_abort <= 1'b0;
-                S_wav_start <= 1'b1;
-                S_q         <= Q_RUN;
+                // 旧扇区还在发字节：等它的 end 交出来再启动，否则新解析会被
+                // 旧的 end 截断（ERR_NOT_RIFF）。没有在跑的事务就直接走。
+                if (!S_drain_need || S_drain_seen || I_sd_sec_end ||
+                    (S_drain_cnt >= DRAIN_MAX)) begin
+                    S_drain_need <= 1'b0;
+                    S_drain_seen <= 1'b0;
+                    S_drain_cnt  <= 18'd0;
+                    S_wav_start  <= 1'b1;
+                    S_q          <= Q_RUN;
+                end
+                else begin
+                    S_drain_cnt <= S_drain_cnt + 18'd1;
+                end
             end
         end
 
         Q_RETRY: begin
             S_wav_abort <= 1'b0;
-            if (!W_wav_busy) begin
+            // 重试等待期间换了页也要立刻响应，不能把这次换页吞掉
+            if (W_stop_sd_edge) begin
+                S_wav_abort  <= 1'b1;
+                S_abort_cnt  <= 4'd8;
+                S_drain_need <= W_wav_read;
+                S_drain_cnt  <= 18'd0;
+                S_drain_seen <= 1'b0;
+                S_retry_cnt  <= 32'd0;
+                S_q          <= Q_ABORT;
+            end
+            else if (!W_wav_busy) begin
                 if (S_retry_cnt >= RETRY_CYCLES) begin
                     S_retry_cnt <= 32'd0;
                     S_q         <= Q_START;
@@ -420,6 +492,78 @@ pcm_player #(
 );
 
 /* ======================================================================== */
+/* 5.5 训练模式心跳：音频口的 2:1 多路选择器（MCLK 域，2026-10-25）           */
+/* ------------------------------------------------------------------------ */
+/* 为什么放在 pcm_player 之后、toggle 跨域之前：                              */
+/*   * 心跳必须和 WAV 用**同一个帧节拍**（W_frame_stb）。两路各自分频的话，    */
+/*     48 kHz 名义相同、实际差一点点，切换音源那一帧就会多/少一个样本，       */
+/*     听感是"咔"的一下爆音；放在这里两者天然同拍，切换只是换数据源。          */
+/*   * ACR（N/CTS）是数 O_audio_valid 的，只要 valid 节拍不断，切换音源       */
+/*     对 HDMI 音频流完全透明。pcm_player 无论播/停都每帧发一个 valid，       */
+/*     所以训练模式即使不读卡，音频流也不会断。                               */
+/*                                                                          */
+/* 就是一条二选一（2026-10-25 第五次改）：                                    */
+/*     I_heart_en = 0  →  该页 WAV（教学 / 展播，逐位等于 pcm_player 输出）    */
+/*     I_heart_en = 1  →  heartbeat_synth 的"咚—哒"（训练模式）               */
+/*   训练模式下该页音频被完全屏蔽 —— 选择器根本不选它，不是把它压成 0 再相加。 */
+/*   混音（WAV+心跳）、两段 2 ms 斜坡、heart_mix_stage、audio_crossfade 全部   */
+/*   删除，只保留"功能能跑通"这一条路。切换那一帧是硬切，理论上有一声咔哒；    */
+/*   要消掉它就得把淡化加回来（见 docs/heartbeat-synth-implementation.md）。  */
+/*                                                                          */
+/* I_mute 只留给 SW4 暂停：它是 WAV 这一路自己的闸，和选择器无关。            */
+/*                                                                          */
+/* 2026-10-26 改了两处：                                                      */
+/*   1) I_heart_en / I_mute 都是 video_clk（25.175 MHz）过来的电平，本模块跑  */
+/*      MCLK（12.288 MHz）。原来直接拿来驱动选择器和 ~120 个 FF 的内部状态，  */
+/*      单 bit 被判成不同值的机会很小但存在，而且 project_cdc.sdc 的举证里    */
+/*      写的是"跨域只有 FIFO 和两级同步"——加了心跳以后这句话就不成立了。      */
+/*      现在两者各过两级同步器，sel / I_mute 都取同步后的 W_heart_m /          */
+/*      W_mute_m。                                                          */
+/*   2) sel 不再等于 I_heart_en，而是 (W_heart_m | O_busy)：退出训练那一刻     */
+/*      心跳可能正响着，heartbeat_synth 会在 0.7 ms 内把包络压到 0 并保持      */
+/*      O_busy=1，选择器等它收完尾再切回 WAV，避免"满幅中途截断"的爆音。       */
+/*      收尾完之后心跳输出恒 0，切点上只剩"WAV 侧此刻的幅度"这一个阶跃，       */
+/*      与 SW4 暂停/继续的硬闸同一量级（要彻底消掉得加增益斜坡，见文档 §12）。 */
+/* ======================================================================== */
+wire signed [23:0] W_hb_l, W_hb_r;
+wire               W_hb_busy;
+
+// ---- 控制位跨域：video_clk → MCLK（两级同步，电平量，按住是毫秒级） ----
+// I_mute 的同步器在 §0 已经有一份（S_mute_meta / S_mute_sync），这里**不再重复声明**，
+// 直接复用那一份；只有本分支新加的 I_heart_en 需要自己的两级同步器。
+// （2026-10-26 合并 origin/main 时发现的语义冲突：两边各自加了一个 S_mute_sync，
+//   文本上不冲突、合到一起就是重复声明。）
+reg [1:0] S_heart_sync;
+always @(posedge I_mclk or posedge I_mclk_rst) begin
+    if (I_mclk_rst) S_heart_sync <= 2'b00;
+    else            S_heart_sync <= {S_heart_sync[0], I_heart_en};
+end
+wire W_heart_m = S_heart_sync[1];
+wire W_mute_m  = S_mute_sync;      // 取 §0 那份两级同步的输出（单 bit）
+
+heartbeat_synth #(
+    .MCLK_HZ (MCLK_HZ)
+) u_heartbeat (
+    .I_clk       (I_mclk),
+    .I_rst       (I_mclk_rst),
+    .I_frame_stb (W_frame_stb),
+    .I_enable    (W_heart_m),
+    .O_busy      (W_hb_busy),
+    .O_left      (W_hb_l),
+    .O_right     (W_hb_r)
+);
+
+// WAV 这一路只过 SW4 暂停闸（I_mute）：暂停时发 0，但帧节拍照走。
+wire signed [23:0] W_wav_l = W_mute_m ? 24'sd0 : $signed(W_pcm_left);
+wire signed [23:0] W_wav_r = W_mute_m ? 24'sd0 : $signed(W_pcm_right);
+
+// ---- 二选一多路选择器 ----------------------------------------------------
+// sel = 训练模式或心跳还在收尾：1 → 心跳，0 → WAV。两位一起选，左右不会错位。
+wire W_sel = W_heart_m | W_hb_busy;
+wire signed [23:0] W_out_l = W_sel ? W_hb_l : W_wav_l;
+wire signed [23:0] W_out_r = W_sel ? W_hb_r : W_wav_r;
+
+/* ======================================================================== */
 /* 6. PCM 直连：MCLK 域 → 像素时钟域                                         */
 /* ------------------------------------------------------------------------ */
 /* 跨域用"数据 + 翻转标志"（toggle handshake），不用异步 FIFO：              */
@@ -440,7 +584,9 @@ always @(posedge I_mclk or posedge I_mclk_rst) begin
         S_frame_m <= 48'd0;
     end
     else if (W_pcm_valid) begin
-        S_frame_m <= S_mute_sync ? 48'd0 : {W_pcm_right, W_pcm_left};
+        // 静音在两路各自处理：WAV 过 W_mute_m 闸，心跳由自己的包络收尾。
+        // 这里只做二选一，然后一次锁进跨域寄存器（与 S_tog 同拍）。
+        S_frame_m <= {W_out_r, W_out_l};
         S_tog     <= ~S_tog;
     end
 end

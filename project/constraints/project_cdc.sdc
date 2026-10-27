@@ -1,10 +1,25 @@
 # WAV CDC contracts. No whole-clock cuts: SD/memory/video/serial remain related.
 # Only metastability-catching first stages are excluded from phase checking.
+#
+# 2026-10-26 合并说明（feat-audio-heartbeat-freesong ← main）：
+#   本文件原先有两套写法——本分支 2026-10-24 的 set_clock_groups 整钟域剪枝，
+#   与 main 2026-10-25 的"只剪第一级同步触发器 + 保留 max_delay 飞行时间"。
+#   合并后统一采用 main 的做法：整钟域剪枝会让 TD 完全看不到跨域总线的
+#   飞行时间，main 这一版在每个异步入口都留了 set_max_delay 上界，粒度更细，
+#   也是 2026-10-25 两个顶层 +0.120/+0.159 ns 所用的同一份约束。
+#   本分支新加的心跳选择端（video_clk → MCLK）在下面按同样口径补一条：
+#   只剪第一级 S_heart_sync[0]，第二级及其后仍按同步路径检查。
 if {[llength [get_regs -nowarn {*u_audio_wav/u_path/S_play_meta}]] > 0} {
     set_false_path -to [get_regs -nowarn {*u_audio_wav/u_path/S_play_meta}]
 }
 if {[llength [get_regs -nowarn {*u_audio_wav/u_path/S_mute_meta}]] > 0} {
     set_false_path -to [get_regs -nowarn {*u_audio_wav/u_path/S_mute_meta}]
+}
+# I_heart_en（训练模式选择）：video_clk 域电平，进 MCLK 后两级同步
+# （S_heart_sync，见 rtl/audio/wav_audio_path.v §5.5）。电平保持毫秒级，
+# 后面驱动的是心跳发生器和 2:1 选择器，属构造性安全。
+if {[llength [get_regs -nowarn {*u_audio_wav/u_path/S_heart_sync[0]}]] > 0} {
+    set_false_path -to [get_regs -nowarn {*u_audio_wav/u_path/S_heart_sync[0]}]
 }
 if {[llength [get_regs -nowarn {*u_audio_wav/u_path/S_stop_sd_sync[0]}]] > 0} {
     set_false_path -to [get_regs -nowarn {*u_audio_wav/u_path/S_stop_sd_sync[0]}]

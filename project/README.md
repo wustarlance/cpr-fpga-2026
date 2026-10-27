@@ -1,3 +1,14 @@
+> 2026-10-26：时序优化一轮（`bmp_read_scaled` 的 `.ce` 树）。`top` setup WNS **+0.123 → +0.188 ns**，
+> `top_adc` **+0.196 → +0.168 ns**，两顶层 hold 仍为 +0.010/+0.011 ns，位流已重生成；58 项 RTL 自检全通过。
+> 剩余余量的天花板是 82% slice 占用导致的布线碎片化，不是逻辑级数——证据与被否掉的 7 组 P&R 配置
+> 见下方「2026-10-26 的一轮时序优化」小节。
+> **上板结果（2026-10-26 20:30）**：用这批参数出的位流（18:29、20:06 两份，md5 不同、时序数字相同）在板上
+> **数码管正常、HDMI 全黑且无声音**；14:29 那份旧位流当时可用，两者的 RTL 完全一致（`rtl/`、`constraints/`、
+> `vendor/` 在 14:29~18:40 之间一个文件都没改），只差 P&R 参数。所以实验性 P&R 选项已全部撤掉、回到基线参数，
+> 带说明的副本见 `build_baseline.tcl`；实验参数只留在 `build_fast.tcl` 里等复验。
+> 合并 `origin/main` 后 `build.tcl` 另取了 main 的**约束读取顺序**版本（WAV CDC 约束挪到 gate 映射之后、
+> 可选 loop/总帧数端点按存活情况绑定），该版本不含任何 P&R 实验选项。
+>
 > **2026-10-25 TD关键告警排查**：完成两顶层反馈端点/宏位置查询，并用23 LUT、32寄存器的小工程复现SDRAM重定位和本地时钟分支告警；同流程去掉计数器的对照为0条关键告警。固定位置未关闭问题，产品RTL/PLL/约束未改，三类告警仍待厂家确认。见[复现、对照及验证边界](docs/td-critical-audit-20261025.md)。
 >
 > **2026-10-25 波形／音量条与轮播转场**：已整合 main `7235989` 的 WAV 与共享SD路径；18项功能检查、3项预期故障注入通过。TD两顶层生成位流，setup +0.120/+0.159 ns、hold +0.003/+0.004 ns。原PLL／SDRAM关键告警保留，严格检查仍 failed、板级 I/O 为 conditional，新位流未上板。见[功能、预览与当前验证](docs/audio-and-transitions.md)。
@@ -44,7 +55,13 @@ SD读取现在包含令牌/字节超时、读CRC、取消、整图有限重试�
 
 `top` 和 `top_adc` 均提供综合期参数 `ENABLE_AUDIO`，默认 `1` 保持 HDMI 音频输出；设为 `0` 会关闭 HDMI 音频采样与 ACR 包。修改参数后需重新综合并生成位流。音频 PLL 保持运行，因为其时钟也供 ADC 采样链使用。
 
-音频内容改为从 SD 卡播放 WAV：`rtl/audio/wav_audio_sd_top.v` 经 `rtl/SD/sd_sec_arbiter.v` 与 BMP 画面分时复用顶层唯一那份 `sd_card_top`（BMP 优先、WAV 让路），从 LBA 12000 起读 48 kHz / 24 bit WAV，经 `pcm_fifo` 跨到 12.295082 MHz 音频域后由 `pcm_player` 直接送 HDMI 数据岛（ACR 随流输出）。按压训练的 40 ms 节拍窗口仍由 `beat_hold_ms` 与 `audio_gate` 控制，但**声源来自卡上的 WAV**：未插卡或读卡失败时，训练模式的节拍提示音没有声音；片上音阶发生器 `rtl/cpr_audio_tone_i2s.v` 已随本分支移除，给它的 `metronome_meta` 做 CDC 豁免的 `constraints/audio_metronome.sdc` 也一并删除（豁免集合恒为空，留着只会误导）。声音只经 HDMI 输出，板上没有蜂鸣器。
+音频内容来自 SD 卡的 WAV：`rtl/audio/wav_audio_sd_top.v` 经 `rtl/SD/sd_sec_arbiter.v` 与 BMP 画面分时复用顶层唯一那份 `sd_card_top`（BMP 优先、WAV 让路）。**一页一段音频，正好四页；另有第 5 段 `FREE_SONG` 供自动轮播模式共用**。五段的首扇区只在一处定义——`rtl/audio/wav_track_select.v` 的 `parameter PICTURE_1..PICTURE_4` 与 `FREE_SONG`（`wav_audio_sd_top` 与顶层例化都不写覆盖，改扇区就改那几行，当前 12000 / 123000 / 250000 / 370000 / 500000）；`I_audio_sel` 是 3 bit 的**选曲码**：0..3 接 `active_read_idx`（SDRAM 四缓冲里"当前正在上屏"的那一页，只在帧边界更新），因此**换图和换曲同帧发生**；4 = `FREE_SONG`，由顶层在 `app_mode==1`（自动展播）时给出——四页轮播共用这一首，翻页只换图不换曲，进/出自动模式各算一次换码（一次 abort→start），自动展播被 KEY3 暂停时仍放它。选曲码是 3 bit 二进制码，跨位翻转（011→100）会冒出一拍中间值，仍由同一条 8 拍稳定过滤滤掉。选曲与重启都在 `rtl/audio/wav_track_select.v` 里做：2 级同步 + 8 拍稳定过滤（滤掉页号跨位翻转时的一拍中间值），确认换页后给一个换页脉冲，`wav_audio_path` 走既有的 abort→start 重新锁存扇区并清两侧 FIFO，中间约 10~20 ms 静音。读到的 WAV 经 `pcm_fifo` 跨到 12.295082 MHz 音频域后由 `pcm_player` 直接送 HDMI 数据岛（ACR 随流输出）。
+
+训练模式的心跳（2026-10-25）：`rtl/audio/heartbeat_synth.v` 片内合成，**不走扇区表、不读卡**（原"卡上第 5 段 HEART_BEAT=500000"的方案已删除）。150 Hz/25 ms 的"咚"+190 Hz/35 ms（65% 幅度）的"哒"（2026-10-26 由 75/95 Hz 整体升高，时长与幅度未变），第 2 声在 70 ms 处起，包络满幅保持到正弦首峰后指数衰减，整拍 110 BPM（26182 帧 ≈ 545 ms），训练期间一直循环；它用的是**同一套 48 kHz 帧节拍**（两路各跑各的分频必然多/少一帧，切换时是"咔"的一下爆音）。音频口在 `pcm_player` 之后、跨域之前是**一条 2:1 多路选择器**（`rtl/audio/wav_audio_path.v` §5.5）：`sel = 训练模式 | 心跳还没收完尾`，选 1 出 `heartbeat_synth` 的"咚—哒"，选 0 出该页 WAV。所以训练模式**根本不选**该页音频（不是把它压成 0 再和心跳相加）——这就是"屏蔽该页图片对应的音频、只播 HEART_BEAT"。没有混音、没有淡化、也没有编译期开关（2026-10-25 第五次改把 `heart_mix_stage` / `audio_crossfade` 连同 `depth_sw_n[3]` 那套 F13 混音开关一起删了，四个文件已挪到 `attic/audio-fade/`，要恢复淡化那儿有现成写法）。`I_mute` 只留给 SW4 暂停；选曲码与训练无关（自动展播时是 `FREE_SONG`、否则是当前页号），所以退出训练立刻回到当前模式该放的那首。切换仍是硬切，但 2026-10-26 补了四处边界：(1) `I_heart_en`/`I_mute` 进音频块各过两级同步（原来是 video_clk 裸信号直接当 sel，违反 `project_cdc.sdc` 的举证）；(2) 退出训练时心跳先花 0.67 ms 把包络压到 0 并保持 `O_busy`，选择器等它收完尾再切回 WAV —— 否则那颗"咚"有可能正响在峰上被一刀切断（约 11% 概率），是满量程阶跃；(3) 训练期间顶层把 `I_play` 压 0，**一个扇区读都不发**（不跟视频 BMP 抢 SPI），退出断点续播；(4) 训练期间 SW4 不响应，不会偷偷把退出后的播放状态翻成暂停。剩下唯一的阶跃是切回 WAV 那一帧"音乐此刻的幅度"，和 SW4 暂停/继续同一量级；要彻底消掉得在选择器输出上加 1 ms 增益斜坡（+1~2 DSP）。原来用 `audio_gate` 把音乐切成 40 ms 脉冲的"打拍子"做法默认关闭（`BEAT_GATE=0`），`beat_hold_ms` 只留给 OSD 的 ♥ 闪烁。声音只经 HDMI 输出，板上没有蜂鸣器。实现细节与实测数据见 `docs/heartbeat-synth-implementation.md`。
+
+音频的开关：SW4（C5）暂停 / 继续——只拉低 `I_play`，`pcm_player` 就不再拉 FIFO 读，读指针和 SD 侧预填数据都保留，所以再播是**断点续播**（样本级精确）。SW1/SW2/SW3 既不参与音频、**也不再控制对比度**（2026-10-26 下线：`contrast_controls` 里的开关绝对译码与"按键接管/开关交还"仲裁整块删除，对比度只剩外接面板 K6 按键逐档步进，复位为中性 1.00，0.50→0.75→1.00→1.25→1.50 循环）。拨对比度开关顺便改音乐的行为早就删净（原 SW3"停止归零"的实现是错的：同一次拨动既静音又发 `I_stop`，再拨也回不到播放态）。外部 IO 版本里 SW1..3 现在空闲；板卡演示版本里它们只在按住 KEY1 时被当成触点图案读走（`app_depth_raw`）。
+
+烧卡（把 WAV 真正放到那五个扇区上）：Windows 下双击 `tools\烧音频到TF卡.bat` —— 它会自己申请管理员权限、先用 `--list` 列出物理盘（读卡器是最小、可移动、总线为 USB 的那块）、列桌面上的 WAV 让你选编号，再问段号 1..5（5 = `FREE_SONG` = LBA 500000），然后先跑一遍**只读预检**、通过后才二次确认写入。扇区不用手填：`tools\burn_wav.py` 每次运行都从 `rtl/audio/wav_track_select.v` 的`PICTURE_1..4 / FREE_SONG` 参数解析，改 RTL 后两边自动一致；要写别的扇区用 `--sector N`（裸扇区模式，不校验 RTL）。写的是裸扇区，会覆盖卡上原有文件系统（插回电脑提示"需要格式化"，别点格式化）。等价命令行：`python tools\burn_wav.py --list` → `python tools\burn_wav.py --device \\.\PhysicalDriveN --track 5 --dry-run` → 同一条去掉 `--dry-run` 换成 `--confirm`。
 
 新增[音频波形与音量条、自动轮播淡入淡出](docs/audio-and-transitions.md)：监测与 HDMI 共用的最终门控 PCM，条带只占最后 16 行；自动换页先淡出到黑，在原帧边界发布完成后淡入。状态文字在渐变后叠加。`ENABLE_AUDIO_VISUALIZATION`、`ENABLE_SMOOTH_TRANSITIONS` 默认开启，可分别编译关闭；没有新增 SDRAM 图像并发读取。
 
@@ -102,6 +119,86 @@ CPR_TOP=top CPR_STAGE=synth td build.tcl   # 只综合不布局布线，约 55 s
 ```
 
 `CPR_STAGE` 未设置时等于 `full`（综合→布局→布线→时序检查→生成位流）；`synth` 只跑到 `optimize_gate`，**不生成位流**，适合快速确认代码能否综合。
+
+### 布局布线的 effort
+
+> **2026-10-26 22:00 状态**：这批参数**已从 `build.tcl` 回退**（回退后的原样内容见
+> `build_baseline.tcl`），只保留在 `build_fast.tcl` 里作为待复验的实验配置。原因见文首
+> 「上板结果」：实验参数出的位流上板后 HDMI 全黑、无声音，而同一套 RTL 用基线参数出
+> 的 14:29 位流可用。下面的数字都是**实验配置**的结果，要出能烧的位流请用 `build.tcl`
+> 或 `build_baseline.tcl`。
+
+`build_fast.tcl` 用的是 TD 官方的 **TimingHigh** 策略
+（`TD/doc/strategies/official_strategy_ph1.json`），外加综合侧的 **LogicLevelOptimize**
+（`gate map_mode balance_explore`、`mapper_lut_delay 2200`）；基线 `build.tcl` 只有
+`place opt_timing high` 一条，其余全部是 TD 默认。
+
+来由（2026-10-26）：加入训练心跳后 LUT 到 70.35%，`sd_card_clk`（100 MHz）上那两条 BMP 读取锥被挤成负余量：
+
+- `top`：AFIFO 满标志 → `bmp_read_scaled` 的 OUT_SEND 使能锥 → `h_rem.ce`，8 级（4 ADDER + 4 LUT），**−0.217 ns**
+- `top_adc`：`bmp_blur_background` 的 crop 比较 → `sd_sec_read_addr.ce`，6 级，**−0.101 ns**
+
+只留 `place opt_timing high` 救不回来：补上 `post_place_opt high` + `route post_route_opt high` 把 `top` 拉回 +0.140，
+`top_adc` 还得靠综合侧先少落一级（`map_mode balance_explore`）才过。`TimingUltra`
+（`hfn_opt_effort high` + `postrt_opt_extra_round 4`）在 `top_adc` 上反而更差（−0.113），没有采用。
+
+### 2026-10-26 的时序结果（心率训练版，实验参数）
+
+> 下表出自实验配置 `build_fast.tcl`。基线 `build.tcl` 对应的是 `top` +0.128 / `top_adc` +0.196
+> （hold 同样为正），也就是"能上板"的那一组。
+
+| 顶层 | setup WNS | hold WNS | 位流 |
+|---|---|---|---|
+| `top` | **+0.188 ns** | +0.010 ns | `build/top/top.bit` |
+| `top_adc` | **+0.168 ns** | +0.011 ns | `build/top_adc/top_adc.bit` |
+
+上表是构建当时（内存里 final 提取后）的数。**事后从 `route.db` 复核更保守**：
+`top` +0.114 / +0.004 ns、`top_adc` +0.103 / +0.019 ns——`route.db` 是在
+`update_timing -mode final` 之前导出的，重新导入再做一次 final 提取会多算一点延时。
+两者都为正；引用时序时应以后者为准，方法与后仿真结果见
+[`docs/timing-postsim-20261026.md`](docs/timing-postsim-20261026.md)。
+
+资源（`top`）：LUT 13660 / 19600（69.69%）、REG 7325 / 19600（37.37%）、BRAM 46 / 64（71.88%）。
+最紧的仍是 `sd_card_clk`（100 MHz）里的 BMP 读取块；音频域是 `u_audio_pll` 的 clk2
+（12.295 MHz，周期 81.3 ns），余量 67 ns 以上，心跳、2:1 mux 和两级同步器都不在关键路径上。
+
+### 2026-10-26 的一轮时序优化（BMP 读模块的 .ce 树）
+
+**病灶**：`vendor/SD/bmp_read_scaled.v` 的失败判定 `fail_operation` 直接做为主状态机
+`else if` 分支的条件，于是它必然出现在本模块几乎每个寄存器的 `.ce` 项里。它的一项
+`wait_expired` 是 `idle_wait >= WAIT_TIMEOUT_CYCLES-1` 的 32 位比较，映射成 16 级进位链。
+TD 报的前 10 条建立路径**全部**从 `idle_wait_reg[1]` 出发、终点是各个 `xxx_reg.ce`
+（SWNS 0.123 ns，数据路径 9.597 ns 里 6.668 ns 是布线）。
+
+**改法**：`fail_operation` 打一拍成 `fail_q` 再进状态机；出错原因当拍锁存到 `fail_cause_q`
+（`error_code` 用锁存值，否则一拍后 `sd_sec_read_error_q` / `bad_sector` 已撤销会把编码判错）。
+`bmp_data_wr_en` 仍用组合版——写侧不能再晚。错误响应晚 1 个 100 MHz 周期，对外不可见：
+`abort_sd` 是电平，`load_error` / `scan_done` 是持久标志。
+
+**结果**：SWNS 0.123 → **0.188 ns**（+53%），最差路径换成 `bmp_blur_background` 内部
+一批 0.19~0.45 ns 的路径。
+
+**天花板在哪**：布局阶段 SWNS 有 2.25 ns，布线完只剩 0.19 ns——2 ns 是布线吃掉的。
+线长 1.43 M，slice 占用 82%（LUT 70%，但装包率只有 85%，碎片化严重）。
+这个占用率下调布局/布线参数，结果只在 ±0.3 ns 噪声里来回。下面每一项都单独跑过完整 P&R：
+
+| 试过的 | 结果 |
+|---|---|
+| `place max_fanout 32` | slice 82%→86%，SWNS → +0.007 |
+| `aggr_multi_iter on` + `macro_performance ram_crit_path` + `post_route_opt medium` + `postrt_opt_extra_round 4`（TD 失败提示里那套） | SWNS → −0.445 |
+| CongestionHigh 的密度项（`target_density 0.6` / `opt_max_density 50` / `enable_congestion_recovery on` 等） | 布线器直接报不可布 |
+| `route hold_margin 100` | 保持修复一步不做，HWNS → −0.020 |
+| `route effort high` | 与不改逐位相同 |
+| blur 的 `INIT_COMPARE` 拆两拍 | SWNS → −0.111（已回退） |
+| 综合侧 `gate infer_fsm one_hot` | LUT −157、深层路径端点 −82%，WNS 不变（保留） |
+
+**要再多留余量只能减面积**：`sd_card_bmp_m0` 一块就占 3578 LUT + 2117 REG，
+其中 `bmp_blur_background` 1435 LUT + 13 BRAM + 6 DSP，且全部落在 100 MHz 域。
+
+**hold 为什么只有 10 ps**：TD 的 `fix_hold` 只修负 slack，而每个保持检查都带它自带的
+0.100 ns 默认不确定度（路径明细里写作 `Clock Uncertainty 0.100ns (default)`）。
+修到"不为负"就收工，报告值自然停在十几皮秒。把这 0.1 ns 守卫换算回去，
+真实保持余量约 0.11 ns。任何 RTL 改动都要重跑完整 P&R，只看综合结论不算数。
 
 ### 读时序结果
 

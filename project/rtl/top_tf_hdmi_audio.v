@@ -13,6 +13,12 @@ module top #(
     // 自动展播（模式 2）每页停留秒数。改这个数必须重新综合。
     parameter integer AUTO_DWELL_S = 8,
     parameter UI_LANGUAGE_ZH = 1,
+    // 训练模式的心跳（2026-10-25 新增，见音频一节的长注释）：
+    //   音源只有一条路：片内合成 heartbeat_synth（"咚—哒"），不读卡。
+    //   训练模式下音频口**二选一**（训练 → 心跳，否则 → 该页 WAV），
+    //   没有混音、没有淡化、也没有编译期开关（2026-10-25 第五次改）。
+    //   BEAT_GATE = 0 → 不再用 110 BPM 门控把音乐切成脉冲（默认）
+    parameter BEAT_GATE = 0,
     parameter [1:0] TRAINING_PAGE_INDEX = 2'd1,
     parameter [11:0] RELEASE_BASELINE = 12'd3000,
     parameter [11:0] TRIGGER_LEVEL = 12'd150,
@@ -28,7 +34,7 @@ module top #(
     input                       rst_n,
     input                       key1,           // 手动下一张
     input                       key3,           // KEY3 (B1), previous
-    input wire [3:0]             dip_sw,         // SW1..4, active high; DEMO ONLY
+    input wire [3:0]             dip_sw,         // SW1..3 = 仅板卡演示模式的触点图案（2026-10-26 起不再控制对比度）；SW4 = 音频暂停
     input wire [4:0]             ext_keys_n,     // mode/prev/next/brightness/session clear
     // 外接八位按键面板（J1 奇数行 13~23）。模块自带上拉，按下为低电平。
     // K1~K5 与板载 KEY 并存；K6 留给对比度按键；K7/K8 暂未使用。
@@ -243,6 +249,10 @@ key_source_merge u_key_merge(
     .keys         (app_keys_raw));
 // Board demo: KEY2 generates a press; dips select a contact pattern, zero selects target.
 // External mode observes real contacts directly; calibration remains a mechanical task.
+// 注意：这一行是 SW1..3（含 SW4 位）现在**唯一**的去处 —— 只有板卡演示模式
+// （USE_EXTERNAL_IO=0）按下 KEY1 时才读它，用来伪造"触点档位"。对比度那条路
+// 2026-10-26 已从 SW1..3 上摘掉（见 contrast_controls.v），所以外部 IO 版本
+// 里 SW1..3 现在是空着的。
 wire [3:0] app_depth_raw = USE_EXTERNAL_IO ? ~depth_sw_n :
     ((!key1) ? ((dip_sw == 0) ? 4'b0011 : dip_sw) : 4'b0000);
 cpr_control #(.USE_PRESS_EVENTS(USE_ADC)) u_control(
@@ -341,7 +351,7 @@ always @(posedge video_clk or negedge app_rst_n) begin
     else if (beat_event) beat_hold_ms <= 40;
     else if (tick_ms && beat_hold_ms != 0) beat_hold_ms <= beat_hold_ms - 1'b1;
 end
-wire audio_gate = (app_mode != 2) || (beat_hold_ms != 0);
+wire audio_gate = BEAT_GATE ? ((app_mode != 2) || (beat_hold_ms != 0)) : 1'b1;
 // Share the final gated PCM words between HDMI and its on-screen monitor.
 wire [23:0] hdmi_audio_left = (ENABLE_AUDIO && audio_gate) ? audio_left_data : 24'd0;
 wire [23:0] hdmi_audio_right = (ENABLE_AUDIO && audio_gate) ? audio_right_data : 24'd0;
@@ -359,11 +369,11 @@ always @(posedge video_clk or posedge rst_video) begin
 end
 wire [2:0] contrast_level;
 reg [2:0] contrast_video;
-contrast_controls #(.HOLD_DURING_TRAINING(!(USE_ADC || USE_EXTERNAL_IO))) u_contrast_controls(
+// 对比度只剩 K6 一个来源（2026-10-26：板载 SW1..3 的对比度功能下线）。
+// 拨码那三位现在与本模块无关，顶层不再往这里送任何开关量。
+contrast_controls u_contrast_controls(
     .clk(video_clk), .rst_n(app_rst_n), .tick_ms(tick_ms),
-    .raw_switches(dip_sw[2:0]),
     .raw_key     (~key_panel_n[5]),          // K6：对比度，按下为低电平
-    .training_enabled(training_enabled),
     .contrast_level(contrast_level));
 always @(posedge video_clk or posedge rst_video) begin
     if (rst_video) contrast_video <= 3'd2;
@@ -593,8 +603,29 @@ sd_sec_arbiter u_sd_sec_arbiter (
     .O_ch1_end  (sd_wav_end)
 );
 
+// state_code 来自 sd_card_clk 域（sd_card_bmp），而数码管扫描在 clk（50 MHz）域。
+// 原来直接拿 sd 域的组合结果进 seg_decoder → seg_scan 的多级多路器，形成一条
+// 跨域长组合路径：top_adc 某次布局下 6 级逻辑、net 占 76%，在 10 ns 预算下
+// -0.235 ns，时序守卫直接判 FAIL；同一份网表换次布局又能过 —— 典型的"贴着
+// 临界点、随时会翻"。这里先同步两级再译码：跨域只剩 "sd 域 Q → 同步 FF D"
+// 一段，后面的译码和扫描全部落回 clk 域（20 ns 预算）。
+// 4 bit 逐位同步可能出现一拍中间码，但只作用于数码管的显示码，且 clk 比
+// sd_card_clk 慢一半、state_code 本身变化极慢，肉眼不可见；若将来要严格
+// 一致，把这里换成 page_status_cdc 用的 sample_mailbox 即可。
+reg [3:0] state_code_meta, state_code_sync;
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        state_code_meta <= 4'd0;
+        state_code_sync <= 4'd0;
+    end
+    else begin
+        state_code_meta <= state_code;
+        state_code_sync <= state_code_meta;
+    end
+end
+
 seg_decoder seg_decoder_m0(
-    .bin_data          (state_code),
+    .bin_data          (state_code_sync),
     .seg_data          (seg_data_0)
 );
 
@@ -784,12 +815,62 @@ sdram #(.REGISTER_READ_DATA(1)) U3(
 // SD 卡与 BMP 共用顶层唯一那份 sd_card_top，经 sd_sec_arbiter 分时仲裁：
 //   BMP 优先（画面不能花），WAV 让路（FIFO 约 21 ms 缓冲，切页瞬间可能欠载）。
 //
-// 播放控制（2026-10-24 新增 SW4）：
-//   SW1 (C8, dip_sw[0]) = 循环播放，1 = 单文件循环
-//   SW4 (C5, dip_sw[3]) = 播放 / 停止开关：**拨动一次切换一次**
-//   SW2/SW3 已被对比度（contrast_controls）占用，不做播放控制。
+// 播放控制（2026-10-25 第二次改：SW1/SW3 下线，只留 SW4 暂停）：
+//   SW4 (C5, dip_sw[3]) = 暂停 / 继续（拨动一次切换一次，**从原处接着放**）
+//   SW1 / SW2 / SW3     = 音频不用
 //
-// 为什么用"拨动切换"而不是"拨上=停、拨下=播"：
+// 为什么把 SW1（循环）和 SW3（停止归零）去掉：
+//   * SW1 从来没派上用场。它当时的语义是"1 = 单曲循环"，但板上这四位拨码的
+//     "拨上"到底算闭合还是断开，资料里没有唯一结论（见下面那段说明），所以
+//     同一个位置在不同板上可能是 1 也可能是 0，板上实测等于没法用。
+//     现在直接把 loop 固定为 1（单曲循环）：一页一直停着就一直在放那一首，
+//     这正是看板/展台想要的；要改成"放完即停"把下面 I_loop 接 1'b0 即可。
+//   * SW3 的实现是错的：它把 wav_play_en 拉低（静音）的同时发一次 I_stop，
+//     于是"拨一下"同时做了"暂停"和"回开头"两件事，再拨一下也回不到播放态
+//     （按一次只翻 play_en，stop 已经是 0），实际表现是**按了就再也没声音**。
+//     这个功能本来就只是调试用，先整体摘掉；真需要"重头放"就换页再换回来。
+//
+// 训练模式的心跳（2026-10-25 第三次改）：
+//   背景音乐之外再插一路"心跳"，音源只有一条：**片内合成**
+//   rtl/audio/heartbeat_synth.v —— 150 Hz/25 ms + 190 Hz/35 ms（65% 幅度）、
+//   间隔 70 ms、110 BPM，包络指数衰减；不读卡、不占 SPI 总线。
+//   （2026-10-26 频率由 75/95 Hz 升高，见该文件头；时长/幅度/拍速未变。）
+//   因为要**一直循环**，从卡里读同一段只是白占带宽，所以不保留
+//   "卡上固定一段当心跳"那条路。自动轮播模式用的第 5 段 FREE_SONG 是
+//   另一回事：它只在 mode=1 时选，训练模式照样只听心跳。
+//   音频口是**纯二选一多路选择器**（2026-10-25 第五次改，把混音/淡化全删）：
+//     sel = 训练模式？  → 1：heartbeat_synth 的"咚—哒"
+//                       0：SD 卡里该页 WAV（pcm_player 出来那一路）
+//   这就是"训练模式下屏蔽该页图片对应的音频、只播 HEART_BEAT"，一条 mux 解决。
+//   代价：切换那一帧是硬切，大音量下可能听到轻微咔哒（要不要淡化另说）。
+//   选曲码（audio_sel）= 自动轮播 ? FREE_SONG : 当前页号，与训练无关，
+//   所以退出训练立刻回到"当前模式该放的那首"，不用重新选曲。
+//
+//   **2026-10-26 补的四处**（都是"约束 / 边界"层面的，不改功能语义）：
+//     1) heart_en 由 training_enabled 打一拍而来（原来直接接组合译码）；
+//     2) 退出训练时不立刻切源：heartbeat_synth 先花 0.7 ms 把包络压到 0，
+//        并保持 O_busy，选择器等它收完尾再切回 WAV（不再满幅截断）；
+//     3) 训练期间 I_play 强制 0 → 不读卡、不占 SPI 带宽，退出断点续播；
+//     4) 训练期间 SW4 不响应（否则听不出变化，却把退出后的播放状态翻了）。
+//   跨域：I_heart_en / I_mute 在 wav_audio_path 内部各两级同步，本层只保证
+//   它们在本域是干净的寄存器输出。
+//
+//   原来训练模式是靠 110 BPM 门控把音乐切成 40 ms 脉冲来"打拍子"（audio_gate），
+//   现在有真正的心跳音，这个门控默认关掉（BEAT_GATE=0）；beat_hold_ms 仍保留，
+//   它还给 OSD 的"♥"闪烁用。
+//
+// 暂停的实现（保留 SW4）：
+//   暂停 = 只把 I_play 拉低。pcm_player 的 W_playing=0 就不再拉 FIFO 读，
+//          读指针不动、SD 侧把 FIFO 填满后自己停住，所以位置完整保留，
+//          再开就是断点续播（样本级精确，不是"大约那个位置"）。
+//   停止 = I_stop 单拍 → wav_audio_path 走 abort→start。现在只剩"换页"这一个
+//          来源，由 wav_audio_sd_top 内部产生，本层不再接 I_stop。
+//
+// 换曲不在这里做：wav_audio_sd_top 的 I_audio_sel 接"选曲码"（自动轮播=4，
+// 其余=当前上屏页号，见下面 audio_sel 那几行），模块内部自己同步、自己发重启，
+// 所以翻页即换曲、进自动模式即换 FREE_SONG，无需本层产生额外脉冲。
+//
+// 为什么 SW4 用"拨动切换"而不是"拨上=停、拨下=播"：
 //   板卡 DEMO（2_Example/.../8_key_sw/key_sw.adc）把 C8/C7/C6/C5 这四位拨码和
 //   A2/B2/B1/C1 四个按键接在同一组带上拉的输入里，注释写 "when the keydown,
 //   the value is 0"，即闭合 = 低。但拨码"拨上"到底是闭合还是断开，资料里没有
@@ -814,34 +895,84 @@ reg        sw4_lvl_d;
 reg  [6:0] wav_init_ms;
 reg        wav_play_en;
 
+// ---- 训练标志先在本域打一拍（2026-10-26 新增） ---------------------------
+// training_enabled 是 cpr_control 里的组合译码 `mode == 2'd2`：mode 从 1 变 2
+// 时两位同时翻转，译码输出可能出窄毛刺。它一出去要驱动 MCLK 域的选择器和
+// 心跳模块的内部状态，毛刺被采到就是"咚"只响半声。这里在 video_clk 域打一拍
+// 再出去，毛刺就过不去（mode 本身是寄存器输出，翻完就稳）。
+reg        heart_en;
+always @(posedge video_clk or negedge app_rst_n) begin
+    if (!app_rst_n) heart_en <= 1'b0;
+    else            heart_en <= training_enabled;
+end
+
 wire wav_ctrl_ready;
 
 always @(posedge video_clk or negedge app_rst_n) begin
     if (!app_rst_n) begin
-        sw4_lvl_d   <= 1'b0;
-        wav_init_ms <= 7'd0;
-        wav_play_en <= 1'b1;              // 上电默认播放
+        sw4_lvl_d    <= 1'b0;
+        wav_init_ms  <= 7'd0;
+        wav_play_en  <= 1'b1;          // 上电默认播放
     end
     else begin
-        sw4_lvl_d <= sw4_lvl;             // 已消抖电平，延迟一拍做边沿检测
+        sw4_lvl_d    <= sw4_lvl;       // 已消抖电平，延迟一拍做边沿检测
         if (tick_ms && (wav_init_ms < 7'd60))
             wav_init_ms <= wav_init_ms + 1'b1;
-        // 拨动一次切换一次；上电 50 ms 内的边沿属于建立过程，被 ready 挡掉
-        if (wav_ctrl_ready && (sw4_lvl ^ sw4_lvl_d))
+
+        // SW4：只切播放位，绝不动读指针 → 断点续播
+        // 训练模式里这个键**不响应**（2026-10-26 新增）：训练时音频口在播心跳，
+        // 按了听不出任何变化，但状态会被悄悄翻掉 —— 退出训练时音乐莫名其妙是
+        // 暂停的。所以训练期间直接忽略按动，退出后 SW4 的语义还是"暂停/继续"。
+        if (wav_ctrl_ready && (sw4_lvl ^ sw4_lvl_d) && !heart_en)
             wav_play_en <= ~wav_play_en;
     end
 end
 
 assign wav_ctrl_ready = (wav_init_ms >= 7'd50);
-wire wav_sw4_edge = wav_ctrl_ready && (sw4_lvl ^ sw4_lvl_d);
 
 wire        wav_ready;
 wire        wav_error;
 wire [3:0]  wav_error_code;
 wire [3:0]  wav_state;
 
+// ---- 训练模式心跳的接线（对应上面那段长注释） ----
+// heart_en  ：二选一的选择端 —— 训练模式 = 1 出心跳，其余 = 0 出该页 WAV。
+//             **已在 video_clk 域打过一拍**（见上面 heart_en 的 always），
+//             不用 training_enabled 裸信号（那是组合译码，会出毛刺）。
+//             选曲码 audio_sel 与本信号无关（自动轮播另有 auto_mode_q），
+//             所以退出训练时立刻回到"当前模式该放的那首"，不用重新选曲。
+// wav_muted ：只有 SW4 暂停才把该页 WAV 压成 0（暂停 = 断点续播，不丢位置）。
+wire        wav_muted = ~wav_play_en;
+// 训练模式不读卡（2026-10-26 新增）：音频口在播心跳，WAV 一路只会白白占着
+// SPI/扇区带宽（这东西和视频 BMP 读取抢总线，训练时换页会明显更慢）。
+// 拉低 I_play 后 pcm_player 既不消耗 FIFO、也不推进读指针，SD 侧把 FIFO 填满
+// 就自己停住 —— 和 SW4 暂停走的是同一条已验证的路径，退出训练断点续播。
+// pcm_player 每帧照发 valid（只是样本为 0），所以 ACR 节拍不会断。
+wire        wav_play_gate = wav_play_en & ~heart_en;
+
+// ---- 选曲码：手动/单页 = 页号，自动轮播 = FREE_SONG（2026-10-26 新增）----
+// 自动轮播（app_mode == 1）时四页共用第 5 段 FREE_SONG（LBA 500000）：
+//   * 翻页只换图、不换曲 —— 交给 wav_track_select 的码始终是 4，它不产生
+//     换页脉冲，wav_audio_path 就不会 abort，音乐连续放完再 loop；
+//   * 进出自动模式 = 码在"页号 ↔ 4"之间跳一次 = 一次正常的 restart，
+//     所以"进自动模式从 FREE_SONG 开头放、退回单页立刻回当前页那首"。
+//   * 自动轮播被 KEY3 暂停（auto_run=0）时码仍是 4：暂停的是翻页，不是音乐。
+// 打一拍的理由和 heart_en 一样：app_mode 本身是寄存器，但 `== 2'd1` 是组合
+// 译码，直接送进跨域的两级同步器，一个毛刺就等于"换一次曲"（多一次 abort）。
+// 只打"是不是自动模式"这 1 bit，页号那两位照旧直接走（下游自己有稳定过滤）。
+reg auto_mode_q;
+always @(posedge video_clk or negedge app_rst_n) begin
+    if (!app_rst_n) auto_mode_q <= 1'b0;
+    else            auto_mode_q <= (app_mode == 2'd1);
+end
+wire [2:0] audio_sel = auto_mode_q ? 3'd4 : {1'b0, active_read_idx};
+
 wav_audio_sd_top #(
-    .START_SECTOR (32'd12000),   // WAV 首扇区，必须与烧卡工具 --lba 一致
+    // 五段音频的首扇区**不在这里填**：唯一一处定义是
+    //   rtl/audio/wav_track_select.v 里的 PICTURE_1..4 与 FREE_SONG 参数默认值。
+    // 本层与中间层都不做参数覆盖，改扇区只改那一个文件；
+    // 烧卡用 tools/burn_wav.py --track N（1..4 = 页，5 = FREE_SONG），
+    // 它也从那个文件读默认 LBA。
     .ACR_N        (6144)         // 48 kHz
 ) u_audio_wav (
     .I_sd_clk        (sd_card_clk),
@@ -851,10 +982,16 @@ wav_audio_sd_top #(
     .I_mclk_rst      (rst_audio),
     .I_video_rst     (rst_video),
 
-    .I_play          (wav_play_en),    // SW4 拨动一次切换；上电 = 播放
-    .I_stop          (wav_sw4_edge),   // 每次拨动回到文件开头（单拍）
-    .I_mute          (~wav_play_en),   // 停止时静音（帧节拍照常走，HDMI 流不断）
-    .I_loop          (dip_sw[0]),      // SW1 = 循环
+    // 换曲：0..3 对应 PICTURE_1..4，4 对应 FREE_SONG（自动轮播模式，见上面的
+    // audio_sel）。0..3 那一路来自 SDRAM 四缓冲里"当前正在上屏"的那一页
+    // （在帧边界才更新），所以换图和换曲同帧发生。
+    .I_audio_sel     (audio_sel),
+
+    .I_play          (wav_play_gate),  // SW4 暂停/继续；训练模式强制 0（不读卡，位置保留）
+    .I_stop          (1'b0),           // SW3 已下线：停止只剩"换页"这一路（内部产生）
+    .I_mute          (wav_muted),      // 只有 SW4 暂停（训练屏蔽走 2:1 选择器）
+    .I_loop          (1'b1),           // SW1 已下线：固定单曲循环；要"放完即停"改成 1'b0
+    .I_heart_en      (heart_en),       // 1 = 训练模式：音频口二选一取心跳（已打拍）
 
     .I_sd_init_done  (sd_init_done),
     .I_sd_sec_ready  (sd_arb_wav_ready),

@@ -4,9 +4,14 @@
 为什么需要它
 ------------
 音频 PR 合入后，声音不再由片上音阶发生器产生，而是**从 TF 卡读 WAV**
-（`project/rtl/audio/wav_audio_sd_top.v`，第 12000 扇区起，裸扇区、不认文件系统）。
-没写 WAV 的卡插上去，教学/展播没有声音、按压训练也没有节拍音，会被误判成
-"合并把音频弄坏了"。这个脚本产出可以直接 `tools/burn_wav.py` 写卡的文件。
+（`project/rtl/audio/wav_audio_sd_top.v`，裸扇区、不认文件系统；一页一段，
+首扇区由 `rtl/audio/wav_track_select.v` 的 `PICTURE_1..4` 参数给）。
+没写 WAV 的卡插上去，
+教学/展播没有声音、按压训练也没有节拍音，会被误判成"合并把音频弄坏了"。
+这个脚本产出可以直接 `tools/burn_wav.py` 写卡的文件。
+
+`--track 1..4` 会给每段换一个调（C / D / E / G 递增），这样翻页时"换没换曲"
+一耳朵就能听出来 —— 四段都是一样的音的话，翻页换曲根本没法验。
 
 内容设计（对着产品的两种播放方式）
 --------------------------------
@@ -17,8 +22,8 @@
 
 用法
 ----
-    python3 tools/make_test_wav.py                     # 默认 30 s / 110 BPM
-    python3 tools/make_test_wav.py --seconds 60 --out 暂存/wav_test/beat48k.wav
+    python3 tools/make_test_wav.py --track 1            # 默认 30 s / 110 BPM
+    python3 tools/make_test_wav.py --track 2 --seconds 20 --out 暂存/wav_test/track2.wav
 """
 from __future__ import annotations
 
@@ -32,8 +37,11 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
+# 每个页一个调，按五度/三度递进，翻页时音高变化明显
+TRACK_KEYS = {1: 1.000, 2: 1.122, 3: 1.260, 4: 1.498}   # C / D / E / G
 
-def click(rate: int, amp: float) -> list[float]:
+
+def click(rate: int, amp: float, key: float = 1.0) -> list[float]:
     """40 ms 的衰减点击，能量集中在头 10 ms —— 对应训练模式那 40 ms 门。"""
     n = int(rate * 0.040)
     out = []
@@ -41,8 +49,8 @@ def click(rate: int, amp: float) -> list[float]:
         t = i / rate
         env = math.exp(-t / 0.006)
         # 1.6 kHz 主体 + 一点 3.2 kHz 泛音，小喇叭上更容易听出来
-        out.append(amp * env * (math.sin(2 * math.pi * 1600 * t)
-                                + 0.35 * math.sin(2 * math.pi * 3200 * t)))
+        out.append(amp * env * (math.sin(2 * math.pi * 1600 * key * t)
+                                + 0.35 * math.sin(2 * math.pi * 3200 * key * t)))
     return out
 
 
@@ -57,19 +65,19 @@ def note(rate: int, freq: float, amp: float, seconds: float) -> list[float]:
     return out
 
 
-def build(rate: int, seconds: float, bpm: int) -> list[float]:
+def build(rate: int, seconds: float, bpm: int, key: float = 1.0) -> list[float]:
     beat = 60.0 / bpm
     total = int(rate * seconds)
     buf = [0.0] * total
-    # C 大调五声音阶，每拍换一个音，循环
-    scale = [523.25, 587.33, 659.25, 783.99, 880.00]
+    # 大调五声音阶，每拍换一个音，循环（key 给每页开一个调）
+    scale = [f * key for f in (523.25, 587.33, 659.25, 783.99, 880.00)]
     random.seed(2026)
     beats = int(seconds / beat)
     for b in range(beats):
         start = int(b * beat * rate)
         accent = (b % 4 == 0)
         # 节拍点击：强拍更响
-        for i, v in enumerate(click(rate, 0.32 if accent else 0.20)):
+        for i, v in enumerate(click(rate, 0.32 if accent else 0.20, key)):
             if start + i < total:
                 buf[start + i] += v
         # 旋律底：每拍一个音，长度不到一拍，留出间隙
@@ -111,32 +119,41 @@ def write_wav(path: Path, samples: list[float], rate: int, bits: int) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--out", type=Path,
-                    default=REPO / "暂存/wav_test/beat48k.wav")
+    ap.add_argument("--out", type=Path, default=None,
+                    help="输出路径；不给则用 暂存/wav_test/track<--track>.wav")
+    ap.add_argument("--track", type=int, default=1, choices=(1, 2, 3, 4),
+                    help="生成第几页的音频（1..4）：每页换一个调，方便听出翻页有没有换曲")
     ap.add_argument("--seconds", type=float, default=30.0)
     ap.add_argument("--bpm", type=int, default=110)
     ap.add_argument("--rate", type=int, default=48000)
     ap.add_argument("--bits", type=int, default=16, choices=(16, 24))
     args = ap.parse_args()
 
+    if args.out is None:
+        args.out = REPO / f"暂存/wav_test/track{args.track}.wav"
+
     # 采样率提醒：pcm_player 用 PLL 固定的 12.295082 MHz 侧时钟播，
     # 实际 48.027 kHz，所以文件做 48 kHz 最接近原速；别的采样率会整体快/慢一点。
     if args.rate != 48000:
         print(f"⚠ 采样率 {args.rate} 与板上的 48.027 kHz 不一致，播放会变速")
 
-    samples = build(args.rate, args.seconds, args.bpm)
+    key = TRACK_KEYS[args.track]
+    samples = build(args.rate, args.seconds, args.bpm, key)
     write_wav(args.out, samples, args.rate, args.bits)
 
     size = args.out.stat().st_size
     sectors = (size + 511) // 512
     print(f"已生成 : {args.out}")
     print(f"格式   : PCM {args.bits} bit / {args.rate} Hz / 单声道，"
-          f"{args.seconds:g} s，{args.bpm} BPM")
-    print(f"大小   : {size} 字节 = {sectors} 扇区")
-    print(f"扇区   : 写到 LBA 12000 起，占 12000..{12000 + sectors - 1}")
+          f"{args.seconds:g} s，{args.bpm} BPM，第 {args.track} 页（key ×{key:.3f}）")
+    print(f"大小   : {size} 字节 = {sectors} 扇区（约 {sectors / 2048:.2f} MiB）")
+    print(f"长度   : 每页要留够 {sectors} 扇区，四段起点别重叠")
     print()
     print("下一步（需要 sudo，会写卡）：")
-    print(f"  sudo python3 tools/burn_wav.py --device /dev/sda --wav {args.out}")
+    print(f"  sudo python3 tools/burn_wav.py --device /dev/sda --track {args.track}"
+          f" --wav {args.out}")
+    print("  （不给 --lba 时，起始扇区取自 wav_track_select.v 的 "
+          f"parameter PICTURE_{args.track}）")
     return 0
 
 

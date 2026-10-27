@@ -150,3 +150,10 @@ project/workbuddy_change/
 # 里面的 .bit 已被第 ③ 节 *.bit 挡掉，但 .db/.area/.txt 会漏网，
 # 所以整目录排除。需要位流时本地跑一次构建即重新生成。
 /project/build_project/
+
+# ---------- ⑩ 本机排障残留 ----------
+# 构建时重定向出来的控制台文本（TD 自己的 .log 已被第 ③ 节挡住，但排障时
+# 常用 `> xxx_console.txt` 再抓一份，内容是十几万行时序/告警，没有版本价值）；
+# 以及只为定位单个失败点临时编的探针测试台（tests/sim/scratch_*）。
+/project/build_*_console*.txt
+/tests/sim/scratch_*/

@@ -38,13 +38,24 @@
 //   .O_acr_valid / O_acr_cts / O_acr_n                      → HDMI 核 I_acr_*
 //   ACR 已在本层算好，框架里原来的 audio_arc_calculate 可以不例化。
 //
-// 起始扇区是**参数**，不是常量散在代码里：
-//   parameter START_SECTOR = 32'd12000  ← 唯一一处定义
-//   12000 是为了和 scaling-test 的 BMP 镜像（占 LBA 0 ~ 11853）共存，
-//   BMP 镜像从扇区 0 开始写，会覆盖 MBR，所以音频只能放在它后面。
-//   tools/burn_wav.py 会从这个文件里读这个值当默认 --lba，两边不会不一致。
-//   要运行时改（按键选曲），把 wav_audio_path 的 I_start_sector 引出来即可，
-//   本层不加第二个配置口，避免"参数和端口谁优先"的歧义。
+// 五段音频 = 一个 3 bit 选曲口（2026-10-26 扩到 5 段）：
+//   input     I_audio_sel[2:0]   0..3 → 该页 WAV；4 → FREE_SONG（自动轮播模式）
+//   内部 5 选 1 后送 wav_audio_path 的 I_start_sector，并且**换码那一拍自动
+//   发一次重启**（abort→start），重新锁存新扇区、清两侧 FIFO，所以外部只
+//   需要接对 I_audio_sel，不需要自己产生 I_stop。
+//   为什么选曲口是"码"而不是"页号 + 模式标志"：换模式（手动↔自动轮播）
+//   正好等于换一次曲，交给同一套 restart 就够，本层与下层都不用理解模式。
+//
+//   五个首扇区 **不在本层定义**，也不在本层透传：唯一一处是
+//   rtl/audio/wav_track_select.v 的 module 参数默认值 PICTURE_1..4 + FREE_SONG。
+//   本层例化它时不写参数覆盖，所以"填哪儿"只有那一个地方，不会出现
+//   "顶层改了但中间层默认值把它盖回去"这类问题。要换扇区就改那一个文件。
+//
+// 训练模式的心跳（2026-10-25）：
+//   走**片内合成**（heartbeat_synth，见 wav_audio_path 第 5.5 节），不读卡：
+//   I_heart_en 就是音频口那个 2:1 选择器的选择端 —— 1 出"咚—哒"、0 出该页
+//   WAV（训练模式即"屏蔽该页音频、只播心跳"）。没有混音、没有淡化。
+//   FREE_SONG 是自动轮播模式的曲子，与训练模式无关（训练时不读卡）。
 //
 // 与厂商 sd_card_top 的接口边界（2026-10-21 修正）：
 //   厂商原文件只有 sd_sec_read(电平请求) / sd_sec_read_end(结束) / data_valid，
@@ -53,7 +64,6 @@
 //   wav_reader 自己的 WAIT_TIMEOUT_CYCLES（1 s 无进展 → ERR_TIMEOUT）。
 //=============================================================================
 module wav_audio_sd_top #(
-    parameter [31:0]  START_SECTOR        = 32'd12000, // WAV 文件首扇区（LBA）
     parameter integer MCLK_HZ                          = 12_288_000,
     parameter integer pcm_bits                         = 24,        // 送 HDMI 核的样本位宽
     parameter integer FIFO_DEPTH                       = 1024,      // 缓冲帧数（1 帧 = 48 bit）
@@ -69,10 +79,12 @@ module wav_audio_sd_top #(
     input  wire        I_video_rst,
 
     /* ---- 控制 ---- */
-    input  wire        I_play,
-    input  wire        I_stop,
+    input  wire [2:0]  I_audio_sel,         // 选曲：0..3 → PICTURE_1..4；4 → FREE_SONG
+    input  wire        I_play,              // 1 = 播放；0 = 暂停（位置保留，不消耗 FIFO）
+    input  wire        I_stop,              // 单拍：回到当前曲目开头
     input  wire        I_mute,
     input  wire        I_loop,
+    input  wire        I_heart_en,          // 音频口 2:1 选择：0 = 该页 WAV，1 = 心跳
 
     /* ---- SD 扇区读从接口（接框架里唯一那份 sd_card_top，只读不写） ---- */
     input  wire        I_sd_init_done,
@@ -110,6 +122,27 @@ module wav_audio_sd_top #(
 );
 
 /* ------------------------------------------------------------------------ */
+/* 选曲：页号 → 首扇区；换页那一拍自动重启读取                                */
+/* ------------------------------------------------------------------------ */
+wire [31:0] W_track_sector;
+wire        W_track_changed;
+
+// 不写参数覆盖：扇区表就用 wav_track_select 的 module 默认值（唯一一处定义）。
+wav_track_select u_track (
+    .I_clk       (I_sd_clk),
+    .I_rst       (I_sd_rst),
+    .I_audio_sel (I_audio_sel),
+    .O_sector    (W_track_sector),
+    .O_changed   (W_track_changed)
+);
+
+// 换页 = 停止 + 重新开始：重新锁存新扇区、清两侧 FIFO。
+// 与 I_stop（外部停止，现由顶层接 1'b0）共用同一条 abort→start 路径，不新增状态机。
+// 注意暂停位不在这里恢复：换页时若正处在暂停，换完仍然是暂停，
+// 继续播才从新曲开头出声（位置已在文件头）。
+wire W_path_stop = I_stop | W_track_changed;
+
+/* ------------------------------------------------------------------------ */
 /* WAV 音频通路                                                              */
 /* ------------------------------------------------------------------------ */
 wav_audio_path #(
@@ -130,7 +163,7 @@ wav_audio_path #(
     .O_sd_sec_addr   (O_sd_sec_addr),
     .O_sd_sec_read   (O_sd_sec_read),
 
-    .I_start_sector  (START_SECTOR),
+    .I_start_sector  (W_track_sector),
 
     .I_mclk          (I_mclk),
     .I_mclk_rst      (I_mclk_rst),
@@ -138,9 +171,10 @@ wav_audio_path #(
     .I_video_rst     (I_video_rst),
 
     .I_play          (I_play),
-    .I_stop          (I_stop),
+    .I_stop          (W_path_stop),
     .I_mute          (I_mute),
     .I_loop          (I_loop),
+    .I_heart_en      (I_heart_en),
 
     .O_audio_valid      (O_audio_valid),
     .O_audio_left_data  (O_audio_left_data),

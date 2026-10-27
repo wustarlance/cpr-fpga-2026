@@ -32,6 +32,9 @@ wire [23:0] left,right;
 wav_audio_sd_top source(.I_sd_clk(sdclk),.I_mclk(mclk),.I_video_clk(vclk),
  .I_sd_rst(rst),.I_mclk_rst(rst),.I_video_rst(rst),
  .I_play(play),.I_stop(stop),.I_mute(mute),.I_loop(1'b0),
+ // 2026-10-26 新增端口：本测试只验证 WAV 直通，心跳选择端必须显式拉 0，
+ // 否则 I_heart_en 悬空成 z，选择器输出会变成 x。（选曲码同样显式给 0。）
+ .I_heart_en(1'b0),.I_audio_sel(3'd0),
  .I_sd_init_done(!rst),.I_sd_sec_ready(sd_ready),.O_sd_sec_addr(address),.O_sd_sec_read(read_req),
  .I_sd_sec_data(data),.I_sd_sec_valid(valid),.I_sd_sec_end(ending),
  .O_audio_valid(audio_valid),.O_audio_left_data(left),.O_audio_right_data(right),

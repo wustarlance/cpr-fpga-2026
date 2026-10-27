@@ -104,6 +104,31 @@ module bmp_read_scaled #(
         else if(!waiting || progress) idle_wait<=0;
         else if(idle_wait<WAIT_TIMEOUT_CYCLES) idle_wait<=idle_wait+1'b1;
     end
+    // fail_operation 打一拍再进状态机（2026-10-26）。
+    // 原来它直接作为主状态机 else-if 分支的条件，于是它必然出现在本模块几乎
+    // 每个寄存器的 .ce 项里；而它的一项 wait_expired 是 idle_wait 与
+    // WAIT_TIMEOUT_CYCLES-1 的比较，32 位被映射成 16 级进位链。结果是这条
+    // 进位链串进了整块寄存器的时钟使能树 —— TD 报告的最差 10 条建立路径
+    // 全部从 idle_wait_reg[1] 出发、落在各 xxx_reg.ce 上（SWNS 0.123ns，
+    // 数据路径 9.597ns 里 6.668ns 是布线）。
+    // 打一拍后 ce 树只看见触发器输出，进位链只驱动 fail_q 的 D 端。
+    // fail_q 晚 1 个时钟（100 MHz 下 10ns）才把状态机拉回 IDLE，对外不可见：
+    // abort_sd 是电平、load_error/scan_done 是持久标志、bmp_data_wr_en 仍用
+    // 组合的 fail_operation（写侧不能再晚）。
+    // error_code 的原因在判定当拍锁存到 fail_cause_q，避免一拍后
+    // sd_sec_read_error_q / bad_sector 已经撤销而把编码判错。
+    reg fail_q;
+    reg [2:0] fail_cause_q;
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            fail_q <= 1'b0;
+            fail_cause_q <= 3'd0;
+        end else begin
+            fail_q <= fail_operation;
+            if (fail_operation)
+                fail_cause_q <= sd_sec_read_error_q?3'd1:bad_sector?3'd4:3'd3;
+        end
+    end
     reg [8:0] proc_pos;
     reg [31:0] scan_sector, load_base, next_sector, file_sectors;
     reg scan_match;
@@ -248,12 +273,12 @@ module bmp_read_scaled #(
             state<=IDLE; state_code<=0; scan_done<=0; scan_found_valid<=0;
             abort_sd<=0; operation_error<=active; error_code<=active?3'd1:error_code;
             scan_found_total<=0; write_req<=0; sd_sec_read<=0; load_error<=0;
-        end else if(fail_operation) begin
+        end else if(fail_q) begin
             bg_start_reg<=0; bg_cancel_reg<=1'b1; bg_enabled<=0; pass_mode<=0;
             state<=IDLE; state_code<=4'he;
             sd_sec_read<=0; write_req<=0; scan_found_valid<=0; scan_done<=1;
-            load_error<=1; abort_sd<=!sd_sec_read_error_q; operation_error<=1;
-            error_code<=sd_sec_read_error_q?3'd1:bad_sector?3'd4:3'd3;
+            load_error<=1; abort_sd<=(fail_cause_q!=3'd1); operation_error<=1;
+            error_code<=fail_cause_q;
         end else begin
             bg_start_reg<=1'b0; bg_cancel_reg<=1'b0;
             abort_sd<=0; operation_error<=0;

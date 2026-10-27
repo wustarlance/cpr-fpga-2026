@@ -224,6 +224,9 @@ module bmp_blur_background #(
                         state<=INIT_COMPARE;
                     end
                     INIT_COMPARE:begin
+                        // 2026-10-26：试过把这拍拆成两拍（比较器与两个 32 位选择器
+                        // 分开），仿真全绿但布线结果从 +0.188 ns 掉到 -0.111 ns，
+                        // 净损失，已回退。这里保持单拍。
                         wide_crop<=aspect_w>=aspect_h;
                         div_bits<=aspect_w>=aspect_h?aspect_h:aspect_w;
                         div_den<=aspect_w>=aspect_h?DST_HEIGHT:DST_WIDTH;

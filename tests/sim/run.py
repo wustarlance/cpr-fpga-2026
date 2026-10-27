@@ -18,7 +18,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 RTL, TB = "project/rtl/", "tests/sim/tb/"
 TESTS = {
-    "tb_wav_visualizer": {"sources": [RTL+"audio/"+n+".v" for n in ("pcm_fifo","pcm_frame_tick","pcm_player","wav_reader","audio_arc_calculate","wav_audio_path","wav_audio_sd_top")] + [RTL+"cpr_audio_visualizer.v",TB+"tb_wav_visualizer.v"], "fixtures": ["tests/sim/fixtures/wav_stereo_visualizer.mem"]},
+    "tb_wav_visualizer": {"sources": [RTL+"audio/"+n+".v" for n in ("pcm_fifo","pcm_frame_tick","pcm_player","wav_reader","audio_arc_calculate","wav_audio_path","wav_audio_sd_top","wav_track_select","heartbeat_synth")] + [RTL+"cpr_audio_visualizer.v",TB+"tb_wav_visualizer.v"], "fixtures": ["tests/sim/fixtures/wav_stereo_visualizer.mem"]},
     "tb_audio_visualizer": {"sources": [RTL + "cpr_audio_visualizer.v", RTL + "video_rgb_to_axis_640x480.v", TB + "tb_audio_visualizer.v"]},
     "tb_slide_transition": {"sources": [RTL + "cpr_slide_fade.v", RTL + "cpr_transition_publish.v", RTL + "frame_buffer_publish.v", TB + "tb_slide_transition.v"]},
     "tb_spi_io_timing": {"sources": ["project/vendor/SD/spi_master.v", TB + "tb_spi_io_timing.v"]},
@@ -74,6 +74,20 @@ for name in ("tb_sd_buffer_ownership", "tb_sd_image_recovery", "tb_sd_retry_limi
 TESTS["tb_input_filter"] = {"sources": [RTL + "input_filter.v", TB + "tb_input_filter.v"],
                             "pass_pattern": r"(?m)^PASS: input_filter\b"}
 TESTS["tb_page_manager"] = {"sources": [RTL + "cpr_page_manager.v", TB + "tb_page_manager.v"]}
+TESTS["tb_sd_sec_arbiter_abort"] = {
+    "sources": [RTL + "SD/sd_sec_arbiter.v", TB + "tb_sd_sec_arbiter_abort.v"],
+    "pass_pattern": r"(?m)^PASS: sd_sec_arbiter_abort\b"}
+TESTS["tb_wav_track_select"] = {"sources": [RTL + "audio/wav_track_select.v", TB + "tb_wav_track_select.v"],
+                                "pass_pattern": r"(?m)^PASS: wav_track_select\b"}
+TESTS["tb_wav_page_switch"] = {
+    "sources": [RTL + "SD/sd_sec_arbiter.v"] + [RTL + "audio/" + n + ".v" for n in
+                ("wav_track_select", "wav_audio_sd_top", "wav_audio_path", "wav_reader",
+                 "pcm_fifo", "pcm_frame_tick", "pcm_player", "audio_arc_calculate",
+                 "heartbeat_synth")]
+               + [TB + "tb_wav_page_switch.v"],
+    "pass_pattern": r"(?m)^PASS: wav_page_switch\b"}
+TESTS["tb_heartbeat_synth"] = {"sources": [RTL + "audio/heartbeat_synth.v", TB + "tb_heartbeat_synth.v"],
+                               "pass_pattern": r"(?m)^PASS: heartbeat_synth\b"}
 TESTS["tb_page_status"] = {"sources": [RTL + "sample_mailbox.v", RTL + "page_status_cdc.v", RTL + "cpr_overlay.v", RTL + "scroll_text.v", RTL + "font5x7_rom.v", RTL + "cpr_subtitle_rom.v", TB + "tb_page_status.v"]}
 TESTS["tb_training_pages"] = {"sources": [RTL + "cpr_page_manager.v"] + [s for s in TESTS["tb_sd_image_recovery"]["sources"] if s != RTL + "cpr_page_manager.v" and s != TB + "tb_sd_image_recovery.v"] + [TB + "tb_training_pages.v"]}
 TESTS["tb_sd_scaled_pages"] = {"sources": [RTL + "cpr_page_manager.v", RTL + "SD/sd_card_bmp.v", "project/vendor/SD/bmp_read_scaled.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/frame_fifo_write.v", "tests/sim/stubs/sd_fault_sector_model.v", TB + "tb_sd_scaled_pages.v"]}
