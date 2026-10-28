@@ -74,7 +74,8 @@ module adc_ctrl #(
     reg [PERIOD_WIDTH-1:0] clocks_to_soc;
     reg [WAIT_WIDTH-1:0] wait_clocks;
     reg busy;
-    reg eoc_armed;
+    reg eoc_d;          // EOC 打一拍，用来取上升沿
+    reg eoc_armed;      // 旧实现的保鲜锁，现在只保留复位/发 SOC 时的清零
     reg priming;
     reg pd_prepared;
 
@@ -103,10 +104,12 @@ module adc_ctrl #(
             clocks_to_soc <= 5;
             wait_clocks <= 0;
             busy <= 1'b0;
+            eoc_d <= 1'b0;
             eoc_armed <= 1'b0;
             priming <= 1'b1;
             pd_prepared <= 1'b0;
         end else begin
+            eoc_d <= adc_eoc;
             adc_soc <= 1'b0;
             adc_pd <= 1'b0;
             sample_valid <= 1'b0;
@@ -117,14 +120,16 @@ module adc_ctrl #(
             //                    && eoc_armed（已确认见过 eoc 低电平）
             // eoc_armed 的作用：SOC 发出那一瞬间若 eoc 已经为高（上一次的残留），
             // arm 会置 0；必须先看到 eoc 变低才解锁，从而杜绝把旧结果当新结果。
-            if (busy && adc_eoc && eoc_armed) begin
+            // 2026-10-28：原来要求"先见到 EOC 低电平才允许认下一次高"，一旦 ADC 把
+            // EOC 保持为高（或脉宽横跨 SOC），eoc_armed 永远打不开 → 只捕获第一拍，
+            // 之后每次超时（板上实测 raw_data 冻结在 3888）。改成认上升沿：旧结果
+            // 的高电平在 SOC 之前就已经产生过上升沿，不会重复计。
+            if (busy && adc_eoc && !eoc_d) begin
                 sample_data <= adc_dout;      // 12 位结果与 valid 同拍寄存
                 sample_valid <= 1'b1;         // ← 一拍脉冲
                 busy <= 1'b0;
                 wait_clocks <= 0;
             end else if (busy) begin
-                if (!adc_eoc)
-                    eoc_armed <= 1'b1;        // 先见到低电平，才允许认下一次高
                 wait_clocks <= wait_clocks + 1'b1;
             end
 
@@ -132,7 +137,7 @@ module adc_ctrl #(
             // wait_clocks 数到 TIMEOUT_CYCLES-1（即第 64 个忙拍 ≈ 5.2us）仍没结果：
             //   拉 pd —— 取消正在进行的物理转换，让它迟到的 EOC 无法污染下一次请求
             //   发一拍 fault 脉冲，5 拍后（clocks_to_soc<=4）重新发起
-            if (busy && !(adc_eoc && eoc_armed) &&
+            if (busy && !(adc_eoc && !eoc_d) &&
                 (wait_clocks == TIMEOUT_CYCLES - 1)) begin
                 // PD cancels the old physical conversion, so its late EOC
                 // cannot be mistaken for the new request. Retry after 5 clocks.
@@ -157,7 +162,7 @@ module adc_ctrl #(
                     (!SPARSE || pd_prepared)) begin
                     adc_soc <= 1'b1;              // ← 一拍脉冲
                     busy <= 1'b1;
-                    eoc_armed <= !adc_eoc;        // ★ 发起瞬间的 EOC 若已高则不 arm
+                    eoc_armed <= 1'b0;            // 上升沿检测后不再需要
                     wait_clocks <= 0;
                 end
             end else begin
