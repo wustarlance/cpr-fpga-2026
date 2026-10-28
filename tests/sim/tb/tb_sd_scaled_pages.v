@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
 module tb_sd_scaled_pages;
+ reg foreign_busy=0;
  reg training=0,train_next=0,train_prev=0,hold_publish=0,auto_run=0;
  wire [11:0] page_status;
  defparam sd_card_top_m0.PAGE_COLOR=1;
@@ -39,7 +40,7 @@ module tb_sd_scaled_pages;
   .write_buf_idx(write_index),.disp_buf_idx(pending_index),
   .publish_req(publish),.publish_fade(publish_fade),.publish_done(done),.write_req(write_req),
   .write_req_ack(writer_ack&&!hold_ack),.pixel_ready(1'b1),.write_en(write_en),.write_data(write_data),
-  .sd_sec_ready(sd_sec_ready),.sd_sec_read_error(sd_sec_read_error),.sd_init_done(sd_init_done),
+  .sd_sec_ready(sd_sec_ready && !foreign_busy),.sd_sec_read_error(sd_sec_read_error),.sd_init_done(sd_init_done),
   .sd_sec_read_data(sd_sec_read_data),.sd_sec_read_data_valid(sd_sec_read_data_valid),
   .sd_sec_read_end(sd_sec_read_end),.sd_sec_read(sd_sec_read),
   .sd_sec_read_addr(sd_sec_read_addr),.sd_read_cancel(sd_read_cancel));
@@ -100,6 +101,19 @@ module tb_sd_scaled_pages;
   end
  end
 
+ initial if($test$plusargs("admission_busy")) begin
+  wait(rst_n);
+  wait(dut.scan_done && dut.g_cache_scheduler.select_load_q &&
+       dut.g_cache_scheduler.sd_admit_ready_q && !dut.load_busy && !dut.recovering);
+  @(negedge clk);foreign_busy=1;
+  repeat(3)@(negedge clk);
+  if(!dut.load_busy)$fatal(1,"registered admission did not accept the pending job");
+  repeat(29)begin @(negedge clk);
+   if(sd_sec_read)$fatal(1,"sector command issued while current bus ready was low");
+  end
+  foreign_busy=0;
+  $display("INFO admitted job waited for live sector ready");
+ end
  task tick;begin @(negedge clk);end endtask
  task press;
   begin key_next=0;repeat(30)tick;key_next=1;repeat(30)tick;end
