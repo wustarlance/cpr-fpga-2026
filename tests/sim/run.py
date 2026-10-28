@@ -99,6 +99,11 @@ TESTS["tb_page_status"] = {"sources": [RTL + "sample_mailbox.v", RTL + "page_sta
 TESTS["tb_training_pages"] = {"sources": [RTL + "cpr_page_manager.v"] + [s for s in TESTS["tb_sd_image_recovery"]["sources"] if s != RTL + "cpr_page_manager.v" and s != TB + "tb_sd_image_recovery.v"] + [TB + "tb_training_pages.v"]}
 TESTS["tb_sd_scaled_pages"] = {"sources": [RTL + "cpr_page_manager.v", "project/vendor/SD/sd_card_bmp.v", "project/vendor/SD/bmp_read_scaled.v", RTL + "frame_buffer_publish.v", "project/vendor/SD/frame_fifo_write.v", "tests/sim/stubs/sd_fault_sector_model.v", TB + "tb_sd_scaled_pages.v"]}
 TESTS["tb_sd_scaled_recovery"] = {"sources": TESTS["tb_sd_scaled_pages"]["sources"][:-1] + [TB + "tb_sd_scaled_recovery.v"]}
+TESTS["tb_sd_admission_busy"] = {
+    "sources": TESTS["tb_sd_scaled_pages"]["sources"][:],
+    "top": "tb_sd_scaled_pages", "plusargs": ["+admission_busy"],
+    "pass_pattern": r"(?ms)\A(?=.*^INFO admitted job waited for live sector ready$)(?=.*^PASS: tb_sd_scaled_pages:)",
+}
 ZH = [RTL + "cpr_font16_rom.v", RTL + "cpr_zh_strings.v", RTL + "cpr_text_zh.v", LP]
 TESTS["tb_chinese_rom"] = {
     "sources": ZH[:2] + [TB + "tb_chinese_rom.v"],

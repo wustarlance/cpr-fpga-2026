@@ -54,6 +54,7 @@ module bmp_blur_background #(
     reg [15:0] crop_right, crop_top;
     reg finish_seen, avg_resume;
     reg [5:0] avg_x, avg_y;
+    reg [5:0] last_x, last_y;
     reg [7:0] avg_r, avg_g, avg_b;
     // One thumbnail row of wide sums, not a full frame of accumulators.
     localparam integer ACC_AW=$clog2(THUMB_WIDTH)>0?$clog2(THUMB_WIDTH):1;
@@ -140,11 +141,11 @@ module bmp_blur_background #(
     wire [6:0] byw   = {1'b0, blur_y};
     wire [6:0] bww   = {1'b0, bw};
     wire [6:0] bhw   = {1'b0, bh};
-    wire [6:0] bw_m1 = bww - 7'd1;
-    wire [6:0] bh_m1 = bhw - 7'd1;
+    wire [6:0] bw_m1 = {1'b0,last_x};
+    wire [6:0] bh_m1 = {1'b0,last_y};
     always @(posedge clk) begin
         if (state == BLUR_COORDS) begin
-            // blur_x/y are always in 0..bw/bh-1 (including 1x1 images).
+            // blur_x/y remain within the registered last indices, including 1x1 images.
             nx0_q <= bxw;
             nxm_q <= (bxw == 0) ? 7'd0 : bxw - 7'd1;
             nxp_q <= (bxw >= bw_m1) ? bw_m1 : bxw + 7'd1;
@@ -213,6 +214,7 @@ module bmp_blur_background #(
             held_inside<=0;held_at_left<=0;held_at_bottom<=0;
             crop_right<=1;crop_top<=1;
             finish_seen<=0;avg_resume<=0;avg_x<=0;avg_y<=0;
+            last_x<=0;last_y<=0;
             avg_r<=0;avg_g<=0;avg_b<=0;blur_source<=0;final_source<=0;
             blur_x<=0;blur_y<=0;blur_tap<=0;blur_pass<=0;
             blur_r<=0;blur_g<=0;blur_b<=0;
@@ -264,6 +266,10 @@ module bmp_blur_background #(
                         clear_x<=0;state<=CLEAR;
                     end
                     CLEAR:begin
+                        // Dimensions are stable before CLEAR. Register their
+                        // last indices once, avoiding subtract/compare/mux
+                        // chains in AVG_WRITE, blur bounds and interpolation.
+                        last_x<=bw-6'd1;last_y<=bh-6'd1;
                         crop_right<=crop_left+crop_w;
                         crop_top<=crop_bottom+crop_h;
                         if(clear_x==THUMB_WIDTH-1)begin
@@ -321,7 +327,7 @@ module bmp_blur_background #(
                     AVG_WRITE:begin
                         // This state's RAM write uses avg_b from the prior
                         // divider cycle, assigned by DIVIDE below.
-                        if(avg_x==bw-1)begin
+                        if(avg_x==last_x)begin
                             if(avg_resume)state<=ACC_FETCH;else state<=BLUR_BEGIN;
                         end else begin avg_x<=avg_x+1'b1;state<=AVG_FETCH;end
                     end
@@ -358,9 +364,9 @@ module bmp_blur_background #(
                     end
                     BLUR_WRITE:begin
                         blur_r<=0;blur_g<=0;blur_b<=0;blur_tap<=0;
-                        if(blur_x==bw-1)begin
+                        if(blur_x==last_x)begin
                             blur_x<=0;
-                            if(blur_y==bh-1)begin
+                            if(blur_y==last_y)begin
                                 blur_y<=0;
                                 if(blur_pass==BLUR_PASSES-1)begin
                                     final_source<=~blur_source;done<=1;state<=WAIT_SAMPLE;
@@ -382,7 +388,7 @@ module bmp_blur_background #(
                     end
                     SAMPLE_X:begin
                         if(div_bits<128)x_fp<=0;
-                        else if(div_bits>((bw-1)*256+128))x_fp<=(bw-1)*256;
+                        else if(div_bits>((last_x)*256+128))x_fp<=(last_x)*256;
                         else x_fp<=div_bits-128;
                         state<=SAMPLE_MUL_Y;
                     end
@@ -392,12 +398,12 @@ module bmp_blur_background #(
                         div_rem<=0;div_count<=32;div_return<=SAMPLE_Y;state<=DIVIDE;
                     end
                     SAMPLE_Y:begin
-                        x0<=x_fp[15:8];x1<=x_fp[15:8]>=bw-1?bw-1:x_fp[15:8]+1'b1;fx<=x_fp[7:0];
+                        x0<=x_fp[15:8];x1<=x_fp[15:8]>=last_x?last_x:x_fp[15:8]+1'b1;fx<=x_fp[7:0];
                         if(div_bits<128)begin y0<=0;y1<=bh>1?6'd1:6'd0;fy<=0;end
-                        else if(div_bits>((bh-1)*256+128))begin y0<=bh-1;y1<=bh-1;fy<=0;end
+                        else if(div_bits>((last_y)*256+128))begin y0<=last_y;y1<=last_y;fy<=0;end
                         else begin
                             y0<=(div_bits-128)>>8;
-                            y1<=((div_bits-128)>>8)>=bh-1?bh-1:((div_bits-128)>>8)+1'b1;
+                            y1<=((div_bits-128)>>8)>=last_y?last_y:((div_bits-128)>>8)+1'b1;
                             fy<=div_bits[7:0]-8'd128;
                         end
                         sample_tap<=0;state<=SAMPLE_FETCH;

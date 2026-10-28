@@ -77,6 +77,10 @@ if {[catch {
     # SWUG105 single-run flow: rebuild user/IP timing objects after the
     # logical-to-physical netlist transition, before placement and routing.
     read_sdc constraints/timing.sdc
+    if {[llength [get_pins {*U3/sdram_syn_45.opad}]] != 1} {
+        error "Expected one packed SDRAM clock PAD"
+    }
+    read_sdc constraints/sdram_forward.sdc
     read_sdc constraints/reset_publish.sdc
     if {$cpr_top eq "top_adc"} {
         read_sdc constraints/adc_mailbox.sdc
@@ -162,7 +166,7 @@ if {[catch {
         # routed log's CTS Local Wire Summary records its actual clock routes.
         report_timing_exception -file $cpr_reports/timing_exception.rpt
 
-        foreach {clock period} {sd_card_clk 10 ext_mem_clk 25 ext_mem_clk_sft 25 video_clk 40 hdmi_5x_clk 8} {
+        foreach {clock period} {sd_card_clk 10 ext_mem_clk 25 ext_mem_clk_sft 25 video_clk 40 hdmi_5x_clk 8 sdram_forward_clk 25} {
             set actual [get_property -max PERIOD [get_clocks $clock]]
             if {abs($actual-$period)>0.001} { error "Unexpected period for $clock: $actual" }
         }

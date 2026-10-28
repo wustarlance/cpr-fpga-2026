@@ -467,13 +467,15 @@ end else begin : g_cache_scheduler
 // Full-cache path retains the PR transport recovery policy but separates
 // background loading from frame publication. A corrupt partial slot is never
 // valid and cannot be selected by teaching, autoplay or training navigation.
+reg [1:0] target_q;
+reg select_load_q, sd_admit_ready_q;
 wire [1:0] manual_index = pending_prev ?
     prev_index_limited(img_idx,img_found_count) : next_index_limited(img_idx,img_found_count);
 wire [1:0] auto_index = next_index_limited(img_idx,img_found_count);
 wire cache_complete = load_busy && source_complete && writer_complete;
 wire cache_timeout = load_busy && load_timer >= LOAD_TIMEOUT_CYCLES-1 && !cache_complete;
 wire user_scan_retry = page_user_request || key_next_press || key_prev_press;
-wire cache_can_load = scan_done && bmp_ready && sd_ready && !load_busy && !recovering;
+wire cache_can_load = scan_done && bmp_ready && sd_admit_ready_q && !load_busy && !recovering;
 wire [3:0] boot_expected_mask = cache_mask_for_count(img_found_count);
 wire boot_cache_settled = sd_init_done && scan_done &&
     (((cache_valid | cache_failed) & boot_expected_mask) == boot_expected_mask) &&
@@ -483,6 +485,20 @@ assign boot_load_done =
     (media_fault && !recovering);
 reg [1:0] target;
 reg select_load;
+// Prepare job admission locally. The actual sector reader retains raw sd_ready
+// and waits for the bus; this hint never acknowledges a sector transfer.
+always @(posedge clk or posedge rst) begin
+    if(rst) begin target_q<=0; select_load_q<=0; sd_admit_ready_q<=0; end
+    else begin
+        target_q<=target;
+        select_load_q<=select_load;
+        sd_admit_ready_q<=sd_ready && sd_init_done;
+    end
+end
+// A slot can finish, fail or be requested while the decision is in flight.
+// Revalidate at acceptance so a stale candidate cannot overwrite a valid slot.
+wire scheduled_load = select_load_q && target_q<img_found_count &&
+    !cache_valid[target_q] && !cache_failed[target_q];
 always @* begin
     target=load_seq[1:0]; select_load=0;
     if (page_request_q && !cache_valid[page_index] && !cache_failed[page_index]) begin
@@ -568,7 +584,7 @@ always @(posedge clk or posedge rst) begin
 
             if(recovering) begin
                 if(recovery_count<RECOVERY_GUARD_CYCLES) recovery_count<=recovery_count+1'b1;
-                if(recovery_count>=RECOVERY_GUARD_CYCLES && bmp_ready && sd_ready && !write_ack_sync[1]) begin
+                if(recovery_count>=RECOVERY_GUARD_CYCLES && bmp_ready && sd_admit_ready_q && !write_ack_sync[1]) begin
                     recovering<=0;
                     if(RETRY_LIMIT>=0 && RETRY_LIMIT<255 && retry_count<=RETRY_LIMIT) begin
                         if(recover_scan) begin
@@ -614,19 +630,19 @@ always @(posedge clk or posedge rst) begin
                 if(media_fault && recover_scan && user_scan_retry) begin
                     media_fault<=0; media_error<=0; retry_count<=0;
                     scan_kicked<=0; img_found_count<=0; load_seq<=0;
-                end else if(!scan_kicked && bmp_ready && sd_ready && !media_fault) begin
+                end else if(!scan_kicked && bmp_ready && sd_admit_ready_q && !media_fault) begin
                     scan_start_pulse<=1; scan_kicked<=1; img_found_count<=0; retry_count<=0;
                 end else if(cache_can_load && !(media_fault && recover_scan)) begin
-                    if(select_load) begin
+                    if(scheduled_load) begin
                         // Only invalid slots are selected. A live frame remains
                         // immutable across retries, prefetch and mode changes.
-                        write_buf_idx<=target; pending_buf_idx<=target; load_idx<=target;
-                        load_sector<=sector_lut(target); load_start_pulse<=1;
+                        write_buf_idx<=target_q; pending_buf_idx<=target_q; load_idx<=target_q;
+                        load_sector<=sector_lut(target_q); load_start_pulse<=1;
                         load_busy<=1; load_timer<=0; retry_count<=0;
                         source_done_seen<=0; source_busy_seen<=0;
                         write_done_seen<=0; writer_started<=0;
-                        cache_failed[target]<=0;
-                        if({1'b0,target}==load_seq) load_seq<=load_seq+1'b1;
+                        cache_failed[target_q]<=0;
+                        if({1'b0,target_q}==load_seq) load_seq<=load_seq+1'b1;
                     end else if(load_seq<img_found_count && load_seq<4 &&
                                 (cache_valid[load_seq[1:0]] || cache_failed[load_seq[1:0]]))
                         load_seq<=load_seq+1'b1;

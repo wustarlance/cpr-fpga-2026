@@ -208,6 +208,14 @@ module bmp_read_scaled #(
     wire bg_finish = (pass_mode==1) && (state==ROW_READY) &&
                      payload_zero_q;
     wire bg_sample_req = (state==BG_SAMPLE_REQ);
+    // Losing SD init stops this reader immediately below. The background
+    // scratch worker may stop one cycle later: its results cannot publish
+    // after reader abort, and the next start reinitializes its job state.
+    reg bg_sd_init_q;
+    always @(posedge clk or posedge rst) begin
+        if(rst) bg_sd_init_q<=1'b0;
+        else bg_sd_init_q<=sd_init_done;
+    end
     wire bg_ingest_ready;
     wire bg_done;
     wire bg_sample_valid;
@@ -224,7 +232,7 @@ module bmp_read_scaled #(
             .BRIGHTNESS_SHIFT(BG_BRIGHTNESS_SHIFT)
         ) u_bg (
             .clk(clk), .rst(rst),
-            .cancel(cancel || bg_cancel_reg || !sd_init_done), .start(bg_start_reg),
+            .cancel(cancel || bg_cancel_reg || !bg_sd_init_q), .start(bg_start_reg),
             .width(width[11:0]), .height(height[10:0]),
             .ingest_ready(bg_ingest_ready), .pixel_valid(bg_pixel_valid),
             .pixel_rgb({sector_q,green,blue}),

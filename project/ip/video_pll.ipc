@@ -8,8 +8,7 @@
     <Page1>
         <speed_grade>Any</speed_grade>
         <input_frequency>50.0000000000000000MHz</input_frequency>
-        <feedback_mode>Normal</feedback_mode>
-        <clk_num>CLKC0</clk_num>
+        <feedback_mode>No compensation</feedback_mode>
         <enable_reset>ENABLE</enable_reset>
         <pll_lock>ENABLE</pll_lock>
     </Page1>
@@ -18,7 +17,7 @@
     </Page2>
     <Page3>
         <setting>frequncy_setting</setting>
-        <multiplication_factor>1</multiplication_factor>
+        <multiplication_factor>40</multiplication_factor>
         <division_factor>2</division_factor>
         <clocks>
             <clock>

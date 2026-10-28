@@ -1,4 +1,4 @@
--- CPR adaptation: expose the existing PLL extlock output; timing parameters unchanged.
+-- CPR 2026-10-28: internal VCO feedback; SDRAM forwarding source C2=135deg.
 --------------------------------------------------------------
  --     Copyright (c) 2012-2024 Anlogic Inc.
  --  All Right Reserved.
@@ -11,13 +11,13 @@
 
 -------------------------------------------------------------------------------
 --	Input frequency:               50.000000MHz
---	Clock multiplication factor: 2
+--	Clock multiplication factor: 20
 --	Clock division factor:       1
 --	Clock information:
 --		Clock name	| Frequency 	| Phase shift
 --		C0        	| 100.000000MHZ	| 0.0000  DEG  
 --		C1        	| 40.000000MHZ	| 0.0000  DEG  
---		C2        	| 40.000000MHZ	| 180.0000 DEG  
+--		C2        	| 40.000000MHZ	| 135.0000 DEG  
 -------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -44,7 +44,7 @@ ARCHITECTURE rtl OF sys_pll IS
   SIGNAL fbk_wire :  STD_LOGIC;
   SIGNAL clkc_wire :  STD_LOGIC_VECTOR (4 DOWNTO 0);
 BEGIN
-  bufg_feedback : EG_LOGIC_BUFG
+  bufg_output : EG_LOGIC_BUFG
   PORT MAP (
     i => clk0_buf,
     o => fbk_wire 
@@ -55,8 +55,8 @@ BEGIN
     DPHASE_SOURCE => "DISABLE",
     DYNCFG => "DISABLE",
     FIN => "50.000000",
-    FEEDBK_MODE => "NORMAL",
-    FEEDBK_PATH => "CLKC0_EXT",
+    FEEDBK_MODE => "NOCOMP",
+    FEEDBK_PATH => "VCO_PHASE_0",
     STDBY_ENABLE => "DISABLE",
     PLLRST_ENA => "ENABLE",
     SYNC_ENABLE => "DISABLE",
@@ -66,7 +66,7 @@ BEGIN
     LPF_CAPACITOR => 1,
     LPF_RESISTOR => 2,
     REFCLK_DIV => 1,
-    FBCLK_DIV => 2,
+    FBCLK_DIV => 20,
     CLKC0_ENABLE => "ENABLE",
     CLKC0_DIV => 10,
     CLKC0_CPHASE => 9,
@@ -77,8 +77,8 @@ BEGIN
     CLKC1_FPHASE => 0,
     CLKC2_ENABLE => "ENABLE",
     CLKC2_DIV => 25,
-    CLKC2_CPHASE => 11,
-    CLKC2_FPHASE => 4 
+    CLKC2_CPHASE => 8,
+    CLKC2_FPHASE => 3 
   )
   PORT MAP (
     refclk => refclk,
@@ -95,7 +95,7 @@ BEGIN
     dwe => '0',
     di => b"00000000",
     daddr => b"000000",
-    fbclk => fbk_wire,
+    fbclk => '0',
     clkc => clkc_wire 
   );
 

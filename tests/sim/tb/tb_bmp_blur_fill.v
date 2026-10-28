@@ -5,7 +5,7 @@
 // dump reverses rows so an ordinary image viewer displays the HDMI orientation.
 module tb_bmp_blur_fill #(parameter DW=16, DH=12, FULL=0);
     reg clk=0, rst=1, load_start=0, ack=0, pixel_ready=0;
-    reg cancel=0, sd_error=0, sd_valid=0, sd_end=0;
+    reg cancel=0, sd_error=0, sd_valid=0, sd_end=0, sd_initialized=1;
     reg [7:0] sd_data=0;
     always #5 clk=~clk;
     wire ready, request, push, sd_read, error, abort_sd, operation_error;
@@ -38,7 +38,7 @@ module tb_bmp_blur_fill #(parameter DW=16, DH=12, FULL=0);
         .scan_start(1'b0),.scan_start_sector(32'd4),.scan_max_sector(32'd4),
         .scan_target_count(3'd4),.scan_done(),.scan_found_valid(),
         .scan_found_sector(),.scan_found_total(),.load_start(load_start),
-        .load_sector(32'd4),.sd_init_done(!rst),.state_code(),
+        .load_sector(32'd4),.sd_init_done(!rst && sd_initialized),.state_code(),
         .bmp_width(DW[15:0]),.bmp_height(DH[15:0]),.write_req(request),
         .write_req_ack(ack),.sd_sec_read(sd_read),.sd_sec_read_addr(sd_addr),
         .sd_sec_read_data(sd_data),.sd_sec_read_data_valid(sd_valid),
@@ -301,6 +301,31 @@ module tb_bmp_blur_fill #(parameter DW=16, DH=12, FULL=0);
             repeat(30)@(negedge clk);run_image(83,83,54,1);
         end
     endtask
+    task run_filter_init_loss;
+        integer timeout;
+        begin
+            fault_phase=0;fault_kind=0;begin_image(83,83,54,2);
+            timeout=0;
+            while(dut.state!=dut.BG_WAIT)begin
+                @(negedge clk);timeout=timeout+1;
+                if(timeout>1000000)$fatal(1,"never reached filtering before init loss");
+            end
+            repeat(100)@(negedge clk);
+            if(write_events!=0 || count!=0)$fatal(1,"filtering exposed partial frame");
+            sd_initialized=0;fault_fired=1;
+            @(negedge clk);
+            if(!ready || request || sd_read || !operation_error || error_code!=1)
+                $fatal(1,"SD init loss did not abort reader immediately");
+            repeat(20)@(negedge clk);
+            if(write_events!=0 || count!=0 || push)
+                $fatal(1,"aborted background job published a frame");
+            checking=0;sd_initialized=1;
+            repeat(30)@(negedge clk);
+            // A different image detects scratch results surviving the abort.
+            run_image(83,83,54,1);
+            $display("PASS SD init loss during background filtering and clean retry");
+        end
+    endtask
     task write_ppm;
         integer fd,x,y;reg [23:0] p;
         begin
@@ -336,6 +361,7 @@ module tb_bmp_blur_fill #(parameter DW=16, DH=12, FULL=0);
         run_image(1,29,54,1);run_image(59,1,600,0);run_image(33,33,600,1);
         run_fault(1,1);run_fault(2,1);run_fault(1,2);run_fault(2,2);
         run_filter_cancel;
+        run_filter_init_loss;
         $display("PASS tb_bmp_blur_fill: pixel model, RGB rounding, crop, backpressure, faults and retries");
         $finish;
     end
