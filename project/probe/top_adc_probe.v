@@ -66,6 +66,25 @@ EG_PHY_ADC #(.CH1("ENABLE"), .VREF("ENABLE")) u_adc (
 );
 
 //-----------------------------------------------------------------------------
+// 2.5) 诊断：在 ADC 域按 EOC 直接抓一次 dout，不经过 adc_ctrl / mailbox。
+//      左侧数码管显示这个"原始抓取"值，右侧显示正式链路的值：
+//        左边 ≈ 3xxx、右边 0  → adc_ctrl 抓错拍（RTL 问题）
+//        两边都是 0           → ADC 引脚上真的没有电压（接线/引脚问题）
+//-----------------------------------------------------------------------------
+reg [11:0] adc_dout_at_eoc;
+always @(posedge audio_mclk or negedge rst_n) begin
+    if (!rst_n)           adc_dout_at_eoc <= 12'd0;
+    else if (adc_eoc)     adc_dout_at_eoc <= adc_dout;
+end
+
+// 慢速搬到显示域：值在两次转换之间是稳定的，1 Hz 取一次足够
+reg [11:0] adc_dout_disp;
+always @(posedge clk_g or negedge rst_n) begin
+    if (!rst_n) adc_dout_disp <= 12'd0;
+    else if (raw_cnt_tick) adc_dout_disp <= adc_dout_at_eoc;
+end
+
+//-----------------------------------------------------------------------------
 // 3) 和正式工程完全相同的采样/归一化/峰值链路
 //    参数与 top_tf_hdmi_audio.v 的默认值一致，标定出来的数可以直接搬过去。
 //-----------------------------------------------------------------------------
@@ -127,7 +146,7 @@ reg [27:0] bcd_sh;
 reg        bcd_sel;                  // 0 = live，1 = peak
 reg [15:0] bcd_live_q, bcd_peak_q;
 
-wire [11:0] bcd_src  = bcd_sel ? peak_value : raw_data;
+wire [11:0] bcd_src  = bcd_sel ? adc_dout_disp : raw_data;
 wire [27:0] bcd_next = dd_step(bcd_sh);
 
 always @(posedge clk_g or negedge rst_n) begin
@@ -143,7 +162,7 @@ always @(posedge clk_g or negedge rst_n) begin
         bcd_step <= bcd_step + 4'd1;
         if (bcd_step == 4'd11) begin
             bcd_busy <= 1'b0;
-            if (bcd_sel) bcd_peak_q <= bcd_next[27:12];
+            if (bcd_sel) bcd_peak_q <= bcd_next[27:12];   // 现在是 EOC 直抓值
             else         bcd_live_q <= bcd_next[27:12];
             bcd_sel  <= ~bcd_sel;
         end
@@ -192,7 +211,7 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan (
     .rst_n   (rst_n),
     .seg_sel (seg_sel),
     .seg_data(seg_data),
-    .digit0  ({1'b1, seg7(bcd_peak_q[15:12])}),   // 左起第 1 位：峰值千位
+    .digit0  ({1'b1, seg7(bcd_peak_q[15:12])}),   // 左 4 位 = EOC 直抓的 adc_dout
     .digit1  ({1'b1, seg7(bcd_peak_q[11:8])}),
     .digit2  ({1'b1, seg7(bcd_peak_q[7:4])}),
     .digit3  ({1'b1, seg7(bcd_peak_q[3:0])}),

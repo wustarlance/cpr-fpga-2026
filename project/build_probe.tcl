@@ -13,6 +13,7 @@ if {[catch {
     read_sdc probe/probe.sdc
     # ADC 采样信箱的跨域约束复用正式工程那份（通配路径在探针里同样匹配）
     read_sdc constraints/adc_mailbox.sdc
+    read_sdc probe/probe_cdc.sdc
     commit_param -step rtl
     optimize_rtl
     read_sdc probe/probe.sdc
