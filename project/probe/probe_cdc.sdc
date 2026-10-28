@@ -4,3 +4,5 @@ set_max_delay -from [get_regs -nowarn {*adc_dout_at_eoc[*]}] \
               -to   [get_regs -nowarn {*adc_dout_disp[*]}] 40 -datapath_only
 set_max_delay -from [get_regs -nowarn {*ch_sel[*]}] \
               -to   [get_regs -nowarn {*ch_disp[*]}] 40 -datapath_only
+set_max_delay -from [get_regs -nowarn {*dbg_dout_raw[*]}] \
+              -to   [get_regs -nowarn {*dbg_dout_disp[*]}] 40 -datapath_only

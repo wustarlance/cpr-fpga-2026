@@ -124,6 +124,23 @@ cpr_sensor_path #(
 );
 
 //-----------------------------------------------------------------------------
+// 3.5) 对比通路：ADC 域按 EOC 直抓 dout（绕开 adc_ctrl/mailbox），1 Hz 搬到显示域
+//      左 4 位 = 这条直抓值；右 4 位 = 正式链路（adc_ctrl→mailbox）的 raw_data
+//      左有数、右 0  → adc_ctrl 抓错拍（RTL 问题）
+//      两边一致      → 链路没问题，读数小是接线（节点悬空）
+//-----------------------------------------------------------------------------
+reg [11:0] dbg_dout_raw;
+reg [11:0] dbg_dout_disp;
+always @(posedge audio_mclk or negedge rst_n) begin
+    if (!rst_n)       dbg_dout_raw <= 12'd0;
+    else if (adc_eoc) dbg_dout_raw <= adc_dout;
+end
+always @(posedge clk_g or negedge rst_n) begin
+    if (!rst_n)            dbg_dout_disp <= 12'd0;
+    else if (raw_cnt_tick) dbg_dout_disp <= dbg_dout_raw;
+end
+
+//-----------------------------------------------------------------------------
 // 4) 十进制转换：时钟化 double-dabble（每拍一位，12 拍一次，约 30 LUT）
 //    live / peak 交替转换，48 拍一轮（50 MHz 下 < 1 us），肉眼无感。
 //-----------------------------------------------------------------------------
@@ -146,7 +163,7 @@ reg [27:0] bcd_sh;
 reg        bcd_sel;                  // 0 = live，1 = peak
 reg [15:0] bcd_live_q, bcd_peak_q;
 
-wire [11:0] bcd_src  = bcd_sel ? peak_value : raw_data;
+wire [11:0] bcd_src  = bcd_sel ? dbg_dout_disp : raw_data;
 wire [27:0] bcd_next = dd_step(bcd_sh);
 
 always @(posedge clk_g or negedge rst_n) begin
