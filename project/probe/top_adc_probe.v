@@ -56,9 +56,7 @@ wire        adc_soc, adc_pd, adc_eoc;
 wire [2:0]  adc_channel;
 wire [11:0] adc_dout;
 
-EG_PHY_ADC #(.CH0("ENABLE"), .CH1("ENABLE"), .CH2("ENABLE"), .CH3("ENABLE"),
-             .CH4("ENABLE"), .CH5("ENABLE"), .CH6("ENABLE"), .CH7("ENABLE"),
-             .VREF("ENABLE")) u_adc (
+EG_PHY_ADC #(.CH4("ENABLE"), .VREF("ENABLE")) u_adc (
     .clk  (audio_mclk),
     .pd   (adc_pd),
     .s    (adc_channel),
@@ -68,87 +66,62 @@ EG_PHY_ADC #(.CH0("ENABLE"), .CH1("ENABLE"), .CH2("ENABLE"), .CH3("ENABLE"),
 );
 
 //-----------------------------------------------------------------------------
-// 3) 通道扫描器（本版专用）：轮流给 CH0..CH7 发 SOC，按 EOC 抓 dout。
-//    每 1.5 s 换一个通道；数码管最左一位显示当前通道号。
-//    哪个通道的数字跳变，你的线就接在那个通道对应的引脚上。
+// 2.5) 诊断：在 ADC 域按 EOC 直接抓一次 dout，不经过 adc_ctrl / mailbox。
+//      左侧数码管显示这个"原始抓取"值，右侧显示正式链路的值：
+//        左边 ≈ 3xxx、右边 0  → adc_ctrl 抓错拍（RTL 问题）
+//        两边都是 0           → ADC 引脚上真的没有电压（接线/引脚问题）
 //-----------------------------------------------------------------------------
-localparam integer CVT_GAP  = 61;          // 200 kSa/s @12.295082 MHz
-localparam integer HOLD_CYC = 18_000_000;  // 每通道停留 ~1.46 s
-
-reg [5:0]  gap_cnt;
-reg        soc_r, wait_eoc;
-reg [6:0]  eoc_wait;
-reg [2:0]  ch_sel;
-reg [24:0] hold_cnt;
-reg [11:0] dout_cap;
-
-always @(posedge audio_mclk or negedge rst_n) begin
-    if (!rst_n) begin
-        gap_cnt  <= 6'd0;
-        soc_r    <= 1'b0;
-        wait_eoc <= 1'b0;
-        eoc_wait <= 7'd0;
-        ch_sel   <= 3'd0;
-        hold_cnt <= 25'd0;
-        dout_cap <= 12'd0;
-    end else begin
-        soc_r <= 1'b0;
-
-        // 换通道：只在没有进行中的转换时切换
-        if (!wait_eoc) begin
-            if (hold_cnt == HOLD_CYC-1) begin
-                hold_cnt <= 25'd0;
-                ch_sel   <= ch_sel + 3'd1;
-                gap_cnt  <= 6'd0;
-            end else begin
-                hold_cnt <= hold_cnt + 25'd1;
-            end
-        end
-
-        if (!wait_eoc) begin
-            if (gap_cnt == CVT_GAP-1) begin
-                gap_cnt  <= 6'd0;
-                soc_r    <= 1'b1;          // 一拍 SOC
-                wait_eoc <= 1'b1;
-                eoc_wait <= 7'd0;
-            end else begin
-                gap_cnt <= gap_cnt + 6'd1;
-            end
-        end else if (adc_eoc) begin
-            dout_cap <= adc_dout;          // EOC 当拍抓 dout
-            wait_eoc <= 1'b0;
-        end else if (eoc_wait == 7'd100) begin
-            wait_eoc <= 1'b0;              // 超时放弃这次
-        end else begin
-            eoc_wait <= eoc_wait + 7'd1;
-        end
-    end
-end
-
-assign adc_soc = soc_r;
-assign adc_pd  = 1'b0;                 // 0 = 正常工作（TN304）
-assign adc_channel = ch_sel;
-
-// 慢速搬到显示域（值稳定，1 Hz 采一次）
 reg [11:0] adc_dout_at_eoc;
-reg [11:0] adc_dout_disp;
-reg [2:0]  ch_disp;   // 通道号也慢速搬到显示域
 always @(posedge audio_mclk or negedge rst_n) begin
-    if (!rst_n) adc_dout_at_eoc <= 12'd0;
-    else        adc_dout_at_eoc <= dout_cap;
-end
-always @(posedge clk_g or negedge rst_n) begin
-    if (!rst_n)              adc_dout_disp <= 12'd0;
-    else if (raw_cnt_tick)   begin adc_dout_disp <= adc_dout_at_eoc; ch_disp <= ch_sel; end
+    if (!rst_n)           adc_dout_at_eoc <= 12'd0;
+    else if (adc_eoc)     adc_dout_at_eoc <= adc_dout;
 end
 
-// 扫描版没有 cpr_sensor_path：下面这些信号在显示/LED 逻辑里还有引用，直接给常量
-wire        peak_event = 1'b0;
-wire        raw_valid  = 1'b0;
-wire        sensor_fault = 1'b0;
-wire [11:0] peak_value = 12'd0;
-wire [11:0] raw_data   = 12'd0;
-wire [1:0]  peak_grade = 2'd0;
+// 慢速搬到显示域：值在两次转换之间是稳定的，1 Hz 取一次足够
+reg [11:0] adc_dout_disp;
+always @(posedge clk_g or negedge rst_n) begin
+    if (!rst_n) adc_dout_disp <= 12'd0;
+    else if (raw_cnt_tick) adc_dout_disp <= adc_dout_at_eoc;
+end
+
+//-----------------------------------------------------------------------------
+// 3) 和正式工程完全相同的采样/归一化/峰值链路
+//    参数与 top_tf_hdmi_audio.v 的默认值一致，标定出来的数可以直接搬过去。
+//-----------------------------------------------------------------------------
+wire        raw_valid, peak_event, sensor_fault;
+wire [11:0] raw_data, peak_value;
+wire [1:0]  peak_grade;
+
+cpr_sensor_path #(
+    .ADC_CLK_HZ       (12295082),
+    .SAMPLE_HZ        (200000),
+    .CHANNEL          (4),
+    .RELEASE_BASELINE (12'd4095),
+    .FALLING_WITH_FORCE (1),
+    .FILTER_SHIFT     (2),
+    .TRIGGER_LEVEL    (12'd150),
+    .RELEASE_LEVEL    (12'd100),
+    .TARGET_LOW       (12'd800),
+    .TARGET_HIGH      (12'd1600)
+) u_sensor (
+    .adc_clk       (audio_mclk),
+    .adc_rst_n     (rst_n),
+    .app_clk       (clk_g),
+    .app_rst_n     (rst_n),
+    .adc_eoc       (adc_eoc),
+    .adc_dout      (adc_dout),
+    .adc_soc       (adc_soc),
+    .adc_pd        (adc_pd),
+    .adc_channel   (adc_channel),
+    .enabled       (audio_lock),   // PLL 锁定后才开始采样，避免上电误报故障
+    .clear_session (1'b0),
+    .peak_event    (peak_event),
+    .peak_grade    (peak_grade),
+    .peak_value    (peak_value),
+    .raw_valid     (raw_valid),
+    .raw_data      (raw_data),
+    .sensor_fault  (sensor_fault)
+);
 
 //-----------------------------------------------------------------------------
 // 4) 十进制转换：时钟化 double-dabble（每拍一位，12 拍一次，约 30 LUT）
@@ -173,7 +146,7 @@ reg [27:0] bcd_sh;
 reg        bcd_sel;                  // 0 = live，1 = peak
 reg [15:0] bcd_live_q, bcd_peak_q;
 
-wire [11:0] bcd_src  = bcd_sel ? 12'd0 : adc_dout_disp;
+wire [11:0] bcd_src  = bcd_sel ? peak_value : raw_data;
 wire [27:0] bcd_next = dd_step(bcd_sh);
 
 always @(posedge clk_g or negedge rst_n) begin
@@ -238,14 +211,14 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan (
     .rst_n   (rst_n),
     .seg_sel (seg_sel),
     .seg_data(seg_data),
-    .digit0  ({1'b1, seg7({1'b0, ch_disp})}),       // 左 1 位 = 当前扫描通道号
-    .digit1  ({1'b1, 7'b111_1111}),
-    .digit2  ({1'b1, 7'b111_1111}),
-    .digit3  ({1'b1, 7'b111_1111}),
-    .digit4  ({1'b1, seg7(alt_mode ? self_bcd[15:12] : bcd_live_q[15:12])}),
-    .digit5  ({1'b1, seg7(alt_mode ? self_bcd[11:8]  : bcd_live_q[11:8])}),
-    .digit6  ({1'b1, seg7(alt_mode ? self_bcd[7:4]   : bcd_live_q[7:4])}),
-    .digit7  ({1'b1, seg7(alt_mode ? self_bcd[3:0]   : bcd_live_q[3:0])})
+    .digit0  ({1'b1, seg7(bcd_peak_q[15:12])}),   // 左 4 位 = EOC 直抓的 adc_dout
+    .digit1  ({1'b1, seg7(bcd_peak_q[11:8])}),
+    .digit2  ({1'b1, seg7(bcd_peak_q[7:4])}),
+    .digit3  ({1'b1, seg7(bcd_peak_q[3:0])}),
+    .digit4  ({1'b1, seg7(bcd_live_q[15:12])}),
+    .digit5  ({1'b1, seg7(bcd_live_q[11:8])}),
+    .digit6  ({1'b1, seg7(bcd_live_q[7:4])}),
+    .digit7  ({1'b1, seg7(bcd_live_q[3:0])})
 );
 
 //-----------------------------------------------------------------------------
@@ -330,6 +303,6 @@ end
 assign led[0] = audio_lock;                 // LED1：PLL 锁定（必须亮）
 assign led[1] = (eoc_stretch != 20'd0);     // LED2：ADC 在转换（应亮/闪）
 assign led[2] = heartbeat;                  // LED3：1 Hz 心跳
-assign led[3] = (adc_dout_disp != 12'd0);    // LED4：当前扫描通道读到了非零值
+assign led[3] = (raw_stretch != 19'd0) | peak_blink;  // LED4：mailbox 在送样本
 
 endmodule
