@@ -32,7 +32,8 @@ module top_adc_probe (
 //-----------------------------------------------------------------------------
 // 1) ADC 时钟：与正式工程同一份 PLL 配置（C2 = 12.295082 MHz）
 //-----------------------------------------------------------------------------
-wire audio_mclk, audio_lock;
+wire audio_mclk_pll, audio_mclk, audio_lock;
+wire clk_g;
 
 PLL_HDMI_AUDIO u_audio_pll (
     .refclk   (clk),
@@ -40,8 +41,13 @@ PLL_HDMI_AUDIO u_audio_pll (
     .extlock  (audio_lock),
     .clk0_out (),
     .clk1_out (),
-    .clk2_out (audio_mclk)
+    .clk2_out (audio_mclk_pll)     // IP 里只有 C0 走 BUFG，C2 出来是裸的
 );
+
+// 显式全局缓冲：50 MHz 直接驱动逻辑、PLL C2 直接驱动 ADC，两个时钟原来都不在
+// 全局时钟网上（探针面积报告 #gclk = 0），ADC 很可能因此不出数据。
+EG_LOGIC_BUFG u_adc_clk_buf (.i(audio_mclk_pll), .o(audio_mclk));
+EG_LOGIC_BUFG u_sys_clk_buf (.i(clk),            .o(clk_g));
 
 //-----------------------------------------------------------------------------
 // 2) ADC 硬核原语：CH1(M10) + 内部 VREF(L11)
@@ -81,7 +87,7 @@ cpr_sensor_path #(
 ) u_sensor (
     .adc_clk       (audio_mclk),
     .adc_rst_n     (rst_n),
-    .app_clk       (clk),
+    .app_clk       (clk_g),
     .app_rst_n     (rst_n),
     .adc_eoc       (adc_eoc),
     .adc_dout      (adc_dout),
@@ -124,7 +130,7 @@ reg [15:0] bcd_live_q, bcd_peak_q;
 wire [11:0] bcd_src  = bcd_sel ? peak_value : raw_data;
 wire [27:0] bcd_next = dd_step(bcd_sh);
 
-always @(posedge clk or negedge rst_n) begin
+always @(posedge clk_g or negedge rst_n) begin
     if (!rst_n) begin
         bcd_busy <= 1'b0; bcd_step <= 4'd0; bcd_sh <= 28'd0; bcd_sel <= 1'b0;
         bcd_live_q <= 16'd0; bcd_peak_q <= 16'd0;
@@ -162,7 +168,7 @@ function [6:0] seg7;
 endfunction
 
 cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan (
-    .clk     (clk),
+    .clk     (clk_g),
     .rst_n   (rst_n),
     .seg_sel (seg_sel),
     .seg_data(seg_data),
@@ -183,7 +189,24 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan (
 localparam integer BLINK_CYCLES = 5_000_000;
 reg [22:0] blink_cnt;
 reg        peak_blink;
-always @(posedge clk or negedge rst_n) begin
+
+// 1 Hz 心跳：证明 50 MHz 时钟在跑（数码管扫描同样依赖它）
+reg [24:0] hb_cnt;
+reg        heartbeat;
+always @(posedge clk_g or negedge rst_n) begin
+    if (!rst_n) begin hb_cnt <= 25'd0; heartbeat <= 1'b0; end
+    else if (hb_cnt == 25'd24_999_999) begin hb_cnt <= 25'd0; heartbeat <= ~heartbeat; end
+    else hb_cnt <= hb_cnt + 25'd1;
+end
+
+// EOC 活动：ADC 每完成一次转换会出一拍 eoc，用它点亮 LED2 表示"ADC 在转换"
+reg [19:0] eoc_stretch;
+always @(posedge audio_mclk or negedge rst_n) begin
+    if (!rst_n)                    eoc_stretch <= 20'd0;
+    else if (adc_eoc)              eoc_stretch <= 20'hF_FFFF;   // 约 85 ms
+    else if (eoc_stretch != 20'd0) eoc_stretch <= eoc_stretch - 20'd1;
+end
+always @(posedge clk_g or negedge rst_n) begin
     if (!rst_n) begin
         blink_cnt  <= 23'd0;
         peak_blink <= 1'b0;
@@ -198,9 +221,9 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 
-assign led[0] = audio_lock;         // LED1：音频 PLL 锁定
-assign led[1] = sensor_fault;       // LED2：ADC 超时/故障
-assign led[2] = peak_blink;         // LED3：一次按压完成（闪一下）
-assign led[3] = raw_valid;          // LED4：有有效采样
+assign led[0] = audio_lock;                 // LED1：PLL 锁定（必须亮）
+assign led[1] = (eoc_stretch != 20'd0);     // LED2：ADC 在转换（应亮/闪）
+assign led[2] = heartbeat;                  // LED3：1 Hz 心跳
+assign led[3] = raw_valid | peak_blink;     // LED4：有有效采样 / 完成按压
 
 endmodule
