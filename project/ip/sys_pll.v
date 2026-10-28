@@ -1,3 +1,5 @@
+// CPR 2026-10-28: internal VCO feedback; output rates/relative phase unchanged.
+// Absolute phase to the 50 MHz reference is not required; see docs/clock-routing-20261028.md.
 /************************************************************\
  **     Copyright (c) 2012-2024 Anlogic Inc.
  **  All Right Reserved.\
@@ -11,7 +13,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //	Input frequency:               50.000000MHz
-//	Clock multiplication factor: 2
+//	Clock multiplication factor: 20
 //	Clock division factor:       1
 //	Clock information:
 //		Clock name	| Frequency 	| Phase shift
@@ -39,7 +41,7 @@ module sys_pll (
 
   wire clk0_buf;
 
-  EG_LOGIC_BUFG bufg_feedback (
+  EG_LOGIC_BUFG bufg_output (
     .i(clk0_buf),
     .o(clk0_out) 
   );
@@ -48,8 +50,8 @@ module sys_pll (
     .DPHASE_SOURCE("DISABLE"),
     .DYNCFG("DISABLE"),
     .FIN("50.000000"),
-    .FEEDBK_MODE("NORMAL"),
-    .FEEDBK_PATH("CLKC0_EXT"),
+    .FEEDBK_MODE("NOCOMP"),
+    .FEEDBK_PATH("VCO_PHASE_0"),
     .STDBY_ENABLE("DISABLE"),
     .PLLRST_ENA("ENABLE"),
     .SYNC_ENABLE("DISABLE"),
@@ -59,7 +61,7 @@ module sys_pll (
     .LPF_CAPACITOR(1),
     .LPF_RESISTOR(2),
     .REFCLK_DIV(1),
-    .FBCLK_DIV(2),
+    .FBCLK_DIV(20),
     .CLKC0_ENABLE("ENABLE"),
     .CLKC0_DIV(10),
     .CLKC0_CPHASE(9),
@@ -89,7 +91,7 @@ module sys_pll (
     .di(8'b00000000),
     .daddr(6'b000000),
     .do({open, open, open, open, open, open, open, open}),
-    .fbclk(clk0_out),
+    .fbclk(1'b0),
     .clkc({open, open, clk2_out, clk1_out, clk0_buf}) 
   );
 

@@ -1,4 +1,4 @@
--- CPR adaptation: expose the existing PLL extlock output; timing parameters unchanged.
+-- CPR 2026-10-28: internal VCO feedback; output rates/relative phase unchanged.
 --------------------------------------------------------------
  --     Copyright (c) 2012-2024 Anlogic Inc.
  --  All Right Reserved.
@@ -11,7 +11,7 @@
 
 -------------------------------------------------------------------------------
 --	Input frequency:               50.000000MHz
---	Clock multiplication factor: 1
+--	Clock multiplication factor: 40
 --	Clock division factor:       2
 --	Clock information:
 --		Clock name	| Frequency 	| Phase shift
@@ -42,7 +42,7 @@ ARCHITECTURE rtl OF video_pll IS
   SIGNAL fbk_wire :  STD_LOGIC;
   SIGNAL clkc_wire :  STD_LOGIC_VECTOR (4 DOWNTO 0);
 BEGIN
-  bufg_feedback : EG_LOGIC_BUFG
+  bufg_output : EG_LOGIC_BUFG
   PORT MAP (
     i => clk0_buf,
     o => fbk_wire 
@@ -53,8 +53,8 @@ BEGIN
     DPHASE_SOURCE => "DISABLE",
     DYNCFG => "DISABLE",
     FIN => "50.000000",
-    FEEDBK_MODE => "NORMAL",
-    FEEDBK_PATH => "CLKC0_EXT",
+    FEEDBK_MODE => "NOCOMP",
+    FEEDBK_PATH => "VCO_PHASE_0",
     STDBY_ENABLE => "DISABLE",
     PLLRST_ENA => "ENABLE",
     SYNC_ENABLE => "DISABLE",
@@ -64,7 +64,7 @@ BEGIN
     LPF_CAPACITOR => 1,
     LPF_RESISTOR => 8,
     REFCLK_DIV => 2,
-    FBCLK_DIV => 1,
+    FBCLK_DIV => 40,
     CLKC0_ENABLE => "ENABLE",
     CLKC0_DIV => 40,
     CLKC0_CPHASE => 39,
@@ -89,7 +89,7 @@ BEGIN
     dwe => '0',
     di => b"00000000",
     daddr => b"000000",
-    fbclk => fbk_wire,
+    fbclk => '0',
     clkc => clkc_wire 
   );
 
