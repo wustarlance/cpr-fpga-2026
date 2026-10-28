@@ -24,6 +24,7 @@
 module top_adc_probe (
     input  wire       clk,        // 50 MHz 晶振（R7）
     input  wire       rst_n,      // 复位键（A2），低有效
+    input  wire       key1,       // 自检键（B2，按住 = 右 4 位显示 1 Hz 计数）
     output wire [7:0] seg_sel,
     output wire [7:0] seg_data,
     output wire [3:0] led
@@ -151,6 +152,26 @@ always @(posedge clk_g or negedge rst_n) begin
 end
 
 //-----------------------------------------------------------------------------
+// 4.5) 自检计数器（1 Hz）的十进制：直接维护 4 位 BCD，省一个转换器
+//-----------------------------------------------------------------------------
+reg [15:0] self_bcd;
+always @(posedge clk_g or negedge rst_n) begin
+    if (!rst_n) self_bcd <= 16'd0;
+    else if (key1 && raw_cnt_tick) begin
+        if (self_bcd[3:0] == 4'd9) begin
+            self_bcd[3:0] <= 4'd0;
+            if (self_bcd[7:4] == 4'd9) begin
+                self_bcd[7:4] <= 4'd0;
+                if (self_bcd[11:8] == 4'd9) begin
+                    self_bcd[11:8] <= 4'd0;
+                    self_bcd[15:12] <= (self_bcd[15:12] == 4'd9) ? 4'd0 : self_bcd[15:12] + 4'd1;
+                end else self_bcd[11:8] <= self_bcd[11:8] + 4'd1;
+            end else self_bcd[7:4] <= self_bcd[7:4] + 4'd1;
+        end else self_bcd[3:0] <= self_bcd[3:0] + 4'd1;
+    end
+end
+
+//-----------------------------------------------------------------------------
 // 5) 七段码 + 动态扫描：左 4 位峰值，右 4 位实时
 //-----------------------------------------------------------------------------
 function [6:0] seg7;
@@ -176,10 +197,10 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan (
     .digit1  ({1'b1, seg7(bcd_peak_q[11:8])}),
     .digit2  ({1'b1, seg7(bcd_peak_q[7:4])}),
     .digit3  ({1'b1, seg7(bcd_peak_q[3:0])}),
-    .digit4  ({1'b1, seg7(bcd_live_q[15:12])}),   // 左起第 5 位：实时千位
-    .digit5  ({1'b1, seg7(bcd_live_q[11:8])}),
-    .digit6  ({1'b1, seg7(bcd_live_q[7:4])}),
-    .digit7  ({1'b1, seg7(bcd_live_q[3:0])})
+    .digit4  ({1'b1, seg7(key1 ? self_bcd[15:12] : bcd_live_q[15:12])}),
+    .digit5  ({1'b1, seg7(key1 ? self_bcd[11:8]  : bcd_live_q[11:8])}),
+    .digit6  ({1'b1, seg7(key1 ? self_bcd[7:4]   : bcd_live_q[7:4])}),
+    .digit7  ({1'b1, seg7(key1 ? self_bcd[3:0]   : bcd_live_q[3:0])})
 );
 
 //-----------------------------------------------------------------------------
@@ -188,6 +209,30 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan (
 // 一次按压完成 → 亮 100 ms（50 MHz 下 5,000,000 拍），肉眼可见
 localparam integer BLINK_CYCLES = 5_000_000;
 reg [22:0] blink_cnt;
+// 1 Hz tick：50,000,000 拍一个脉冲（按住 K1 时给自检 BCD 加 1）
+reg [25:0] sec_div;
+reg        raw_cnt_tick;
+always @(posedge clk_g or negedge rst_n) begin
+    if (!rst_n) begin
+        sec_div      <= 26'd0;
+        raw_cnt_tick <= 1'b0;
+    end else if (sec_div == 26'd49_999_999) begin
+        sec_div      <= 26'd0;
+        raw_cnt_tick <= 1'b1;
+    end else begin
+        sec_div      <= sec_div + 26'd1;
+        raw_cnt_tick <= 1'b0;
+    end
+end
+
+// mailbox 是否真的在送样本（raw_valid 只有一拍，拉长到 ~10 ms 才看得见）
+reg [18:0] raw_stretch;
+always @(posedge clk_g or negedge rst_n) begin
+    if (!rst_n)                    raw_stretch <= 19'd0;
+    else if (raw_valid)            raw_stretch <= 19'h3FFFF;
+    else if (raw_stretch != 19'd0) raw_stretch <= raw_stretch - 19'd1;
+end
+
 reg        peak_blink;
 
 // 1 Hz 心跳：证明 50 MHz 时钟在跑（数码管扫描同样依赖它）
@@ -224,6 +269,6 @@ end
 assign led[0] = audio_lock;                 // LED1：PLL 锁定（必须亮）
 assign led[1] = (eoc_stretch != 20'd0);     // LED2：ADC 在转换（应亮/闪）
 assign led[2] = heartbeat;                  // LED3：1 Hz 心跳
-assign led[3] = raw_valid | peak_blink;     // LED4：有有效采样 / 完成按压
+assign led[3] = (raw_stretch != 19'd0) | peak_blink;  // LED4：mailbox 在送样本
 
 endmodule
