@@ -302,7 +302,7 @@ generate
         wire [2:0] adc_channel;
         wire [11:0] adc_dout;
         // EG_PHY_ADC 是 FPGA 硬核原语，直接接管专用 ADC pad：
-        //   CH1("ENABLE")  → 通道 1 = M10，经 RN23 到 J1 第 16 脚
+        //   CH4("ENABLE")  → 通道 4 = M12，经 RN23 到 J2 第 35 脚（按压盒标准接法）
         //   VREF("ENABLE") → 内部参考电压，在独立的 L11 pad 上
         // 因为走专用 pad，pin.adc 里【找不到 M10/L11】的 set_pin_assignment。
         // 时钟复用音频 PLL 的 12.295082 MHz —— 音频本来就要跑，不多占 PLL（器件共 4 个）。
@@ -310,7 +310,7 @@ generate
         // assigned to this multiplexed pad. Enable VREF (BG256 L11) per
         // TN304's parameter contract. Its actual board voltage and the
         // front-end range require bench checking before analog use.
-        EG_PHY_ADC #(.CH1("ENABLE"), .VREF("ENABLE")) u_adc (
+        EG_PHY_ADC #(.CH4("ENABLE"), .VREF("ENABLE")) u_adc (
             .clk  (audio_mclk),
             .pd   (adc_pd),
             .s    (adc_channel),
@@ -320,7 +320,7 @@ generate
         cpr_sensor_path #(
             .ADC_CLK_HZ       (12295082),
             .SAMPLE_HZ        (200000),
-            .CHANNEL          (1),
+            .CHANNEL          (4),
             .RELEASE_BASELINE (RELEASE_BASELINE),
             .TRIGGER_LEVEL    (TRIGGER_LEVEL),
             .RELEASE_LEVEL    (RELEASE_LEVEL),

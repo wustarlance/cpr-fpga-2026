@@ -28,7 +28,9 @@ TN304_1.3 PDF page 4 recommends SOC intervals below 10 microseconds. For an actu
 
 `tb_adc_ctrl.v` checks exact fast and sparse intervals, PD placement, sample counts and contents, acquisition before completion, ignored busy SOC, ignored unsolicited EOC, delayed completion, timeout and recovery, and reset cancellation. Assertions terminate with `$fatal(1, ...)`; only successful completion emits `PASS: tb_adc_ctrl`. Simulation proves the digital contract exercised by those scenarios. Hardware channel, voltage/code direction, reference voltage, sample accuracy and FSR displacement calibration remain physical checks.
 
-The verified BG256 CH1 pad is M10, routed to J1 pin 16 / GPIOA_13. ADC_VREF is the separate L11 pad, not VCCIO8. The pressure front end must supply an electrically valid voltage and a separately defined/calibrated pressure or displacement interface.
+The pressure path uses BG256 CH4 pad M12, routed to J2 pin 35 / GPIOB_30
+(net GPIOB_30 through a 47 ohm series network). CH1 (M10) is on J1 pin 16; CH2
+(L10) is shared with the K2 panel key and must stay disabled. ADC_VREF is the separate L11 pad, not VCCIO8. The pressure front end must supply an electrically valid voltage and a separately defined/calibrated pressure or displacement interface.
 
 ## Source evidence
 
