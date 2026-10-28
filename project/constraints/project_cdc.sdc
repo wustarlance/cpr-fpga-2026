@@ -75,3 +75,10 @@ set_false_path -hold -from [get_regs -nowarn {*u_audio_wav/u_path/S_cfg_rate_hol
 if {[llength [get_regs -nowarn {*frame_fifo_read*/read_req_d0}]] > 0} {
     set_false_path -to [get_regs -nowarn {*frame_fifo_read*/read_req_d0}]
 }
+
+# Startup prefetch-complete level: SD clock -> video clock. The boot logo stays
+# selected until every discovered slot is cached (or a terminal media fault is
+# reported). Only the metastability-catching first stage is asynchronous.
+if {[llength [get_regs -nowarn {*boot_load_done_sync[0]}]] > 0} {
+    set_false_path -to [get_regs -nowarn {*boot_load_done_sync[0]}]
+}

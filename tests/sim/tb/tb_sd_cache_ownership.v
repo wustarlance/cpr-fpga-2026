@@ -2,7 +2,7 @@
 module tb_sd_cache_ownership;
  reg clk=0,mem_clk=0,rst_n=0,key_next=1,key_prev=1,auto_enable=0;
  reg frame_start=0,write_toggle=0;
- wire valid,publish,done;
+ wire valid,publish,done,boot_load_done;
  wire[1:0]write_index,pending_index,active_index;
  integer loads=0,write_countdown=0,waits,cycle=0;
  always #5 clk=~clk;always #12.5 mem_clk=~mem_clk;
@@ -15,6 +15,7 @@ module tb_sd_cache_ownership;
   .clk(clk),.rst(!rst_n),.key_next(key_next),.key_prev(key_prev),
   .key_auto(1'b1),.external_auto(auto_enable),.training_active(1'b0),.training_next(1'b0),.training_prev(1'b0),.page_status(),.state_code(),
   .bmp_width(16'd640),.bmp_height(16'd480),.display_valid(valid),
+  .boot_load_done(boot_load_done),
   .write_finish_toggle(write_toggle),.write_buf_idx(write_index),
   .disp_buf_idx(pending_index),.publish_req(publish),.publish_done(done),
   .write_req(),.write_req_ack(dut.write_req),.pixel_ready(1'b1),.write_en(),.write_data(),
@@ -83,6 +84,7 @@ module tb_sd_cache_ownership;
   if(valid)$fatal(1,"first frame visible before reader ACK");
   adopt_frame;
   if(!valid || active_index!=0)$fatal(1,"first slot was not displayed");
+  if(boot_load_done)$fatal(1,"boot splash released before background cache preload finished");
   // Request slot 1 during its background load. It must be retained until
   // BOTH the source and delayed memory completion have arrived.
   press(0);wait_publication;
@@ -91,6 +93,7 @@ module tb_sd_cache_ownership;
   if(active_index!=1)$fatal(1,"queued uncached request lost");
   wait(dut.cache_valid==4'b1111);
   repeat(1000)@(negedge clk);
+  if(!boot_load_done)$fatal(1,"boot splash did not release after all found slots settled");
   if(loads!=4 || dut.load_seq!=4)$fatal(1,"preload counter wrapped");
   switch_to(0,2);switch_to(0,3);switch_to(0,0);switch_to(1,3);
   auto_enable=1;wait_publication;adopt_frame;

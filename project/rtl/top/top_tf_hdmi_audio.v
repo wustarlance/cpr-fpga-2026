@@ -90,6 +90,7 @@ wire de;
 wire [23:0] vout_data_raw;
 wire [23:0] vout_data;
 wire        display_valid;
+wire        boot_load_done_sd;
 
 wire [3:0]  state_code;
 wire [6:0]  seg_data_0;
@@ -362,6 +363,8 @@ wire [23:0] hdmi_audio_right = (ENABLE_AUDIO && audio_gate) ? audio_right_data :
 assign audio_output_valid = ENABLE_AUDIO ? audio_valid : 1'b0;
 assign acr_output_valid = ENABLE_AUDIO ? acr_valid : 1'b0;
 reg [1:0] display_valid_sync;
+reg [1:0] boot_load_done_sync;
+reg       boot_splash_released;
 reg [1:0] brightness_video;
 reg brightness_vs_d;
 always @(posedge video_clk or posedge rst_video) begin
@@ -430,8 +433,15 @@ cpr_overlay #(.UNCALIBRATED_PRESSURE(USE_ADC), .PAGE_STATUS_ENABLE(1),
     .beat                (beat_hold_ms != 0),
     .out_rgb             (app_rgb));
 always @(posedge video_clk or posedge rst_video) begin
-    if (rst_video) display_valid_sync <= 0;
-    else display_valid_sync <= {display_valid_sync[0],display_valid};
+    if (rst_video) begin
+        display_valid_sync <= 0;
+        boot_load_done_sync <= 0;
+        boot_splash_released <= 0;
+    end else begin
+        display_valid_sync <= {display_valid_sync[0],display_valid};
+        boot_load_done_sync <= {boot_load_done_sync[0],boot_load_done_sd};
+        if (boot_load_done_sync[1]) boot_splash_released <= 1'b1;
+    end
 end
 
 // 保持你原来的 TF / SDRAM / video 时钟
@@ -518,6 +528,7 @@ sd_card_bmp #(
     .bmp_width         (16'd640),
     .bmp_height        (16'd480),
     .display_valid     (display_valid),
+    .boot_load_done    (boot_load_done_sd),
 
     .write_finish_toggle(frame_write_toggle_mem),
     .write_buf_idx     (write_buf_idx),
@@ -675,7 +686,7 @@ seg_decoder seg_decoder_page(
 wire [3:0] led_level = {
     page_status_video[3],                      // LED4: 正在加载 / 恢复 / 等待可用目标
     page_status_video[1] | page_status_video[2],   // LED3: 读卡失败 / 缺页
-    display_valid_sync[1],                     // LED2: 有图在显示
+    display_valid_sync[1] && boot_splash_released, // LED2: 教程画面实际接管输出
     training_enabled                           // LED1: 按压训练模式
 };
 assign led = LED_ACTIVE_LOW ? ~led_level : led_level;
@@ -1041,7 +1052,7 @@ wav_audio_sd_top #(
 // 开机画面：注入点在整条视频链的**最后一棒**（送 AXIS 之前）。
 // 这样它不受 cpr_slide_fade 的淡入淡出、也不受 OSD 影响——
 // 首图发布时那 0.53 s 的淡黑不会把 logo 拉黑，画面切得干净。
-// splash_on 在“有图 且 已显示够 3 s”之前一直是 1，避开显示器锁定的死区。
+// splash_on 在启动预加载全部完成、且首帧已发布前保持为 1。
 wire [23:0] splash_rgb;
 wire        splash_on;
 splash_boot u_splash (
@@ -1049,7 +1060,7 @@ splash_boot u_splash (
     .rst   (rst_video),
     .vs    (visual_vs),
     .de    (visual_de),
-    .hide  (display_valid_sync[1]),
+    .hide  (boot_splash_released),
     .rgb   (splash_rgb),
     .active(splash_on)
 );

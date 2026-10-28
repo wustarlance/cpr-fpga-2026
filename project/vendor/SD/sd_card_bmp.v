@@ -35,6 +35,7 @@ module sd_card_bmp #(
     input  [15:0]               bmp_width,
     input  [15:0]               bmp_height,
     output reg                  display_valid,
+    output wire                 boot_load_done,
 
     input                       write_finish_toggle,
     output reg [1:0]            write_buf_idx,
@@ -135,6 +136,19 @@ always @(posedge clk or posedge rst) begin
     end
 end
 wire page_request, page_pending, page_missing, page_user_request;
+
+function [3:0] cache_mask_for_count;
+    input [2:0] count;
+    begin
+        case (count)
+            3'd0: cache_mask_for_count = 4'b0000;
+            3'd1: cache_mask_for_count = 4'b0001;
+            3'd2: cache_mask_for_count = 4'b0011;
+            3'd3: cache_mask_for_count = 4'b0111;
+            default: cache_mask_for_count = 4'b1111;
+        endcase
+    end
+endfunction
 
 /* ---------------------------------------------------------------------------
  * 页请求信号的就近再生（2026-10-26）
@@ -287,6 +301,9 @@ wire load_expired = load_busy && !publish_wait &&
                     !(source_complete && writer_complete);
 
 generate if (!SCALE_ENABLE) begin : g_legacy_scheduler
+assign boot_load_done =
+    (sd_init_done && scan_done && img_found_count==0) ||
+    display_valid || (media_fault && !recovering);
 always @(posedge clk or posedge rst) begin
     if (rst) begin
         wrfin_tgl_sync<=0; write_ack_sync<=0;
@@ -457,6 +474,13 @@ wire cache_complete = load_busy && source_complete && writer_complete;
 wire cache_timeout = load_busy && load_timer >= LOAD_TIMEOUT_CYCLES-1 && !cache_complete;
 wire user_scan_retry = page_user_request || key_next_press || key_prev_press;
 wire cache_can_load = scan_done && bmp_ready && sd_ready && !load_busy && !recovering;
+wire [3:0] boot_expected_mask = cache_mask_for_count(img_found_count);
+wire boot_cache_settled = sd_init_done && scan_done &&
+    (((cache_valid | cache_failed) & boot_expected_mask) == boot_expected_mask) &&
+    !load_busy && !recovering && !publish_wait;
+assign boot_load_done =
+    (boot_cache_settled && (display_valid || img_found_count==0)) ||
+    (media_fault && !recovering);
 reg [1:0] target;
 reg select_load;
 always @* begin
