@@ -1,0 +1,206 @@
+`timescale 1ns/1ps
+//=============================================================================
+// top_adc_probe.v —— 按压盒标定专用探针（独立顶层，不参与正式工程）
+//-----------------------------------------------------------------------------
+// 为什么单独做一个：正式工程 `top_adc` 的 ADC 域 hold 余量只有 +0.003 ns，
+// 往里加任何显示逻辑都会被 TD 判成 "Too much hold violation"（11 条异常路径
+// 直接跳过），实测两次都构建失败。所以这里把 **ADC 链原样抽出来**：
+//
+//   50 MHz clk ── PLL_HDMI_AUDIO C2 ── 12.295082 MHz
+//        └─ EG_PHY_ADC（CH1 = M10 = J2-35，VREF 内部 L11）
+//             └─ cpr_sensor_path（和正式工程同一份：200 kSa/s、4 点均值、
+//                                  FALLING_WITH_FORCE 归一化、峰值检测）
+//                  ├─ raw_data   → 数码管右 4 位（十进制原始码值）
+//                  └─ peak_value → 数码管左 4 位（最近一次按压的归一化峰值）
+//
+// 整条显示逻辑都在 clk（50 MHz）域，和 cpr_sensor_path 的 app_clk 同一个时钟，
+// 没有额外跨域；设计只有几百 LUT，布局宽松，不会再挤坏 ADC 域。
+//
+// 数码管约定（共阳，位选高有效）：
+//   左 4 位 = PEAK（归一化峰值，0..4095）
+//   右 4 位 = LIVE（原始 ADC 码值 0..4095，空载接近 4095，压下变小）
+// LED：LED1=音频 PLL 锁定  LED2=传感器故障  LED3=一次按压完成  LED4=有采样
+//=============================================================================
+module top_adc_probe (
+    input  wire       clk,        // 50 MHz 晶振（R7）
+    input  wire       rst_n,      // 复位键（A2），低有效
+    output wire [7:0] seg_sel,
+    output wire [7:0] seg_data,
+    output wire [3:0] led
+);
+
+//-----------------------------------------------------------------------------
+// 1) ADC 时钟：与正式工程同一份 PLL 配置（C2 = 12.295082 MHz）
+//-----------------------------------------------------------------------------
+wire audio_mclk, audio_lock;
+
+PLL_HDMI_AUDIO u_audio_pll (
+    .refclk   (clk),
+    .reset    (1'b0),
+    .extlock  (audio_lock),
+    .clk0_out (),
+    .clk1_out (),
+    .clk2_out (audio_mclk)
+);
+
+//-----------------------------------------------------------------------------
+// 2) ADC 硬核原语：CH1(M10) + 内部 VREF(L11)
+//-----------------------------------------------------------------------------
+wire        adc_soc, adc_pd, adc_eoc;
+wire [2:0]  adc_channel;
+wire [11:0] adc_dout;
+
+EG_PHY_ADC #(.CH1("ENABLE"), .VREF("ENABLE")) u_adc (
+    .clk  (audio_mclk),
+    .pd   (adc_pd),
+    .s    (adc_channel),
+    .soc  (adc_soc),
+    .eoc  (adc_eoc),
+    .dout (adc_dout)
+);
+
+//-----------------------------------------------------------------------------
+// 3) 和正式工程完全相同的采样/归一化/峰值链路
+//    参数与 top_tf_hdmi_audio.v 的默认值一致，标定出来的数可以直接搬过去。
+//-----------------------------------------------------------------------------
+wire        raw_valid, peak_event, sensor_fault;
+wire [11:0] raw_data, peak_value;
+wire [1:0]  peak_grade;
+
+cpr_sensor_path #(
+    .ADC_CLK_HZ       (12295082),
+    .SAMPLE_HZ        (200000),
+    .CHANNEL          (1),
+    .RELEASE_BASELINE (12'd3000),
+    .FALLING_WITH_FORCE (1),
+    .FILTER_SHIFT     (2),
+    .TRIGGER_LEVEL    (12'd150),
+    .RELEASE_LEVEL    (12'd100),
+    .TARGET_LOW       (12'd800),
+    .TARGET_HIGH      (12'd1600)
+) u_sensor (
+    .adc_clk       (audio_mclk),
+    .adc_rst_n     (rst_n),
+    .app_clk       (clk),
+    .app_rst_n     (rst_n),
+    .adc_eoc       (adc_eoc),
+    .adc_dout      (adc_dout),
+    .adc_soc       (adc_soc),
+    .adc_pd        (adc_pd),
+    .adc_channel   (adc_channel),
+    .enabled       (audio_lock),   // PLL 锁定后才开始采样，避免上电误报故障
+    .clear_session (1'b0),
+    .peak_event    (peak_event),
+    .peak_grade    (peak_grade),
+    .peak_value    (peak_value),
+    .raw_valid     (raw_valid),
+    .raw_data      (raw_data),
+    .sensor_fault  (sensor_fault)
+);
+
+//-----------------------------------------------------------------------------
+// 4) 十进制转换：时钟化 double-dabble（每拍一位，12 拍一次，约 30 LUT）
+//    live / peak 交替转换，48 拍一轮（50 MHz 下 < 1 us），肉眼无感。
+//-----------------------------------------------------------------------------
+function [27:0] dd_step;
+    input [27:0] v;
+    reg [27:0] c;
+    begin
+        c = v;
+        if (c[27:24] >= 4'd5) c[27:24] = c[27:24] + 4'd3;
+        if (c[23:20] >= 4'd5) c[23:20] = c[23:20] + 4'd3;
+        if (c[19:16] >= 4'd5) c[19:16] = c[19:16] + 4'd3;
+        if (c[15:12] >= 4'd5) c[15:12] = c[15:12] + 4'd3;
+        dd_step = c << 1;
+    end
+endfunction
+
+reg        bcd_busy;
+reg  [3:0] bcd_step;
+reg [27:0] bcd_sh;
+reg        bcd_sel;                  // 0 = live，1 = peak
+reg [15:0] bcd_live_q, bcd_peak_q;
+
+wire [11:0] bcd_src  = bcd_sel ? peak_value : raw_data;
+wire [27:0] bcd_next = dd_step(bcd_sh);
+
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        bcd_busy <= 1'b0; bcd_step <= 4'd0; bcd_sh <= 28'd0; bcd_sel <= 1'b0;
+        bcd_live_q <= 16'd0; bcd_peak_q <= 16'd0;
+    end else if (!bcd_busy) begin
+        bcd_sh   <= {16'd0, bcd_src};
+        bcd_step <= 4'd0;
+        bcd_busy <= 1'b1;
+    end else begin
+        bcd_sh   <= bcd_next;
+        bcd_step <= bcd_step + 4'd1;
+        if (bcd_step == 4'd11) begin
+            bcd_busy <= 1'b0;
+            if (bcd_sel) bcd_peak_q <= bcd_next[27:12];
+            else         bcd_live_q <= bcd_next[27:12];
+            bcd_sel  <= ~bcd_sel;
+        end
+    end
+end
+
+//-----------------------------------------------------------------------------
+// 5) 七段码 + 动态扫描：左 4 位峰值，右 4 位实时
+//-----------------------------------------------------------------------------
+function [6:0] seg7;
+    input [3:0] d;
+    begin
+        case (d)
+            4'd0: seg7 = 7'b100_0000; 4'd1: seg7 = 7'b111_1001;
+            4'd2: seg7 = 7'b010_0100; 4'd3: seg7 = 7'b011_0000;
+            4'd4: seg7 = 7'b001_1001; 4'd5: seg7 = 7'b001_0010;
+            4'd6: seg7 = 7'b000_0010; 4'd7: seg7 = 7'b111_1000;
+            4'd8: seg7 = 7'b000_0000; 4'd9: seg7 = 7'b001_0000;
+            default: seg7 = 7'b111_1111;
+        endcase
+    end
+endfunction
+
+cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan (
+    .clk     (clk),
+    .rst_n   (rst_n),
+    .seg_sel (seg_sel),
+    .seg_data(seg_data),
+    .digit0  ({1'b1, seg7(bcd_peak_q[15:12])}),   // 左起第 1 位：峰值千位
+    .digit1  ({1'b1, seg7(bcd_peak_q[11:8])}),
+    .digit2  ({1'b1, seg7(bcd_peak_q[7:4])}),
+    .digit3  ({1'b1, seg7(bcd_peak_q[3:0])}),
+    .digit4  ({1'b1, seg7(bcd_live_q[15:12])}),   // 左起第 5 位：实时千位
+    .digit5  ({1'b1, seg7(bcd_live_q[11:8])}),
+    .digit6  ({1'b1, seg7(bcd_live_q[7:4])}),
+    .digit7  ({1'b1, seg7(bcd_live_q[3:0])})
+);
+
+//-----------------------------------------------------------------------------
+// 6) 板载 LED 当状态灯：锁定 / 故障 / 一次按压完成 / 有采样
+//-----------------------------------------------------------------------------
+// 一次按压完成 → 亮 100 ms（50 MHz 下 5,000,000 拍），肉眼可见
+localparam integer BLINK_CYCLES = 5_000_000;
+reg [22:0] blink_cnt;
+reg        peak_blink;
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        blink_cnt  <= 23'd0;
+        peak_blink <= 1'b0;
+    end else if (peak_event) begin
+        blink_cnt  <= BLINK_CYCLES[22:0];
+        peak_blink <= 1'b1;
+    end else if (blink_cnt != 23'd0) begin
+        blink_cnt  <= blink_cnt - 23'd1;
+        peak_blink <= 1'b1;
+    end else begin
+        peak_blink <= 1'b0;
+    end
+end
+
+assign led[0] = audio_lock;         // LED1：音频 PLL 锁定
+assign led[1] = sensor_fault;       // LED2：ADC 超时/故障
+assign led[2] = peak_blink;         // LED3：一次按压完成（闪一下）
+assign led[3] = raw_valid;          // LED4：有有效采样
+
+endmodule
