@@ -24,7 +24,6 @@
 module top_adc_probe (
     input  wire       clk,        // 50 MHz 晶振（R7）
     input  wire       rst_n,      // 复位键（A2），低有效
-    input  wire       key1,       // 自检键（B2，按住 = 右 4 位显示 1 Hz 计数）
     output wire [7:0] seg_sel,
     output wire [7:0] seg_data,
     output wire [3:0] led
@@ -157,7 +156,7 @@ end
 reg [15:0] self_bcd;
 always @(posedge clk_g or negedge rst_n) begin
     if (!rst_n) self_bcd <= 16'd0;
-    else if (key1 && raw_cnt_tick) begin
+    else if (raw_cnt_tick) begin
         if (self_bcd[3:0] == 4'd9) begin
             self_bcd[3:0] <= 4'd0;
             if (self_bcd[7:4] == 4'd9) begin
@@ -197,10 +196,10 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan (
     .digit1  ({1'b1, seg7(bcd_peak_q[11:8])}),
     .digit2  ({1'b1, seg7(bcd_peak_q[7:4])}),
     .digit3  ({1'b1, seg7(bcd_peak_q[3:0])}),
-    .digit4  ({1'b1, seg7(key1 ? self_bcd[15:12] : bcd_live_q[15:12])}),
-    .digit5  ({1'b1, seg7(key1 ? self_bcd[11:8]  : bcd_live_q[11:8])}),
-    .digit6  ({1'b1, seg7(key1 ? self_bcd[7:4]   : bcd_live_q[7:4])}),
-    .digit7  ({1'b1, seg7(key1 ? self_bcd[3:0]   : bcd_live_q[3:0])})
+    .digit4  ({1'b1, seg7(alt_mode ? self_bcd[15:12] : bcd_live_q[15:12])}),
+    .digit5  ({1'b1, seg7(alt_mode ? self_bcd[11:8]  : bcd_live_q[11:8])}),
+    .digit6  ({1'b1, seg7(alt_mode ? self_bcd[7:4]   : bcd_live_q[7:4])}),
+    .digit7  ({1'b1, seg7(alt_mode ? self_bcd[3:0]   : bcd_live_q[3:0])})
 );
 
 //-----------------------------------------------------------------------------
@@ -209,7 +208,23 @@ cpr_seg_scan #(.CLK_FREQ(50_000_000)) u_seg_scan (
 // 一次按压完成 → 亮 100 ms（50 MHz 下 5,000,000 拍），肉眼可见
 localparam integer BLINK_CYCLES = 5_000_000;
 reg [22:0] blink_cnt;
-// 1 Hz tick：50,000,000 拍一个脉冲（按住 K1 时给自检 BCD 加 1）
+// 2 秒自动切换：右 4 位在 [实时 ADC 码值] 和 [自检计数] 之间轮换。
+// 不依赖任何按键，看数码管就能同时判断"显示通路"和"ADC 数据"两条线。
+reg        alt_mode;      // 0 = 实时码值，1 = 自检计数
+reg [26:0] alt_div;
+always @(posedge clk_g or negedge rst_n) begin
+    if (!rst_n) begin
+        alt_mode <= 1'b0;
+        alt_div  <= 27'd0;
+    end else if (alt_div == 27'd99_999_999) begin    // 2 s @50 MHz
+        alt_div  <= 27'd0;
+        alt_mode <= ~alt_mode;
+    end else begin
+        alt_div  <= alt_div + 27'd1;
+    end
+end
+
+// 1 Hz tick：50,000,000 拍一个脉冲（给自检 BCD 加 1）
 reg [25:0] sec_div;
 reg        raw_cnt_tick;
 always @(posedge clk_g or negedge rst_n) begin
