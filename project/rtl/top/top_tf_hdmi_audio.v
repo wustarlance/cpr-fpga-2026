@@ -449,7 +449,7 @@ sys_pll sys_pll_m0(
     .refclk     (clk),              // 50 MHz输入
     .clk0_out   (sd_card_clk),      // 100 MHz TF
     .clk1_out   (ext_mem_clk),      // 40 MHz SDRAM
-    .clk2_out   (ext_mem_clk_sft),  // 40 MHz 180° SDRAM相位
+    .clk2_out   (ext_mem_clk_sft),  // 40 MHz 135°，补偿ODDR转发延迟
     .extlock    (sys_lock),         //锁定指示
     .reset      (1'b0)
 );
@@ -813,7 +813,7 @@ frame_read_write #(
 );
 
 // D110-backed opt-in: align early read data to the unchanged valid cycle.
-sdram #(.REGISTER_READ_DATA(1)) U3(
+sdram #(.REGISTER_READ_DATA(1), .FORWARD_CLOCK_ODDR(1)) U3(
     .Clk               (ext_mem_clk),
     .Clk_sft           (ext_mem_clk_sft),
     .Rst               (rst_mem),

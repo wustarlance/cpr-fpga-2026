@@ -12,7 +12,7 @@ REPO = Path(__file__).resolve().parents[1]
 class PllClockContract(unittest.TestCase):
     def test_clock_rates_phases_and_generator_metadata(self):
         cases = {
-            "sys_pll": (1000, 20, [(100, 0), (40, 0), (40, 180)]),
+            "sys_pll": (1000, 20, [(100, 0), (40, 0), (40, 135)]),
             "video_pll": (1000, 40, [(25, 0), (125, 0)]),
             "PLL_HDMI_AUDIO": (750, 30, [(75, 0), (375, 90), (Fraction(750, 61), 0)]),
         }

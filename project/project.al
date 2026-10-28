@@ -692,6 +692,14 @@
                     <Attr Name="CompileOrder" Val="5"/>
                 </FileInfo>
             </File>
+            <File Path="constraints/sdram_forward.sdc">
+                <FileInfo>
+                    <Attr Name="UsedInSyn" Val="false"/>
+                    <Attr Name="UsedInP&R" Val="true"/>
+                    <Attr Name="BelongTo" Val="constraint_1"/>
+                    <Attr Name="CompileOrder" Val="6"/>
+                </FileInfo>
+            </File>
         </SDC_FILE>
         <IP_FILE>
             <File Path="ip/PLL_HDMI_AUDIO.ipc">

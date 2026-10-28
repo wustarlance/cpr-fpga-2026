@@ -1,5 +1,5 @@
-// CPR 2026-10-28: internal VCO feedback; output rates/relative phase unchanged.
-// Absolute phase to the 50 MHz reference is not required; see docs/clock-routing-20261028.md.
+// CPR 2026-10-28: internal VCO feedback; SDRAM forwarding source C2=135deg.
+// Absolute phase to the 50 MHz reference is not required; see docs/sdram-forward-20261028.md.
 /************************************************************\
  **     Copyright (c) 2012-2024 Anlogic Inc.
  **  All Right Reserved.\
@@ -19,7 +19,7 @@
 //		Clock name	| Frequency 	| Phase shift
 //		C0        	| 100.000000MHZ	| 0.0000  DEG  
 //		C1        	| 40.000000MHZ	| 0.0000  DEG  
-//		C2        	| 40.000000MHZ	| 180.0000 DEG  
+//		C2        	| 40.000000MHZ	| 135.0000 DEG  
 ///////////////////////////////////////////////////////////////////////////////
 `timescale 1 ns / 100 fs
 
@@ -72,8 +72,8 @@ module sys_pll (
     .CLKC1_FPHASE(0),
     .CLKC2_ENABLE("ENABLE"),
     .CLKC2_DIV(25),
-    .CLKC2_CPHASE(11),
-    .CLKC2_FPHASE(4) 
+    .CLKC2_CPHASE(8),
+    .CLKC2_FPHASE(3) 
   ) pll_inst (
     .refclk(refclk),
     .reset(reset),

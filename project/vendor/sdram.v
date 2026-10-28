@@ -12,7 +12,8 @@
 // Opt-in for the measured HX4S20C 40MHz configuration only. Default retains
 // the vendor wrapper interface; revalidate with any controller/clock revision.
 module sdram #(
-    parameter REGISTER_READ_DATA = 0
+    parameter REGISTER_READ_DATA = 0,
+    parameter FORWARD_CLOCK_ODDR = 0
 )(
 
     `ifdef SIMULATION
@@ -58,6 +59,7 @@ wire  [`DATA_WIDTH-1:0]	SDR_DQ ;
 wire  [`DM_WIDTH-1:0]	SDR_DM; 
 `endif
 
+wire controller_sdram_clk;
 wire [`DATA_WIDTH-1:0] raw_sdr_rd_dout;
 generate
     if (REGISTER_READ_DATA != 0) begin : g_read_data_pipeline
@@ -96,7 +98,7 @@ sdr_as_ram  #( .self_refresh_open(1'b1))
 		.Sdr_rd_en	(Sdr_rd_en),
 		.Sdr_rd_dout(raw_sdr_rd_dout),
 	
-		.SDRAM_CLK(SDRAM_CLK),
+		.SDRAM_CLK(controller_sdram_clk),
 		.SDR_RAS(SDR_RAS),
 		.SDR_CAS(SDR_CAS),
 		.SDR_WE(SDR_WE),
@@ -106,6 +108,18 @@ sdr_as_ram  #( .self_refresh_open(1'b1))
 		.SDR_DQ(SDR_DQ)	
 	);
 
+
+// A forwarded clock is data at the SDRAM PAD. The ODDR uses the dedicated
+// output clock input instead of routing a clock net into the output data pin.
+// HX4S20C product uses PLL C2=135deg to account for the ODDR clock-to-output
+// delay; default 0 retains the original wrapper for existing reference tests.
+generate if(FORWARD_CLOCK_ODDR != 0) begin : g_forward_clock
+    EG_LOGIC_ODDR #(.ASYNCRST("ENABLE")) u_clock_forward(
+        .q(SDRAM_CLK), .clk(controller_sdram_clk),
+        .d0(1'b1), .d1(1'b0), .rst(1'b0));
+end else begin : g_direct_clock
+    assign SDRAM_CLK = controller_sdram_clk;
+end endgenerate
 
 assign SDR_CKE=1'b1;
 

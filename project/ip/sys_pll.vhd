@@ -1,4 +1,4 @@
--- CPR 2026-10-28: internal VCO feedback; output rates/relative phase unchanged.
+-- CPR 2026-10-28: internal VCO feedback; SDRAM forwarding source C2=135deg.
 --------------------------------------------------------------
  --     Copyright (c) 2012-2024 Anlogic Inc.
  --  All Right Reserved.
@@ -17,7 +17,7 @@
 --		Clock name	| Frequency 	| Phase shift
 --		C0        	| 100.000000MHZ	| 0.0000  DEG  
 --		C1        	| 40.000000MHZ	| 0.0000  DEG  
---		C2        	| 40.000000MHZ	| 180.0000 DEG  
+--		C2        	| 40.000000MHZ	| 135.0000 DEG  
 -------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -77,8 +77,8 @@ BEGIN
     CLKC1_FPHASE => 0,
     CLKC2_ENABLE => "ENABLE",
     CLKC2_DIV => 25,
-    CLKC2_CPHASE => 11,
-    CLKC2_FPHASE => 4 
+    CLKC2_CPHASE => 8,
+    CLKC2_FPHASE => 3 
   )
   PORT MAP (
     refclk => refclk,

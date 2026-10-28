@@ -21,13 +21,19 @@ if {[catch {
         puts "CPR_AUDIT_CELL ${cpr_prefix}${cpr_cell}"
         report_cells [get_cells ${cpr_prefix}${cpr_cell}] -connection -pin_loc
     }
-    foreach cpr_net {sys_pll_m0/clk0_out video_pll_m0/clk0_out u_audio_pll/clk0_out U3/u2_ram/SDRAM_CLK} {
+    foreach cpr_net {sys_pll_m0/clk0_out video_pll_m0/clk0_out u_audio_wav/u_path/I_mclk U3/u2_ram/SDRAM_CLK} {
         if {[llength [get_nets ${cpr_prefix}${cpr_net}]] != 1} {
             error "Expected exactly one clock net: ${cpr_prefix}${cpr_net}"
         }
         puts "CPR_AUDIT_NET ${cpr_prefix}${cpr_net}"
         report_nets [get_nets ${cpr_prefix}${cpr_net}] -connection -mode final -timing -hold -pin_output_limit 8
     }
+    # In NOCOMP the audio C0 feedback branch is unused and pruned. Inspect
+    # the active MCLK above, and the actual forwarded SDRAM PAD output here.
+    set cpr_forward_pin [get_pins ${cpr_prefix}U3/sdram_syn_45.opad]
+    if {[llength $cpr_forward_pin] != 1} {error "SDRAM clock PAD missing"}
+    puts "CPR_AUDIT_FORWARD_PAD ${cpr_prefix}U3/sdram_syn_45.opad"
+    report_nets -of_pins $cpr_forward_pin -connection -mode final -timing -hold -pin_output_limit 8
     puts "CPR_AUDIT_PORTS [get_ports *]"
     # Use a variable filename: this TD command does not preserve a nested
     # [file join ...] filename argument in the local implementation.
