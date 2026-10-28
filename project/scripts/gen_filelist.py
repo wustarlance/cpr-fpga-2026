@@ -14,8 +14,9 @@ lint 用的 filelist.f 必须和它同步，否则你新加了 rtl/xxx.v、lint 
 -----------------------------------
 · 取 project.al 里所有 .v/.sv/.vh；
 · 排除 *.enc.v（IEEE-1735 加密，Verilator 无法解析；TD 里正常使用）；
-· 写入 8 个 -I include 目录（vendor/SD、vendor/include、05_lab_ex 的 include 等），
-  全部相对 project/，因为脚本会先 cd 到 project/ 再调用 Verilator。
+· 写入 6 个 -I include 目录（rtl、vendor、vendor/SD、vendor/hdmi、vendor/include、
+  vendor/user_source/hdl_source/include），全部相对 project/；
+  脚本会先 cd 到 project/ 再调用 Verilator，所以清单里不出现任何 ../ 路径。
 """
 from __future__ import annotations
 
@@ -32,11 +33,9 @@ INCLUDES = [
     "-Irtl",
     "-Ivendor",
     "-Ivendor/SD",
+    "-Ivendor/hdmi",
     "-Ivendor/include",
     "-Ivendor/user_source/hdl_source/include",
-    "-I../05_lab_ex/lab_ex5_i2s/src/td_project",
-    "-I../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include",
-    "-I../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD",
 ]
 
 

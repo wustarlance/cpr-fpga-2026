@@ -28,9 +28,16 @@ def source_hashes():
     # Include generated HDL and plain-text includes beside registered IPCs.
     # This conservative inventory includes the reference source forest,
     # rather than claiming that every file in it is an active design input.
+    # 2026-10-28：HDMI PHY/LVDS/加密核（vendor/hdmi）与 PLL/FIFO IP（ip/）已内置到
+    # project/，主工程不再依赖 05_lab_ex。该目录只在存在时并入哈希清单作为参考留痕，
+    # 缺失不再算错误——否则删掉例程目录会让校验脚本直接抛异常。
     suffixes = {".v", ".sv", ".vhd", ".ipc", ".tcl", ".sdc", ".adc", ".al", ".mif", ".hex", ".mem"}
+    roots = [PROJECT]
+    reference = REPO / "05_lab_ex/lab_ex5_i2s/src"
+    if reference.is_dir():
+        roots.append(reference)
     records = {}
-    for root in (PROJECT, REPO / "05_lab_ex/lab_ex5_i2s/src"):
+    for root in roots:
         if not root.is_dir():
             raise ValueError(f"Required source directory missing: {root}")
         for path in root.rglob("*"):

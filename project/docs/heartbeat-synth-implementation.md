@@ -26,7 +26,7 @@
 | `project/rtl/top_tf_hdmi_audio.v` | 训练模式接线：`heart_en`（`training_enabled` 打一拍）、`wav_play_gate`（训练时不读卡）、训练时 SW4 不响应 |
 | `tests/sim/tb/tb_heartbeat_synth.v` | 九个契约检查（起点 / 峰值 / 衰减 / **音调过零次数** / 拍长 / 静音 / 左右一致 / 退出收尾 / 重新使能） |
 | `tests/sim/tb/tb_wav_page_switch.v` | 末段验二选一：训练→心跳、训练中换页仍出心跳且该页 WAV 常量一次都不出现、训练 30 ms 内 0 个扇区读请求、退出→立刻回到该页 |
-| `attic/audio-fade/` | 已下线的混音 + 2 ms 交叉淡化（`heart_mix_stage` / `audio_crossfade` 及其 TB），要恢复看那里的 README |
+| `attic/audio-fade/`（已删） | 已下线的混音 + 2 ms 交叉淡化（`heart_mix_stage` / `audio_crossfade` 及其 TB）。2026-10-28 精简工作区时删除，取回：`git show 11280b9:attic/audio-fade/<文件名>` |
 
 ---
 
@@ -401,8 +401,8 @@ ACR 计数也不断，HDMI 音频流对播放器/电视完全透明 —— 不�
 | 第 2 声轻一点 | `AMP_SECOND` | 32767×0.65 = 21300 |
 | 更"闷"/更"脆" | `DECAY_SHIFT_*` | 值小=衰减慢（更闷），4→τ=0.83 ms 很脆；≤3 时末帧还有 5% 以上，硬切可能听出咔哒 |
 | 退出收尾更快/更慢 | `heartbeat_synth` 收尾分支里的 `S_env >> 2` | 现在每帧剩 75%（约 0.67 ms）；改 `>>1` 约 0.3 ms，改 `>>3` 约 1.1 ms。太长会让人觉得"退出训练后还有半声余音" |
-| 想消掉切换时的咔哒 | 在选择器输出上加 1 ms 增益斜坡（2 个 24 bit 乘法器，+1~2 DSP） | 这是唯一能同时管住"切回 WAV 那一帧"的办法；现成的加强版是 `attic/audio-fade/audio_crossfade.v`（+4 DSP），接法见那个目录的 README |
-| 训练时想听背景乐 | 把 mux 改成相加（`sat_add(W_wav, W_hb)`） | 这就是已删除的混音方案，`attic/audio-fade/heart_mix_stage.v` 是现成实现 |
+| 想消掉切换时的咔哒 | 在选择器输出上加 1 ms 增益斜坡（2 个 24 bit 乘法器，+1~2 DSP） | 这是唯一能同时管住"切回 WAV 那一帧"的办法；现成的加强版是 `audio_crossfade.v`（+4 DSP，已随 attic 删除，`git show 11280b9:attic/audio-fade/audio_crossfade.v` 可取回） |
+| 训练时想听背景乐 | 把 mux 改成相加（`sat_add(W_wav, W_hb)`） | 这就是已删除的混音方案，`heart_mix_stage.v` 是现成实现（同样从 `git show 11280b9:attic/audio-fade/` 取回） |
 
 ---
 

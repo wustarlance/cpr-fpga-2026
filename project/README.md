@@ -74,11 +74,12 @@ SD读取现在包含令牌/字节超时、读CRC、取消、整图有限重试�
 - `rtl/`：应用、训练、ADC、OSD、帧发布逻辑。
 - `ip/`：系统/视频 PLL 配置与配套 HDL；SD 时钟100 MHz、SDRAM 40 MHz/180°、像素25 MHz、串行125 MHz。
 - `vendor/SD/`：主工程实际编译的 SD/BMP/帧缓存源码，包含分辨率适配、行填充、扫描分拍及读端切换边界。
+- `vendor/hdmi/`：HDMI PHY/LVDS 包装、上电脉冲与加密发射核（原 `05_lab_ex/lab_ex5_i2s` 的副本，2026-10-28 内置）。
 - `vendor/include/`：SDRAM 刷新定义及兼容包装。
 - `constraints/`：管脚、相关时钟、局部 CDC 与复位约束。
 - `docs/`：数字接口、来源及本次验证结果。
 
-`05_lab_ex/lab_ex5_i2s/src` 仍提供 HDMI 加密核、部分音频模块、FIFO IP 和 SDRAM 加密核，必须与 project 一起检出。其媒体 SD 源码不再作为主工程的隐式可变副本；主工程媒体修改请改 `project/vendor/SD`。独立例程仍在 `05_lab_ex` 下运行。
+`project/` 现已自包含：HDMI 加密核/PHY/LVDS、PLL 与异步 FIFO IP（`ip/`）、SDRAM 加密核（`vendor/include/sdr_*.enc.v`）、SD/BMP/帧缓存源码全部在本目录内，`project.al` 的 80 个节点无一条指向上级目录。`05_lab_ex/` 只作为独立例程保留，删掉它不影响主工程构建与校验（`verify_td.py` 仅在该目录存在时把参考源码并入哈希留痕）。
 
 ## 验证与构建
 

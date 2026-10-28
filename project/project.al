@@ -10,7 +10,7 @@
     </HardWare>
     <Source_Files>
         <Verilog>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_phy_warpper.v">
+            <File Path="vendor/hdmi/hdmi_phy_warpper.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -19,7 +19,7 @@
                     <Attr Name="CompileOrder" Val="3"/>
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v">
+            <File Path="vendor/hdmi/lane_lvds_10_1.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -28,7 +28,7 @@
                     <Attr Name="CompileOrder" Val="4"/>
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi1.4b_transmitter_core/hdmi_1_4b_transmitter_core_wrapper.enc.v">
+            <File Path="vendor/hdmi/hdmi1.4b_transmitter_core/hdmi_1_4b_transmitter_core_wrapper.enc.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -127,15 +127,6 @@
                     <Attr Name="CompileOrder" Val="13"/>
                 </FileInfo>
             </File>
-            <File Path="vendor/SD/seg_scan.v">
-                <FileInfo>
-                    <Attr Name="AutoExcluded" Val="true"/>
-                    <Attr Name="UsedInSyn" Val="true"/>
-                    <Attr Name="UsedInP&R" Val="true"/>
-                    <Attr Name="BelongTo" Val="design_1"/>
-                    <Attr Name="CompileOrder" Val="14"/>
-                </FileInfo>
-            </File>
             <File Path="vendor/SD/video_delay.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
@@ -154,7 +145,7 @@
                     <Attr Name="CompileOrder" Val="16"/>
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/startup_pulse.v">
+            <File Path="vendor/hdmi/startup_pulse.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -208,7 +199,7 @@
                     <Attr Name="CompileOrder" Val="23"/>
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/sdr_as_ram.enc.v">
+            <File Path="vendor/include/sdr_as_ram.enc.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -226,7 +217,7 @@
                     <Attr Name="CompileOrder" Val="25"/>
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include/sdr_wrrd.enc.v">
+            <File Path="vendor/include/sdr_wrrd.enc.v">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -694,7 +685,7 @@
             </File>
         </SDC_FILE>
         <IP_FILE>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL_HDMI_AUDIO.ipc">
+            <File Path="ip/PLL_HDMI_AUDIO.ipc">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -703,7 +694,7 @@
                     <Attr Name="CompileOrder" Val="41"/>
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.ipc">
+            <File Path="ip/afifo_16_32_256.ipc">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>
@@ -712,7 +703,7 @@
                     <Attr Name="CompileOrder" Val="43"/>
                 </FileInfo>
             </File>
-            <File Path="../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.ipc">
+            <File Path="ip/afifo_32_16_256.ipc">
                 <FileInfo>
                     <Attr Name="AutoExcluded" Val="true"/>
                     <Attr Name="UsedInSyn" Val="true"/>

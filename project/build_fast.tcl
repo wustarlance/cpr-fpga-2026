@@ -37,8 +37,8 @@ if {[catch {
     if {$cpr_top eq "top_adc"} {
         read_sdc constraints/adc_mailbox.sdc
     }
-    read_sdc -ip rfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.tcl
-    read_sdc -ip wfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.tcl
+    read_sdc -ip rfifo_32_32_512 ip/afifo_32_16_256.tcl
+    read_sdc -ip wfifo_32_32_512 ip/afifo_16_32_256.tcl
     # 2026-10-26 时序优化：状态机改 one-hot 编码（TD LogicLevelOptimize 策略里的
     # infer_fsm one_hot）。本设计综合后 LUT 占 70%、触发器只占 37%，用触发器换
     # LUT 是净赚；更关键的是 state==X 这类译码退化成单根线，直接砍掉 .ce 树和
@@ -86,8 +86,8 @@ if {[catch {
     }
     read_sdc constraints/page_status.sdc
     read_sdc constraints/project_cdc.sdc
-    read_sdc -ip rfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.tcl
-    read_sdc -ip wfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.tcl
+    read_sdc -ip rfifo_32_32_512 ip/afifo_32_16_256.tcl
+    read_sdc -ip wfifo_32_32_512 ip/afifo_16_32_256.tcl
     if {$cpr_stage eq "full"} {
         # 背景缩放数据通路在默认 effort 下差 0.040 ns，必须用 timing 布局。
         # 2026-10-26 加了心跳后 slice 到 84%，那条 8 级路径（AFIFO 满标志 →

@@ -46,13 +46,15 @@
 
 表中路径相对 `project/`；`tests/sim/` 相对仓库根目录。实际编译清单以 [project.al](../project.al) 和 [仿真运行器](../../tests/sim/run.py) 为准。
 
-## 保留的参考依赖
+## 参考依赖（2026-10-28 起已内置）
 
-主工程直接引用 `05_lab_ex/lab_ex5_i2s/src/` 的 I2S 接收、测试音、音频 ACR、HDMI PHY/LVDS 包装、加密 HDMI 核、SD SPI/扇区/BMP、帧读写、显示时序、数码管和 SDRAM 加密模块。音频 PLL 和帧缓存两种异步 FIFO 的生成配置也继续引用该目录。
+历史上主工程直接引用 `05_lab_ex/lab_ex5_i2s/src/` 的 I2S 接收、测试音、音频 ACR、HDMI PHY/LVDS 包装、加密 HDMI 核、SD SPI/扇区/BMP、帧读写、显示时序、数码管和 SDRAM 加密模块。2026-10-28 把这些依赖全部复制进 `project/`：HDMI PHY/LVDS 包装与上电脉冲、加密 HDMI 核在 `vendor/hdmi/`，PLL 与两种异步 FIFO 的 `.ipc/.v/.tcl` 在 `ip/`，SDRAM 加密核在 `vendor/include/sdr_*.enc.v`。`project.al` 的 80 个节点与 `filelist.f` 的 6 个 `-I` 目录全部落在 `project/` 内，不含任何 `../` 路径，复制过去的内容与原件逐字节一致。
 
-FIFO 除了 `.ipc` 配置和 HDL，还需要生成的 `.tcl` 约束；[build.tcl](../build.tcl) 用 `read_sdc -ip` 分别加载读、写 FIFO 的约束。不能省略 `05_lab_ex`，不能只复制顶层后宣称工程独立，也不能用一条宽泛的异步时钟分组掩盖这些路径。
+`05_lab_ex/` 因此降级为独立例程：删掉它不影响主工程构建与校验（[verify_td.py](../verify_td.py) 只在该目录存在时才把参考源码并入哈希留痕）。
 
-TD 6.2.168116 在加载 PLL IPC 时仍检查 `GeneratedFiles` 中 `Enable="false"` 的 `.vhd` 是否存在。缺少文件会产生 `PRJ-7002` 严重告警；只改变 `create_VHDL` 不能消除。本次保留两个 IPC 并补齐对应 VHDL 包装，端口和参数与实际启用的 Verilog 包装一致。VHDL 仍禁用，未执行独立 VHDL 编译。
+FIFO 除了 `.ipc` 配置和 HDL，还需要生成的 `.tcl` 约束；[build.tcl](../build.tcl) 用 `read_sdc -ip` 分别加载读、写 FIFO 的约束，这两个 `.tcl` 也已在 `project/ip/` 内。
+
+TD 6.2.168116 在加载 PLL IPC 时仍检查 `GeneratedFiles` 中 `Enable="false"` 的 `.vhd` 是否存在。缺少文件会产生 `PRJ-7002` 严重告警；只改变 `create_VHDL` 不能消除。因此 `ip/` 下必须同时保留 `sys_pll.vhd`、`video_pll.vhd`、`PLL_HDMI_AUDIO.vhd` 三个 VHDL 包装——它们是"存在性占位"，端口与对应 Verilog 一致但 VHDL 本身不编译。两个 FIFO 的 `create_VHDL` 是 `false`，不需要 `.vhd`。
 
 `project/vendor` 只处理 include 路径；官方受保护 HDL 不解密。仿真中的 `eg_phy_adc_timing_model.v` 是依据公开数字时序编写的原创行为模型，不是官方 ADC 模型的替代实现，也不进入 TD 产品综合清单。
 
