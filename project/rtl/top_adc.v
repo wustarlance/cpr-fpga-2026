@@ -24,7 +24,19 @@ module top_adc #(parameter USE_EXTERNAL_IO=1,
     output wire sd_ncs, sd_dclk, sd_mosi,
     input wire sd_miso
 );
+    // 2026-10-28 按压盒实测标定（CH4 / J2-35 / 3.3k + FSR，四根弹簧 60mm 共 15~18kg）：
+    //   空载 2900（上电后 1~2 分钟稳定值，自身会缓慢下漂 30~40 码/30s）
+    //   2cm 1300~1400 → 峰值 1500~1600
+    //   5cm  750~850  → 峰值 2050~2150
+    //   6cm  <700      → 峰值 2200+
+    // 阈值放宽（2026-10-28 第二轮）：目标带 1750~2350（600 码，原来 1900~2220 只有
+    // 320 码）。原则是"宁可把略软的 4cm、略深的 6cm 都算目标"，避免现场稍一用力
+    // 就掉进"深"或稍轻就掉进"浅"。实测对应：2cm(1550) 浅 ｜ 4~6cm 目标 ｜
+    // >6.5cm(2400+) 深。噪声漂移 100 码以内不会误判。
     top #(.USE_ADC(1), .USE_EXTERNAL_IO(USE_EXTERNAL_IO),
+          .RELEASE_BASELINE(12'd2900), .TRIGGER_LEVEL(12'd250),
+          .RELEASE_LEVEL(12'd120),     .TARGET_LOW(12'd1750),
+          .TARGET_HIGH(12'd2350),
           .ENABLE_AUDIO(ENABLE_AUDIO), .LED_ACTIVE_LOW(LED_ACTIVE_LOW),
           .ENABLE_AUDIO_VISUALIZATION(ENABLE_AUDIO_VISUALIZATION),
           .ENABLE_SMOOTH_TRANSITIONS(ENABLE_SMOOTH_TRANSITIONS),
