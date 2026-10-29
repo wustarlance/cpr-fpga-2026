@@ -101,8 +101,10 @@ cpr_sensor_path #(
     .FILTER_SHIFT     (2),
     .TRIGGER_LEVEL    (12'd250),
     .RELEASE_LEVEL    (12'd120),
-    .TARGET_LOW       (12'd1750),
-    .TARGET_HIGH      (12'd2350)
+    // 与正式工程 top_adc.v 保持一致（探针只显示 peak_value/raw_data，
+    // 判档参数不影响读数，同步是为了以后再看这份波形时不会误读区间）
+    .TARGET_LOW       (12'd1600),
+    .TARGET_HIGH      (12'd2400)
 ) u_sensor (
     .adc_clk       (audio_mclk),
     .adc_rst_n     (rst_n),
