@@ -96,13 +96,13 @@ cpr_sensor_path #(
     .ADC_CLK_HZ       (12295082),
     .SAMPLE_HZ        (200000),
     .CHANNEL          (4),
-    .RELEASE_BASELINE (12'd4095),
+    .RELEASE_BASELINE (12'd2900),
     .FALLING_WITH_FORCE (1),
     .FILTER_SHIFT     (2),
-    .TRIGGER_LEVEL    (12'd150),
-    .RELEASE_LEVEL    (12'd100),
-    .TARGET_LOW       (12'd800),
-    .TARGET_HIGH      (12'd1600)
+    .TRIGGER_LEVEL    (12'd250),
+    .RELEASE_LEVEL    (12'd120),
+    .TARGET_LOW       (12'd1750),
+    .TARGET_HIGH      (12'd2350)
 ) u_sensor (
     .adc_clk       (audio_mclk),
     .adc_rst_n     (rst_n),
@@ -163,7 +163,7 @@ reg [27:0] bcd_sh;
 reg        bcd_sel;                  // 0 = live，1 = peak
 reg [15:0] bcd_live_q, bcd_peak_q;
 
-wire [11:0] bcd_src  = bcd_sel ? dbg_dout_disp : raw_data;
+wire [11:0] bcd_src  = bcd_sel ? peak_value : raw_data;
 wire [27:0] bcd_next = dd_step(bcd_sh);
 
 always @(posedge clk_g or negedge rst_n) begin
