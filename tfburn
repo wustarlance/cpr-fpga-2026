@@ -289,7 +289,10 @@ else
         case "$N_AUTO" in
             0)  echo "${RED}tfburn: 没找到可移动磁盘${RST}" >&2
                 echo "  把 TF 卡插上（读卡器/USB），或者用 -D 手工指定设备。" >&2
-                echo "  当前系统里的整盘：$(list_disks | cut -f1 | sed 's/^/\/dev\//' | tr '\n' ' ')" >&2
+                # 只提真实盘：loop/ram/sr 是快照和光驱，列出来纯属噪音
+                echo "  系统里的真实整盘：$(list_disks | cut -f1 \
+                        | grep -Ev '^(loop|ram|sr|zram|dm-|md)' | head -8 \
+                        | sed 's|^|/dev/|' | tr '\n' ' ')" >&2
                 echo "  干跑可以先看计划： tfburn -n $ARG" >&2
                 exit 1 ;;
             1)  DEV="/dev/${REAL[0]:-}" ;;
