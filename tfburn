@@ -1,0 +1,491 @@
+#!/usr/bin/env bash
+# =============================================================================
+# tfburn —— 把文件夹里的四张教程图写进 TF 卡（HX4S20C / EG4S20BG256 项目）
+#
+# 为什么要有它
+# ------------
+# 板子读教程图是【按原始扇区扫描】的（不认 FAT，也没有文件名）：
+#   第 1 张 → LBA 0       第 2 张 → LBA 1801
+#   第 3 张 → LBA 3602     第 4 张 → LBA 5403
+# 每张 921,654 字节，向上取整占 1801 个扇区，四张一共 7,204 扇区
+# 3,688,448 字节。这些数字全来自 project/tools/pack_bmp_images.py，本脚本
+# 不自己算一遍，直接调它打同一个包 —— 保证和仓库里的
+# cpr-tutorials-training-safe.img 逐字节一致。
+#
+# 卡上还有音频：WAV 也是按原始扇区读的，首扇区写在
+# project/rtl/audio/wav_track_select.v 的 PICTURE_1..4 / FREE_SONG
+# （当前是 12000 / 123000 / 250000 / 370000 / 500000）。
+# 本脚本【只写 LBA 0 起的那 7,204 个扇区】，用 dd 的 count 卡死，
+# 不加 truncate，所以音频一个字节都不动；写完还会把五个音频首扇区
+# 重新读出来和写前快照比对，明确告诉你"没变"。
+#
+# 用法
+# ----
+#   tfburn <文件夹>              把文件夹里的 4 张 BMP 烧进 TF 卡
+#   tfburn -n <文件夹>           只演练：校验、打包、打印要写哪些扇区，不写卡
+#   tfburn -y <文件夹>           跳过确认（输 yes 那一步）
+#   tfburn -d                    只列出/检测当前的 TF 卡（只读）
+#   tfburn -D /dev/sdX <文件夹>   手工指定设备（自动认不出时用）
+#   tfburn -f <文件夹>           强制：允许非 640×480、允许卡上没有旧镜像
+#   tfburn -h                    帮助
+#
+# 文件夹里要什么
+# --------------
+#   正好 4 个 .bmp（不递归子目录），按【文件名排序】当作第 1~4 张：
+#     01_assess_call.bmp  02_compressions.bmp  03_airway_breaths.bmp  04_aed.bmp
+#   要求 640×480、24 位、无压缩、正高度（和板子上的加载器一致）。
+#   顺序就是翻页顺序，烧之前会把"文件 → LBA"打出来，认一眼再确认。
+#
+# 例子
+# ----
+#   tfburn 暂存/教程图_20261027_merged/bmp_training_safe
+#   tfburn -n 暂存/教程图_20261027_merged/bmp_training_safe
+#   tfburn -D /dev/sdb 暂存/教程图_20261027_merged/bmp_training_safe
+#   tfburn -d
+#
+# 注意
+# ----
+#   · 写块设备要 root：脚本发现没权限会自己用 sudo 重跑一遍。
+#   · 卡如果是挂载着的（被文件管理器自动挂载），会先尝试 umount；
+#     卸不掉就停下，不会硬写。
+#   · 写完记得 sync + 拔卡，板子重新上电才算生效。
+# =============================================================================
+set -u
+
+SECTOR=512
+REPO="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+PACKER="$REPO/project/tools/pack_bmp_images.py"
+WAV_SEL="$REPO/project/rtl/audio/wav_track_select.v"
+
+RED=$'\e[31m'; GRN=$'\e[32m'; YEL=$'\e[33m'; CYA=$'\e[36m'; BLD=$'\e[1m'; RST=$'\e[0m'
+[ -t 1 ] || { RED=""; GRN=""; YEL=""; CYA=""; BLD=""; RST=""; }
+
+die()  { echo "${RED}tfburn: $*${RST}" >&2; exit 1; }
+warn() { echo "${YEL}⚠️  $*${RST}" >&2; }
+
+usage() { sed -n '3,46p' "$0" | sed 's/^# \{0,1\}//'; }
+
+# ---------- 音频扇区：从 RTL 里读，不在这里另抄一份常量 ----------
+# 抄一份就一定会有一天和 wav_track_select.v 对不上，那时这个脚本会
+# 拿着过期的数字去"保护音频"，比没有保护更糟。
+read_audio_lbas() {
+    [ -f "$WAV_SEL" ] || die "找不到 $WAV_SEL，无法确认音频区位置，拒绝写卡"
+    python3 - "$WAV_SEL" <<'PY'
+import re, sys
+text = open(sys.argv[1], encoding='utf-8').read()
+names = ("PICTURE_1", "PICTURE_2", "PICTURE_3", "PICTURE_4", "FREE_SONG")
+found = []
+for name in names:
+    m = re.search(rf"\b{name}\s*=\s*32'd(\d+)", text)
+    if not m:
+        sys.exit(f"wav_track_select.v 里找不到 {name} 的扇区参数")
+    found.append((name, int(m.group(1))))
+for name, lba in found:
+    print(f"{name} {lba}")
+PY
+}
+
+# ---------- 参数 ----------
+MODE="write"; ARG=""; DEV_ARG=""; ASSUME_YES=0; FORCE=0
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help)   usage; exit 0 ;;
+        -d|--detect) MODE="detect"; shift ;;
+        -n|--dry-run) MODE="dry"; shift ;;
+        -y|--yes)    ASSUME_YES=1; shift ;;
+        -f|--force)  FORCE=1; shift ;;
+        -D|--dev)    [ $# -ge 2 ] || die "-D 后面要跟设备，例如 -D /dev/sdb"; DEV_ARG="$2"; shift 2 ;;
+        -*)          echo "tfburn: 未知选项 $1" >&2; usage >&2; exit 2 ;;
+        *)           ARG="$1"; shift ;;
+    esac
+done
+
+DRY=0; [ "$MODE" = "dry" ] && DRY=1
+
+# ---------- 列出候选设备 ----------
+# 判据：整盘 + 可移动(RM=1) 或 USB/SD 走线 + 容量够装下镜像之后的音频首扇区。
+# 只在 lsblk 的基础上筛，不猜名字（/dev/sda 在不同机器上是不同的东西）。
+list_disks() {
+    lsblk -dbPno NAME,SIZE,RM,TRAN,MODEL,HOTPLUG 2>/dev/null \
+    | python3 -c '
+import sys, re, shutil
+rows = []
+for line in sys.stdin:
+    kv = dict(re.findall(r"(\w+)=\"([^\"]*)\"", line))
+    if not kv.get("NAME"):
+        continue
+    try:
+        size = int(kv.get("SIZE", "0"))
+    except ValueError:
+        continue
+    rows.append((kv["NAME"], size, kv.get("RM", "0"), kv.get("TRAN", ""), kv.get("MODEL", "")))
+for name, size, rm, tran, model in rows:
+    print(f"{name}\t{size}\t{rm}\t{tran}\t{model}")
+'
+}
+
+candidates() {
+    # 参数 1：最小字节数
+    local need="$1"
+    list_disks | python3 -c '
+import sys
+need = int(sys.argv[1])
+for line in sys.stdin:
+    name, size, rm, tran, model = (line.rstrip("\n").split("\t") + ["", "", "", "", ""])[:5]
+    size = int(size)
+    if size < need:
+        continue
+    removable = (rm == "1") or (tran in ("usb", "mmc"))
+    if not removable:
+        continue
+    print("\t".join([name, str(size), rm, tran, model]))
+' "$need"
+}
+
+human() { numfmt --to=iec --suffix=B "$1" 2>/dev/null || echo "$1 B"; }
+
+show_disk_table() {
+    local need="$1"
+    local rows; rows="$(candidates "$need")"
+    if [ -z "$rows" ]; then
+        echo "  （没有找到可移动的磁盘设备）"
+        return 1
+    fi
+    printf "  %-11s %-9s %-7s %s\n" "设备" "容量" "走线" "型号"
+    printf "  %-11s %-9s %-7s %s\n" "----------" "--------" "------" "----------------"
+    while IFS=$'\t' read -r name size rm tran model; do
+        printf "  %-11s %-9s %-7s %s\n" "/dev/$name" "$(human "$size")" "${tran:-?}" "${model:--}"
+    done <<< "$rows"
+}
+
+# ---------- 校验文件夹里的 4 张图 ----------
+# 顺序 = 文件名排序（LC_ALL=C）。板子按扫描顺序把它们当第 1~4 页，
+# 顺序错了会"翻页内容错位"，这种错误在板子上很难看出来，所以这里拦。
+collect_images() {
+    local dir="$1"
+    mapfile -t FILES < <(find "$dir" -maxdepth 1 -type f -iname '*.bmp' -printf '%f\n' | LC_ALL=C sort)
+    local n="${#FILES[@]}"
+    if [ "$n" -ne 4 ]; then
+        {
+            echo "tfburn: $dir 里应当正好有 4 个 .bmp，实际 $n 个："
+            [ "$n" -eq 0 ] && echo "  （一个都没有）" || printf '  %s\n' "${FILES[@]}"
+        } >&2
+        die "需要 4 张（第 1~4 页），不多不少"
+    fi
+}
+
+check_bmp() {
+    local path="$1"
+    python3 - "$path" <<'PY'
+import struct, sys
+p = sys.argv[1]
+raw = open(p, 'rb').read(54)
+if len(raw) < 54 or raw[:2] != b'BM':
+    print("不是 BMP"); sys.exit(1)
+off, = struct.unpack_from('<I', raw, 10)
+w, h, planes, bpp, comp = struct.unpack_from('<iiHHI', raw, 18)
+print(f"{w} {h} {bpp} {comp} {off}")
+PY
+}
+
+# ---------- 主流程 ----------
+COMBINED="$(read_audio_lbas)" || exit 1
+AUDIO_MIN="$(printf '%s\n' "$COMBINED" | awk '{print $2}' | sort -n | head -1)"
+AUDIO_MAX="$(printf '%s\n' "$COMBINED" | awk '{print $2}' | sort -n | tail -1)"
+
+if [ "$MODE" = "detect" ]; then
+    echo "${CYA}>>> 检测可移动磁盘（只读，不动任何东西）${RST}"
+    echo "    音频区首扇区：LBA $AUDIO_MIN 起（来自 wav_track_select.v）"
+    echo
+    # 检测阶段不知道镜像多大，用 8 MB 作为"能装下四张图"的下限
+    show_disk_table $((8 * 1024 * 1024))
+    echo
+    echo "  用法： tfburn <文件夹>            直接烧到上面唯一那张卡"
+    echo "         tfburn -D /dev/sdX <文件夹>  有多张卡时手工指定"
+    exit 0
+fi
+
+[ -n "$ARG" ] || { echo "tfburn: 没给文件夹" >&2; echo; usage >&2; exit 2; }
+
+DIR="$ARG"
+[ -d "$DIR" ] || DIR="$REPO/$ARG"
+[ -d "$DIR" ] || die "找不到文件夹「$ARG」"
+DIR="$(readlink -f "$DIR")"
+
+collect_images "$DIR"
+
+# 顺序提示：标准名是 01/02/03/04，若不是，明确警告顺序依赖字典序
+EXPECTED=(01_assess_call.bmp 02_compressions.bmp 03_airway_breaths.bmp 04_aed.bmp)
+NAME_NOTE=""
+for i in 0 1 2 3; do
+    [ "${FILES[$i]}" = "${EXPECTED[$i]}" ] || NAME_NOTE="文件名不是标准的 01~04 教程图名，第 1~4 页按字典序取自这里"
+done
+
+# --- 逐张校验几何 ---
+declare -a GEOM
+for f in "${FILES[@]}"; do
+    info="$(check_bmp "$DIR/$f")" || die "$f 不是 BMP"
+    read -r W H BPP COMP OFF <<< "$info"
+    GEOM+=("${W}x${H}@${BPP}bit")
+    if [ "$W" -ne 640 ] || [ "$H" -ne 480 ] || [ "$BPP" -ne 24 ] || [ "$COMP" -ne 0 ]; then
+        if [ "$FORCE" = "1" ]; then
+            warn "$f 是 $W×$H ${BPP}位 compression=$COMP（不是 640×480×24），按 -f 继续"
+        else
+            die "$f 是 $W×$H ${BPP}位 compression=$COMP，要求 640×480 24位无压缩（要强行继续加 -f）"
+        fi
+    fi
+done
+
+# --- 用工程里的打包器打同构镜像（规则不在本脚本里重写一遍）---
+command -v python3 >/dev/null || die "没有 python3"
+[ -f "$PACKER" ] || die "找不到 $PACKER"
+TMPD="$(mktemp -d "${TMPDIR:-/tmp}/tfburn.XXXXXX")" || die "建不了临时目录"
+IMG="$TMPD/tfburn.img"
+trap 'rm -rf "$TMPD"' EXIT
+PACK_OUT="$(python3 "$PACKER" "${FILES[@]/#/$DIR/}" --output "$IMG" 2>&1)"
+PACK_RC=$?
+if [ $PACK_RC -ne 0 ]; then
+    echo "$PACK_OUT" >&2
+    die "打包失败（上面是 pack_bmp_images.py 的报错）"
+fi
+IMG_BYTES="$(stat -c%s "$IMG")"
+IMG_SHA="$(sha256sum "$IMG" | awk '{print $1}')"
+SECTORS=$(( IMG_BYTES / SECTOR ))
+IMG_END_LBA=$(( SECTORS - 1 ))
+[ $(( IMG_BYTES % SECTOR )) -eq 0 ] || die "打包结果不是 512 的整数倍（不该发生）"
+
+# --- 音频保护闸门：镜像必须整个落在音频区之前，且至少留 1 个扇区 ---
+if [ "$(( (IMG_END_LBA + 1) * SECTOR ))" -ge "$(( AUDIO_MIN * SECTOR ))" ]; then
+    die "镜像会写到 LBA $IMG_END_LBA，而音频从 LBA $AUDIO_MIN 开始 —— 会覆盖音频，已拦下"
+fi
+GAP_SECTORS=$(( AUDIO_MIN - (IMG_END_LBA + 1) ))
+
+# --- 解析设备 ---
+# 干跑(-n)不需要设备：这时候只想知道"会写哪些扇区、会不会碰到音频"。
+NEED=$(( (IMG_END_LBA + 1) * SECTOR ))
+DEV=""
+# lsblk 报出的名字不一定在本命名空间里真实存在（容器、CD-ROM、被过滤的 /dev），
+# 所以自动选择必须以"确实是块设备"为准，否则会把普通名字当设备去写。
+auto_pick() {
+    local need="$1" c
+    REAL=()
+    while IFS= read -r c; do
+        [ -n "$c" ] && [ -b "/dev/$c" ] && REAL+=("$c")
+    done < <(candidates "$need" | cut -f1)
+    echo "${#REAL[@]}"
+}
+if [ -n "$DEV_ARG" ]; then
+    DEV="$DEV_ARG"
+    [ -e "$DEV" ] || die "指定的设备 $DEV 不存在"
+else
+    N_AUTO="$(auto_pick "$NEED")"
+    if [ "$DRY" = "1" ]; then
+        # 干跑：有且只有一张就顺手用上，没有也不失败
+        [ "$N_AUTO" = "1" ] && DEV="/dev/${REAL[0]}"
+    else
+        case "$N_AUTO" in
+            0)  echo "${RED}tfburn: 没找到可移动磁盘${RST}" >&2
+                echo "  把 TF 卡插上（读卡器/USB），或者用 -D 手工指定设备。" >&2
+                echo "  当前系统里的整盘：$(list_disks | cut -f1 | sed 's/^/\/dev\//' | tr '\n' ' ')" >&2
+                echo "  干跑可以先看计划： tfburn -n $ARG" >&2
+                exit 1 ;;
+            1)  DEV="/dev/${REAL[0]}" ;;
+            *)  echo "${YEL}找到多张可移动磁盘，请用 -D 指定：${RST}" >&2
+                show_disk_table "$NEED" >&2
+                exit 1 ;;
+        esac
+    fi
+fi
+
+IS_BLOCK=0
+if [ -z "$DEV" ]; then
+    : # 干跑且没插卡：跳过所有设备检查
+elif [ -b "$DEV" ]; then
+    IS_BLOCK=1
+elif [ -f "$DEV" ]; then
+    : # 普通文件：只用于演练/制作镜像，下面跳过设备相关的检查
+else
+    die "$DEV 既不是块设备也不是普通文件"
+fi
+
+DEV_BYTES=""
+if [ -z "$DEV" ]; then
+    DEV_BYTES=0
+elif [ "$IS_BLOCK" = "1" ]; then
+    DEV_BYTES="$(blockdev --getsize64 "$DEV" 2>/dev/null || echo 0)"
+    [ "${DEV_BYTES:-0}" -gt 0 ] || die "读不到 $DEV 的容量（权限或设备问题）"
+else
+    DEV_BYTES="$(stat -c%s "$DEV")"
+fi
+if [ -n "$DEV" ]; then
+    if [ "$DEV_BYTES" -lt "$NEED" ]; then
+        die "$DEV 只有 $(human "$DEV_BYTES")，装不下 $IMG_BYTES 字节的镜像"
+    fi
+    if [ "$DEV_BYTES" -lt $(( AUDIO_MIN * SECTOR )) ]; then
+        warn "$DEV 比音频首扇区 LBA $AUDIO_MIN 还小 —— 这可能根本不是我方项目的卡"
+        [ "$FORCE" = "1" ] || die "拒绝写入不认识的卡（确认无误请加 -f）"
+    fi
+fi
+
+# --- 只读预检：卡上现在是什么 ---
+# 三种情况分清楚：已经是本工程的旧图 / 全新空白卡 / 别的东西。
+# 第三种（FAT 引导扇区之类）必须加 -f 才写，防止把别人的 U 盘当成 TF 卡。
+CARD_STATE="unknown"; CARD_NOTE=""
+if [ -n "$DEV" ] && [ -r "$DEV" ]; then
+    CARD_STATE="$(dd if="$DEV" bs=512 count=1 status=none 2>/dev/null | python3 -c '
+import struct, sys
+d = sys.stdin.buffer.read(54)
+if len(d) < 54:
+    print("unknown"); raise SystemExit
+if d[:2] == b"BM":
+    w, h, planes, bpp, comp = struct.unpack_from("<iiHHI", d, 18)
+    print(f"bmp {w} {h} {bpp} {comp}")
+elif d == bytes(54):
+    print("blank")
+else:
+    print("other " + d[:2].hex())
+')"
+fi
+case "$CARD_STATE" in
+    bmp\ 640\ 480\ 24\ 0)
+        CARD_NOTE="LBA 0 上已有 640×480 的旧教程图（会被整段替换）" ;;
+    bmp*)
+        CARD_NOTE="LBA 0 上有 BMP，但不是 640×480×24（会被整段替换）"
+        [ "$FORCE" = "1" ] || { [ "$MODE" = "detect" ] || warn "这张卡的旧图格式不同，确认无误请加 -f"; } ;;
+    blank)
+        CARD_NOTE="空白卡（LBA 0 全 0），可以直接写" ;;
+    other*)
+        CARD_NOTE="${RED}第 1 扇区不是本工程的图（像是别的卡或被格式化过）${RST}"
+        if [ "$MODE" != "detect" ] && [ "$FORCE" != "1" ]; then
+            warn "这看起来不是本项目的 TF 卡（首扇区是 FAT/别的东西）"
+            die "为避免写坏别人的卡，已停下。确认无误请加 -f"
+        fi ;;
+    *)
+        CARD_NOTE="读不到 LBA 0（权限不够？）" ;;
+esac
+
+# --- 计划 ---
+echo "┌───────────────────────────────────────────────────────────────"
+echo "│ ${BLD}TF 卡教程图写入${RST}"
+if [ -z "$DEV" ]; then
+    echo "│ 设备   : （干跑，未指定/未检测到卡；真写时会自动找或用 -D）"
+elif [ "$IS_BLOCK" = "1" ]; then
+    echo "│ 设备   : $DEV（$(human "$DEV_BYTES")）"
+else
+    echo "│ 设备   : $DEV（普通文件，$(human "$DEV_BYTES")）"
+fi
+[ -n "$CARD_NOTE" ] && echo "│ 现状   : $CARD_NOTE"
+echo "│ 来源   : $DIR"
+echo "│ 打包   : $(basename "$IMG")  $IMG_BYTES 字节 = $SECTORS 扇区  sha256 ${IMG_SHA:0:16}…"
+echo "├───────────────────────────────────────────────────────────────"
+i=0
+while IFS= read -r line; do
+    case "$line" in
+        *": LBA "*)
+            if [ "$i" -lt 4 ]; then
+                echo "│   ${line/$DIR\//}  ${GEOM[$i]}"
+                i=$((i+1))
+            fi
+            ;;
+    esac
+done <<< "$PACK_OUT"
+[ -n "$NAME_NOTE" ] && echo "│ ${YEL}$NAME_NOTE${RST}"
+echo "├───────────────────────────────────────────────────────────────"
+echo "│ 写入   : LBA 0 .. $IMG_END_LBA   （只写这一段，dd count=$SECTORS，不截断）"
+echo "│ 音频   : LBA $AUDIO_MIN .. $AUDIO_MAX　${GRN}不会触碰${RST}（相差 $GAP_SECTORS 扇区）"
+echo "│          首扇区 $(printf '%s\n' "$COMBINED" | awk '{printf "%s=%s ", $1, $2}')"
+echo "└───────────────────────────────────────────────────────────────"
+
+if [ "$DRY" = "1" ]; then
+    echo
+    echo "（-n 演练：校验与打包都跑了，${BLD}没有写卡${RST}。要真写就去掉 -n）"
+    exit 0
+fi
+
+# --- 确认 ---
+if [ "$ASSUME_YES" != "1" ]; then
+    [ -t 0 ] || die "非交互环境请加 -y（确认无误后再用）"
+    echo
+    printf "确认把上面 4 张图写进 %s？这会覆盖卡上 LBA 0..%s 的旧内容。\n输入 ${BLD}yes${RST} 继续：" "$DEV" "$IMG_END_LBA"
+    read -r ans
+    [ "$ans" = "yes" ] || { echo "已取消，卡未改动。"; exit 1; }
+fi
+
+# --- 权限：块设备要 root，没权限就 sudo 重跑一遍 ---
+if [ "$IS_BLOCK" = "1" ] && [ ! -w "$DEV" ]; then
+    if [ -z "${TFBURN_ELEVATED:-}" ] && command -v sudo >/dev/null 2>&1; then
+        echo "${CYA}>>> 需要 root 才能写 $DEV，用 sudo 重跑本命令${RST}"
+        export TFBURN_ELEVATED=1
+        args=(); [ "$ASSUME_YES" = "1" ] && args+=(-y); [ "$FORCE" = "1" ] && args+=(-f)
+        exec sudo -- "$0" "${args[@]}" -D "$DEV" "$ARG"
+    fi
+    die "没有写 $DEV 的权限（用 sudo 或者把 -D 指向可写设备）"
+fi
+
+# --- 卸挂载 ---
+if [ "$IS_BLOCK" = "1" ]; then
+    MOUNTED="$(lsblk -nlo NAME,MOUNTPOINTS "$DEV" 2>/dev/null | awk '$2!=""{print $1}')"
+    if [ -n "$MOUNTED" ]; then
+        echo "${CYA}>>> 先卸载卡上的挂载点${RST}"
+        for part in $MOUNTED; do
+            umount "/dev/$part" 2>/dev/null || umount "$DEV" 2>/dev/null || true
+        done
+        if [ -n "$(lsblk -nlo NAME,MOUNTPOINTS "$DEV" 2>/dev/null | awk '$2!=""{print $1}')" ]; then
+            [ "$FORCE" = "1" ] || die "卡还被挂载着，卸不掉就不写（关掉文件管理器自动挂载，或手动 umount）"
+        fi
+    fi
+fi
+
+# --- 写前给音频首扇区拍快照 ---
+declare -a AUDIO_SNAP
+snapshot_audio() {
+    local i=0 name lba
+    while read -r name lba; do
+        AUDIO_SNAP[$i]="$(dd if="$DEV" bs=512 skip="$lba" count=1 status=none 2>/dev/null | sha256sum | awk '{print $1}')"
+        i=$((i+1))
+    done <<< "$COMBINED"
+}
+snapshot_audio
+
+# --- 写 ---
+echo
+echo "${CYA}>>> 写入 LBA 0..$IMG_END_LBA（$SECTORS 扇区）${RST}"
+if ! dd if="$IMG" of="$DEV" bs=512 count="$SECTORS" conv=notrunc,fsync status=none; then
+    die "dd 写入失败 —— 卡可能被拔掉或写保护"
+fi
+sync
+
+# --- 回读校验：镜像区 + 音频首扇区 ---
+echo "${CYA}>>> 回读校验${RST}"
+GOT_SHA="$(dd if="$DEV" bs=512 count="$SECTORS" status=none | sha256sum | awk '{print $1}')"
+AUDIO_OK=1; AUDIO_LINES=""
+i=0
+while read -r name lba; do
+    now="$(dd if="$DEV" bs=512 skip="$lba" count=1 status=none 2>/dev/null | sha256sum | awk '{print $1}')"
+    if [ "$now" = "${AUDIO_SNAP[$i]}" ]; then
+        AUDIO_LINES+="  $name (LBA $lba) 与写前一致 ✓"$'\n'
+    else
+        AUDIO_LINES+="  $name (LBA $lba) ${RED}变了 ✗${RST}"$'\n'; AUDIO_OK=0
+    fi
+    i=$((i+1))
+done <<< "$COMBINED"
+
+echo
+if [ "$GOT_SHA" = "$IMG_SHA" ]; then
+    echo "${GRN}✅ 四张教程图已写入并校验通过${RST}"
+    echo "   镜像区 LBA 0..$IMG_END_LBA sha256 ${GOT_SHA:0:16}… 与打包结果一致"
+else
+    echo "${RED}❌ 回读校验失败${RST}"
+    echo "   期望 ${IMG_SHA:0:16}…  实际 ${GOT_SHA:0:16}…"
+    echo "   卡可能有坏块，或写入过程中被拔掉。重跑一次；反复失败就换卡。"
+    exit 1
+fi
+printf "%s" "$AUDIO_LINES"
+if [ "$AUDIO_OK" = "1" ]; then
+    echo "   ${GRN}音频区未改动${RST}（上面五个首扇区逐字节比对）"
+else
+    echo "   ${RED}音频区出现变化${RST}，请立刻检查（本不应发生）"
+fi
+echo
+echo "   → 拔卡前先 sync；板子要重新上电（或重新插卡）才会重新扫描。"
+exit $([ "$AUDIO_OK" = "1" ] && echo 0 || echo 1)
