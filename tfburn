@@ -311,12 +311,25 @@ else
     die "$DEV 既不是块设备也不是普通文件"
 fi
 
+# 取容量：先问 lsblk（普通用户就能问），blockdev 需要权限，只当兜底。
+device_bytes() {
+    local dev="$1" b
+    b="$(lsblk -dbno SIZE "$dev" 2>/dev/null | head -1 | tr -d ' ')"
+    case "$b" in ''|*[!0-9]*) b="" ;; esac
+    if [ -z "$b" ]; then
+        b="$(blockdev --getsize64 "$dev" 2>/dev/null || echo 0)"
+    fi
+    if [ "${b:-0}" -le 0 ] && [ -f "$dev" ]; then
+        b="$(stat -c%s "$dev")"
+    fi
+    echo "${b:-0}"
+}
 DEV_BYTES=""
 if [ -z "$DEV" ]; then
     DEV_BYTES=0
 elif [ "$IS_BLOCK" = "1" ]; then
-    DEV_BYTES="$(blockdev --getsize64 "$DEV" 2>/dev/null || echo 0)"
-    [ "${DEV_BYTES:-0}" -gt 0 ] || die "读不到 $DEV 的容量（权限或设备问题）"
+    DEV_BYTES="$(device_bytes "$DEV")"
+    [ "${DEV_BYTES:-0}" -gt 0 ] || die "读不到 $DEV 的容量（lsblk/blockdev 都失败）"
 else
     DEV_BYTES="$(stat -c%s "$DEV")"
 fi
@@ -328,6 +341,25 @@ if [ -n "$DEV" ]; then
         warn "$DEV 比音频首扇区 LBA $AUDIO_MIN 还小 —— 这可能根本不是我方项目的卡"
         [ "$FORCE" = "1" ] || die "拒绝写入不认识的卡（确认无误请加 -f）"
     fi
+fi
+
+# --- 权限：/dev/sdX 一般是 root:disk 660，普通用户连读都读不了 ---
+# 必须在读卡（现状判定、音频快照）和写卡之前就拿到权限，否则计划框里的
+# "卡上现在是什么"只能显示"读不到"，音频快照也会作废。直接用 sudo 重跑
+# 本命令，参数原样带过去（-y/-f 保留；-n 是干跑，不需要提权）。
+if [ "$IS_BLOCK" = "1" ] && { [ ! -r "$DEV" ] || [ ! -w "$DEV" ]; }; then
+    if [ "$(id -u)" != "0" ] && [ -z "${TFBURN_ELEVATED:-}" ] && [ "$DRY" != "1" ] &&
+       command -v sudo >/dev/null 2>&1; then
+        echo "${CYA}>>> $DEV 需要 root 权限（/dev 下的块设备通常是 root:disk 660），用 sudo 重跑${RST}"
+        args=(); [ "$ASSUME_YES" = "1" ] && args+=(-y); [ "$FORCE" = "1" ] && args+=(-f)
+        # 防循环主要靠 id -u：sudo 之后 uid 是 0，就不会再进这个分支。
+        # （不把 TFBURN_ELEVATED 塞进 sudo 命令行：sudoers 对 VAR=value 的
+        #  解析各家不同，靠它反而容易出错。）
+        export TFBURN_ELEVATED=1
+        exec sudo -- "$0" "${args[@]}" -D "$DEV" "$ARG"
+    fi
+    [ "$DRY" = "1" ] || die "没有读写 $DEV 的权限，请用 sudo 运行，或用 -D 指向你有权限的设备"
+    warn "干跑：读不了 $DEV，卡上现状会显示为未知（不影响扇区计划）"
 fi
 
 # --- 只读预检：卡上现在是什么 ---
@@ -415,17 +447,6 @@ if [ "$ASSUME_YES" != "1" ]; then
     printf "确认把上面 4 张图写进 %s？这会覆盖卡上 LBA 0..%s 的旧内容。\n输入 ${BLD}yes${RST} 继续：" "$DEV" "$IMG_END_LBA"
     read -r ans
     [ "$ans" = "yes" ] || { echo "已取消，卡未改动。"; exit 1; }
-fi
-
-# --- 权限：块设备要 root，没权限就 sudo 重跑一遍 ---
-if [ "$IS_BLOCK" = "1" ] && [ ! -w "$DEV" ]; then
-    if [ -z "${TFBURN_ELEVATED:-}" ] && command -v sudo >/dev/null 2>&1; then
-        echo "${CYA}>>> 需要 root 才能写 $DEV，用 sudo 重跑本命令${RST}"
-        export TFBURN_ELEVATED=1
-        args=(); [ "$ASSUME_YES" = "1" ] && args+=(-y); [ "$FORCE" = "1" ] && args+=(-f)
-        exec sudo -- "$0" "${args[@]}" -D "$DEV" "$ARG"
-    fi
-    die "没有写 $DEV 的权限（用 sudo 或者把 -D 指向可写设备）"
 fi
 
 # --- 卸挂载 ---
