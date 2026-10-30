@@ -1,33 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1056" height="1200" viewBox="0 0 352 400"><rect width="352" height="400" fill="#102030"/>
 <text x="16" y="12" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">成人心肺复苏  /  教程 04 · 04</text>
 <text x="16" y="32" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="25" fill="#f3f7fa">使用 AED</text>
-<text x="16" y="63" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#b6c9d5">开机，贴片，听从设备提示</text>
+<text x="16" y="63" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#b6c9d5">尽早取用；开机后听从设备语音提示</text>
 <rect x="16" y="86" width="320" height="120" rx="12" fill="#142b3b" stroke="#284859"/>
-<ellipse cx="112.0" cy="102.0" rx="13.0" ry="14.0" fill="#bfd4df" stroke="none"/>
-<polyline points="102,117 122,117 146,131 141,183 83,183 78,131 102,117" fill="none" stroke="#bfd4df" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
-<polygon points="102,117 122,117 146,131 141,183 83,183 78,131" fill="#436879" stroke="#bfd4df"/>
-<polyline points="90,184 86,196" fill="none" stroke="#bfd4df" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-<polyline points="134,184 138,196" fill="none" stroke="#bfd4df" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-<rect x="85" y="131" width="17" height="22" rx="3" fill="#fff0b8" stroke="none"/>
-<rect x="137" y="160" width="17" height="22" rx="3" fill="#fff0b8" stroke="none"/>
-<polyline points="94,131 163,103 179,103" fill="none" stroke="#58e0bc" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="101,176 100,196" fill="none" stroke="#436879" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="100.0" cy="196.0" rx="6.0" ry="6.0" fill="#436879" stroke="none"/>
+<polyline points="83,131 85,172" fill="none" stroke="#436879" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="83.0" cy="131.0" rx="4.0" ry="4.0" fill="#436879" stroke="none"/>
+<ellipse cx="85.0" cy="172.0" rx="5.0" ry="5.0" fill="#436879" stroke="none"/>
+<polyline points="123,176 124,196" fill="none" stroke="#436879" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="124.0" cy="196.0" rx="6.0" ry="6.0" fill="#436879" stroke="none"/>
+<polyline points="141,131 139,172" fill="none" stroke="#436879" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="141.0" cy="131.0" rx="4.0" ry="4.0" fill="#436879" stroke="none"/>
+<ellipse cx="139.0" cy="172.0" rx="5.0" ry="5.0" fill="#436879" stroke="none"/>
+<path d="M106 116 C106 123 97 122 90 128 C88 134 91 146 94 156 C95 166 93 172 92 177 C92 180 99 180 104 180 C109 180 115 180 120 180 C125 180 132 180 132 177 C131 172 129 166 130 156 C133 146 136 134 134 128 C127 122 118 123 118 116 Z" fill="#436879" stroke="none" stroke-width="1"/>
+<rect x="107" y="108" width="10" height="12" rx="2" fill="#bfd4df" stroke="none"/>
+<ellipse cx="112.0" cy="99.0" rx="11.0" ry="12.0" fill="#bfd4df" stroke="none"/>
+<path d="M112 130 C113 144 113 160 112 172" fill="none" stroke="#9fbccc" stroke-width="1" stroke-linecap="round"/>
+<rect x="92" y="130" width="14" height="18" rx="3" fill="#fff0b8" stroke="none"/>
+<rect x="117" y="150" width="14" height="18" rx="3" fill="#fff0b8" stroke="none"/>
+<polyline points="103,132 163,103 179,103" fill="none" stroke="#58e0bc" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
 <text x="183" y="96" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="14" fill="#f3f7fa">右锁骨下</text>
-<polyline points="154,173 173,158 181,158" fill="none" stroke="#58e0bc" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="131,158 173,158 181,158" fill="none" stroke="#58e0bc" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
 <text x="185" y="146" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="14" fill="#f3f7fa">左胸侧方</text>
-<text x="183" y="174" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="12" fill="#b6c9d5">以贴片图示为准</text>
+<text x="183" y="174" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="12" fill="#b6c9d5">避开起搏器凸起</text>
 <ellipse cx="24.5" cy="230.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
-<text x="21" y="223" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">1</text>
-<text x="41" y="222" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">按电极片图示贴于裸露胸部</text>
+<text x="24.5" y="230.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">1</text>
+<text x="41" y="222" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">开机并听语音提示；裸露、擦干患者胸部。</text>
 <ellipse cx="24.5" cy="257.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
-<text x="21" y="250" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">2</text>
-<text x="41" y="249" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">分析心律及电击时，所有人离开</text>
+<text x="24.5" y="257.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">2</text>
+<text x="41" y="249" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">一片贴右锁骨下，一片贴左胸侧方、避开起搏器。</text>
 <ellipse cx="24.5" cy="284.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
-<text x="21" y="277" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">3</text>
-<text x="41" y="276" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">是否电击由 AED 判断，按提示操作</text>
+<text x="24.5" y="284.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">3</text>
+<text x="41" y="276" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">分析心律时所有人离开，不接触患者。</text>
 <ellipse cx="24.5" cy="311.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
-<text x="21" y="304" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">4</text>
-<text x="41" y="303" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">电击后或无需电击：立即恢复按压</text>
+<text x="24.5" y="311.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">4</text>
+<text x="41" y="303" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">提示电击时确认无人碰触；放电后立即续按。</text>
 <rect x="16" y="339" width="320" height="29" rx="7" fill="#18493f" stroke="none"/>
-<text x="26" y="345" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#58e0bc">恢复 CPR，遵循后续提示</text>
-<text x="16" y="379" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#b6c9d5">成人培训示意 · 请结合规范实操教学</text>
+<text x="26" y="345" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#58e0bc">分析 / 放电期间，任何人不得接触患者。</text>
+<text x="16" y="379" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#b6c9d5">成人培训示意 · 请结合规范实操教学 · 急救请拨 120</text>
 </svg>

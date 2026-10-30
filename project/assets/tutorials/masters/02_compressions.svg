@@ -1,33 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1056" height="1200" viewBox="0 0 352 400"><rect width="352" height="400" fill="#102030"/>
 <text x="16" y="12" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">成人心肺复苏  /  教程 02 · 04</text>
 <text x="16" y="32" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="25" fill="#f3f7fa">胸外按压</text>
-<text x="16" y="63" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#b6c9d5">掌根置于胸骨下半部</text>
+<text x="16" y="63" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#b6c9d5">成人：手位、频率、深度与回弹</text>
 <rect x="16" y="86" width="320" height="120" rx="12" fill="#142b3b" stroke="#284859"/>
-<ellipse cx="112.0" cy="102.0" rx="13.0" ry="14.0" fill="#bfd4df" stroke="none"/>
-<polyline points="102,117 122,117 146,131 141,183 83,183 78,131 102,117" fill="none" stroke="#bfd4df" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
-<polygon points="102,117 122,117 146,131 141,183 83,183 78,131" fill="#436879" stroke="#bfd4df"/>
-<polyline points="90,184 86,196" fill="none" stroke="#bfd4df" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-<polyline points="134,184 138,196" fill="none" stroke="#bfd4df" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-<polyline points="112,130 112,172" fill="none" stroke="#82a8b8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="101,176 100,196" fill="none" stroke="#436879" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="100.0" cy="196.0" rx="6.0" ry="6.0" fill="#436879" stroke="none"/>
+<polyline points="83,131 85,172" fill="none" stroke="#436879" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="83.0" cy="131.0" rx="4.0" ry="4.0" fill="#436879" stroke="none"/>
+<ellipse cx="85.0" cy="172.0" rx="5.0" ry="5.0" fill="#436879" stroke="none"/>
+<polyline points="123,176 124,196" fill="none" stroke="#436879" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="124.0" cy="196.0" rx="6.0" ry="6.0" fill="#436879" stroke="none"/>
+<polyline points="141,131 139,172" fill="none" stroke="#436879" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="141.0" cy="131.0" rx="4.0" ry="4.0" fill="#436879" stroke="none"/>
+<ellipse cx="139.0" cy="172.0" rx="5.0" ry="5.0" fill="#436879" stroke="none"/>
+<path d="M106 116 C106 123 97 122 90 128 C88 134 91 146 94 156 C95 166 93 172 92 177 C92 180 99 180 104 180 C109 180 115 180 120 180 C125 180 132 180 132 177 C131 172 129 166 130 156 C133 146 136 134 134 128 C127 122 118 123 118 116 Z" fill="#436879" stroke="none" stroke-width="1"/>
+<rect x="107" y="108" width="10" height="12" rx="2" fill="#bfd4df" stroke="none"/>
+<ellipse cx="112.0" cy="99.0" rx="11.0" ry="12.0" fill="#bfd4df" stroke="none"/>
+<path d="M112 130 C113 144 113 160 112 172" fill="none" stroke="#9fbccc" stroke-width="1" stroke-linecap="round"/>
 <ellipse cx="112.0" cy="158.0" rx="12.0" ry="10.0" fill="#f4b38b" stroke="none"/>
 <rect x="101" y="152" width="22" height="8" rx="3" fill="#ffcfad" stroke="none"/>
-<polyline points="125,157 158,137 177,137" fill="none" stroke="#58e0bc" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-<text x="180" y="112" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="16" fill="#f3f7fa">胸骨下半部</text>
-<text x="180" y="148" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="23" fill="#58e0bc">100–120</text>
-<text x="180" y="181" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#b6c9d5">次 / 分</text>
+<polyline points="112,130 112.0,139.2" fill="none" stroke="#58e0bc" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="112,144 109.39020679533262,138.59731738588394 114.60979320466738,138.59731738588394" fill="#58e0bc" stroke="none"/>
+<polyline points="126,166 146,178" fill="none" stroke="#58e0bc" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="148" y="174" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#b6c9d5">胸骨下半部</text>
+<text x="212" y="92" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="22" fill="#58e0bc">100–120</text>
+<text x="212" y="117" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#b6c9d5">次 / 分</text>
+<text x="212" y="136" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="20" fill="#58e0bc">5–6 cm</text>
+<text x="212" y="162" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#b6c9d5">成人按压深度</text>
 <ellipse cx="24.5" cy="230.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
-<text x="21" y="223" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">1</text>
-<text x="41" y="222" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">双手叠放，双臂伸直，垂直下压</text>
+<text x="24.5" y="230.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">1</text>
+<text x="41" y="222" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">仰卧于坚硬平面，充分暴露胸部。</text>
 <ellipse cx="24.5" cy="257.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
-<text x="21" y="250" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">2</text>
-<text x="41" y="249" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">成人频率：100–120 次/分</text>
+<text x="24.5" y="257.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">2</text>
+<text x="41" y="249" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">掌根置于胸骨下半部，双手叠放、手指互扣。</text>
 <ellipse cx="24.5" cy="284.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
-<text x="21" y="277" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">3</text>
-<text x="41" y="276" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">深度至少 5 cm，避免超过 6 cm</text>
+<text x="24.5" y="284.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">3</text>
+<text x="41" y="276" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">手臂伸直、肩在正上方，垂直向下按压。</text>
 <ellipse cx="24.5" cy="311.5" rx="8.5" ry="8.5" fill="#244e5b" stroke="none"/>
-<text x="21" y="304" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">4</text>
-<text x="41" y="303" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">每次充分回弹，尽量减少中断</text>
+<text x="24.5" y="311.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#58e0bc">4</text>
+<text x="41" y="303" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#f3f7fa">每次完全回弹，不倚压胸部，尽量减少中断。</text>
 <rect x="16" y="339" width="320" height="29" rx="7" fill="#18493f" stroke="none"/>
-<text x="26" y="345" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#58e0bc">多人施救时约每 2 分钟轮换</text>
-<text x="16" y="379" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#b6c9d5">成人培训示意 · 请结合规范实操教学</text>
+<text x="26" y="345" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="13" fill="#58e0bc">尽量减少中断；多人施救约每 2 分钟轮换。</text>
+<text x="16" y="379" dominant-baseline="text-before-edge" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif" font-size="11" fill="#b6c9d5">成人培训示意 · 请结合规范实操教学 · 急救请拨 120</text>
 </svg>

@@ -1,6 +1,6 @@
 {
-  "source_content_sha256": "54bd8511d0043b6e2b6f829d3c129569e174a078ba4557103921ac0a4610477b",
-  "font_sha256": "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b",
+  "source_content_sha256": "49bda462e6a37c96ddc2a811c9b45d296010cfb832df39b5933c112a1cd431c0",
+  "font_sha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
   "training_rectangle": [
     16,
     32,
@@ -18,7 +18,7 @@
       "start_sector": 0,
       "bytes": 921654,
       "padding_bytes": 458,
-      "sha256": "e9a9aa49a8d6edc184d1386fa735f3678e69cdfe8d8190eacb0d5524b6fa8203"
+      "sha256": "aff2187f1f3548fb19c324ffc85329fa120aac6f3b871db8b40c6a30626c08ff"
     },
     {
       "index_zero_based": 1,
@@ -27,16 +27,16 @@
       "start_sector": 1801,
       "bytes": 921654,
       "padding_bytes": 458,
-      "sha256": "6b93918cdcefaa0c9a5ee71865375577bf52639be30fab3bbdd95251dc62a274"
+      "sha256": "d2841c8e15557779f1634fe9d4af3820649db612be9eb3fab58b5a5dbdd90b7f"
     },
     {
       "index_zero_based": 2,
-      "title": "气道与人工呼吸",
+      "title": "开放气道与人工呼吸",
       "file": "bmp_training_safe/03_airway_breaths.bmp",
       "start_sector": 3602,
       "bytes": 921654,
       "padding_bytes": 458,
-      "sha256": "4ef484f09549ece52ca7b62d58cf8bdbe46cbad26fce028431844fbe766db86e"
+      "sha256": "43ca1df449b052817e239b8b5a205d6d2ce71e2d62ab3abf521fef2d12e789b9"
     },
     {
       "index_zero_based": 3,
@@ -45,11 +45,11 @@
       "start_sector": 5403,
       "bytes": 921654,
       "padding_bytes": 458,
-      "sha256": "1d4ffc4018a2d611ab2deddd19ab8311ec176468676ea11f443f1e75419e0a0e"
+      "sha256": "38569b551a10545c3ee746242b743a685a7734be654ab812a9d90f0dbf2a5489"
     }
   ],
   "image_bytes": 3688448,
-  "image_sha256": "7218492977a432271e92708cd003884e5d4a91760b4e7b64e9a2e6d4edf7aa16",
+  "image_sha256": "2c9c815ebabb1192d0bf4cd4ffde367b631d12a4a51c55efafaeb52b6b7e8e62",
   "sources": {
     "aha_bls_2025": {
       "title": "AHA 2025 Adult Basic Life Support",
