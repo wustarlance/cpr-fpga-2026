@@ -360,8 +360,11 @@ case "$CARD_STATE" in
             warn "这看起来不是本项目的 TF 卡（首扇区是 FAT/别的东西）"
             die "为避免写坏别人的卡，已停下。确认无误请加 -f"
         fi ;;
+    unknown)
+        # 干跑时根本没有设备，不该报"权限不够"
+        [ -n "$DEV" ] && CARD_NOTE="读不到 LBA 0（权限不够？）" || CARD_NOTE="" ;;
     *)
-        CARD_NOTE="读不到 LBA 0（权限不够？）" ;;
+        CARD_NOTE="未知状态" ;;
 esac
 
 # --- 计划 ---
