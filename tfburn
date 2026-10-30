@@ -266,22 +266,25 @@ NEED=$(( (IMG_END_LBA + 1) * SECTOR ))
 DEV=""
 # lsblk 报出的名字不一定在本命名空间里真实存在（容器、CD-ROM、被过滤的 /dev），
 # 所以自动选择必须以"确实是块设备"为准，否则会把普通名字当设备去写。
+# 注意：必须【直接调用】这个函数，不能用 N_AUTO="$(auto_pick ...)"。
+# 命令替换会开一个子 shell，函数里对 REAL 的赋值全丢在子 shell 里，
+# 回到父 shell 就成了未绑定变量（set -u 直接报错）。所以用两个全局量返回结果。
 auto_pick() {
     local need="$1" c
     REAL=()
     while IFS= read -r c; do
         [ -n "$c" ] && [ -b "/dev/$c" ] && REAL+=("$c")
     done < <(candidates "$need" | cut -f1)
-    echo "${#REAL[@]}"
+    N_AUTO="${#REAL[@]}"
 }
 if [ -n "$DEV_ARG" ]; then
     DEV="$DEV_ARG"
     [ -e "$DEV" ] || die "指定的设备 $DEV 不存在"
 else
-    N_AUTO="$(auto_pick "$NEED")"
+    auto_pick "$NEED"
     if [ "$DRY" = "1" ]; then
         # 干跑：有且只有一张就顺手用上，没有也不失败
-        [ "$N_AUTO" = "1" ] && DEV="/dev/${REAL[0]}"
+        [ "$N_AUTO" = "1" ] && DEV="/dev/${REAL[0]:-}"
     else
         case "$N_AUTO" in
             0)  echo "${RED}tfburn: 没找到可移动磁盘${RST}" >&2
@@ -289,7 +292,7 @@ else
                 echo "  当前系统里的整盘：$(list_disks | cut -f1 | sed 's/^/\/dev\//' | tr '\n' ' ')" >&2
                 echo "  干跑可以先看计划： tfburn -n $ARG" >&2
                 exit 1 ;;
-            1)  DEV="/dev/${REAL[0]}" ;;
+            1)  DEV="/dev/${REAL[0]:-}" ;;
             *)  echo "${YEL}找到多张可移动磁盘，请用 -D 指定：${RST}" >&2
                 show_disk_table "$NEED" >&2
                 exit 1 ;;
@@ -440,6 +443,13 @@ if [ "$IS_BLOCK" = "1" ]; then
 fi
 
 # --- 写前给音频首扇区拍快照 ---
+# 快照读不到就别假装比对过：读失败时 dd 输出为空，两边都是空串，
+# 会得出"一致"的假结论。宁可明说"没比对"。
+SNAP_OK=1
+if ! dd if="$DEV" bs=512 skip="$AUDIO_MIN" count=1 of=/dev/null status=none 2>/dev/null; then
+    SNAP_OK=0
+    warn "读不了音频区（权限不足），将跳过写前快照 —— 音频仍不会被写，只是没有比对证据"
+fi
 declare -a AUDIO_SNAP
 snapshot_audio() {
     local i=0 name lba
@@ -448,7 +458,7 @@ snapshot_audio() {
         i=$((i+1))
     done <<< "$COMBINED"
 }
-snapshot_audio
+[ "$SNAP_OK" = "1" ] && snapshot_audio
 
 # --- 写 ---
 echo
@@ -462,16 +472,18 @@ sync
 echo "${CYA}>>> 回读校验${RST}"
 GOT_SHA="$(dd if="$DEV" bs=512 count="$SECTORS" status=none | sha256sum | awk '{print $1}')"
 AUDIO_OK=1; AUDIO_LINES=""
-i=0
-while read -r name lba; do
-    now="$(dd if="$DEV" bs=512 skip="$lba" count=1 status=none 2>/dev/null | sha256sum | awk '{print $1}')"
-    if [ "$now" = "${AUDIO_SNAP[$i]}" ]; then
-        AUDIO_LINES+="  $name (LBA $lba) 与写前一致 ✓"$'\n'
-    else
-        AUDIO_LINES+="  $name (LBA $lba) ${RED}变了 ✗${RST}"$'\n'; AUDIO_OK=0
-    fi
-    i=$((i+1))
-done <<< "$COMBINED"
+if [ "$SNAP_OK" = "1" ]; then
+    i=0
+    while read -r name lba; do
+        now="$(dd if="$DEV" bs=512 skip="$lba" count=1 status=none 2>/dev/null | sha256sum | awk '{print $1}')"
+        if [ "$now" = "${AUDIO_SNAP[$i]}" ]; then
+            AUDIO_LINES+="  $name (LBA $lba) 与写前一致 ✓"$'\n'
+        else
+            AUDIO_LINES+="  $name (LBA $lba) ${RED}变了 ✗${RST}"$'\n'; AUDIO_OK=0
+        fi
+        i=$((i+1))
+    done <<< "$COMBINED"
+fi
 
 echo
 if [ "$GOT_SHA" = "$IMG_SHA" ]; then
@@ -484,7 +496,9 @@ else
     exit 1
 fi
 printf "%s" "$AUDIO_LINES"
-if [ "$AUDIO_OK" = "1" ]; then
+if [ "$SNAP_OK" != "1" ]; then
+    echo "   ${YEL}音频区未做比对${RST}（写前读不了卡；写入范围仍限定在 LBA 0..$IMG_END_LBA）"
+elif [ "$AUDIO_OK" = "1" ]; then
     echo "   ${GRN}音频区未改动${RST}（上面五个首扇区逐字节比对）"
 else
     echo "   ${RED}音频区出现变化${RST}，请立刻检查（本不应发生）"
