@@ -9,7 +9,13 @@
     "passed": 67,
     "failed": 0,
     "runner_controls_passed": 5,
-    "summary_sha256": "6e6503e3fb46bef0aa37a9bd64e5da3a4573834d6ae2642c8c82c097199a0efc"
+    "summary_sha256": "6e6503e3fb46bef0aa37a9bd64e5da3a4573834d6ae2642c8c82c097199a0efc",
+    "post_format_top_recheck": {
+      "passed": true,
+      "summary_sha256": "5e32d8a110fbd0d180058863909fd1f295bf234a1fa42b5716a0c89a3c4eba20",
+      "other_tests_reused_by_unchanged_source_and_fixture_hashes": 66,
+      "format_scope": "Test boundary model CRLF and trailing whitespace only; product RTL unchanged"
+    }
   },
   "mutations": [
     {
@@ -146,6 +152,6 @@
     "tests/sim/run.py": "0ea157ac3d11f62141d5bc92d29ddf04259e3e597795e152a6f75c291d9ebf91",
     "tests/sim/tb/tb_splash_boot.v": "b8846976abaa786b3786cacf83bdc03addb9a9b3fbcf1223681f452d1f610dca",
     "tests/sim/tb/tb_top_startup_av.v": "0cf238633f0e84867f543f3bbf4d96c96da985809557dbf94d3b78df220693ea",
-    "tests/sim/stubs/top_startup_io_models.v": "756568d06bac137c86fd0a3c51cde8b90917ca5f2ee2eeb7e2de5d845dafaa0f"
+    "tests/sim/stubs/top_startup_io_models.v": "70773204e56cfaffbf0fb9f057068e2156482e6c3f7d9a0a0ad5f2f5614cfad2"
   }
 }
