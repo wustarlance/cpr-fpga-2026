@@ -6,7 +6,7 @@
 //   上电后要先 SD 初始化（50~100 ms）再扫卡（4 张图 1.87 s）才载入第 1 页，
 //   这段时间屏幕一直是深蓝底（top 里那个 24'h102030），看起来像"没反应"。
 //   这里在第一张图可上屏之前，把一张静态开机画面（logo + 标题 + "加载中..."）
-//   接到像素通路上，上电 0.2 s 内就有画面。
+//   接到像素通路上。实际可见时间还包含FPGA配置与显示器锁定，需上板测量。
 //
 // 数据从哪来
 //   图不是画出来的，是**存在 BRAM 里的位图**：tools/gen_splash_rom.py 把
@@ -38,7 +38,7 @@ module splash_boot (
     input  wire        de,       // 有效像素使能（每行恰 640 拍）
     input  wire        hide,     // 1 = 已经有图可上屏，关掉开机画面
     output wire [23:0] rgb,      // 开机画面像素（窗口外为纯黑）
-    output wire        active    // 开机画面正在接管输出
+    output reg         active    // 开机画面正在接管输出；只在场消隐交棒
 );
 
 // 最少显示多久：第一张图 1 s 就发布了，但显示器往往 1 s 之后才锁定，
@@ -138,8 +138,13 @@ wire [7:0] gray   = gray_of(pix);
 wire       shaded = in1 | in2 | in3;
 
 assign rgb    = shaded ? {gray, gray, gray} : 24'h000000;
-// 有图之后还要等够 DWELL，避免"刚发布就交棒"把画面交给还没锁定的显示器
-assign active = !(hide && dwell_done);
+// Dwell is a minimum SHOW time, never a delay before showing the BRAM logo.
+// Switch only in vertical blanking, so a media SOF cannot contain half a logo.
+always @(posedge clk or posedge rst) begin
+    if (rst) active <= 1'b1;
+    else if (!hide || !dwell_done) active <= 1'b1;
+    else if (vs_edge && !de) active <= 1'b0;
+end
 
 endmodule
 

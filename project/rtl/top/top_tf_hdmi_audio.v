@@ -188,7 +188,18 @@ always @(posedge clk or negedge por_reset_n) begin
     end
 end
 wire app_rst_n, sd_rst_n, mem_rst_n, audio_rst_n;
-wire rst_video = ~app_rst_n;
+// Start the continuous HDMI raster/BRAM logo as soon as its own PLL is locked.
+// Storage, application and audio retain the existing all-PLL + 20 ms startup.
+// Every video pipeline stage uses this same reset: there is no raster switch
+// when the media path becomes ready, so the receiver need not lock again.
+wire video_out_rst_n;
+wire rst_video = ~video_out_rst_n;
+// Constant readiness needs no por_ready CDC exception. Keep this separate
+// from the four u_*reset instances qualified by the 50 MHz readiness flag.
+reset_release u_video_release(.clk(video_clk),
+                           .reset_n_async(rst_n && video_lock),
+                           .rst_n(video_out_rst_n),
+                           .ready(1'b1));
 assign rst_sd = ~sd_rst_n;
 wire rst_mem = ~mem_rst_n;
 wire rst_audio = ~audio_rst_n;
@@ -245,7 +256,8 @@ page_status_cdc u_page_status(
 // 已量产的按压盒仍可用板载 KEY2/KEY3/KEY4 临时操作，KEY1 始终是复位。
 // 板载只有 5 路（KEY1 是复位，不进这条链），bit5 固定 0：只有面板 K7 能拉高。
 wire [5:0] onboard_keys = {1'b0, ~key1, ~key3, ~key2};
-wire [5:0] panel_keys   = ~key_panel_n[5:0];
+// Application bit5 is subtitle, not physical K6. K6 remains contrast-only.
+wire [5:0] panel_keys   = {~key_panel_n[6], ~key_panel_n[4:0]};
 wire [5:0] app_keys_raw;
 key_source_merge u_key_merge(
     .onboard_keys (onboard_keys),
@@ -357,12 +369,20 @@ always @(posedge video_clk or negedge app_rst_n) begin
     else if (tick_ms && beat_hold_ms != 0) beat_hold_ms <= beat_hold_ms - 1'b1;
 end
 wire audio_gate = BEAT_GATE ? ((app_mode != 2) || (beat_hold_ms != 0)) : 1'b1;
+wire splash_on;
+reg media_frame_started, media_audio_ready;
+reg media_vs_q;
+wire visual_vs, visual_de;
+reg [1:0] display_valid_sync;
 // Share the final gated PCM words between HDMI and its on-screen monitor.
-wire [23:0] hdmi_audio_left = (ENABLE_AUDIO && audio_gate) ? audio_left_data : 24'd0;
-wire [23:0] hdmi_audio_right = (ENABLE_AUDIO && audio_gate) ? audio_right_data : 24'd0;
+// Keep sample-valid/ACR running with silence during the logo. Gate both the
+// player and these final words, including delayed PCM and the training source.
+wire media_audio_enable = media_audio_ready && !splash_on && app_rst_n &&
+                          display_valid_sync[1];
+wire [23:0] hdmi_audio_left = (ENABLE_AUDIO && audio_gate && media_audio_enable) ? audio_left_data : 24'd0;
+wire [23:0] hdmi_audio_right = (ENABLE_AUDIO && audio_gate && media_audio_enable) ? audio_right_data : 24'd0;
 assign audio_output_valid = ENABLE_AUDIO ? audio_valid : 1'b0;
 assign acr_output_valid = ENABLE_AUDIO ? acr_valid : 1'b0;
-reg [1:0] display_valid_sync;
 reg [1:0] boot_load_done_sync;
 reg       boot_splash_released;
 reg [1:0] brightness_video;
@@ -440,7 +460,31 @@ always @(posedge video_clk or posedge rst_video) begin
     end else begin
         display_valid_sync <= {display_valid_sync[0],display_valid};
         boot_load_done_sync <= {boot_load_done_sync[0],boot_load_done_sd};
-        if (boot_load_done_sync[1]) boot_splash_released <= 1'b1;
+        if (!app_rst_n) boot_splash_released <= 1'b0;
+        else if (boot_load_done_sync[1]) boot_splash_released <= 1'b1;
+    end
+end
+
+// A published SDRAM page can exist behind the logo. It is not yet visible.
+// Arm on a tutorial SOF actually accepted by the HDMI core, then permit audio
+// only at the following blanking VS edge, after that picture frame was sent.
+// Reset/relock/no-image cases re-arm this guard; logo/fault screens stay silent.
+always @(posedge video_clk or posedge rst_video) begin
+    if (rst_video) begin
+        media_vs_q <= 1'b0;
+        media_frame_started <= 1'b0;
+        media_audio_ready <= 1'b0;
+    end else begin
+        media_vs_q <= visual_vs;
+        if (!app_rst_n || splash_on || !display_valid_sync[1]) begin
+            media_frame_started <= 1'b0;
+            media_audio_ready <= 1'b0;
+        end else begin
+            if (axis_s_valid && axis_s_user && axis_s_ready)
+                media_frame_started <= 1'b1;
+            if (media_frame_started && (media_vs_q != visual_vs) && !visual_de)
+                media_audio_ready <= 1'b1;
+        end
     end
 end
 
@@ -686,7 +730,7 @@ seg_decoder seg_decoder_page(
 wire [3:0] led_level = {
     page_status_video[3],                      // LED4: 正在加载 / 恢复 / 等待可用目标
     page_status_video[1] | page_status_video[2],   // LED3: 读卡失败 / 缺页
-    display_valid_sync[1] && boot_splash_released, // LED2: 教程画面实际接管输出
+    media_audio_enable,                         // LED2: 完整教程帧已送出，可播放音频
     training_enabled                           // LED1: 按压训练模式
 };
 assign led = LED_ACTIVE_LOW ? ~led_level : led_level;
@@ -732,7 +776,6 @@ video_delay video_delay_m0(
 );
 
 // 首图提交前黑屏；提交后一直显示当前显示缓冲区内容
-wire visual_vs, visual_de;
 generate if (ENABLE_AUDIO && ENABLE_AUDIO_VISUALIZATION) begin: g_audio_visualization
     cpr_audio_visualizer u_visualizer(
         .clk(video_clk), .rst(rst_video), .enable(1'b1),
@@ -928,7 +971,7 @@ reg        wav_play_en;
 reg        heart_en;
 always @(posedge video_clk or negedge app_rst_n) begin
     if (!app_rst_n) heart_en <= 1'b0;
-    else            heart_en <= training_enabled;
+    else            heart_en <= training_enabled && media_audio_enable;
 end
 
 wire wav_ctrl_ready;
@@ -967,13 +1010,13 @@ wire [3:0]  wav_state;
 //             选曲码 audio_sel 与本信号无关（自动轮播另有 auto_mode_q），
 //             所以退出训练时立刻回到"当前模式该放的那首"，不用重新选曲。
 // wav_muted ：只有 SW4 暂停才把该页 WAV 压成 0（暂停 = 断点续播，不丢位置）。
-wire        wav_muted = ~wav_play_en;
+wire        wav_muted = ~wav_play_en | ~media_audio_enable;
 // 训练模式不读卡（2026-10-26 新增）：音频口在播心跳，WAV 一路只会白白占着
 // SPI/扇区带宽（这东西和视频 BMP 读取抢总线，训练时换页会明显更慢）。
 // 拉低 I_play 后 pcm_player 既不消耗 FIFO、也不推进读指针，SD 侧把 FIFO 填满
 // 就自己停住 —— 和 SW4 暂停走的是同一条已验证的路径，退出训练断点续播。
 // pcm_player 每帧照发 valid（只是样本为 0），所以 ACR 节拍不会断。
-wire        wav_play_gate = wav_play_en & ~heart_en;
+wire        wav_play_gate = wav_play_en & ~heart_en & media_audio_enable;
 
 // ---- 选曲码：手动/单页 = 页号，自动轮播 = FREE_SONG（2026-10-26 新增）----
 // 自动轮播（app_mode == 1）时四页共用第 5 段 FREE_SONG（LBA 500000）：
@@ -1054,7 +1097,6 @@ wav_audio_sd_top #(
 // 首图发布时那 0.53 s 的淡黑不会把 logo 拉黑，画面切得干净。
 // splash_on 在启动预加载全部完成、且首帧已发布前保持为 1。
 wire [23:0] splash_rgb;
-wire        splash_on;
 splash_boot u_splash (
     .clk   (video_clk),
     .rst   (rst_video),

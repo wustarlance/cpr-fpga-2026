@@ -128,6 +128,20 @@ TESTS["tb_bmp_blur_fill"] = {"sources": ["project/vendor/SD/bmp_blur_background.
 TESTS["tb_bmp_blur_fill_frame"] = {"sources": TESTS["tb_bmp_blur_fill"]["sources"][:]}
 
 TESTS["tb_sdram_bist"] = {"sources": ["tests/board/sdram/sdram_bist.v", TB + "tb_sdram_bist.v"]}
+TESTS["tb_top_startup_av"] = {
+    "sources": [RTL+"top/top_tf_hdmi_audio.v"] + [RTL+n+".v" for n in (
+        "reset_release", "timebase", "input_filter", "cpr_control", "training_core",
+        "rate_display_lut", "key_source_merge", "contrast_controls", "contrast_rgb",
+        "brightness_rgb", "frame_buffer_publish", "page_status_cdc", "sample_mailbox",
+        "cpr_seg_scan", "splash_boot", "splash_rom_w1", "splash_rom_w2", "splash_rom_w3",
+        "video_rgb_to_axis_640x480")]
+        + ["project/vendor/SD/"+n+".v" for n in ("video_timing_data", "color_bar", "video_delay", "seg_decoder")]
+        + [RTL+"SD/sd_sec_arbiter.v",
+           "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/startup_pulse.v",
+           "tests/sim/stubs/top_startup_io_models.v", TB+"tb_top_startup_av.v"],
+    "include_dirs": ["project/vendor", "project/vendor/SD"],
+    "pass_pattern": r"(?m)^PASS: top_startup_av\b",
+}
 TESTS["tb_frame_refresh_contiguous"] = {"sources": ["project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_refresh_contiguous.v"]}
 TESTS["tb_frame_roundtrip"] = {"sources": ["project/vendor/SD/" + x + ".v" for x in ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + ["05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/" + x + ".v" for x in ("afifo_16_32_256", "afifo_32_16_256")] + [TB + "tb_frame_roundtrip.v"]}
 TESTS["tb_frame_mixed_roundtrip"] = dict(TESTS["tb_frame_roundtrip"])

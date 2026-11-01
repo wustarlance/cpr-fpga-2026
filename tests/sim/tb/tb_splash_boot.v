@@ -126,8 +126,26 @@ module tb_splash_boot;
             errors = errors + 1;
         end
 
-        // 这里已经跑了 >64 拍（dwell 早就到了），有图后必须让位
+        // Dwell has elapsed. A hide/VS change during active video must not
+        // splice the tutorial into a logo line; require a blanking VS edge.
+        @(negedge clk);
+        de = 1'b1;
         hide = 1'b1;
+        vs = ~vs;
+        @(posedge clk);
+        #1;
+        if (active !== 1'b1) begin
+            $display("[FAIL] hide/VS during active video switched mid-frame");
+            errors = errors + 1;
+        end
+        @(negedge clk);
+        de = 1'b0;
+        repeat (3) @(negedge clk);
+        if (active !== 1'b1) begin
+            $display("[FAIL] logo switched without a blanking VS edge");
+            errors = errors + 1;
+        end
+        vs = ~vs;
         @(posedge clk);
         #1;
         if (active !== 1'b0) begin

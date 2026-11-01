@@ -1,0 +1,151 @@
+{
+  "base_main": "4c35d3777be469da11e3e4987b633259ced4a992",
+  "board": "HX4S20C / EG4S20BG256",
+  "date": "2026-11-01",
+  "tool": "TD 6.2.168116",
+  "source_inventory_unchanged_during_build": true,
+  "tool_unchanged": true,
+  "rtl_functional_checks": {
+    "passed": 67,
+    "failed": 0,
+    "runner_controls_passed": 5,
+    "summary_sha256": "6e6503e3fb46bef0aa37a9bd64e5da3a4573834d6ae2642c8c82c097199a0efc"
+  },
+  "mutations": [
+    {
+      "test": "bad_audio_guard",
+      "assertion": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\av01\\tests\\sim\\tb\\tb_top_startup_av.v:27: startup/no-picture audio leaked or player advanced",
+      "compiled": true
+    },
+    {
+      "test": "bad_k6_subtitle",
+      "assertion": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\av01\\tests\\sim\\tb\\tb_top_startup_av.v:71: K6 changed subtitle or failed to step contrast",
+      "compiled": true
+    },
+    {
+      "test": "bad_midframe_logo",
+      "assertion": "FATAL: C:\\Users\\haus\\Documents\\Codex\\2026-10-06\\x-z-2\\work\\av01\\tests\\sim\\tb\\tb_top_startup_av.v:33: logo handed over in active video",
+      "compiled": true
+    }
+  ],
+  "builds": [
+    {
+      "top": "top",
+      "setup_wns_ns": 0.108,
+      "hold_wns_ns": 0.003,
+      "resources": {
+        "lut": {
+          "used": 15134,
+          "available": 19600,
+          "percent": 77.21
+        },
+        "reg": {
+          "used": 7712,
+          "available": 19600,
+          "percent": 39.35
+        },
+        "bram": {
+          "used": 57,
+          "available": 64,
+          "percent": 89.06
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        },
+        "adc": {
+          "used": 0,
+          "available": 1,
+          "percent": 0.0,
+          "report_row_omitted": true
+        }
+      },
+      "bitstream_generated": true,
+      "bitstream_sha256": "8fcaddf06357da17f867c9e35e3a62e8d9185bdb22cc3d10589213be96465bcf",
+      "strict_status": "failed",
+      "coverage_findings": [
+        "dummy node: 3",
+        "no input delay: 26",
+        "no output delay: 29"
+      ],
+      "blocking_timing_coverage_findings": [],
+      "retained_diagnostic_categories": [
+        "PHY-7002",
+        "HDL-5314 ROM initialization diagnostics",
+        "dummy nodes",
+        "external input/output delay review"
+      ]
+    },
+    {
+      "top": "top_adc",
+      "setup_wns_ns": 0.1,
+      "hold_wns_ns": 0.003,
+      "resources": {
+        "lut": {
+          "used": 15280,
+          "available": 19600,
+          "percent": 77.96
+        },
+        "reg": {
+          "used": 7795,
+          "available": 19600,
+          "percent": 39.77
+        },
+        "bram": {
+          "used": 57,
+          "available": 64,
+          "percent": 89.06
+        },
+        "adc": {
+          "used": 1,
+          "available": 1,
+          "percent": 100.0
+        },
+        "pll": {
+          "used": 3,
+          "available": 4,
+          "percent": 75.0
+        }
+      },
+      "bitstream_generated": true,
+      "bitstream_sha256": "08bab9b1e20d222f045ceab0d86ebfab170db30db8d90eb599c5dedd52366b38",
+      "strict_status": "failed",
+      "coverage_findings": [
+        "dummy node: 4",
+        "no input delay: 26",
+        "no output delay: 29"
+      ],
+      "blocking_timing_coverage_findings": [],
+      "retained_diagnostic_categories": [
+        "PHY-7002",
+        "HDL-5314 ROM initialization diagnostics",
+        "dummy nodes",
+        "external input/output delay review"
+      ]
+    }
+  ],
+  "hardware": {
+    "mode": "JTAG SRAM only",
+    "top": "top_adc",
+    "bitstream_sha256": "08bab9b1e20d222f045ceab0d86ebfab170db30db8d90eb599c5dedd52366b38",
+    "download_time_cst": "2026-11-01 13:01",
+    "chip_id": "EG4S20BG256",
+    "operator_confirmed": [
+      "KEY1 reset: logo silent, narration after tutorial",
+      "K6 contrast-only",
+      "K7 subtitle-only"
+    ],
+    "cold_boot_time_measured": false,
+    "flash_written": false,
+    "tf_written": false
+  },
+  "source_hashes": {
+    "project/rtl/top/top_tf_hdmi_audio.v": "749681882a2dbe7e67ef46a273b7630faf49775c80057f2e010d57c03d444a6c",
+    "project/rtl/splash_boot.v": "23464305f56cb38f33cee2ce115265f6c1be9da3a4f7ed5c2979b014e08dba0d",
+    "tests/sim/run.py": "0ea157ac3d11f62141d5bc92d29ddf04259e3e597795e152a6f75c291d9ebf91",
+    "tests/sim/tb/tb_splash_boot.v": "b8846976abaa786b3786cacf83bdc03addb9a9b3fbcf1223681f452d1f610dca",
+    "tests/sim/tb/tb_top_startup_av.v": "0cf238633f0e84867f543f3bbf4d96c96da985809557dbf94d3b78df220693ea",
+    "tests/sim/stubs/top_startup_io_models.v": "756568d06bac137c86fd0a3c51cde8b90917ca5f2ee2eeb7e2de5d845dafaa0f"
+  }
+}
