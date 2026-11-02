@@ -210,7 +210,7 @@ BMP 24 位每个像素存 **3 个字节，顺序是 B、G、R**（蓝在前，�
 | [4] | 位图头类型（`BITMAPV4HEADER` / `BITMAPV5HEADER`） | https://learn.microsoft.com/zh-cn/windows/win32/gdi/bitmap-header-types |
 | [5] | Top-Down 与 Bottom-Up DIB（微软官方） | https://learn.microsoft.com/zh-cn/windows/win32/directshow/top-down-vs--bottom-up-dibs |
 | [6] | 本地：`03_技术方案/素材规范与烧卡流程.md` | 素材检查清单 + 厂商转换/烧卡脚本说明 |
-| [7] | 本地：`06_例程精读/第4站_BMP解析_bmp_read.md` | `bmp_read.v` 的状态机与数据通路逐块讲解 |
-| [8] | 本地：`06_例程精读/第6站_SDRAM读写引擎_frame_fifo.md` §3.5 / §6.3 | `WRITE_V_FLIP` 的实现与推导 |
+| [7] | 本仓库 `project/vendor/SD/bmp_read.v` | BMP 解析状态机与数据通路（逐块注释见源码） |
+| [8] | 本仓库 `project/vendor/SD/frame_fifo_write.v` | 行序翻转（`WRITE_V_FLIP`）的实现与推导 |
 
 > 📌 **建议**：把上面 [1][2][3] 三篇用浏览器**存成 PDF** 放到本目录，以后离线可查（本环境的 `web_fetch` 抓 learn.microsoft.com 是通的，但内容很长、留链接更快）。
