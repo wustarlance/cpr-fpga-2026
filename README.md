@@ -68,10 +68,10 @@ CHANGELOG.md            按日期的开发与验证记录
 cd project && CPR_TOP=top_adc td build.tcl        # 时序门禁不过不会生成位流
 
 # 2) 烧写（-f 固化到 FLASH，不加则进 SRAM）
-./burn -f 暂存/top_adc_ch4_cal.bit
+./burn -f project/build/top_adc/top_adc.bit
 
-# 3) 换教程图：把 4 张 640×480/24bit 无压缩 BMP 放进一个文件夹
-tfburn 暂存/教程图_20261027_merged/bmp_training_safe
+# 3) 换教程图：把 4 张 640×480 / 24bit / 无压缩 BMP 放进一个文件夹，然后
+tfburn <教程图文件夹>
 
 # 4) 仿真回归
 python3 tests/sim/run.py --all
