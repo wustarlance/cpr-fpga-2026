@@ -4,6 +4,8 @@
 > 代码：`project/vendor/SD/bmp_blur_background.v`（460 行）、`project/vendor/SD/bmp_read_scaled.v`（两遍读取与合成）。
 > 前置阅读：[四槽全缓存与加载时缩放](image-cache-scaling.md)。
 
+**一句话概括**：上屏取景采用「前景最近邻 contain 等比缩放 + 补边区模糊背景」双规制——前景按 `src_x = x·src_w/fit_w` 最近邻采样，保证不变形且零插值开销；补边区则把源图 cover 裁成 4:3、缩为 32×24 缩略图（分数边界面积平均）、经三遍 3×3 盒式模糊后双线性放大并压暗至 75%，两者均在装载阶段一次算完写入 SDRAM 四槽，翻页不再计算。
+
 ---
 
 ## 1. 为什么需要它
