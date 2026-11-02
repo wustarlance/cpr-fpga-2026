@@ -38,7 +38,7 @@ SD 卡 ── 扇区 ──► bmp_read_scaled ──► 最近邻缩放 ──�
                      └── 落在 contain 矩形外？ ──► BG_SAMPLE_REQ ──► ④ 取模糊采样
 ```
 
-`bmp_read_scaled` 里的合成逻辑就一行（`bmp_read_scaled.v`）：
+`bmp_read_scaled` 里的合成逻辑就一行（[`project/vendor/SD/bmp_read_scaled.v`](../../project/vendor/SD/bmp_read_scaled.v)）：
 
 ```verilog
 assign bmp_data = (in_content_x && in_content_y) ? row_q :        // 矩形内：清晰前景
@@ -129,7 +129,7 @@ out = clamp( (v · BRIGHTNESS_NUM) >> BRIGHTNESS_SHIFT , 0, 255 )
 | 模糊任务未完成 / 被取消 / SD 初始化丢失 | `bg_done = 0` → 补边区自动回退纯色，**不会出现半幅模糊** |
 | 源图小于 32×24（极端小图） | 网格自动缩到 `min(32,w)×min(24,h)`，桶计数为 0 时除数被钳到 1 |
 
-参数在顶层（`top_tf_hdmi_audio.v` / `top_adc.v`）：
+参数在顶层（[`project/rtl/top/top_tf_hdmi_audio.v`](../rtl/top/top_tf_hdmi_audio.v) / [`project/rtl/top_adc.v`](../rtl/top_adc.v)）：
 
 ```verilog
 parameter BLUR_BACKGROUND     = 1;   // 0 关闭整个功能
