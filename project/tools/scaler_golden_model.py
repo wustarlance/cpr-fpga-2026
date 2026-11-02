@@ -103,7 +103,7 @@ def fit_size(w, h, dw=640, dh=480):
 
 def main():
     src_path = sys.argv[1] if len(sys.argv) > 1 else \
-        "05_lab_ex/lab_ex5_i2s/doc/convert/1.png"
+        "05_lab_ex/lab_ex4_tf/doc/convert/1.png"
     src = Image.open(src_path).convert("RGB")
 
     print("  源图 1536×1024 → 等比 640×427（缩小，与精确面积平均比）")
