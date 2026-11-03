@@ -114,7 +114,7 @@ def main():
                  'project/rtl/contrast_controls.v', 'project/rtl/reset_release.v',
                  'project/rtl/cpr_seg_scan.v', 'project/vendor/SD/spi_master.v',
                  'project/vendor/SD/sd_card_top.v',
-                 '05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v'):
+                 'project/vendor/hdmi_lab/lane_lvds_10_1.v'):
         result['source_sha256'][name] = sha(REPO / name)
     result['status'] = 'needs_review'
     args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -74,7 +74,7 @@ project/                设计主体
   tools/                资源生成与校验脚本（教程图、开机 ROM、字体、标定）
   docs/                 设计文档与逐轮验证记录（入口见 docs/README.md）
 tests/                  仿真台与证据：67 项 RTL 自检 + 5 项运行器控制
-05_lab_ex/              厂商参考例程（HDMI/I2S 依赖来源）
+（原 05_lab_ex/ 厂商参考例程已移除，主工程依赖移入 project/vendor/hdmi_lab/）
 01_竞赛信息/ 03_技术方案/ 04_环境与工具/   赛题、方案、工具链笔记
 _ref/                   手册与规范摘录（文档里引用的原文出处）
 attic/                  已下线的实验代码（淡入淡出），保留备查
@@ -155,4 +155,4 @@ python3 tests/sim/run.py --all
 
 ## 10. 许可
 
-本项目自研代码以 MIT 许可发布；`project/vendor/` 与 `05_lab_ex/` 下为厂商提供的加密 HDL 与参考例程，版权归安路科技所有，不在本许可范围内。
+本项目自研代码以 MIT 许可发布；`project/vendor/`（含 `vendor/hdmi_lab/`）下为厂商提供的 HDL 与加密核，版权归安路科技所有，不在本许可范围内。

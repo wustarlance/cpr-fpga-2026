@@ -3,11 +3,10 @@
 -Ivendor/SD
 -Ivendor/include
 -Ivendor/user_source/hdl_source/include
--I../05_lab_ex/lab_ex5_i2s/src/td_project
--I../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/include
--I../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/SD
-../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_phy_warpper.v
-../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v
+-Ivendor/hdmi_lab
+-Ivendor/hdmi_lab/include
+vendor/hdmi_lab/hdmi_phy_warpper.v
+vendor/hdmi_lab/lane_lvds_10_1.v
 rtl/top/top_tf_hdmi_audio.v
 vendor/SD/bmp_read.v
 vendor/SD/bmp_blur_background.v
@@ -21,7 +20,7 @@ vendor/SD/seg_decoder.v
 vendor/SD/seg_scan.v
 vendor/SD/video_delay.v
 vendor/SD/video_timing_data.v
-../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/startup_pulse.v
+vendor/hdmi_lab/startup_pulse.v
 vendor/SD/sd_card_cmd.v
 vendor/SD/sd_card_sec_read_write.v
 vendor/SD/sd_card_top.v

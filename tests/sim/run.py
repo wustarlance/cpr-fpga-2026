@@ -23,7 +23,7 @@ TESTS = {
     "tb_audio_visualizer": {"sources": [RTL + "cpr_audio_visualizer.v", RTL + "video_rgb_to_axis_640x480.v", TB + "tb_audio_visualizer.v"]},
     "tb_slide_transition": {"sources": [RTL + "cpr_slide_fade.v", RTL + "cpr_transition_publish.v", RTL + "frame_buffer_publish.v", TB + "tb_slide_transition.v"]},
     "tb_spi_io_timing": {"sources": ["project/vendor/SD/spi_master.v", TB + "tb_spi_io_timing.v"]},
-    "tb_hdmi_lane_timing": {"sources": ["05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/lane_lvds_10_1.v", "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/hdmi_phy_warpper.v", TB + "tb_hdmi_lane_timing.v"]},
+    "tb_hdmi_lane_timing": {"sources": ["project/vendor/hdmi_lab/lane_lvds_10_1.v", "project/vendor/hdmi_lab/hdmi_phy_warpper.v", TB + "tb_hdmi_lane_timing.v"]},
     "tb_adc_ctrl": {"sources": [RTL + "adc_ctrl.v", "tests/sim/stubs/eg_phy_adc_timing_model.v", TB + "tb_adc_ctrl.v"]},
     "tb_pressure_normalize": {"sources": [RTL + "pressure_normalize.v", TB + "tb_pressure_normalize.v"]},
     "tb_peak_detect": {"sources": [RTL + "peak_detect.v", TB + "tb_peak_detect.v"]},
@@ -142,21 +142,21 @@ TESTS["tb_top_startup_av"] = {
         "video_rgb_to_axis_640x480")]
         + ["project/vendor/SD/"+n+".v" for n in ("video_timing_data", "color_bar", "video_delay", "seg_decoder")]
         + [RTL+"SD/sd_sec_arbiter.v",
-           "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/startup_pulse.v",
+           "project/vendor/hdmi_lab/startup_pulse.v",
            "tests/sim/stubs/top_startup_io_models.v", TB+"tb_top_startup_av.v"],
     "include_dirs": ["project/vendor", "project/vendor/SD"],
     "pass_pattern": r"(?m)^PASS: top_startup_av\b",
 }
 TESTS["tb_frame_refresh_contiguous"] = {"sources": ["project/vendor/SD/frame_fifo_write.v", "project/vendor/SD/frame_fifo_read.v", TB + "tb_frame_refresh_contiguous.v"]}
-TESTS["tb_frame_roundtrip"] = {"sources": ["project/vendor/SD/" + x + ".v" for x in ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + ["05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/" + x + ".v" for x in ("afifo_16_32_256", "afifo_32_16_256")] + [TB + "tb_frame_roundtrip.v"]}
+TESTS["tb_frame_roundtrip"] = {"sources": ["project/vendor/SD/" + x + ".v" for x in ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + ["project/vendor/hdmi_lab/IP/" + x + ".v" for x in ("afifo_16_32_256", "afifo_32_16_256")] + [TB + "tb_frame_roundtrip.v"]}
 TESTS["tb_frame_mixed_roundtrip"] = dict(TESTS["tb_frame_roundtrip"])
-TESTS["tb_frame_write_underrun"] = {"sources": ["project/vendor/SD/" + x + ".v" for x in ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + ["05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/" + x + ".v" for x in ("afifo_16_32_256", "afifo_32_16_256")] + [TB + "tb_frame_write_underrun.v"]}
+TESTS["tb_frame_write_underrun"] = {"sources": ["project/vendor/SD/" + x + ".v" for x in ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + ["project/vendor/hdmi_lab/IP/" + x + ".v" for x in ("afifo_16_32_256", "afifo_32_16_256")] + [TB + "tb_frame_write_underrun.v"]}
 
 # Actual generated FIFOs and measured early-data wrapper contract; no physical SDRAM model.
 FRAME_FIFO_SOURCES = ["project/vendor/SD/" + n + ".v" for n in
                       ("frame_read_write", "frame_fifo_read", "frame_fifo_write")] + [
-    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.v",
-    "05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.v"]
+    "project/vendor/hdmi_lab/IP/afifo_16_32_256.v",
+    "project/vendor/hdmi_lab/IP/afifo_32_16_256.v"]
 ROUNDTRIP_SOURCES = ["project/vendor/sdram.v", "tests/sim/stubs/sdr_as_ram_early_data_model.v"] + FRAME_FIFO_SOURCES + [TB + "tb_frame_roundtrip.v"]
 for name in ("tb_frame_roundtrip", "tb_frame_mixed_roundtrip"):
     TESTS[name] = {"sources": ROUNDTRIP_SOURCES, "include_dirs": ["project/vendor"]}

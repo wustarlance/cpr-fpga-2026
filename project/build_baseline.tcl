@@ -51,8 +51,8 @@ if {[catch {
     if {$cpr_top eq "top_adc"} {
         read_sdc constraints/adc_mailbox.sdc
     }
-    read_sdc -ip rfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.tcl
-    read_sdc -ip wfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.tcl
+    read_sdc -ip rfifo_32_32_512 vendor/hdmi_lab/IP/afifo_32_16_256.tcl
+    read_sdc -ip wfifo_32_32_512 vendor/hdmi_lab/IP/afifo_16_32_256.tcl
     commit_param -step rtl
     optimize_rtl
     read_sdc constraints/reset_publish.sdc
@@ -106,8 +106,8 @@ if {[catch {
     }
     read_sdc constraints/page_status.sdc
     read_sdc constraints/project_cdc.sdc
-    read_sdc -ip rfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_32_16_256.tcl
-    read_sdc -ip wfifo_32_32_512 ../05_lab_ex/lab_ex5_i2s/src/user_source/hdl_source/IP/afifo_16_32_256.tcl
+    read_sdc -ip rfifo_32_32_512 vendor/hdmi_lab/IP/afifo_32_16_256.tcl
+    read_sdc -ip wfifo_32_32_512 vendor/hdmi_lab/IP/afifo_16_32_256.tcl
     report_area -file $cpr_reports/gate_area.rpt
     if {$cpr_stage eq "full"} {
         export_db $cpr_reports/gate.db

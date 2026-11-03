@@ -30,7 +30,7 @@ def source_hashes():
     # rather than claiming that every file in it is an active design input.
     suffixes = {".v", ".sv", ".vhd", ".ipc", ".tcl", ".sdc", ".adc", ".al", ".mif", ".hex", ".mem"}
     records = {}
-    for root in (PROJECT, REPO / "05_lab_ex/lab_ex5_i2s/src"):
+    for root in (PROJECT, REPO / "project/vendor/hdmi_lab"):
         if not root.is_dir():
             raise ValueError(f"Required source directory missing: {root}")
         for path in root.rglob("*"):

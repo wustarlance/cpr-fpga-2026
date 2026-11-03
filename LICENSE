@@ -23,6 +23,6 @@ SOFTWARE.
 ---
 
 Note: the MIT license above covers the self-developed source in this
-repository. Files under `project/vendor/` and `05_lab_ex/` are encrypted HDL
-and reference examples provided by Anlogic (安路科技); their copyright remains
+repository. Files under `project/vendor/` are HDL and encrypted cores provided by
+Anlogic (安路科技); their copyright remains
 with the vendor and they are not covered by this license.

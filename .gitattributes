@@ -22,7 +22,7 @@
 .gitattributes text eol=lf
 
 # 厂商目录：-text 禁止行尾转换，此时 eol 属性不生效。
-05_lab_ex/**      -text
+project/vendor/hdmi_lab/**  -text
 project/vendor/** -text
 project/ip/**     -text
 DEMO/**           -text

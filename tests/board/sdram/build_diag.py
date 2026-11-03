@@ -22,7 +22,7 @@ def sha(path):
 
 def source_hashes():
     result = {}
-    for root in (PROJECT, REPO / "05_lab_ex/lab_ex5_i2s/src", HERE):
+    for root in (PROJECT, REPO / "project/vendor/hdmi_lab", HERE):
         for path in root.rglob("*"):
             rel = path.relative_to(REPO)
             if any(p == "build" or p.endswith("_Runs") for p in rel.parts):

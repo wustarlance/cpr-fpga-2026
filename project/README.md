@@ -31,7 +31,7 @@
 | `build.tcl` | 正式构建（含时序门禁） | ✅ 唯一入口 |
 | `project.al` / `filelist.f` | TD 工程与源文件清单 | ✅ |
 | `verify_td.py` / `td_report_checks.py` | 构建报告审计 | ✅ 辅助 |
-| `build_baseline.tcl` | 上游基线复现（读 `05_lab_ex` 依赖） | ⬜ 历史 |
+| `build_baseline.tcl` | 上游基线复现（读 `vendor/hdmi_lab` 依赖） | ⬜ 历史 |
 | `build_fast.tcl` / `rebuild.tcl` / `build_bit*.bat` / `build_project.bat` | 实验性布局参数与批处理 | ⬜ 历史 |
 | `audit_interfaces.py` / `audit_physical.py` / `audit_physical.tcl` | 接口与物理审计实验 | ⬜ 历史 |
 | `scripts/res_probe/` | 心跳正弦查表的资源/精度探针 | ⬜ 历史 |
@@ -136,7 +136,7 @@ Windows 下可运行仓库根目录的 `tools/烧音频到TF卡.bat`。脚本申
 - `constraints/`：管脚、相关时钟、局部 CDC 与复位约束。
 - `docs/`：数字接口、来源及本次验证结果。
 
-`05_lab_ex/lab_ex5_i2s/src` 仍提供 HDMI 加密核、部分音频模块、FIFO IP 和 SDRAM 加密核，必须与 project 一起检出。其媒体 SD 源码不再作为主工程的隐式可变副本；主工程媒体修改请改 `project/vendor/SD`。独立例程仍在 `05_lab_ex` 下运行。
+HDMI 加密核、FIFO IP 与 SDRAM 加密核已内置到 `project/vendor/hdmi_lab/`（原在厂商例程 `05_lab_ex`，提交版已移除该目录）。其媒体 SD 源码不再作为主工程的隐式可变副本；主工程媒体修改请改 `project/vendor/SD`。
 
 ## 验证与构建
 

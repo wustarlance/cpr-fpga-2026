@@ -50,7 +50,7 @@ class PllClockContract(unittest.TestCase):
     def test_active_project_uses_the_local_audio_pll(self):
         project = (REPO / "project/project.al").read_text()
         self.assertIn('Path="ip/PLL_HDMI_AUDIO.ipc"', project)
-        self.assertNotIn('Path="../05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL_HDMI_AUDIO.ipc"', project)
+        self.assertNotIn('Path="../05_lab_ex/lab_ex5_i2s/src/td_project/al_ip/PLL_HDMI_AUDIO.ipc"', project)  # lab 例程已移入 project/vendor/hdmi_lab
 
 
 if __name__ == "__main__":
