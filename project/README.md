@@ -1,3 +1,51 @@
+# 心肺复苏训练终端 · 设计说明
+
+> 本文是作品的**实现文档**：RTL 结构、模块契约、关键取舍与验证边界。
+> 评审建议顺序：**根 README（作品总览）→ 本文「评审速览」→ [docs/README.md](docs/README.md) 文档索引 → 四份核心契约**。
+
+## 评审速览
+
+| 项 | 内容 |
+|---|---|
+| 构建入口 | `cd project && CPR_TOP=top_adc td build.tcl`（`td` = 安路 TD 6.2.168116 命令行） |
+| 顶层 | `top`（基础版）/ `top_adc`（带按压训练，演示用这个） |
+| 生成物 | `build/top[/_adc]/top[_adc].bit`，时序门禁不过不生成 |
+| 资源 | LUT 15.3k / 19.6k，BRAM 57 / 64 |
+| 时序 | `top_adc` setup **+0.111 ns** / hold **+0.011 ns**（2026-11-01 完整构建） |
+| 仿真 | `python3 tests/sim/run.py --all` → 67 项 RTL 自检 + 5 项运行器控制 |
+| 严格诊断 | PLL/SDRAM 关键告警与板级 I/O 审查**尚未清零**，见 [td-critical-audit](docs/td-critical-audit-20261025.md) |
+
+**只看这四个文件就能理解核心：**
+
+| 文件 | 作用 |
+|---|---|
+| `rtl/top/top_tf_hdmi_audio.v` | 顶层连线：视频链、音频链、ADC、OSD 怎么接在一起 |
+| `vendor/SD/bmp_read_scaled.v` | BMP 读取 + 加载时等比缩放 + 补边区合成 |
+| `vendor/SD/bmp_blur_background.v` | 非 4:3 图的模糊背景引擎（cover→面积平均→盒式模糊→双线性） |
+| `rtl/training_core.v` | 按压计数、间隔、评级、停顿与换人倒计时 |
+
+**根目录里哪些脚本参与交付构建**：
+
+| 脚本 | 用途 | 交付相关 |
+|---|---|---|
+| `build.tcl` | 正式构建（含时序门禁） | ✅ 唯一入口 |
+| `project.al` / `filelist.f` | TD 工程与源文件清单 | ✅ |
+| `verify_td.py` / `td_report_checks.py` | 构建报告审计 | ✅ 辅助 |
+| `build_baseline.tcl` | 上游基线复现（读 `05_lab_ex` 依赖） | ⬜ 历史 |
+| `build_fast.tcl` / `rebuild.tcl` / `build_bit*.bat` / `build_project.bat` | 实验性布局参数与批处理 | ⬜ 历史 |
+| `audit_interfaces.py` / `audit_physical.py` / `audit_physical.tcl` | 接口与物理审计实验 | ⬜ 历史 |
+| `scripts/res_probe/` | 心跳正弦查表的资源/精度探针 | ⬜ 历史 |
+
+> 2026-11-01 提交版本已删除 ADC 标定探针工程（`probe/`、`probe.al`、`build_probe.tcl`）。
+> 它只用于上板调 CH4，不参与产品构建；当时用法（数码管读码值、8 通道扫描、峰值诊断）记录在
+> [adc-contract.md](docs/adc-contract.md) 与提交历史里。
+
+---
+
+## 历史状态记录（按日期，供追溯）
+
+> 以下各段是每轮改动当时的结论，数字只代表当时版本；**当前状态以上方「评审速览」为准**。
+
 > **2026-11-01 开机音画与K6/K7修正**：视频PLL锁定后独立输出LOGO；LOGO期间静音并暂停WAV位置，完整教程帧送出后再播放。K6仅调对比度、K7仅切字幕。67项RTL与5项运行器检查通过；两个顶层生成位流，内部建立/保持余量为正，原严格诊断保留。ADC修正版13:01临时下载SRAM，复位后的音画顺序和按键分离已由操作者确认；未写Flash/TF，真实断电冷启动时间未测。见[修改与验证范围](docs/startup-av-20261101.md)。
 >
 > 2026-10-26：时序优化一轮（`bmp_read_scaled` 的 `.ce` 树）。`top` setup WNS **+0.123 → +0.188 ns**，
@@ -26,6 +74,8 @@
 > **当前状态（2026-10-18）**：44 项 RTL 自检与 5 项运行器控制全部通过；TD 完整构建两个顶层均通过，零违例端点（`top` SWNS **+0.116 ns**、`top_adc` **+0.104 ns**），位流已生成，可上板。PR #3/#4、四槽全缓存、加载时缩放、模糊补边、中文界面与音频节拍器均已合入当前工作区。
 >
 > 下方按日期排列的小节是各次接入时的历史记录，其中的自检数量（23/27/30/39 项）反映当时版本，**不代表当前状态**。当前数量以本节为准。
+
+---
 
 # 中文提示与教程接入（2026-10-16）
 
