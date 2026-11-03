@@ -52,7 +52,10 @@ module tb_top_startup_av;
     reg old_subtitle;
     integer mode_index;
     initial begin
-        #200;
+        #100;
+        if(dut.contrast_video!==3'd3)
+            $fatal(1,"reset picture contrast must be 100%%");
+        #100;
         rst_n=1;
         dut.video_pll_m0.model_locked=1;
         wait(logo_pixels_seen);

@@ -30,7 +30,9 @@ module tb_cpr_overlay;
   end
  endtask
  initial begin
-  repeat(3)@(negedge clk);rst=0;
+  repeat(3)@(negedge clk);
+  if(dut.frame_contrast!==3'd3)$fatal(1,"reset OSD contrast must be 100%%");
+  rst=0;
   mode=2;rate=2;depth=2;count=87;latch_frame;
   if(dut.frame_mode!=2 || dut.count_bcd!=16'h0087)$fatal(1,"frame snapshot/count rendering failed");
   count=123;rate=3;

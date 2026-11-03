@@ -1,6 +1,6 @@
 # Internal ADC controller contract
 
-`rtl/adc_ctrl.v` is synthesizable Verilog-2001 control logic. The board wrapper separately instantiates `EG_PHY_ADC`, enables CH1 and VREF, and supplies the existing audio PLL clock. No fabric-generated clock is created by this controller.
+`rtl/adc_ctrl.v` is synthesizable Verilog-2001 control logic. The current board wrapper separately instantiates `EG_PHY_ADC`, enables CH4 and VREF, and supplies the existing audio PLL clock. No fabric-generated clock is created by this controller.
 
 ## Clock and reset
 
@@ -29,6 +29,8 @@ TN304_1.3 PDF page 4 recommends SOC intervals below 10 microseconds. For an actu
 `tb_adc_ctrl.v` checks exact fast and sparse intervals, PD placement, sample counts and contents, acquisition before completion, ignored busy SOC, ignored unsolicited EOC, delayed completion, timeout and recovery, and reset cancellation. Assertions terminate with `$fatal(1, ...)`; only successful completion emits `PASS: tb_adc_ctrl`. Simulation proves the digital contract exercised by those scenarios. Hardware channel, voltage/code direction, reference voltage, sample accuracy and FSR displacement calibration remain physical checks.
 
 ![按压盒接线（J2-29 / J2-35 / J2-30，最终版）](images/adc-wiring-j2.png)
+
+The assembled pressure box uses a 30×60 mm FSR with a stated range of 300 g to 20 kg. Its pressure plate, floating plate and base are all Φ180×8 mm. The divider connects J2 pin 29 (3.3 V) through 3.3 kΩ to the sample node, then through the FSR to J2 pin 30 (GND).
 
 The pressure path uses BG256 CH4 pad M12, routed to J2 pin 35 / GPIOB_30
 (net GPIOB_30 through a 47 ohm series network). CH1 (M10) is on J1 pin 16; CH2

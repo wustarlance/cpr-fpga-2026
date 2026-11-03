@@ -381,7 +381,7 @@ contrast_controls u_contrast_controls(
     .raw_key     (~key_panel_n[5]),          // K6：对比度，按下为低电平
     .contrast_level(contrast_level));
 always @(posedge video_clk or posedge rst_video) begin
-    if (rst_video) contrast_video <= 3'd4;   // 100 %：与 contrast_controls 的复位档一致
+    if (rst_video) contrast_video <= 3'd3;   // 100 %：与 contrast_controls 的复位档一致
     else if (brightness_vs_d && !vs) contrast_video <= contrast_level;
 end
 wire [23:0] app_rgb, adjusted_rgb, contrasted_rgb, picture_rgb;

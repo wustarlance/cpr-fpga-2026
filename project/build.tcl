@@ -158,7 +158,7 @@ if {[catch {
         report_qor -step route -file $cpr_reports/route.qor
         update_timing -mode final
         report_timing_status -file $cpr_reports/timing_status.rpt
-        report_timing_summary -file $cpr_reports/timing_summary.rpt
+        report_timing_summary -report_type max_min -file $cpr_reports/timing_summary.rpt
         check_timing -verbose -file $cpr_reports/timing_check.rpt
         report_clock_summary -file $cpr_reports/clock_summary.rpt
         report_clock_intersection -file $cpr_reports/clock_intersection.rpt

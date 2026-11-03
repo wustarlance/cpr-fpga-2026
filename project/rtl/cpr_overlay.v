@@ -130,7 +130,7 @@ always @(posedge clk or posedge rst) begin
         x <= 0; y <= 0; last_de <= 0; last_vs <= 1;
         frame_page <= 0;
         frame_mode <= 0; frame_rate <= 0; frame_depth <= 0;
-        frame_brightness <= 3; frame_contrast <= 3'd4; frame_auto_running <= 0;
+        frame_brightness <= 3; frame_contrast <= 3'd3; frame_auto_running <= 0;
         frame_subtitle_en <= 1'b1;
         frame_pause <= 0; frame_rotate <= 0;
         frame_beat <= 0; frame_fault <= 0; frame_bpm_valid <= 0;
@@ -214,14 +214,14 @@ endfunction
 
 reg [7:0] character;
 reg [34:0] pixels;
-// 英文档位文字：0待测，1过轻，2正常，3过重。
+// 深度档位文字：0待测，1过浅，2合适，3过深。
 function [39:0] depth_word;
     input [1:0] grade;
     begin
         case (grade)
-            1: depth_word="LIGHT";
-            2: depth_word="OK   ";
-            3: depth_word="HEAVY";
+            1: depth_word="LOW  ";
+            2: depth_word="GOOD ";
+            3: depth_word="DEEP ";
             default: depth_word="WAIT ";
         endcase
     end
