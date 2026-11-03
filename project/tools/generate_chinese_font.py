@@ -9,10 +9,9 @@ from PIL import Image, ImageDraw, ImageFont
 PROJECT = Path(__file__).resolve().parents[1]
 
 
-# '%' 是唯一不交给字体渲染的字符。亮度/对比度改百分比后必须有它，而这份
-# 工程不分发 Noto OTF，用系统字体临时渲染会让"同一份源码、不同机器、不同的
-# 百分号"。所以按 16x16 像素网格手绘一行常量：两个 4x4 空心环 + 1px 斜线，
-# 笔画宽度与 Noto 14px 的数字一致。放在字符表最后，既有 0..129 的 ID 不变。
+# 固定百分号字模，避免生成结果随主机字体变化。
+# 原有ID 0..130保持不变，新字符追加在末尾。
+BASE_CHARACTERS = ' 0123456789:/-一下中习亮仅传位余作保偏停充先入再分前剩力加动卡压合后器复学完定对展已常并度开张待循心快急感慢成或拍持按换播放故救教数断时显暂未松标档次正比毫流测浏演点率环知示秒程练继续缺翻者肺自节苏览触计训识请读跟轮载输连适采释错键间随隔障集页频%'
 PERCENT_ROWS = [0x0000, 0x0000, 0x0F00, 0x0910, 0x0920, 0x0F40, 0x0040, 0x0080,
                 0x0100, 0x02F0, 0x0290, 0x0490, 0x08F0, 0x0000, 0x0000, 0x0000]
 
@@ -21,10 +20,8 @@ def generate(font_path):
     content = json.loads((PROJECT / 'assets/content.zh-CN.json').read_text(encoding='utf-8'))
     messages = content['ui']
     assert len(messages) < 64 and all(len(s) <= 32 for s in messages)
-    chars = sorted(set(''.join(messages)) - set('0123456789:/- '))
-    # '%' 追加在最后：亮度/对比度改成百分比显示后要画百分号，而把新字符
-    # 插在中间会让所有 CJK 的 ID 整体平移、所有既有 .mem 黄金表全部失效。
-    chars = list(' 0123456789:/-') + chars + list('%')
+    chars = list(BASE_CHARACTERS)
+    chars += sorted(set(''.join(messages)) - set(chars))
     assert len(chars) < 256 and len(chars) == len(set(chars))
     ids = {c: n for n, c in enumerate(chars)}
     font = ImageFont.truetype(str(font_path), 14)
@@ -54,7 +51,7 @@ def generate(font_path):
            '                      output wire [15:0] row_bits);',
            '    reg [255:0] bitmap;', '    always @(*) begin', '        case(code)']
     for n, (c, rows) in enumerate(zip(chars, glyphs)):
-        rtl.append(f"            8'd{n}: bitmap = 256'h{''.join(f'{r:04x}' for r in rows)}; // {c}")
+        rtl.append(f"            8'd{n}: bitmap = 256'h{''.join(f'{r:04x}' for r in rows)}; // {c}".rstrip())
     rtl += ["            default: bitmap = 256'd0;", '        endcase', '    end',
             '    assign row_bits = bitmap[255-row*16 -: 16];', 'endmodule', '']
     (PROJECT / 'rtl/cpr_font16_rom.v').write_text('\n'.join(rtl), encoding='utf-8')
@@ -77,7 +74,10 @@ def generate(font_path):
     (PROJECT / 'assets/font/glyphs.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
     fixture = PROJECT.parent / 'tests/sim/fixtures/chinese_glyphs.mem'
     fixture.write_text('\n'.join(''.join(f'{r:04x}' for r in g) for g in glyphs) + '\n', encoding='ascii')
-    # Contact sheet is the visual record of the retained bitmap font itself.
+    encoded_messages = [ids[c] for message in messages for c in message.ljust(32)]
+    (fixture.parent / 'chinese_messages.mem').write_text(
+        ''.join(f'{value:02x}\n' for value in encoded_messages), encoding='ascii')
+    # 字形预览图与RTL使用同一份位图。
     sheet = Image.new('RGB', (16*24, ((len(chars)+23)//24)*20), '#101820')
     d = ImageDraw.Draw(sheet)
     for n, rows in enumerate(glyphs):

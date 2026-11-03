@@ -1,0 +1,50 @@
+[
+  {
+    "grade": 0,
+    "adc": false,
+    "ascii": "D0 WAIT  DEMO ",
+    "chinese": "触点档位 0 待测 演示输入"
+  },
+  {
+    "grade": 0,
+    "adc": true,
+    "ascii": "P0 WAIT  UNCAL",
+    "chinese": "压力档位 0 待测 未标定 "
+  },
+  {
+    "grade": 1,
+    "adc": false,
+    "ascii": "D1 LIGHT DEMO ",
+    "chinese": "触点档位 1 过轻 演示输入"
+  },
+  {
+    "grade": 1,
+    "adc": true,
+    "ascii": "P1 LIGHT UNCAL",
+    "chinese": "压力档位 1 过轻 未标定 "
+  },
+  {
+    "grade": 2,
+    "adc": false,
+    "ascii": "D2 OK    DEMO ",
+    "chinese": "触点档位 2 正常 演示输入"
+  },
+  {
+    "grade": 2,
+    "adc": true,
+    "ascii": "P2 OK    UNCAL",
+    "chinese": "压力档位 2 正常 未标定 "
+  },
+  {
+    "grade": 3,
+    "adc": false,
+    "ascii": "D3 HEAVY DEMO ",
+    "chinese": "触点档位 3 过重 演示输入"
+  },
+  {
+    "grade": 3,
+    "adc": true,
+    "ascii": "P3 HEAVY UNCAL",
+    "chinese": "压力档位 3 过重 未标定 "
+  }
+]

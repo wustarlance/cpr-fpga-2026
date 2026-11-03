@@ -1,6 +1,5 @@
-// Chinese mask for the existing 640x480 layout. All inputs are already
-// frame snapshots in the 25 MHz video domain. RGB/sync latency is zero.
-// Pixel decisions are combinational; only subtitle offset is sequential.
+// 640x480中文叠加层，输入为25 MHz视频域的帧快照。
+// 字符译码提前一像素寄存，与当前RGB和同步信号对齐。
 module cpr_text_zh #(parameter UNCALIBRATED_PRESSURE=0, PAGE_STATUS_ENABLE=0)(
     input wire clk, rst, frame_start, de,
     input wire [9:0] x, y,
@@ -15,9 +14,7 @@ module cpr_text_zh #(parameter UNCALIBRATED_PRESSURE=0, PAGE_STATUS_ENABLE=0)(
     output wire text_pixel,
     output reg [23:0] text_color
 );
-    // 亮度/对比度改用百分比显示（2026-10-27）。档位→百分比的换算只在
-    // level_percent.v 里有一份，英文界面（cpr_overlay 的 ASCII 分支）用的是
-    // 同一个模块，两套界面不会各说一套数字。
+    // 中英文共用同一张亮度、对比度百分比表。
     wire [3:0] br_h, br_t, br_u, ct_h, ct_t, ct_u;
     wire [2:0] br_blank, ct_blank;
     level_percent u_bright_percent(
@@ -26,9 +23,7 @@ module cpr_text_zh #(parameter UNCALIBRATED_PRESSURE=0, PAGE_STATUS_ENABLE=0)(
     level_percent u_contrast_percent(
         .level(contrast), .is_contrast(1'b1),
         .hundreds(ct_h), .tens(ct_t), .units(ct_u), .blank(ct_blank));
-    // 字库里 '%' 排在最后一个码位（见 tools/generate_chinese_font.py 末尾，
-    // 追加在 CJK 之后，这样既有 0..129 的编码全部保持不变）。它不是字符串
-    // 表里的一条文案，而是像数字一样按位置直接取的固定字形。
+    // 百分号固定为ID 130；新增字形不改变既有码位。
     localparam [7:0] PCT_CODE = 8'd130;
     reg [9:0] offset;
     reg [1:0] frames;
@@ -42,14 +37,8 @@ module cpr_text_zh #(parameter UNCALIBRATED_PRESSURE=0, PAGE_STATUS_ENABLE=0)(
         end
     end
 
-    // The whole character decode below is registered instead of combinational.
-    // Every input it consumes except the pixel coordinate is a frame snapshot,
-    // and the coordinate is advanced by one pixel before decoding, so the
-    // registered value is exactly the decode of the pixel that is present when
-    // it is used -- the mask stays pixel aligned. The enable is gated by de so
-    // the x=639 -> x=0 line rollover lands on the next line's first pixel.
-    // This removes the x -> cell_x -> range compare -> message mux chain from
-    // the 40 ns video path.
+    // 提前译码x+1，寄存后对应正在输出的像素。
+    // de控制行尾推进，避免x=639回到0时错过下一行首像素。
     wire [9:0] x_next = x + 10'd1;
     reg [5:0] message_id, index;
     reg [7:0] override_code;
@@ -105,10 +94,7 @@ module cpr_text_zh #(parameter UNCALIBRATED_PRESSURE=0, PAGE_STATUS_ENABLE=0)(
                 d_index=cell_x-6'd15;
                 if(page_status[1]||page_status[2])d_text_color=24'hffd080;
             end else if(cell_x>=20 && cell_x<22) begin d_message_id=4; d_index=cell_x-6'd20; end
-            // 2026-10-27：亮度由"一格档位序号"改成"三格数字 + 一格 %"，
-            // 例如 cell 22..25 = " 25%"、cell 27..28 = 对比标签、29..32 = "100%"。
-            // 对比度标签因此从 cell 25..26 右移到 27..28，模式一的"播放中/已暂停"
-            // 从 31..33 右移到 34..36（34..38 原来是空的，够放）。
+            // 亮度占22..25格，对比度占27..32格，播放状态占34..36格。
             else if(cell_x>=22 && cell_x<25)begin
                 d_use_override=1;
                 d_override_code=br_hide ? 8'd0 : digit_id(br_digit);
@@ -139,8 +125,11 @@ module cpr_text_zh #(parameter UNCALIBRATED_PRESSURE=0, PAGE_STATUS_ENABLE=0)(
                 4: begin
                     d_text_color=depth_color;
                     if(cell_x<4)d_message_id=UNCALIBRATED_PRESSURE ? 20 : 22;
-                    else if(cell_x==6)begin d_use_override=1;d_override_code=digit_id({2'd0,depth});end
-                    else if(cell_x>=8 && cell_x<12)begin d_message_id=UNCALIBRATED_PRESSURE ? 21 : 23;d_index=cell_x-6'd8;end
+                    else if(cell_x==5)begin d_use_override=1;d_override_code=digit_id({2'd0,depth});end
+                    else if(cell_x>=7 && cell_x<9)begin
+                        d_message_id=depth==1 ? 43 : depth==2 ? 44 : depth==3 ? 45 : 19;
+                        d_index=cell_x-6'd7;
+                    end else if(cell_x>=10 && cell_x<14)begin d_message_id=UNCALIBRATED_PRESSURE ? 21 : 23;d_index=cell_x-6'd10;end
                 end
                 5,6: begin
                     d_message_id=y[8:5]==5 ? 24 : 25;

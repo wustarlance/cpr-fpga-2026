@@ -21,7 +21,7 @@ module tb_chinese_overlay;
         .pause_warning(pause_warning),.rotate_due(rotate_due),.beat(beat),.interval_ms(interval_ms),.pause_ms(pause_ms),
         .rotate_remaining_ms(rotate_ms),.bpm(bpm),.bpm_valid(valid),.sensor_fault(fault),.brightness_level(brightness),
         .contrast_level(contrast),.auto_running(auto_running),.page_status(page),.subtitle_en(subtitle_en),.out_rgb(adc_rgb));
-    reg [255:0] glyphs[0:130];
+    reg [255:0] glyphs[0:133];
     reg [31:0] cells[0:9599];
     reg [7:0] bmp_bytes[0:921653];
     integer fd,n,px,py,s,a,address,offset,checks=0,white=0,dump_demo=0,dump_adc=0;
@@ -78,7 +78,7 @@ module tb_chinese_overlay;
                         if(subtitle_en && py>=448 && py<464 && px>=16 && px<(s<2 ? 368 : 624))expected=24'h182430;
                         address=(s*2+a)*1200+(py/16)*40+px/16;
                         cell_value=cells[address];glyph_id=cell_value[7:0];
-                        if(glyph_id>=131)$fatal(1,"reference glyph out of range");
+                        if(glyph_id>=134)$fatal(1,"reference glyph out of range");
                         if(glyphs[glyph_id][255-(py%16)*16-(px%16)])begin expected=cell_value[31:8];white=white+1;end
                         actual=a==0 ? demo_rgb : adc_rgb;
                         if(actual!==expected)$fatal(1,"Chinese raster mismatch state=%0d adc=%0d x=%0d y=%0d expected=%h got=%h",s,a,px,py,expected,actual);

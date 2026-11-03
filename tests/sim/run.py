@@ -118,6 +118,11 @@ TESTS["tb_chinese_overlay"] = {
     "fixtures": ["tests/sim/fixtures/chinese_glyphs.mem", "tests/sim/fixtures/chinese_screen_cells.mem",
                  "project/assets/tutorials/bmp_training_safe/02_compressions.bmp"],
 }
+TESTS["tb_depth_labels"] = {
+    "sources": TESTS["tb_training_layout"]["sources"][:-1] + ZH + [TB + "tb_depth_labels.v"],
+    "fixtures": ["tests/sim/fixtures/chinese_glyphs.mem", "tests/sim/fixtures/glyph5x7_golden.mem",
+                 "tests/sim/fixtures/depth_labels_ascii.mem", "tests/sim/fixtures/depth_labels_zh.mem"],
+}
 TESTS["tb_presentation_pipeline"] = {
     "sources": [RTL+"cpr_slide_fade.v", RTL+"cpr_audio_visualizer.v", RTL+"video_rgb_to_axis_640x480.v"] + TESTS["tb_chinese_overlay"]["sources"][:-1] + [TB+"tb_presentation_pipeline.v"],
     "fixtures": ["project/assets/tutorials/bmp_training_safe/02_compressions.bmp"],

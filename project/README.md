@@ -57,13 +57,19 @@ SD读取现在包含令牌/字节超时、读CRC、取消、整图有限重试�
 
 `top` 和 `top_adc` 均提供综合期参数 `ENABLE_AUDIO`，默认 `1` 保持 HDMI 音频输出；设为 `0` 会关闭 HDMI 音频采样与 ACR 包。修改参数后需重新综合并生成位流。音频 PLL 保持运行，因为其时钟也供 ADC 采样链使用。
 
-音频内容来自 SD 卡的 WAV：`rtl/audio/wav_audio_sd_top.v` 经 `rtl/SD/sd_sec_arbiter.v` 与 BMP 画面分时复用顶层唯一那份 `sd_card_top`（BMP 优先、WAV 让路）。**一页一段音频，正好四页；另有第 5 段 `FREE_SONG` 供自动轮播模式共用**。五段的首扇区只在一处定义——`rtl/audio/wav_track_select.v` 的 `parameter PICTURE_1..PICTURE_4` 与 `FREE_SONG`（`wav_audio_sd_top` 与顶层例化都不写覆盖，改扇区就改那几行，当前 12000 / 123000 / 250000 / 370000 / 500000）；`I_audio_sel` 是 3 bit 的**选曲码**：0..3 接 `active_read_idx`（SDRAM 四缓冲里"当前正在上屏"的那一页，只在帧边界更新），因此**换图和换曲同帧发生**；4 = `FREE_SONG`，由顶层在 `app_mode==1`（自动展播）时给出——四页轮播共用这一首，翻页只换图不换曲，进/出自动模式各算一次换码（一次 abort→start），自动展播被 KEY3 暂停时仍放它。选曲码是 3 bit 二进制码，跨位翻转（011→100）会冒出一拍中间值，仍由同一条 8 拍稳定过滤滤掉。选曲与重启都在 `rtl/audio/wav_track_select.v` 里做：2 级同步 + 8 拍稳定过滤（滤掉页号跨位翻转时的一拍中间值），确认换页后给一个换页脉冲，`wav_audio_path` 走既有的 abort→start 重新锁存扇区并清两侧 FIFO，中间约 10~20 ms 静音。读到的 WAV 经 `pcm_fifo` 跨到 12.295082 MHz 音频域后由 `pcm_player` 直接送 HDMI 数据岛（ACR 随流输出）。
+教学浏览按当前显示页选择 WAV，自动展播使用公共曲目 `FREE_SONG`。`rtl/audio/wav_audio_sd_top.v` 经 `rtl/SD/sd_sec_arbiter.v` 与 BMP 共用 `sd_card_top`，仲裁优先服务 BMP。五个音轨首扇区统一定义在 `rtl/audio/wav_track_select.v`：`PICTURE_1..PICTURE_4` 为 12000 / 123000 / 250000 / 370000，`FREE_SONG` 为 500000。
 
-训练模式的心跳（2026-10-25）：`rtl/audio/heartbeat_synth.v` 片内合成，**不走扇区表、不读卡**（原"卡上第 5 段 HEART_BEAT=500000"的方案已删除）。150 Hz/25 ms 的"咚"+190 Hz/35 ms（65% 幅度）的"哒"（2026-10-26 由 75/95 Hz 整体升高，时长与幅度未变），第 2 声在 70 ms 处起，包络满幅保持到正弦首峰后指数衰减，整拍 110 BPM（26182 帧 ≈ 545 ms），训练期间一直循环；它用的是**同一套 48 kHz 帧节拍**（两路各跑各的分频必然多/少一帧，切换时是"咔"的一下爆音）。音频口在 `pcm_player` 之后、跨域之前是**一条 2:1 多路选择器**（`rtl/audio/wav_audio_path.v` §5.5）：`sel = 训练模式 | 心跳还没收完尾`，选 1 出 `heartbeat_synth` 的"咚—哒"，选 0 出该页 WAV。所以训练模式**根本不选**该页音频（不是把它压成 0 再和心跳相加）——这就是"屏蔽该页图片对应的音频、只播 HEART_BEAT"。没有混音、没有淡化、也没有编译期开关（2026-10-25 第五次改把 `heart_mix_stage` / `audio_crossfade` 连同 `depth_sw_n[3]` 那套 F13 混音开关一起删了，四个文件已挪到 `attic/audio-fade/`，要恢复淡化那儿有现成写法）。`I_mute` 只留给 SW4 暂停；选曲码与训练无关（自动展播时是 `FREE_SONG`、否则是当前页号），所以退出训练立刻回到当前模式该放的那首。切换仍是硬切，但 2026-10-26 补了四处边界：(1) `I_heart_en`/`I_mute` 进音频块各过两级同步（原来是 video_clk 裸信号直接当 sel，违反 `project_cdc.sdc` 的举证）；(2) 退出训练时心跳先花 0.67 ms 把包络压到 0 并保持 `O_busy`，选择器等它收完尾再切回 WAV —— 否则那颗"咚"有可能正响在峰上被一刀切断（约 11% 概率），是满量程阶跃；(3) 训练期间顶层把 `I_play` 压 0，**一个扇区读都不发**（不跟视频 BMP 抢 SPI），退出断点续播；(4) 训练期间 SW4 不响应，不会偷偷把退出后的播放状态翻成暂停。剩下唯一的阶跃是切回 WAV 那一帧"音乐此刻的幅度"，和 SW4 暂停/继续同一量级；要彻底消掉得在选择器输出上加 1 ms 增益斜坡（+1~2 DSP）。原来用 `audio_gate` 把音乐切成 40 ms 脉冲的"打拍子"做法默认关闭（`BEAT_GATE=0`），`beat_hold_ms` 只留给 OSD 的 ♥ 闪烁。声音只经 HDMI 输出，板上没有蜂鸣器。实现细节与实测数据见 `docs/heartbeat-synth-implementation.md`。
+`I_audio_sel` 为 3 位选曲码：0..3 对应 `active_read_idx`，4 对应自动展播曲目。页索引在帧边界更新；选曲码经过两级同步和 8 拍稳定过滤，避免跨位翻转造成误选。确认换曲后，`wav_audio_path` 执行 abort→start，重新锁存扇区并清空两侧 FIFO。WAV 经 `pcm_fifo` 进入约 12.295082 MHz 音频域，由 `pcm_player` 送入 HDMI 数据岛；ACR 随音频流输出。自动展播暂停翻页时，背景曲继续播放。
 
-音频的开关：SW4（C5）暂停 / 继续——只拉低 `I_play`，`pcm_player` 就不再拉 FIFO 读，读指针和 SD 侧预填数据都保留，所以再播是**断点续播**（样本级精确）。SW1/SW2/SW3 既不参与音频、**也不再控制对比度**（2026-10-26 下线：`contrast_controls` 里的开关绝对译码与"按键接管/开关交还"仲裁整块删除，对比度只剩外接面板 K6 按键逐档步进，复位为中性 1.00，0.50→0.75→1.00→1.25→1.50 循环）。拨对比度开关顺便改音乐的行为早就删净（原 SW3"停止归零"的实现是错的：同一次拨动既静音又发 `I_stop`，再拨也回不到播放态）。外部 IO 版本里 SW1..3 现在空闲；板卡演示版本里它们只在按住 KEY1 时被当成触点图案读走（`app_depth_raw`）。
+训练心跳由 `rtl/audio/heartbeat_synth.v` 片内合成，不读 TF 卡。每拍包含 150 Hz / 25 ms 与 190 Hz / 35 ms 两个短音，第二声在 70 ms 处开始，幅度为第一声的 65%；节拍为 110 BPM，约 545 ms。两路音源共用音频帧节拍。
 
-烧卡（把 WAV 真正放到那五个扇区上）：Windows 下双击 `tools\烧音频到TF卡.bat` —— 它会自己申请管理员权限、先用 `--list` 列出物理盘（读卡器是最小、可移动、总线为 USB 的那块）、列桌面上的 WAV 让你选编号，再问段号 1..5（5 = `FREE_SONG` = LBA 500000），然后先跑一遍**只读预检**、通过后才二次确认写入。扇区不用手填：`tools\burn_wav.py` 每次运行都从 `rtl/audio/wav_track_select.v` 的`PICTURE_1..4 / FREE_SONG` 参数解析，改 RTL 后两边自动一致；要写别的扇区用 `--sector N`（裸扇区模式，不校验 RTL）。写的是裸扇区，会覆盖卡上原有文件系统（插回电脑提示"需要格式化"，别点格式化）。等价命令行：`python tools\burn_wav.py --list` → `python tools\burn_wav.py --device \\.\PhysicalDriveN --track 5 --dry-run` → 同一条去掉 `--dry-run` 换成 `--confirm`。
+`wav_audio_path` 在 WAV 与心跳之间二选一，不混音。`I_heart_en`、`I_mute` 经两级同步进入音频域；退出训练时，心跳约用 0.67 ms 将包络降为零，`O_busy` 释放后再切回 WAV。训练期间 `I_play` 为 0，WAV 读请求和播放位置暂停，SW4 不改变其状态；退出后继续原曲目。切回 WAV 时仍可能存在幅度阶跃。旧淡化实验保存在 `attic/audio-fade/`，实现细节见 [心跳合成](docs/heartbeat-synth-implementation.md)。声音仅经 HDMI 输出。
+
+SW4（C5）控制 WAV 暂停／继续：暂停时拉低 `I_play`，保留 FIFO 和播放位置。对比度由外接 K6 逐档调节，复位为 100%，循环为 50%→75%→100%→125%→150%；外接 K7 独立开关字幕。外部 IO 版本中 SW1..3 空闲；板载演示版本仅在按住 KEY1 时将其作为触点输入（`app_depth_raw`）。
+
+Windows 下可运行仓库根目录的 `tools/烧音频到TF卡.bat`。脚本申请管理员权限，列出物理盘与 WAV 文件，再按音轨编号 1..5 选择目标；5 对应 `FREE_SONG`。`tools/burn_wav.py` 从 RTL 参数读取首扇区，先只读预检，确认后写入。应按实际容量和设备信息核对目标盘，不能仅凭磁盘编号选择。
+
+命令行依次使用 `python tools/burn_wav.py --list`、`--device \\.\PhysicalDriveN --track 5 --dry-run`，确认预检结果后将 `--dry-run` 换为 `--confirm`。`--sector N` 可指定裸扇区，但不校验 RTL 音轨表。裸扇区写入会覆盖对应区域的原有数据；电脑提示格式化时不要格式化该卡。
 
 新增[音频波形与音量条、自动轮播淡入淡出](docs/audio-and-transitions.md)：监测与 HDMI 共用的最终门控 PCM，条带只占最后 16 行；自动换页先淡出到黑，在原帧边界发布完成后淡入。状态文字在渐变后叠加。`ENABLE_AUDIO_VISUALIZATION`、`ENABLE_SMOOTH_TRANSITIONS` 默认开启，可分别编译关闭；没有新增 SDRAM 图像并发读取。
 
@@ -274,9 +280,11 @@ tfburn -D /dev/sdb <文件夹>                                # 有多张卡时�
 
 ## 使用
 
+训练面板保留档位数字，并显示对应文字：0 待测、1 过轻、2 正常、3 过重。ADC 路径仍显示未标定，触点路径仍显示演示输入；分档阈值和计数方式不变。
+
 KEY1 复位；KEY4 在教学、自动展播、训练之间循环；KEY2 在教学模式下一张、自动模式暂停/继续、默认训练模式按下并释放模拟按压；KEY3 上一张。默认按压档由 SW1～SW4 选择，0000 代用目标档，0001 浅、0011/0111 目标、1111 深。训练频率以完成释放事件间隔计量。
 
-ADC 模式使用 CH4（M12，J2 第35脚），复用约12.295 MHz音频 PLL；CH2（L10）与面板 K2 复用，不得使能。按压盒已标定（分压 3.3V—3.3kΩ—节点—FSR—GND）：空载约 2900，`top_adc` 用 baseline=2900、触发250、释放120、目标带 **1600～2400**（板上实测峰值：2cm≈1550 判"浅"，5～6cm≈1783 判"目标"）。受 FSR 在 15～18kg 弹簧压下饱和的限制，2cm 与 6cm 只差约 230 码，因此目标带比早期版本宽得多，`PRESS UNCAL` 提示已不再出现。深度档不能直接读成厘米。KEY2 在 ADC 模式不产生模拟按压。
+ADC 模式使用 CH4（M12，J2 第35脚），复用约12.295 MHz音频PLL；CH2（L10）与面板K2复用，不得使能。按压盒采用3.3V—3.3kΩ—节点—FSR—GND分压，当前参数为baseline=2900、触发250、释放120、目标带1600～2400。参数来自既有按压盒联调记录；FSR在大载荷下会饱和，档位仅反映压力幅度，不换算为厘米。界面保留未标定提示，KEY2在ADC模式不产生模拟按压。
 
 有外部按键时，`top` 的 `USE_EXTERNAL_IO=1` 可选择五按键及四接触输入，具体见 pin.adc 和原 PR 输入契约。默认板载模式尚无亮度/独立清场按键。图片支持范围见上文；扫描依旧是受控原始扇区布局，不解析 FAT32 目录。不支持的格式或文件长度不足的 BMP 不会发布为有效图片。
 

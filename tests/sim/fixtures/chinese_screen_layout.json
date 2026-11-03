@@ -94,13 +94,13 @@
         "color": "20d060"
       },
       {
-        "column": 31,
+        "column": 30,
         "row": 8,
         "text": "2",
         "color": "20d060"
       },
       {
-        "column": 33,
+        "column": 35,
         "row": 8,
         "text": "演示输入",
         "color": "20d060"
@@ -188,6 +188,12 @@
         "row": 28,
         "text": "按下并松开完成一次  触点输入仅作演示",
         "color": "ffffff"
+      },
+      {
+        "column": 32,
+        "row": 8,
+        "text": "正常",
+        "color": "20d060"
       }
     ]
   },
@@ -286,13 +292,13 @@
         "color": "20d060"
       },
       {
-        "column": 31,
+        "column": 30,
         "row": 8,
         "text": "2",
         "color": "20d060"
       },
       {
-        "column": 33,
+        "column": 35,
         "row": 8,
         "text": "未标定",
         "color": "20d060"
@@ -380,6 +386,12 @@
         "row": 28,
         "text": "跟随节拍练习  压力未标定  请充分释放",
         "color": "ffffff"
+      },
+      {
+        "column": 32,
+        "row": 8,
+        "text": "正常",
+        "color": "20d060"
       }
     ]
   },
@@ -478,13 +490,13 @@
         "color": "ff4040"
       },
       {
-        "column": 31,
+        "column": 30,
         "row": 8,
         "text": "3",
         "color": "ff4040"
       },
       {
-        "column": 33,
+        "column": 35,
         "row": 8,
         "text": "演示输入",
         "color": "ff4040"
@@ -572,6 +584,12 @@
         "row": 28,
         "text": "按下并松开完成一次  触点输入仅作演示",
         "color": "ffffff"
+      },
+      {
+        "column": 32,
+        "row": 8,
+        "text": "过重",
+        "color": "ff4040"
       }
     ]
   },
@@ -670,13 +688,13 @@
         "color": "ff4040"
       },
       {
-        "column": 31,
+        "column": 30,
         "row": 8,
         "text": "3",
         "color": "ff4040"
       },
       {
-        "column": 33,
+        "column": 35,
         "row": 8,
         "text": "未标定",
         "color": "ff4040"
@@ -764,6 +782,12 @@
         "row": 28,
         "text": "跟随节拍练习  压力未标定  请充分释放",
         "color": "ffffff"
+      },
+      {
+        "column": 32,
+        "row": 8,
+        "text": "过重",
+        "color": "ff4040"
       }
     ]
   },

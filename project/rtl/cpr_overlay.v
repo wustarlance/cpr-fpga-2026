@@ -20,8 +20,7 @@ module cpr_overlay #(parameter UNCALIBRATED_PRESSURE = 0,
     input wire [2:0] contrast_level,
     input wire auto_running,
     input wire [11:0] page_status,
-    // 2026-10-27：字幕总开关（外接面板 K7，默认 1）。为 0 时底部字幕带整条
-    // 不画——连那条深色底也不再覆盖，画面下沿恢复成照片本身。
+    // K7字幕开关；关闭时文字和字幕底色均不覆盖原图。
     input wire subtitle_en,
     output reg [23:0] out_rgb
 );
@@ -35,8 +34,7 @@ reg frame_auto_running;
 reg frame_subtitle_en;
 reg [11:0] frame_page;
 wire [1:0] header_page = frame_page[3] || frame_page[2] ? frame_page[5:4] : frame_page[10:9];
-// 亮度/对比度百分比：与 cpr_text_zh 里的那一份是同一张表（level_percent.v），
-// 英文界面和中文界面显示的数字因此永远一致。
+// 中英文共用level_percent中的百分比表。
 wire [3:0] br_hundreds, br_tens, br_units, ct_hundreds, ct_tens, ct_units;
 wire [2:0] br_blank, ct_blank;
 level_percent u_bright_percent(
@@ -141,7 +139,7 @@ always @(posedge clk or posedge rst) begin
     end
     else begin
         last_de <= de; last_vs <= vs;
-        if (beat) beat_seen <= 1;       // ← 帧内"见过节拍"标记
+        if (beat) beat_seen <= 1;       // 锁存本帧节拍事件
         if (last_vs && !vs) begin       // VS 下降沿 = 新帧开始
             x <= 0; y <= 0;
             frame_page <= PAGE_STATUS_ENABLE ? page_status : 12'd0;
@@ -216,6 +214,19 @@ endfunction
 
 reg [7:0] character;
 reg [34:0] pixels;
+// 英文档位文字：0待测，1过轻，2正常，3过重。
+function [39:0] depth_word;
+    input [1:0] grade;
+    begin
+        case (grade)
+            1: depth_word="LIGHT";
+            2: depth_word="OK   ";
+            3: depth_word="HEAVY";
+            default: depth_word="WAIT ";
+        endcase
+    end
+endfunction
+wire [39:0] depth_text=depth_word(frame_depth);
 reg [23:0] text_color, rate_color, depth_color;
 // Training reserves x0..383 for the tutorial; feedback fits x384..639.
 // BMP pixels keep their original coordinates (no scaling or added latency).
@@ -303,18 +314,16 @@ always @(*) begin
             end
             4: begin
                 text_color = depth_color;
-                case (cell_x)
+                // P为压力输入，D为触点演示；保留未标定/演示标识。
+                if(cell_x>=3 && cell_x<8) character=depth_text[39-(cell_x-3)*8 -:8];
+                else case (cell_x)
                     0: character = UNCALIBRATED_PRESSURE ? "P" : "D";
-                    1: character = UNCALIBRATED_PRESSURE ? "R" : "E";
-                    2: character = UNCALIBRATED_PRESSURE ? "E" : "P";
-                    3: character = UNCALIBRATED_PRESSURE ? "S" : "T";
-                    4: character = UNCALIBRATED_PRESSURE ? "S" : "H";
-                    6: character = digit({2'b0,frame_depth});
-                    8: character = UNCALIBRATED_PRESSURE ? "U" : " ";
-                    9: character = UNCALIBRATED_PRESSURE ? "N" : " ";
-                    10: character = UNCALIBRATED_PRESSURE ? "C" : " ";
-                    11: character = UNCALIBRATED_PRESSURE ? "A" : " ";
-                    12: character = UNCALIBRATED_PRESSURE ? "L" : " ";
+                    1: character = digit({2'b0,frame_depth});
+                    9: character = UNCALIBRATED_PRESSURE ? "U" : "D";
+                    10: character = UNCALIBRATED_PRESSURE ? "N" : "E";
+                    11: character = UNCALIBRATED_PRESSURE ? "C" : "M";
+                    12: character = UNCALIBRATED_PRESSURE ? "A" : "O";
+                    13: character = UNCALIBRATED_PRESSURE ? "L" : " ";
                     default: character = " ";
                 endcase
             end

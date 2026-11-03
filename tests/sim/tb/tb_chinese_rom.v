@@ -5,8 +5,8 @@ module tb_chinese_rom;
     reg [5:0] message_id,index;
     wire [15:0] bits;
     wire [7:0] text_code;
-    reg [255:0] golden[0:130];   // 0..129 原有字形 + 130 = '%'
-    reg [7:0] messages[0:1375];
+    reg [255:0] golden[0:133];   // 原有0..130字形及三枚新增字形
+    reg [7:0] messages[0:1471];
     integer c,r,m,i;
     cpr_font16_rom font(.code(code),.row(row),.row_bits(bits));
     cpr_zh_strings strings(.message_id(message_id),.index(index),.code(text_code));
@@ -15,11 +15,11 @@ module tb_chinese_rom;
         $readmemh("fixtures/chinese_messages.mem",messages);
         for(c=0;c<256;c=c+1)for(r=0;r<16;r=r+1)begin
             code=c;row=r;#1;
-            if(bits !== (c<131 ? golden[c][255-r*16 -:16] : 16'd0))$fatal(1,"Chinese glyph row mismatch id=%0d row=%0d",c,r);
+            if(bits !== (c<134 ? golden[c][255-r*16 -:16] : 16'd0))$fatal(1,"Chinese glyph row mismatch id=%0d row=%0d",c,r);
         end
         for(m=0;m<64;m=m+1)for(i=0;i<64;i=i+1)begin
             message_id=m;index=i;#1;
-            if(text_code !== ((m<43 && i<32) ? messages[m*32+i] : 8'd0))$fatal(1,"Chinese message mismatch id=%0d index=%0d",m,i);
+            if(text_code !== ((m<46 && i<32) ? messages[m*32+i] : 8'd0))$fatal(1,"Chinese message mismatch id=%0d index=%0d",m,i);
         end
         $display("PASS: tb_chinese_rom");$finish;
     end
