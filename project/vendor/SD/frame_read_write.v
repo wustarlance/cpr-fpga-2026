@@ -99,8 +99,8 @@ assign write_ready = ~write_fifo_full;
 wire O_rd_busy;
 wire read_urgent;
 
-// D115 exploratory tail guard: it blocks only NEW read transactions.
-// It does not interrupt a write or a four-word group. Default0 is bypass.
+// Write-to-read tail guard blocks new read transactions only.
+// Active writes/groups remain continuous; parameter0 bypasses the guard.
 localparam WRITE_GAP_BITS = (WRITE_TO_READ_GAP<1) ? 1 : $clog2(WRITE_TO_READ_GAP+1);
 reg [WRITE_GAP_BITS-1:0] write_tail;
 always @(posedge mem_clk or posedge rst) begin

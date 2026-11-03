@@ -1,32 +1,8 @@
-// contrast_rgb: per-channel RGB contrast adjustment. Combinational, zero
-// added pixel latency, no clock/reset/pipe registers. The caller latches
-// `level` at the frame boundary so it does not change mid-frame.
-//
-//   2026-10-27：档位改为百分比口径，与 OSD 上显示的百分比一一对应。
-//   原来 5 档是围绕 1.00 的增益（0.50/0.75/1.00/1.25/1.50，中性在第 2 档）；
-//   中间一版只保留 0…100 %、把增强两档丢了；现在扩成 6 档：既保留
-//   "0 % 拉成全灰"的演示档，又把 125 %/150 % 的增强加回来，中性档 = 100 %（第 3 档）。
-//   好处仍然是"屏上写多少，画面就是多少"。
-//
-//   level | gain numerator | contrast
-//   ------+----------------+------------------
-//     0   |       0        |   0 %  （全部收到 128 中灰）
-//     1   |       2        |  50 %
-//     2   |       3        |  75 %
-//     3   |       4        | 100 %  （恒等/直通，复位默认）
-//     4   |       5        | 125 %
-//     5   |       6        | 150 %
-//    6..7 |       4        | 100 %  （恒等回退，非法码不产生黑屏）
-//
-// Per channel x (unsigned 8-bit):
-//     t = floor(((x - 128) * gain) / 4) + 128
-//     y = min(255, max(0, t))
-//
-// The floor division for negative operands is implemented with a signed
-// arithmetic right shift (>>> 2), NOT integer division (which truncates
-// toward zero). The signed negative intermediate is kept until saturation:
-// the value is never pre-truncated to 8 bits, so there is no wrap, no X and
-// no latch. The five constant gains use shift/add, not a multiplier.
+// RGB 对比度组合运算，不增加像素延迟；调用方在帧边界锁存 level。
+// level 0..5 对应 0/50/75/100/125/150%，6..7 回退到 100%。
+// 0% 码保留在运算接口，按键控制不选择该档。
+// 每通道 y=clamp(floor((x-128)*gain/4)+128, 0, 255)，gain 为 0/2/3/4/5/6。
+// 负数使用算术右移向下取整，保留有符号中间值直至饱和；常量乘法由移位相加实现。
 
 module contrast_rgb(
     input  wire [23:0] rgb,      // R=[23:16] G=[15:8] B=[7:0]

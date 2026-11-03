@@ -1,30 +1,12 @@
-// training_core —— 训练计数 / 计时 / 评级核心
-//
-// 职责：判定"一次完整按压"、累计次数、测量间隔并评级、计时暂停与轮换、产生节拍。
-//
-// 关键约定：
-//   · 所有端口同步于同一个 clk（顶层为 video_clk 25 MHz）。
-//   · tick_ms 是每毫秒一拍的【时钟使能】，不是时钟，不要拿它当时钟边沿。
-//   · 按压输入两条互斥路径，由 USE_PRESS_EVENTS 选择：
-//       =0 触点模式：depth_switches 温度计码（板载演示 / 外接盒）
-//       =1 事件模式：press_event 由 ADC 链的 peak_detect 给出
-//   · 本模块【没有输入边沿检测】【没有背压】：press_event / clear_session
-//     必须是一个 clk 宽的脉冲；持续拉高会逐拍重复处理。
-//   · 本模块【没有参数合法性检查】，越界配置静默出错。
-//   · 500/600 ms 速率边界写死在源码里，不能用参数调整。
-//
-// 输出信号类型速查：
-//   [脉冲] 宽 1 拍：beat_event, compression_event
-//   [粘滞] 只置不清（复位/停用/清场才清）：rotate_due
-//   [组合] wire，随输入即时变化：pause_warning
-//   [电平] 其余，保持到下次事件
-//
-// All ports are synchronous to clk. tick_ms must pulse once per millisecond.
-// Depth switches are cumulative: 0000 released, 0001 shallow,
-// 0011/0111 target band, 1111 deep. Mechanical calibration is required.
+// 训练计数、频率评级、中断与轮换计时。
+// 所有端口同步于 clk；tick_ms 是每毫秒一个周期的时钟使能。
+// USE_PRESS_EVENTS=0 读取累计触点码：0000 释放、0001 轻、0011/0111 正常、1111 重。
+// USE_PRESS_EVENTS=1 接收上游完整释放事件；press_event、clear_session 均须为单周期脉冲，无背压。
+// 频率边界固定为 500/600 ms；调用方负责参数范围和机械/压力标定。
+// beat_event、compression_event 为单周期脉冲；rotate_due 保持到复位、停用或清场。
 module training_core #(
-    parameter PAUSE_WARN_MS = 5000, // 停顿多久算"暂停"→ 5 秒
-    parameter ROTATE_MS = 120000,   // 换人提醒周期 → 2 分钟
+    parameter PAUSE_WARN_MS = 5000, // 中断提示阈值，ms
+    parameter ROTATE_MS = 120000,   // 轮换周期，ms
     parameter BEAT_MS = 545,        // 节拍 545ms ≈ 110BPM
     parameter USE_PRESS_EVENTS = 0  // 输入模式开关
 )(
@@ -42,7 +24,7 @@ module training_core #(
     // [电平] interval_ms 是否有效；自第 2 次完成起为 1
     output reg rate_valid,
     // [电平] 频率 0=未知 1=慢(>600ms) 2=目标(500~600ms) 3=快(<500ms)
-    //        注意与 depth_grade 的 1/2/3 含义不同，勿混
+    //        与压力分级分别编码
     output reg [1:0] rate_grade,
     // [电平] 深度 0=未知 1=浅 2=目标 3=深；保持到下次完成（OSD 靠它持续显示）
     output reg [1:0] depth_grade,
@@ -56,24 +38,22 @@ module training_core #(
     output reg rotate_due,
     // [脉冲] 节拍，每 BEAT_MS 一拍；进入训练那一拍也补发一拍
     output reg beat_event,
-    // [脉冲] 完成一次按压；当前顶层未接消费者，是给统计/上报预留的钩子
+    // [脉冲] 完成一次按压，当前顶层未使用
     output reg compression_event,
     // [电平] 训练级故障；事件模式取 press_fault，触点模式取 cycle_fault
-    //        与 cpr_sensor_path 的硬件粘滞故障不是一回事（顶层再相或）
+    //        顶层另与 cpr_sensor_path 的粘滞故障相或
     output reg sensor_fault,
     //输入 B：事件（ADC）
     input wire press_event,
     input wire [1:0] press_grade,
     input wire press_fault
 );
-    // Grades: rate 0 unknown, 1 slow, 2 target, 3 fast;
-    // depth 0 unknown, 1 shallow, 2 target, 3 deep.
 
     reg was_enabled;      // enabled 的上一拍值，用来检测"刚进入训练"（!was_enabled）
     reg in_press;         // 按压进行中
     reg have_previous;    // 是否已有过完成；决定 rate_valid 与计时器是否走
-    reg switch_armed;     // 已武装：必须先见过一次 depth_switches==0 才置 1
-    reg [1:0] peak_grade; // 本次按压到达过的【最深】档，按压中取 max
+    reg switch_armed;     // 已观察到一次完整释放
+    reg [1:0] peak_grade; // 本次按压的最高档
     reg cycle_fault;      // 本次按压循环内出现过非法触点组合（锁存）
     reg [15:0] elapsed_ms,// 距上次完成的间隔计时（完成时清零）
                beat_elapsed;// 节拍计数 0..BEAT_MS-1
@@ -92,11 +72,7 @@ module training_core #(
             default: begin current_depth = 0; valid_pattern = 0; end // 非法
         endcase
     end
-    // [组合] 停顿告警。三个条件缺一不可：
-    //   enabled      —— 不在训练模式不报
-    //   have_previous—— 首次按压前不报（否则一进训练就喊"你停顿了"）
-    //   pause_ms >= PAUSE_WARN_MS
-    // Disabled before training and until the first complete press.
+    // 首次完整按压前不报中断告警。
     assign pause_warning = enabled && have_previous && pause_ms >= PAUSE_WARN_MS;
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -110,10 +86,9 @@ module training_core #(
             sensor_fault <= 0;
         end else begin
             was_enabled <= enabled;
-            // [脉冲] 每拍先清 0，只有后面的 if 命中才置 1 → 宽度恒为 1 拍
+            // 事件输出缺省清零，触发时置位一个周期。
             beat_event <= 0; compression_event <= 0;
-            // 【第 2 层】清场：命中后本拍的 tick_ms / 输入事件 / 故障更新全部丢弃，
-            // 不排队到下一拍（契约明确要求）。!was_enabled = 使能上升沿，即刚进训练。
+            // 停用、进入训练或清场优先于本拍计时和输入事件，不缓存被丢弃的事件。
             if (!enabled || !was_enabled || clear_session) begin
                 in_press <= 0; have_previous <= 0; peak_grade <= 0;
                 switch_armed <= 0;
@@ -124,18 +99,15 @@ module training_core #(
                 sensor_fault <= 0;
                 if (enabled) beat_event <= 1;   // 进入训练瞬间补一拍节拍当提示
             end else begin
-                // 【第 3 层】正常处理。以下各 if 顺序执行，后面的赋值覆盖前面的。
                 if (tick_ms) begin
-                    // elapsed_ms 与 pause_ms 都在数"距上次完成多久"，
-                    // 区别只在清零时机；两者都受 have_previous 门控（首次按压前不走）
+                    // 首次按压后才累加间隔与中断计时，两者分别在对应完成流程中清零。
                     if (have_previous && elapsed_ms != 16'hffff)
                         elapsed_ms <= elapsed_ms + 1'b1;
                     if (have_previous && pause_ms != 16'hffff)
                         pause_ms <= pause_ms + 1'b1;
                     if (rotate_remaining_ms > 0) begin
                         rotate_remaining_ms <= rotate_remaining_ms - 1'b1;
-                        // ★ 在 ==1 时置位（不是 ==0）：本拍置位并减到 0，
-                        //   下拍 >0 不成立即停止递减，rotate_due 就此保持为 1（粘滞）
+                        // 倒计时减到零的同拍置位 rotate_due，随后保持。
                         if (rotate_remaining_ms == 1) rotate_due <= 1;
                     end
                     if (beat_elapsed == BEAT_MS-1) begin
@@ -146,12 +118,11 @@ module training_core #(
                 if (USE_PRESS_EVENTS && press_fault) begin
                     sensor_fault <= 1;
                 end
-                // ★ 武装：必须先见过一次"完全释放"才允许开始计数。
-                //   否则"进训练前就一直压着"会在松手时凭空多计一次。
-                //   注意此处是 <=，本拍不生效，所以下面读到的还是旧值。
+                // 触点模式先观察完整释放，再允许计数，避免把入场前的持续按压计入。
+                // switch_armed 的新值从下一拍生效。
                 if (!USE_PRESS_EVENTS && !switch_armed && depth_switches == 0)
                     switch_armed <= 1;
-                // 【捕获】按下的过程中：首拍记录档位，之后持续取最深值
+                // 按压期间保留达到过的最高档。
                 if (!USE_PRESS_EVENTS && switch_armed && depth_switches != 0) begin
                     if (!in_press) begin
                         in_press <= 1; peak_grade <= current_depth;
@@ -161,8 +132,7 @@ module training_core #(
                         if (!valid_pattern) cycle_fault <= 1;  // 出现过非法即锁存
                     end
                 end
-                // 【第 4 层】完成。事件模式下 press_fault 会把整个分支抑制掉：
-                //   不计次、不更新间隔/等级、不发 compression_event（"不对称"处理）
+                // 事件模式故障时丢弃该次完成，不更新计数、间隔或评级。
                 if (completed_press && !(USE_PRESS_EVENTS && press_fault)) begin
                     in_press <= 0; compression_event <= 1;
                     if (press_count != 32'hffffffff) press_count <= press_count + 1'b1;
@@ -173,14 +143,11 @@ module training_core #(
                     else depth_grade <= peak_grade;
                     rate_valid <= have_previous;      // 第 2 次起才有效
                     if (have_previous) begin
-                        // Account for a coincident millisecond tick before resetting.
-                        // 本拍若同时有 tick_ms，那 1 ms 会被下面的清零吃掉，这里补回来
+                        // 同拍 tick_ms 计入本次间隔，再将 elapsed_ms 清零。
                         if (tick_ms && elapsed_ms != 16'hffff)
                             interval_ms <= elapsed_ms + 1'b1;
                         else interval_ms <= elapsed_ms;
-                        // ★ 边界修正：真实间隔 = elapsed_ms + (本拍是否有 tick)。
-                        //   499+tick 其实是 500（目标），600+tick 其实是 601（慢），
-                        //   两个额外条件就是把这两个边界从错误分类里拉回来。
+                        // 评级包含同拍 tick_ms：499+tick 归目标档，600+tick 归慢档。
                         if (elapsed_ms < 500 && !(tick_ms && elapsed_ms == 499))
                             rate_grade <= 3;
                         else if (elapsed_ms > 600 || (tick_ms && elapsed_ms == 600))

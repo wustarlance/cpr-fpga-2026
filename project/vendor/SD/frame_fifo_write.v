@@ -39,10 +39,7 @@ module frame_fifo_write
 	input[1:0]                       write_addr_index,           // select valid base address from write_addr_0 write_addr_1 write_addr_2 write_addr_3
 	input[ADDR_BITS - 1:0]           write_len,                  // data write module write request data length
 	output reg                       fifo_aclr,                  // to fifo asynchronous clear
-	// wfifo_32_32_512 的 rdusedw 是 ADDR_WIDTH_R(=9) 位，这里原来写成 10 位：
-	// 顶层 wire 只有 9 位，最高位在仿真里悬空为 z，参与比较后整条条件变成 x，
-	// into_burst 恒为 x，burst 永不启动（tb_frame_* / tb_sd_scaled_pipeline 超时的根因）。
-	// 综合把 z 当 0，所以只有仿真暴露；位宽按 IP 实际输出声明。
+	// rdusedw与FIFO IP的ADDR_WIDTH_R一致，当前为9位；加宽会引入悬空高位。
 	input[BURST_BITS - 1:0]          rdusedw                     // from fifo read used words
 );
 localparam ONE                       = 256'd1;                   //256 bit '1'   you can use ONE[n-1:0] for n bit '1'
@@ -83,8 +80,7 @@ wire								wr_burst_finish;
 reg App_wr_en_r;
 reg App_wr_en_d0;
 
-// Experimental D122 write-to-write spacing. Only delays NEW burst admission.
-// Original FIFO, address progression and in-progress four-word groups unchanged.
+// Write-to-write guard delays new bursts only; active four-word groups remain contiguous.
 localparam RESTART_BITS=(WRITE_RESTART_GAP<1)?1:$clog2(WRITE_RESTART_GAP+1);
 reg [RESTART_BITS-1:0] restart_count;
 always @(posedge mem_clk or posedge rst)begin

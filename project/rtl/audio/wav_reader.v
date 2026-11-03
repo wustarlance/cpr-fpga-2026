@@ -1,42 +1,10 @@
 `timescale 1ns/1ps
-//=============================================================================
-// wav_reader.v —— SD 扇区流 → PCM 帧流（重构版；旧版存档在 sim/wav_reader_before_refactor.v）
-//-----------------------------------------------------------------------------
-// 【本文件的结构来源】
-// 状态机骨架、扇区请求握手、按字节计数的取数方式，全部照 bmp_read.v 的写法：
-//
-//   bmp_read                         本文件
-//   ------------------------------   --------------------------------------
-//   ST_IDLE / ST_SCAN / ST_LOAD_*    S_IDLE / S_SEC_ADDR / S_SEC_REQ / S_RECV
-//   rd_cnt（扇区内 0..511 计数）      S_rd_cnt（同一个计数器，位宽名字都一样）
-//   case(rd_cnt) 按偏移锁存字段      S_got 作索引，锁进 S_chunk / S_fmt
-//   bmp_len_cnt（文件内字节计数）     W_rd_pos = {S_sec_off, S_rd_cnt}
-//   pixel_offset（起始跳过）          S_pos（本次读的起点偏移）
-//   bmp_len_cnt >= pixel_offset       W_rd_pos >= S_pos
-//   file_len（头里给的文件长度）      S_remain（本次还要收多少字节）
-//   header_match（魔数 + 字段组合）   W_id_is_fmt / W_id_is_data / W_riff_ok
-//   sd_sec_read 电平 + end 收尾      完全一致
-//   sd_sec_read_addr 递增            S_sec_off + 1
-//
-// 与 bmp_read 唯一的本质差别：WAV 的 data 块位置不是固定 54 字节，而是由前面
-// 各 chunk 的 size 累加出来的。所以多了一个"块链定位"步骤（S_CHUNK / S_FMT_DEC），
-// 其余全部沿用。
-//
-// 【和旧版相比删掉的东西】（下面第一项在本文件里已不存在，搜 S_hdr_ram 搜不到就是对的）
-//   * 【已删除】1024 字节头部 RAM（S_hdr_ram）以及围绕它的 4 个状态
-//     （S_SEEK/S_RD_ADDR/S_RD_WAIT/S_RD_CAP）——bmp_read 不需要缓存整个扇区，
-//     只要在字节流里"数到目标位置再锁存"就够了，WAV 同样可以。
-//     现在只留 46 字节字段锁存：S_riff[0:11] / S_chunk[0:7] / S_fmt[0:25]，
-//     按 S_got 逐个字节写、按固定下标读，不是整扇区窗口。
-//   * 【未删除】32 拍串行除法器（S_CALC_DIV）与 O_frame_total 都还在：
-//     pcm_player 用 O_frame_total（I_frame_total）判"播完"，删了就没法自动结束。
-//
-// 【格式支持】
-//   PCM(1) / WAVE_FORMAT_EXTENSIBLE(0xFFFE，SubFormat GUID 必须是 PCM)，
-//   8/16/24/32 bit，单/双声道，8k~192k。非 PCM 一律 ERR_FORMAT。
-//   位深统一左对齐到 24 bit：8 bit 无符号取反高位；16 bit 左移 8；24 bit 原值；
-//   32 bit 取高 24 位。
-//=============================================================================
+// SD扇区字节流解析为PCM帧流，文件位置由首LBA与字节偏移指定。
+// 按RIFF chunk长度定位fmt/data，跳过未使用块及奇数字节填充，不缓存整扇区头部。
+// 支持PCM及PCM子类型的WAVE_FORMAT_EXTENSIBLE、8/16/24/32位、单/双声道、8~192 kHz。
+// 输出统一为24位左对齐：8位转换无符号偏置，16位左移8位，32位取高24位。
+// 发扇区请求前检查FIFO空间；等待扇区数据时检测无进展超时。
+// 头部锁存后用32拍串行除法求总帧数，供pcm_player判断播放结束。
 module wav_reader #(
     parameter integer WAIT_TIMEOUT_CYCLES = 100_000_000, // 单扇区无进展超时
     parameter [11:0]  SEC_MIN_SPACE       = 12'd512      // 发新请求所需的最小 FIFO 空间
@@ -124,16 +92,14 @@ reg        S_err_pend;
 wire       W_busy = (S_state != S_IDLE);
 
 //--------------------------------------------------------------------------
-// 文件位置 —— 全部对齐 bmp_read 的计数器用法
+// 文件位置与剩余字节数
 //--------------------------------------------------------------------------
 reg [31:0] S_start_sector;
-reg [31:0] S_sec_off;         // 当前扇区相对文件首扇区的偏移（= bmp_read 的 scan/load 递增量）
-reg [9:0]  S_rd_cnt;          // 扇区内字节序号 0..511（= bmp_read 的 rd_cnt，一模一样）
-reg [31:0] S_pos;             // 本次要读的起始偏移（= bmp_read 的 pixel_offset）
-reg [31:0] S_remain;          // 本次还要收多少字节（= bmp_read 的 file_len 倒数版）
-// S_remain 的"是否为零"单独存一位：/!\ 别再在 W_take 里写 (|S_remain)
-// 32 位 OR 归约是 3 级 LUT，直接挂在 O_pcm_data / S_acc / S_frame_cnt_r 的写使能上，
-// TD 实测这条链 9.8 ns（7 级，cell 只占 26%）。下面凡是 S_remain 赋值的地方都同步维护它。
+reg [31:0] S_sec_off;         // 相对文件首扇区的偏移
+reg [9:0]  S_rd_cnt;          // 扇区内字节序号0..511
+reg [31:0] S_pos;             // 本次读取的起始字节偏移
+reg [31:0] S_remain;          // 本次剩余字节数
+// 零标志与S_remain同拍维护，避免32位归约进入所有数据寄存器的写使能。
 reg        S_rem_z;           // 1 = S_remain 为 0
 reg [4:0]  S_got;             // 本次已收几个（锁存索引）
 reg [1:0]  S_dst;             // 收到的字节送到哪
@@ -141,10 +107,7 @@ reg [1:0]  S_dst;             // 收到的字节送到哪
 // 当前正在读的字节在文件内的偏移：扇区偏移 << 9 | 扇区内序号。纯拼接，不进加法器。
 wire [31:0] W_rd_pos = {S_sec_off[22:0], S_rd_cnt};
 
-// 取数判据 W_rd_pos >= S_pos 原来是 32 位比较，直接挂在 W_take 上，
-// 而 W_take 又挂在几乎所有数据寄存器的写使能上（TD 实测 9.5 ns / 7 级）。
-// 拆法：扇区偏移和 S_pos 的高 23 位在一个扇区内都不变 → 在 S_SEC_ADDR 里比一次存成
-// 两个标志；运行时只剩 10 位（扇区内序号 vs S_pos 低 9 位）的比较，3 级。
+// S_SEC_ADDR先比较稳定的扇区高位；逐字节只比较扇区内偏移。
 reg        S_hi_gt, S_hi_eq;   // S_sec_off > / == S_pos[31:9]
 wire       W_arrived = S_hi_gt | (S_hi_eq & (S_rd_cnt >= S_pos[8:0]));
 
@@ -182,28 +145,15 @@ always @(posedge I_clk or posedge I_rst) begin
         S_wd <= 32'd0;
     else if (S_wd < WAIT_TIMEOUT_CYCLES) S_wd <= S_wd + 32'd1;
 end
-// 超时标志打一拍再用：直接拿 W_timeout 去驱动整条状态机的写使能，
-// 等于把 27 位比较器串进每一个寄存器的 CE（TD 实测 6 级 / 9.8 ns）。
-// 寄存一拍后 CE 的输入就是触发器输出，比较器自己独占一个周期。
+// 超时比较寄存一拍，隔离宽比较器与状态机写使能。
 reg S_timeout;
 always @(posedge I_clk or posedge I_rst) begin
     if (I_rst) S_timeout <= 1'b0;
     else       S_timeout <= (S_wd >= WAIT_TIMEOUT_CYCLES - 1);
 end
 
-//--------------------------------------------------------------------------
-// 全局"立刻退出"原因，同样打一拍再用
-//
-// 原来主状态机是
-//     if (S_err_pend) … else if (I_abort && busy) … else if (!I_sd_init_done && busy) …
-//     else if (S_timeout && busy) … else <正常>
-// 这四级优先链会把三个条件（外加 `S_state != S_IDLE`）串进**每一个**寄存器的 CE，
-// 再叠上各自分支里的判断，TD 实测 7 级 / 9.505 ns（cell 只占 25%，其余全是走线）。
-// 现在把这条链压成一个 2 位寄存器，CE 上只剩一次 `S_stop != 0` 的判断。
-//
-// 语义完全不变，只是响应晚 1 拍——abort / 卡掉 / 超时都是毫秒级事件，
-// 1 拍（10 ns）无影响；1 帧音频 20.8 µs。
-//--------------------------------------------------------------------------
+// 退出原因先寄存，下一拍处理，避免优先链进入整个状态机的写使能。
+// 优先级为abort、SD掉线、超时；S_err_pend仍由主状态机优先处理。
 localparam [1:0] STOP_NONE = 2'd0,
                  STOP_ABORT = 2'd1,   // 用户 stop：不置错误码
                  STOP_SD    = 2'd2,   // 卡掉线：ERR_SD
@@ -212,7 +162,7 @@ reg [1:0] S_stop;
 always @(posedge I_clk or posedge I_rst) begin
     if (I_rst)                  S_stop <= STOP_NONE;
     else if (S_state == S_IDLE) S_stop <= STOP_NONE;   // 回到 IDLE 就清，只作用 1 拍
-    else if (I_abort)           S_stop <= STOP_ABORT;  // 与原来的优先级一致
+    else if (I_abort)           S_stop <= STOP_ABORT;  // 用户abort优先
     else if (!I_sd_init_done)   S_stop <= STOP_SD;
     else if (S_timeout)         S_stop <= STOP_TMO;
 end
@@ -221,8 +171,7 @@ end
 // 组合判断（对应 bmp_read 的 header_match 那一块）
 //--------------------------------------------------------------------------
 // 取数条件：已经走到本次起点，且还有字节要收
-// 四个判据全是触发器输出（S_state / I_sd_sec_valid 打的拍 / 两个零标志），
-// 所以这里是 1~2 级，而不是原来的 7 级。
+// 高位比较和剩余量零标志已提前寄存，限制取数使能的组合深度。
 wire W_take = (S_state == S_RECV) && I_sd_sec_valid &&
               W_arrived && (!S_rem_z);
 
@@ -250,14 +199,7 @@ wire [31:0] W_fmt_next   = S_pos + S_fmt_size + {31'd0, S_fmt_size[0]};
 wire [15:0] W_fmt_tag = {S_fmt[1],  S_fmt[0]};    // +0  wFormatTag
 wire [15:0] W_fmt_sub = {S_fmt[25], S_fmt[24]};   // +24 SubFormat GUID 前 2 字节
 
-//--------------------------------------------------------------------------
-// 格式校验拆两拍用的组合量
-//
-// 原来 S_CALC 是 6 级 else-if：tag → sub → 声道 → 位深 → 采样率 → data 起点。
-// 每条都要串进 S_dv_* 的写使能，TD 实测 9.481 ns（10 级）。
-// 拆法：第 1 拍把"格式类"和 32 位比较的**高位**各算一次存进寄存器，
-// 第 2 拍只做"拼一下 + 两个判断"，级数从 10 降到 3。
-//--------------------------------------------------------------------------
+// 格式与文件偏移校验分两拍，先寄存格式结论及分段比较结果。
 // data_off >= file_size，拆成 3 段（高 16 位比较、高 16 位相等、低 16 位比较）
 wire        W_off_hi_gt = (S_data_off[31:16] >  S_file_size[31:16]);
 wire        W_off_hi_eq = (S_data_off[31:16] == S_file_size[31:16]);
@@ -267,7 +209,7 @@ wire        W_rate_bad  = (|O_sample_rate[31:18]) ||
                           (O_sample_rate[17:0] < 18'd8000) ||
                           (O_sample_rate[17:0] > 18'd192000);
 
-// 写成一条并行 OR（原来是一串 else-if，只为了选错误码，可错误码都是 ERR_FORMAT）
+// 同属ERR_FORMAT的条件并行合并。
 wire        W_fmt_bad   = ((W_fmt_tag != 16'h0001) && (W_fmt_tag != 16'hFFFE)) ||
                           ((W_fmt_tag  == 16'hFFFE) &&
                            ((S_fmt_size < 32'd40) || (W_fmt_sub != 16'h0001))) ||
@@ -286,27 +228,12 @@ reg  S_riff_ok, S_is_data, S_is_fmt;
 // S_CHUNK 第 1 拍算好的"块长度"判据（第 2 拍只读它们，不再碰 S_chunk）
 reg  S_cs_zero, S_cs_lt16, S_cs_ge40, S_cs_huge;
 
-// S_CHUNK 的防死循环判据 (S_pos >= S_file_size) 是 32 位比较，
-// 它挂在 S_remain/S_pos 这些寄存器的写使能上，TD 实测 9.396 ns（10 级）。
-// S_CHUNK 只从 S_DECIDE 进来，且那一拍 S_pos / S_file_size 都不动，
-// 所以提前一拍算好存成 1 位，S_CHUNK 里只读寄存器。
+// S_DECIDE提前寄存位置越界结果；此拍S_pos和S_file_size保持不变。
 reg  S_pos_ge_fs;
 
-// data 有效长度 = min(声明长度, 文件剩余)
-//
-// 这一段原来是两级 32 位组合：W_avail = (file_size > data_off) ? file_size-data_off
-// : data_len_raw;  W_dlen = min(data_len_raw, W_avail)。
-// TD 实测它有 **9 条紧路径同时挂在 sd_clk 上**（上板网表前 10 名里占 9 条，
-// 起点全是 O_file_size_reg[*]，slack 0.248~0.425 ns，7 级 ADDER×4 + fanout=32 的网
-// 0.676 ns），因为 W_dlen 同时驱动 S_dv_n / O_data_bytes / S_remain 三组共 96 个触发器，
-// 每人都要自带一套 32 位 mux。
-//
-// 拆法（不改时序语义，只多一组寄存器）：
-//   S_CALC  拍：S_avail <= S_file_size - S_data_off      纯减法，扇出只到 32 个寄存器
-//   S_CALC2 拍：S_dlen  <= min(S_data_len_raw, S_avail)  比较 + mux，输入已是寄存器
-// 之后 S_dv_n / O_data_bytes / S_remain 一律读 S_dlen（寄存器），锥体消失。
-// 顺带把原来那个 (file_size > data_off) 的三元也去掉了：S_CALC2 的 W_off_ge
-// 已经保证 data_off < file_size 才走正常分支，减法结果就是可用字节数。
+// data有效长度取声明长度与文件剩余长度的较小值。
+// S_CALC先算S_avail，S_CALC2再锁存S_dlen，避免减法和宽mux串接。
+// 仅在data_off < file_size时使用此减法结果；后续长度寄存器共用S_dlen。
 reg  [31:0] S_avail;          // file_size - data_off（S_CALC 里算好）
 reg  [31:0] S_dlen;           // min(data_len_raw, S_avail)，解析头时锁一次
 wire [31:0] W_min_dlen = (S_data_len_raw < S_avail) ? S_data_len_raw : S_avail;
@@ -565,11 +492,7 @@ always @(posedge I_clk or posedge I_rst) begin
                 end
             end
 
-            // 一个目标收完，决定下一步
-            //
-            // 拆两拍：这一拍只把"RIFF 校验 / 块 ID"这些字节比较打成标志。
-            // 它们原来是 3~4 级（8 个字节逐个比 + 归约），直接挂在 S_remain / S_sec_off
-            // 的写使能上，TD 实测 10.1 ns（7 级、走线 74%）。
+            // 先寄存RIFF与chunk ID比较结果，下一拍更新位置和长度。
             S_DECIDE: begin
                 O_state_code <= 4'd3;
                 S_riff_ok    <= W_riff_ok;
@@ -578,13 +501,12 @@ always @(posedge I_clk or posedge I_rst) begin
                 S_state      <= S_DECIDE2;
             end
 
-            // 第 2 拍：判据全是标志位，动作与原来一模一样
+            // 第2拍使用已寄存的判据。
             S_DECIDE2: begin
                 O_state_code <= 4'd3;
                 case (S_dst)
                     D_RIFF: begin
                         // 头 12 字节到齐：校验 RIFF，并从 chunk size 算出文件长度
-                        // （和 bmp_read 从 BMP 头里拿 file_len 是同一招）
                         if (!S_riff_ok) begin
                             S_err_pend <= 1'b1;
                             S_err_code <= ERR_NOT_RIFF;
@@ -643,13 +565,7 @@ always @(posedge I_clk or posedge I_rst) begin
                 endcase
             end
 
-            // 判块类型
-            //
-            // 第 1 拍只把"块长度"的四个判据打成标志。原来这一拍里
-            // W_chunk_size 的 (==0 / <16 / >=40 / 高 28 位全 1) 四个比较直接挂在
-            // S_remain / S_fmt_size / S_pos 的写使能上，起点是 S_chunk 的 64 个触发器，
-            // TD 实测 S_chunk[20] → S_remain[13].ce 是 9.383 ns / 7 级 / 走线 6.49 ns
-            // （走线占 70%：判据要跨很远去够那 32 个触发器的 CE）。
+            // 块长度判据寄存后供S_CHUNK2分支使用，隔离比较器与长度寄存器使能。
             S_CHUNK: begin
                 O_state_code <= 4'd3;
                 S_cs_zero    <= (W_chunk_size == 32'd0);
@@ -659,7 +575,7 @@ always @(posedge I_clk or posedge I_rst) begin
                 S_state      <= S_CHUNK2;
             end
 
-            // 第 2 拍：判据全是标志位，动作与原来一一对应
+            // 第2拍使用已寄存的判据。
             S_CHUNK2: begin
                 O_state_code <= 4'd3;
                 if (S_is_data) begin
@@ -668,9 +584,7 @@ always @(posedge I_clk or posedge I_rst) begin
                         S_err_code <= ERR_NO_FMT;
                     end
                     else if (S_cs_zero) begin
-                        // 声明长度为 0 的 data 块：判据只用拼接出来的 chunk 头，
-                        // 不要放到 S_CALC 里跟 dlen 一起判（那条链要过两个
-                        // 32 位比较 + 一个减法，TD 实测 10 级 / 13.2 ns）
+                        // 在长度计算前拒绝空data块，避免并入后续减法/比较链。
                         S_err_pend <= 1'b1;
                         S_err_code <= ERR_NO_DATA;
                     end
@@ -697,11 +611,7 @@ always @(posedge I_clk or posedge I_rst) begin
                     end
                 end
                 else begin
-                    // LIST / JUNK / fact / bext …：按 size 跳过去
-                    // 防死循环的判据不能写 (W_next_pos <= S_pos)——那要把
-                    // 3 个 32 位加法器的结果再接进比较器，再进 S_pos 的写使能，
-                    // TD 实测 8 级 / 10.07 ns。改成"当前位置已越界"或"size 高
-                    // 28 位全 1"两条都只看寄存器/拼接，完全绕开加法链。
+                    // 未使用块按size跳过；越界与极端长度判据提前寄存，避免长加法链。
                     if (S_pos_ge_fs || S_cs_huge) begin
                         S_err_pend <= 1'b1;
                         S_err_code <= ERR_NO_DATA;
@@ -718,10 +628,7 @@ always @(posedge I_clk or posedge I_rst) begin
                 end
             end
 
-            // 定 data 起点 + 格式校验（第 1 拍：只算结论，不做分支动作）
-            //
-            // 这一拍把"格式对不对"和"data 起点越界"的 32 位比较高 16 位
-            // 各算一次存进寄存器（见 W_fmt_bad / W_off_hi_gt 那一段注释）。
+            // 第1拍锁存格式校验、分段偏移比较和可用长度。
             S_CALC: begin
                 O_state_code <= 4'd3;
                 S_v_err      <= W_fmt_bad;
@@ -732,7 +639,7 @@ always @(posedge I_clk or posedge I_rst) begin
                 S_state      <= S_CALC2;
             end
 
-            // 第 2 拍：判断只剩"两个寄存器位"，动作与原来一一对应
+            // 第2拍根据格式与越界标志分支。
             S_CALC2: begin
                 O_state_code <= 4'd3;
                 if (S_v_err) begin
@@ -744,8 +651,7 @@ always @(posedge I_clk or posedge I_rst) begin
                     S_err_code <= ERR_SIZE;
                 end
                 else begin
-                    // 数据参数：dlen 在这里定死成一个寄存器，后面 96 个触发器
-                    // 全读它，不再各自背一套 32 位 mux（见 W_min_dlen 上面的注释）。
+                    // 锁存有效data长度，供除法器、输出和接收计数共用。
                     S_dlen        <= W_min_dlen;
                     S_dv_n        <= W_min_dlen;
                     S_dv_rem      <= 32'd0;

@@ -1,11 +1,5 @@
-// Normalize polarity before this module. Output 1 means asserted.
-// Independent switches are filtered independently; coherent buses need a handshake.
-//
-// 复位释放后的第一个 tick 只把当前电平取作基线，不产生上升沿：
-// 否则上电瞬间已经处于"按下"电平的输入会被当成一次真实按键。某一路被
-// 一直拉低（模块没供电、上拉缺失、线接错）时，主模式会每上电一次自动跳
-// 一级，表现为"一开机就是训练模式，再按又按不动那种"。基线对齐之后，
-// 这类输入只会如实保持它读到的状态，不会伪造按键事件。
+// 输入需预先归一为高有效。各路独立同步和消抖，一致数据总线应使用握手。
+// 复位后的首个 tick 只建立电平基线，不产生 rise，避免把上电已按下的输入当作新操作。
 module input_filter #(parameter WIDTH = 4, parameter STABLE_MS = 10)(
     input wire clk,
     input wire rst_n,

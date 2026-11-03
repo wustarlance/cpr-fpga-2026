@@ -73,10 +73,8 @@ module bmp_blur_background #(
     reg [11:0] blur_r, blur_g, blur_b;
     reg [7:0] blur_avg_r, blur_avg_g, blur_avg_b;
     reg [THUMB_AW-1:0] read_addr;
-    // The tap address cone (clamp + shift + add over 6 adders, 12 levels) used to
-    // feed the inferred RAM address port directly and missed 10 ns on
-    // sd_card_clk.  Registering it turns that into a register-to-register path
-    // and costs one extra wait cycle in each fetch state.
+    // Register the clamped tap address before the synchronous RAM read.
+    // Each fetch state includes the extra address preparation cycle.
     reg [THUMB_AW-1:0] read_addr_q;
     reg [15:0] sx, sy;
     reg [31:0] coord_product;
@@ -107,10 +105,7 @@ module bmp_blur_background #(
     wire [23:0] sum_n=accum_q[23:0]+1'b1;
     wire [THUMB_AW-1:0] avg_addr=avg_y*THUMB_WIDTH+avg_x;
     wire [THUMB_AW-1:0] blur_addr=blur_y*THUMB_WIDTH+blur_x;
-    // The interpolation sum feeds a scale, a compare and the output mux, which
-    // put ~6 levels between the multiplier register and sample_rgb and showed up
-    // as both a setup miss and a hold violation on sd_card_clk.  Keep the sum in
-    // its own register and let V_SAVE do only the byte scale.
+    // Register the interpolation sum separately; V_SAVE only scales the byte.
     reg signed [26:0] interpolation_r;
     wire [7:0] normalized=interpolation_r[23:16];
     wire [31:0] brightness=(normalized*BRIGHTNESS_NUM)>>BRIGHTNESS_SHIFT;
@@ -131,11 +126,8 @@ module bmp_blur_background #(
     wire [7:0] c01=channel(p01,color);
     wire [7:0] c10=channel(p10,color);
     wire [7:0] c11=channel(p11,color);
-    // Prepare clamped taps AFTER the current pixel coordinates are registered.
-    // Computing the next x/y, wrapping a row and clamping in the same cycle
-    // made bw -> nyp_q an 11-level setup path. This internal preparation state
-    // costs one clock per thumbnail pixel/pass; ready/valid still waits for
-    // done, and no source pixel or tap is accepted early.
+    // Prepare clamped taps after registering the current coordinates.
+    // One preparation cycle per thumbnail pixel/pass; ready/valid waits for done.
     reg [6:0] nxm_q, nx0_q, nxp_q, nym_q, ny0_q, nyp_q;
     wire [6:0] bxw   = {1'b0, blur_x};
     wire [6:0] byw   = {1'b0, blur_y};
@@ -243,9 +235,7 @@ module bmp_blur_background #(
                         state<=INIT_COMPARE;
                     end
                     INIT_COMPARE:begin
-                        // 2026-10-26：试过把这拍拆成两拍（比较器与两个 32 位选择器
-                        // 分开），仿真全绿但布线结果从 +0.188 ns 掉到 -0.111 ns，
-                        // 净损失，已回退。这里保持单拍。
+                        // 此处分支保持单拍；继续拆分需复核布局布线结果。
                         wide_crop<=aspect_w>=aspect_h;
                         div_bits<=aspect_w>=aspect_h?aspect_h:aspect_w;
                         div_den<=aspect_w>=aspect_h?DST_HEIGHT:DST_WIDTH;

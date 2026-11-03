@@ -104,19 +104,9 @@ module bmp_read_scaled #(
         else if(!waiting || progress) idle_wait<=0;
         else if(idle_wait<WAIT_TIMEOUT_CYCLES) idle_wait<=idle_wait+1'b1;
     end
-    // fail_operation 打一拍再进状态机（2026-10-26）。
-    // 原来它直接作为主状态机 else-if 分支的条件，于是它必然出现在本模块几乎
-    // 每个寄存器的 .ce 项里；而它的一项 wait_expired 是 idle_wait 与
-    // WAIT_TIMEOUT_CYCLES-1 的比较，32 位被映射成 16 级进位链。结果是这条
-    // 进位链串进了整块寄存器的时钟使能树 —— TD 报告的最差 10 条建立路径
-    // 全部从 idle_wait_reg[1] 出发、落在各 xxx_reg.ce 上（SWNS 0.123ns，
-    // 数据路径 9.597ns 里 6.668ns 是布线）。
-    // 打一拍后 ce 树只看见触发器输出，进位链只驱动 fail_q 的 D 端。
-    // fail_q 晚 1 个时钟（100 MHz 下 10ns）才把状态机拉回 IDLE，对外不可见：
-    // abort_sd 是电平、load_error/scan_done 是持久标志、bmp_data_wr_en 仍用
-    // 组合的 fail_operation（写侧不能再晚）。
-    // error_code 的原因在判定当拍锁存到 fail_cause_q，避免一拍后
-    // sd_sec_read_error_q / bad_sector 已经撤销而把编码判错。
+    // 故障判定寄存一拍，隔离超时比较与状态机使能。
+    // bmp_data_wr_en仍使用组合故障条件，故障当拍禁止写入。
+    // 原因码同时锁存，避免下一拍错误输入撤销后丢失原因。
     reg fail_q;
     reg [2:0] fail_cause_q;
     always @(posedge clk or posedge rst) begin
@@ -158,10 +148,7 @@ module bmp_read_scaled #(
     reg [23:0] row_q;
 
     reg [31:0] payload_left;
-    // payload_left 递减到零的时刻原来在 ROW_READY 里现算：32 位归约比较直接
-    // 串进 blur 的 finish -> state 次态锥，是 sd_card_clk 域最差的一条路径
-    // （9.750ns，逻辑 10 级）。这里与 payload_left 同拍维护零标志，四个赋值点
-    // 一起更新，判定结果与 payload_left==0 逐位相同。
+    // 零标志与payload_left同步更新，避免宽归约进入背景完成/状态选择路径。
     reg payload_zero_q;
     reg first_sector, sector_exhausted;
     reg [13:0] row_byte;
@@ -174,9 +161,7 @@ module bmp_read_scaled #(
     reg [1:0] channel;
     reg [7:0] blue, green;
     reg [15:0] fit_w, fit_h, off_x, bottom_rows;
-    // 内容区上边界是整帧常量（off_x+fit_w、bottom_rows+fit_h），原来每像素重新
-    // 相加，4 个加法器串进 bmp_data 的选择锥，构成 top_adc 的建立时序违例。
-    // 预先存成寄存器后比较只剩两个比较器，行为逐位相同。
+    // 内容区上界每帧预先计算，逐像素路径只做比较。
     reg [15:0] content_x_hi, content_y_hi;
     reg fit_width_limited;
     reg [15:0] out_x, out_y, content_y;

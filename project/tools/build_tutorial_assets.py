@@ -155,7 +155,7 @@ def make_card(index,content,font):
             c.box((x,118,78,56),fill='#1b3a4d',r=9)
             c.text_center(x+39,137,label,16)
             c.text_center(x+39,156,sub,11,MUTED)
-        # 缝里用 chevron 而不是小箭头：12~18px 的缝里，箭头的箭头尖只有几像素，认不出来
+        # 12～18 px 间隙使用 chevron，保留低分辨率下的可辨识宽度。
         for x0 in (124,220):
             c.line([(x0,138),(x0+8,146),(x0,154)],ACCENT,3)
     elif index==1:

@@ -2,7 +2,7 @@
 // raw inputs are active high; normalize pin polarity in the board top.
 // Keys: [0] mode, [1] previous, [2] next / auto pause, [3] brightness,
 //       [4] clear the current training session,
-//       [5] subtitle on/off (2026-10-27：外接面板 K7，点动一下翻转，默认开)。
+//       [5] subtitle on/off (panel K7, enabled after reset).
 // Depth: cumulative contacts, 0000 released, 0001 shallow,
 //        0011/0111 target, 1111 deep. Mechanical calibration is external.
 module cpr_control #(

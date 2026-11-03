@@ -1,26 +1,10 @@
 `timescale 1ns/1ps
-//=============================================================================
-// pcm_fifo.v —— PCM 帧异步 FIFO（48 bit：{R[23:0], L[23:0]}）
-//-----------------------------------------------------------------------------
-// 为什么音频这条链必须有一级"跨时钟"的缓冲（对应视频路径里的 SDRAM 帧缓存）：
-//   * 写侧：SD 扇区读跑在 100 MHz（sd_card_clk），节奏是"来一整扇区 128 帧，
-//     然后几百微秒没动静"，突发性极强；
-//   * 读侧：I2S 播放跑在 12.288 MHz 音频时钟域，节奏是"每 256 拍取一帧"，
-//     绝对均匀，一拍都不能断。
-//   两者的瞬时速率比接近 ∞ : 1，靠任何"握手反压"都救不了，必须靠缓冲区把
-//   突发磨平。1024 帧 = 21.3 ms @48 kHz，而读一个扇区只要约 0.2 ms，
-//   余量 ~100 倍，正常播放不可能 underrun。
-//
-// 实现：Cummings 式格雷码指针异步 FIFO
-//   * 指针用格雷码跨域，每次只有 1 bit 变化，不会出现多 bit 亚稳采样；
-//   * 存储体是 1 写 1 读双口，TD 推成 BRAM（1024 深 × 48 bit；16 bit 时代是
-//     ×32，加宽的那 16 bit 就是第二个声道的低 8 位 + 右声道多出来的 8 位）；
-//   * 读侧是"寄存输出"，O_rd_valid 比 I_rd_en 晚一拍——播放侧按这个时序取数；
-//   * 写侧给 O_wr_space，让 wav_reader 以"整扇区"为粒度决定要不要发下一个请求。
-//
-// 注意：O_rd_empty 是"读侧看到的空"，比真实空最多晚 2 拍（同步器延迟），
-// 因此它只会"偏保守地晚一点变空"，绝不会让播放侧读到无效数据。
-//=============================================================================
+// PCM异步FIFO，隔离SD突发写入与MCLK域的固定节拍读取。
+// 写入宽度由WIDTH指定，音频通路使用48位{R[23:0],L[23:0]}。
+// Gray指针经两级同步跨域；存储体为一写一读，读数据寄存输出。
+// O_rd_valid相对接受的读请求晚一拍，O_wr_space供reader按扇区预留空间。
+// 空满及水位使用本域指针与同步后的对端指针，解除空满有同步延迟。
+// 1024帧在48 kHz下约21.3 ms；SD服务间隔超过缓冲时仍会欠载。
 module pcm_fifo #(
     parameter integer WIDTH = 32,
     parameter integer DEPTH = 1024,
@@ -107,12 +91,8 @@ endfunction
 wire [ADDR_DEPTH:0] W_rbin_in_w = gray2bin(S_rgray_w2);
 wire [ADDR_DEPTH:0] W_wbin_in_r = gray2bin(S_wgray_r2);
 
-// 满：写指针 == 读指针"高两位取反"（Cummings 判满的等价形式，用**当前**指针）
-//
-// 注意不能用 W_wgray_next 来判断：W_wgray_next 由 W_wbin_next 算出，而
-// W_wbin_next 里含 ~O_wr_full —— 那样 full 依赖 next、next 依赖 full，
-// 会形成组合环。FIFO 一旦真的写满，环上就会振荡（ModelSim 报
-// vsim-3601 iteration limit）。用当前指针判满既等价又没有环。
+// 当前写Gray指针等于同步读指针高两位取反时为满。
+// 不使用next指针判满：next本身依赖O_wr_full，会形成组合环。
 assign O_wr_full  = (S_wgray == {~S_rgray_w2[ADDR_DEPTH:ADDR_DEPTH-1], S_rgray_w2[ADDR_DEPTH-2:0]});
 assign O_wr_space = DEPTH_C - (S_wbin - W_rbin_in_w);
 

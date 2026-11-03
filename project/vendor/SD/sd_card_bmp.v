@@ -50,12 +50,7 @@ module sd_card_bmp #(
     output                      write_en,
     output [31:0]               write_data,
 
-    /* ------------------------------------------------------------------
-     * SD 扇区读从接口
-     *   原来本模块内部缩着一份 sd_card_top 独占 SD 引脚，WAV 播放没有通道。
-     *   现改为：sd_card_top 提到顶层，本模块与 wav_audio_sd_top 通过
-     *   sd_sec_arbiter 分时共享同一条扇区读通道（BMP 优先、WAV 让路）。
-     * ------------------------------------------------------------------ */
+    // SD扇区读从接口，经顶层sd_sec_arbiter与WAV共享控制器，BMP优先。
     input                       sd_sec_ready,          // 总线空闲可接受请求
     input                       sd_sec_read_error,     // 扇区读错误
     input                       sd_init_done,          // SD 卡初始化完成
@@ -82,7 +77,7 @@ wire [23:0]      bmp_data;
 wire             bmp_ready;
 wire sd_ready, sd_read_error, abort_sd, operation_error;
 
-/* 从接口 → 内部原有信号名（保持后续逻辑一字不改） */
+// 扇区接口别名
 assign sd_ready       = sd_sec_ready;
 assign sd_read_error  = sd_sec_read_error;
 assign sd_read_cancel = abort_sd;
@@ -150,23 +145,8 @@ function [3:0] cache_mask_for_count;
     end
 endfunction
 
-/* ---------------------------------------------------------------------------
- * 页请求信号的就近再生（2026-10-26）
- * ---------------------------------------------------------------------------
- * page_request / page_pending 的源 FF 在 u_pages(cpr_page_manager) 里，而消费
- * 它们的调度逻辑在 sd_card_bmp 顶层。td 的 route_timing_summary 显示 page_pending
- * 这条线扇出 11、单条布线 2.14 ns，紧接着的 target[0] 扇出 32、又 2.26 ns ——
- * 100 MHz(10 ns) 下一半预算被两条长线吃掉，top_adc 的 setup 就是断在
- *   request_pending → page_pending → target[0] → sector_lut → load_sector[16]
- * 这条链上（-0.013 ns，逻辑只有 6 级，纯布线问题）。
- *
- * 处理办法：在本地各打一拍再进调度逻辑。语义只是"晚一个周期看到请求"，
- * 而这两个都是**电平**（一直挂着直到 request_accept / 请求被接受），所以功能
- * 不变；换来的是长线后面接一个单负载 FF（td 会把它摆在源 FF 旁边），
- * 关键路径从 page_pending_q 重新起算，等于把 2.1 ns 的线延从路径里摘掉。
- * 注意：对外回给 u_pages 的 page_accept 仍用未延迟的 page_request（握手的
- * 那一侧保持原时序），只有本层的"要不要开始装这一页"延后一拍。
- * ------------------------------------------------------------------------- */
+// 在本地寄存页请求和pending，隔离u_pages长布线与装载调度路径。
+// 两者为持续电平，调度延后一拍；page_accept仍使用原始page_request。
 reg page_request_q, page_pending_q;
 always @(posedge clk or posedge rst) begin
     if (rst) begin page_request_q<=0; page_pending_q<=0; end

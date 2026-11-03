@@ -1,39 +1,10 @@
 
-// ============================================================================
-// sd_card_cmd.v —— SD 卡的"命令层"（第5站的层2）
-//
-// 【职责】把上层给的"48 位命令"拆成 SPI 层能发的 6 个字节发出去，然后等卡的
-//         R1 响应；如果这条命令还带数据（如 CMD8），再负责收发那段数据。
-//         它**不关心"为什么要发这条命令"** —— 那是层3 的事。
-//
-// 【位置】sd_card_sec_read_write（层3） → 本模块（层2） → spi_master（层1）
-//         本模块是唯一直接驱动 SPI 层的地方，所以协议细节都收在这里。
-//
-// 【状态机一览】每个状态只干一件事，靠 spi_wr_ack（"这个字节发完了"）驱动前进：
-//   S_IDLE          复位后的起点：设分频、把 CS 拉高
-//   S_INIT          上电空发 11 个 0xFF（88 个时钟），满足规范"≥74 个时钟"且 CS 保持高
-//   S_WAIT          空闲，等三种请求之一（命令 / 扇区读 / 扇区写）
-//   S_CMD_PRE       发命令前先垫一个 0xFF
-//   S_CMD           发 6 字节命令帧 → 然后等 R1 响应（带超时保护）
-//   S_CMD_DATA      收发命令附带的数据（CMD8 有 4 字节）
-//   S_READ_WAIT     等数据起始令牌 0xFE
-//   S_READ          收 512 字节数据 + 2 字节 CRC（合计 514）
-//   S_READ_ACK      通知层3：一个扇区读完了
-//   S_WRITE_TOKEN   发写起始令牌 0xFE
-//   S_WRITE_DATA_0  请上层给下一个字节（停一拍，产生 block_write_data_rd）
-//   S_WRITE_DATA_1  把这个字节发出去
-//   S_WRITE_CRC     发 2 字节 CRC（内容不检查，填 0xFF）
-//   S_WRITE_SUC     等卡的 Data Response，检查低 5 位是否 00101（= 数据已接受）
-//   S_WRITE_BUSY    等卡忙结束（MISO 回到 0xFF）
-//   S_WRITE_ACK     通知层3：一个扇区写完了
-//   S_ERR           响应超时、或 R1 不是期望值 → 置 cmd_req_error
-//   S_END           本次命令流程结束，产生 cmd_req_ack
-//
-// 【信号性质】请求（cmd_req / block_read_req / block_write_req）是**电平**，
-//             本模块在 S_WAIT 状态采样；应答（cmd_req_ack 等）是**只高一拍的脉冲**。
-//             这是全工程的统一约定，写上层时要记住。
-// ============================================================================
-
+// SD命令与数据块的SPI传输，连接sd_card_sec_read_write和spi_master。
+// 命令拆成6字节发送，等待R1及命令附带数据；读取块等待0xFE令牌，
+// 接收512字节数据和2字节CRC。写块发送数据/CRC后检查响应并等待卡退出忙态。
+// 初始化阶段CS保持高，发送11个0xFF（88个时钟）。
+// 请求为电平，在S_WAIT采样；应答为单拍脉冲。
+// 命令、令牌与SPI等待有超时保护，read_cancel用于中止读取。
 module sd_card_cmd #(
     parameter integer TOKEN_TIMEOUT_CYCLES = 10_000_000,
     parameter integer SPI_TIMEOUT_CYCLES = 1_000_000

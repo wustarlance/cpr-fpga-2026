@@ -1,68 +1,12 @@
 `timescale 1ns/1ps
-//=============================================================================
-// wav_audio_sd_top.v —— 上板用的一层皮：SD 扇区读口 + wav_audio_path
-//-----------------------------------------------------------------------------
-// 分工（2026-10-22 改为"一份 SD 控制器"方案）：
-//   sd_card_top    **不在本文件里**。统一框架里只保留一份 SD 控制器，
-//                  由它驱动 SPI 引脚，本层只接它的扇区读从接口。
-//   wav_audio_path 只管"怎么读 → 怎么放 → 怎么直接送 HDMI（ACR 自带）"，
-//                  另有 I2S 三线可引到引脚做观测，但不参与 HDMI 数据
-//
-// 所以本层不再有 SD_nCS/SD_DCLK/SD_MOSI/SD_MISO，也没有 SPI 分频参数。
-// 上板时在框架顶层这样接（只有一份 sd_card_top）：
-//
-//   sd_card_top u_sd ( ... .sd_init_done      (W_sd_init_done),
-//                          .sd_sec_read        (W_sec_read),
-//                          .sd_sec_read_addr   (W_sec_addr),
-//                          .sd_sec_read_data   (W_sec_data),
-//                          .sd_sec_read_data_valid (W_sec_valid),
-//                          .sd_sec_read_end    (W_sec_end) );
-//
-//   wav_audio_sd_top u_audio ( ... .I_sd_init_done  (W_sd_init_done),
-//                                  .O_sd_sec_addr   (W_sec_addr),
-//                                  .O_sd_sec_read   (W_sec_read),
-//                                  .I_sd_sec_data   (W_sec_data),
-//                                  .I_sd_sec_valid  (W_sec_valid),
-//                                  .I_sd_sec_end    (W_sec_end) );
-//
-// 时钟（与参考工程一致，三个域都要给）：
-//   I_sd_clk     100 MHz    sys_pll clk0
-//   I_mclk       12.288 MHz PLL_HDMI_AUDIO（工程实际 12.295082 → fs 48027 Hz）
-//   I_video_clk  25.175 MHz video_pll clk0 = 像素时钟
-//
-// 复位：三个域各一个，建议都接到 reset_release 的输出（各自同步释放），
-// 高有效。
-//
-// 典型接法：
-//   .O_audio_valid / O_audio_left_data / O_audio_right_data → HDMI 核 I_audio_*
-//   .O_acr_valid / O_acr_cts / O_acr_n                      → HDMI 核 I_acr_*
-//   ACR 已在本层算好，框架里原来的 audio_arc_calculate 可以不例化。
-//
-// 五段音频 = 一个 3 bit 选曲口（2026-10-26 扩到 5 段）：
-//   input     I_audio_sel[2:0]   0..3 → 该页 WAV；4 → FREE_SONG（自动轮播模式）
-//   内部 5 选 1 后送 wav_audio_path 的 I_start_sector，并且**换码那一拍自动
-//   发一次重启**（abort→start），重新锁存新扇区、清两侧 FIFO，所以外部只
-//   需要接对 I_audio_sel，不需要自己产生 I_stop。
-//   为什么选曲口是"码"而不是"页号 + 模式标志"：换模式（手动↔自动轮播）
-//   正好等于换一次曲，交给同一套 restart 就够，本层与下层都不用理解模式。
-//
-//   五个首扇区 **不在本层定义**，也不在本层透传：唯一一处是
-//   rtl/audio/wav_track_select.v 的 module 参数默认值 PICTURE_1..4 + FREE_SONG。
-//   本层例化它时不写参数覆盖，所以"填哪儿"只有那一个地方，不会出现
-//   "顶层改了但中间层默认值把它盖回去"这类问题。要换扇区就改那一个文件。
-//
-// 训练模式的心跳（2026-10-25）：
-//   走**片内合成**（heartbeat_synth，见 wav_audio_path 第 5.5 节），不读卡：
-//   I_heart_en 就是音频口那个 2:1 选择器的选择端 —— 1 出"咚—哒"、0 出该页
-//   WAV（训练模式即"屏蔽该页音频、只播心跳"）。没有混音、没有淡化。
-//   FREE_SONG 是自动轮播模式的曲子，与训练模式无关（训练时不读卡）。
-//
-// 与厂商 sd_card_top 的接口边界（2026-10-21 修正）：
-//   厂商原文件只有 sd_sec_read(电平请求) / sd_sec_read_end(结束) / data_valid，
-//   **没有** ready、read_error、read_cancel，也没有 TOKEN/SPI 超时参数。
-//   所以本层把 ready 常量 1、error 常量 0 接进去；真正的出错检测靠
-//   wav_reader 自己的 WAIT_TIMEOUT_CYCLES（1 s 无进展 → ERR_TIMEOUT）。
-//=============================================================================
+// 音频读卡与播放封装：选曲、PCM通路及HDMI ACR输出。
+// SD控制器在顶层，由sd_sec_arbiter与BMP共享；本模块仅使用扇区读接口。
+// I_audio_sel的0..3选教程WAV，4选自动展播背景曲；首LBA见wav_track_select。
+// 选曲变化走abort/start，重新锁存首扇区并清FIFO；暂停状态保持。
+// I_heart_en选择片内合成心跳，训练时无需读取WAV。
+// 三个时钟域分别为SD、MCLK和视频，复位由上层各域同步释放。
+// PCM帧率为MCLK/256。O_audio_*和O_acr_*直接连接HDMI核。
+// 扇区ready来自仲裁器，错误输入固定0，读取超时由wav_reader检测。
 module wav_audio_sd_top #(
     parameter integer MCLK_HZ                          = 12_288_000,
     parameter integer pcm_bits                         = 24,        // 送 HDMI 核的样本位宽
@@ -95,8 +39,6 @@ module wav_audio_sd_top #(
     input  wire        I_sd_sec_valid,
     input  wire        I_sd_sec_end,
 
-    /* ---- I2S 三线已删除（2026-10-22）：HDMI 走 PCM 直连，无需串行口 ---- */
-
     /* ---- 送 HDMI 1.4b 核 ---- */
     output wire                    O_audio_valid,
     output wire [pcm_bits-1:0]     O_audio_left_data,
@@ -127,7 +69,7 @@ module wav_audio_sd_top #(
 wire [31:0] W_track_sector;
 wire        W_track_changed;
 
-// 不写参数覆盖：扇区表就用 wav_track_select 的 module 默认值（唯一一处定义）。
+// 使用wav_track_select的默认扇区表。
 wav_track_select u_track (
     .I_clk       (I_sd_clk),
     .I_rst       (I_sd_rst),
@@ -136,10 +78,7 @@ wav_track_select u_track (
     .O_changed   (W_track_changed)
 );
 
-// 换页 = 停止 + 重新开始：重新锁存新扇区、清两侧 FIFO。
-// 与 I_stop（外部停止，现由顶层接 1'b0）共用同一条 abort→start 路径，不新增状态机。
-// 注意暂停位不在这里恢复：换页时若正处在暂停，换完仍然是暂停，
-// 继续播才从新曲开头出声（位置已在文件头）。
+// 外部停止和换曲共用abort/start。暂停时换页，恢复后从新曲开头播放。
 wire W_path_stop = I_stop | W_track_changed;
 
 /* ------------------------------------------------------------------------ */
